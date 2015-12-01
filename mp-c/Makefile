@@ -8,12 +8,11 @@
 #  
 #----------------------------------------------------------------------------
 # On command line:
-#
-# make all = Make software.
-#
-# make clean = Clean out built project files.
+# >make help 
 #----------------------------------------------------------------------------
 
+# Project Licence (GPL, GPLv2, MIT, BSD, Apache, etc.). 
+LICENCE = GPLv2
 
 # Target file name (without extension).
 TARGET = makeplate
@@ -136,7 +135,9 @@ ASFLAGS = $(ADEFS) -Wa,-adhlns=$(<:%.S=$(OBJDIR)/%.lst),-gstabs,--listing-cont-l
 #  -Wl,...:     tell GCC to pass this to linker.
 #    -Map:      create map file
 #    --cref:    add cross reference to  map file
-LDFLAGS  = -Wl,-Map=$(OUTDIR)/$(TARGET).map,--cref
+LDFLAGS  = -Wl
+LDFLAGS += -Map=$(OUTDIR)/$(TARGET).map
+LDFLAGS += --cref
 LDFLAGS += $(EXTMEMOPTS)
 #LDFLAGS += -T linker_script.x
 
@@ -151,10 +152,14 @@ LDFLAGS += $(EXTMEMOPTS)
 SHELL     = bash
 REMOVE    = rm -f
 REMOVEDIR = rm -rf
-COPY      = cp
+COPY      = cp -f 
+MOVE      = mv -f
 WINSHELL  = cmd
 MKDIR     = mkdir -p
 SED       = sed
+MOC       = moc
+
+QMAKE     = qmake
 
 CTEMPLATE = script/ctemplate
 
@@ -434,9 +439,8 @@ debug:  ## Debug application
 #$(shell echo "Kalle");
 #endef
 
-#newfile:  # Create a new C file
-#  $(call kalle1,1,2)	
-#	@${CTEMPLATE} cfile src
+newfile:  ## Create a new C file
+	@${CTEMPLATE} cfile src 
 
 	
 install: ## Install program

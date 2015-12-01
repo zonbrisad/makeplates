@@ -92,50 +92,45 @@ newhfile() {
 
 addSection() {
   echo -e "/**\n"   \
-	        "* $1\n"  \
-	        "*------------------------------------------------------------------\n" \
-					"*/\n" >> $2
+          "* $1\n"  \
+          "*------------------------------------------------------------------\n" \
+  				"*/\n" >> $2
 }
 
 addSections() {
   addSection "Defines"   $1
-	addSection "Variables" $1
-	addSection "Body"      $1
+  addSection "Variables" $1
+  addSection "Body"      $1
 }
 
 addHeader() {
-	# creating files
-	echo "Creating $1"
-	cat ${BASEDIR}/header.txt > $1
+  # creating files
+  echo "Creating $1"
+  cat ${BASEDIR}/header.txt > $1
 }
 
 addSentinel() {
-	# adding sentintels to h file
+  # adding sentintels to h file
   sentinel=${filename^^}_H
   echo "#ifndef $sentinel" >> $1
-	echo -e "#define $sentinel\n\n\n" >> $1
-	echo "#endif" >> $1
+  echo -e "#define $sentinel\n\n\n" >> $1
+  echo "#endif" >> $1
 
-}
-
-test() { ## Test command
-  read -e -i "Y" -p "Test [YN] >" aa 
-	echo "Test " $aa
 }
 
 cfile() { ## Create a new C file
 
   # get the filenames
   read -p "Name of new C file: >" filename
-	sourcefile=$2/${filename}.c
-	headerfile=$2/${filename}.h
-	hfile=${filename}.h
+  sourcefile=$2/${filename}.c
+  headerfile=$2/${filename}.h
+  hfile=${filename}.h
 	
-	# timestamp
-	ts=`date +"%Y-%m-%d %H:%M:%S"`
+  # timestamp
+  ts=`date +"%Y-%m-%d %H:%M:%S"`
 	
-	# creating files
-	echo "Creating $sourcefile"
+  # creating files
+  echo "Creating $sourcefile"
 	cat ${BASEDIR}/header.txt > $sourcefile
 	echo "Creating $headerfile"
 	cat ${BASEDIR}/header.txt > $headerfile
@@ -143,27 +138,30 @@ cfile() { ## Create a new C file
   # adding include to c file
 	echo -e "\n#include \"$hfile\"\n" >> $sourcefile
 	
-	# add sentintels to header file
-	addSentinel $headerfile
+  # add sentintels to header file
+  addSentinel $headerfile
 	
-	# add section to c file
-	addSections $sourcefile
+  # add section to c file
+  addSections $sourcefile
 
-	# setting tags
-	setTag __FILE__ $(basename $sourcefile) $sourcefile
-	setTag __FILE__ $(basename $headerfile) $headerfile
-	setTag __DATE__ "${ts}" $sourcefile
-	setTag __DATE__ "${ts}" $headerfile
+  # setting tags
+  setTag __FILE__ $(basename $sourcefile) $sourcefile
+  setTag __FILE__ $(basename $headerfile) $headerfile
+  setTag __DATE__ "${ts}" $sourcefile
+  setTag __DATE__ "${ts}" $headerfile
 
-	
-#	printLine
-#	cat $headerfile
-#	cat $sourcefile
-#	printLine
 }
 
 cppfile() { ## Create a new C++ file
   sleep 1
+}
+
+setAuthor() { ## Set author
+  setTag "__AUTHOR__" "$3" $2
+}
+
+setLicence() { ## Set Licence
+  setTag "__LICENCE__" "$3" $2
 }
 
 
@@ -184,7 +182,7 @@ bpLog() {
 	fi
 }
 
-log() { ## View logfile
+log() { # View logfile
   D=$(sed -r -e "s|\[Info\]|\[\\${E_INFO}Info\\${E_END}\]|"  \
 	        -e "s|\[Warn\]|\[\\${E_WARNING}Warn\\${E_END}\]|"  \
 	        -e "s|\[Erro\]|\[\\${E_ERROR}Erro\\${E_END}\]|"    \
@@ -248,7 +246,7 @@ help() { ## Print this help information
 	echo
 }
 
-version() { ## Print version information
+version() { # Print version information
   echo $VERSION
 }
 
@@ -270,7 +268,7 @@ runCommand() {
 	for line in ${funks[@]}; do
 	  command=`echo $line | sed -s 's/(.*//'`
 		if [ "$command" == "$1" ]; then
-		  $command $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
+		  $command "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8" "$9" "$10"
 			exit
 		fi
 	done
@@ -279,4 +277,4 @@ runCommand() {
 	exit 
 }
 
-runCommand $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
+runCommand "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8" "$9" "$10"
