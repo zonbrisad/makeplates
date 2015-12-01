@@ -321,7 +321,7 @@ $(OBJDIR)/%.s : %.cpp
 
 # Create output dir
 $(OUTDIR):
-	$(MKDIR) $@
+	@$(MKDIR) $@
 
 
 #
