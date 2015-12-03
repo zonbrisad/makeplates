@@ -44,12 +44,12 @@ static gboolean opt_threadTest = FALSE;
 static GOptionEntry entries[] = {
 	//  { "repeats",  'r', 0, G_OPTION_ARG_INT,  &repeats,   "Average over N repetitions", "N" },
   //  { "max-size", 'm', 0, G_OPTION_ARG_INT,  &max_size,  "Test up to 2^M items", "M" },
-  { "verbose",  'v', 0, G_OPTION_ARG_NONE, &opt_verbose,   "Be verbose output",    NULL },
-  { "version",  'b', 0, G_OPTION_ARG_NONE, &opt_version,   "Output version info",  NULL },
-  { "quiet",    'q', 0, G_OPTION_ARG_NONE, &opt_quiet,     "No output to console", NULL },
-  { "daemon",    0,  0, G_OPTION_ARG_NONE, &opt_daemon,    "Start as daemon",      NULL },
-	{ "error",     0,  0, G_OPTION_ARG_NONE, &opt_errorTest, "Error test",           NULL },
-	{ "thread",    0,  0, G_OPTION_ARG_NONE, &opt_thread,    "Thread test",          NULL },	
+  { "verbose",  'v', 0, G_OPTION_ARG_NONE, &opt_verbose,    "Be verbose output",    NULL },
+  { "version",  'b', 0, G_OPTION_ARG_NONE, &opt_version,    "Output version info",  NULL },
+  { "quiet",    'q', 0, G_OPTION_ARG_NONE, &opt_quiet,      "No output to console", NULL },
+  { "daemon",    0,  0, G_OPTION_ARG_NONE, &opt_daemon,     "Start as daemon",      NULL },
+	{ "error",     0,  0, G_OPTION_ARG_NONE, &opt_errorTest,  "Error test",           NULL },
+	{ "thread",    0,  0, G_OPTION_ARG_NONE, &opt_threadTest, "Thread test",          NULL },	
 	
   { NULL }
 };
