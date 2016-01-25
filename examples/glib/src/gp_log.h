@@ -19,8 +19,17 @@ extern "C" {
    */
   void gp_log_init();
 	
+	
+	/**
+	 *  Set verbose mode
+	 */
 	void gp_log_set_verbose(gboolean v);
 
+	
+	/**
+	 * Close down log system
+	 */
+	void gp_log_close();
 
 #ifdef	__cplusplus
 }

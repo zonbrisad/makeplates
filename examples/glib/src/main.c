@@ -54,12 +54,22 @@ static GOptionEntry entries[] = {
   { NULL }
 };
 
-
+/*
+typedef struct kalle {
+  *fun(void )
+}
+*/
 /**
  *
  *---------------------------------------------------------------------------
  */
- 
+
+
+void safeExit() {
+  gp_log_close();
+	exit(0);
+}
+
 void errorTest() {
 	gp_log_set_verbose(TRUE);
 //  g_info("This is information\n");
