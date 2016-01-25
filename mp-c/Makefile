@@ -158,9 +158,7 @@ WINSHELL  = cmd
 MKDIR     = mkdir -p
 SED       = sed
 MOC       = moc
-
 QMAKE     = qmake
-
 CTEMPLATE = script/ctemplate
 
 # Toolchain base directory
@@ -178,6 +176,8 @@ SIZE      = ${TCHAIN}size
 AR        = ${TCHAIN}ar rcs
 NM        = ${TCHAIN}nm
 
+# Backup directory
+BACKUP_DIR=backup
 
 #
 # Message settings
@@ -365,13 +365,13 @@ archive: ## Make a tar archive of the source code
 	     --exclude='.svn'    \
 	     --exclude='.git'    \
 	     --exclude='*.elf'   \
-			 --exclude='*.hex'   \
-			 --exclude='*.bin'   \
-			 --exclude='*.sym'   \
-			 --exclude='*.lss'   \
+ 	     --exclude='*.hex'   \
+	     --exclude='*.bin'   \
+	     --exclude='*.sym'   \
+	     --exclude='*.lss'   \
 	     --exclude='*.map'   \
 	     --exclude='*~'      \
-			 --exclude=".old"    \
+	     --exclude=".old"    \
 
 # Backup directory
 BACKUP_DIR=backup
@@ -434,13 +434,12 @@ debug:  ## Debug application
 #	@$(MKDIR) doc
 #	@$(MKDIR) backup
 
-
-#define kalle1
-#$(shell echo "Kalle");
-#endef
-
 newfile:  ## Create a new C file
-	@${CTEMPLATE} cfile src 
+#	@read -p "Name of new C file: >" FN
+	@read -p "Name of new C file: >" FN; \
+	export $FN
+	@echo $${USER}
+#	@${CTEMPLATE} cfile src 
 
 	
 install: ## Install program
@@ -499,13 +498,15 @@ info: list-info list-flags list-ldflags list-src ## Print information about proj
 #============================================================================
 
 # Only for default settings. Change value in settings.mk
-AUTHOR=Peter Malmberg <peter.malmberg@gmail.com>
+AUTHOR=Your Name <your.name@yourdomain.org>
 EDITOR=jed
+US:=$$USER
+#PERSONAL=personal_$${USER}.mk
 PERSONAL=personal.mk
 
 # Include some external settings
 # If file does not exist it will be generated.
-include $(PERSONAL)
+include  ${PERSONAL}
 
 $(PERSONAL):	# Create a settings file
 	@echo "#" > ${PERSONAL}

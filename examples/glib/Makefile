@@ -4,15 +4,15 @@
 # General Makefile template.
 #
 # author: Peter Malmberg <peter.malmberg@gmail.com>
+#
 #  
 #----------------------------------------------------------------------------
 # On command line:
-#
-# make all = Make software.
-#
-# make clean = Clean out built project files.
+# >make help 
 #----------------------------------------------------------------------------
 
+# Project Licence (GPL, GPLv2, MIT, BSD, Apache, etc.). 
+LICENCE = GPLv2
 
 # Target file name (without extension).
 TARGET = glibtest
@@ -152,11 +152,14 @@ LDFLAGS += $(EXTMEMOPTS)
 SHELL     = bash
 REMOVE    = rm -f
 REMOVEDIR = rm -rf
-COPY      = cp
+COPY      = cp -f 
+MOVE      = mv -f
 WINSHELL  = cmd
 MKDIR     = mkdir -p
-EDITOR    = jed
 SED       = sed
+MOC       = moc
+QMAKE     = qmake
+CTEMPLATE = script/ctemplate
 
 # Toolchain base directory
 TCHAIN_BASE=/usr/bin
@@ -323,7 +326,7 @@ $(OBJDIR)/%.s : %.cpp
 
 # Create output dir
 $(OUTDIR):
-	$(MKDIR) $@
+	@$(MKDIR) $@
 
 
 #
@@ -348,7 +351,7 @@ clean:  ## Remove all build files
 	@find . -name *~ -delete
 
 
-archive: ## Make a archive file of the source code
+archive: ## Make a tar archive of the source code
 	@echo
 	@echo -e $(MSG_ARCHIVING)
 	@$(MKDIR) archive
@@ -362,13 +365,13 @@ archive: ## Make a archive file of the source code
 	     --exclude='.svn'    \
 	     --exclude='.git'    \
 	     --exclude='*.elf'   \
-			 --exclude='*.hex'   \
-			 --exclude='*.bin'   \
-			 --exclude='*.sym'   \
-			 --exclude='*.lss'   \
+ 	     --exclude='*.hex'   \
+	     --exclude='*.bin'   \
+	     --exclude='*.sym'   \
+	     --exclude='*.lss'   \
 	     --exclude='*.map'   \
 	     --exclude='*~'      \
-			 --exclude=".old"    \
+	     --exclude=".old"    \
 
 # Backup directory
 BACKUP_DIR=backup
@@ -413,10 +416,8 @@ edit:   ## Open source and makefile in editor
 run:    ## Run application
 	@output/$(TARGET)
 
-splint: 
-	@echo
-	@echo
-	splint src/main.c
+debug:  ## Debug application
+
 
 # Include the dependency files.
 -include $(shell mkdir .dep 2>/dev/null) $(wildcard .dep/*)
@@ -433,16 +434,6 @@ splint:
 #	@$(MKDIR) output
 #	@$(MKDIR) doc
 #	@$(MKDIR) backup
-
-
-#
-# Help information
-#============================================================================
-
-
-#define kalle1
-#$(shell echo "Kalle");
-#endef
 
 newfile:  ## Create a new C file
 	@${CTEMPLATE} cfile src
@@ -506,11 +497,13 @@ info: list-info list-flags list-ldflags list-src ## Print information about proj
 # Only for default settings. Change value in settings.mk
 AUTHOR=Peter Malmberg <peter.malmberg@gmail.com>
 EDITOR=jed
+US:=$$USER
+#PERSONAL=personal_$${USER}.mk
 PERSONAL=personal.mk
 
 # Include some external settings
 # If file does not exist it will be generated.
-include $(PERSONAL)
+include  ${PERSONAL}
 
 $(PERSONAL):	# Create a settings file
 	@echo "#" > ${PERSONAL}

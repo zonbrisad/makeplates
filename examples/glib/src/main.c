@@ -62,7 +62,7 @@ static GOptionEntry entries[] = {
  
 void errorTest() {
 	gp_log_set_verbose(TRUE);
-  g_info("This is information\n");
+//  g_info("This is information\n");
   g_message("This is message\n");
   g_warning("This is warning\n");
   g_debug("This is debug\n");
