@@ -1,8 +1,7 @@
 #!/bin/bash
 #---------------------------------------------------------------------
 #
-# A simple template for bash shellscripts with help information, 
-# color coding etc.
+# ctemplate is c language code generator.
 #
 # Author: Peter Malmberg <peter.malmberg@gmail.com>
 #
@@ -126,6 +125,16 @@ cfile() { ## Create a new C file
   headerfile=$2/${filename}.h
   hfile=${filename}.h
 	
+	if [ -f $sourcefile ]; then
+	  bpError "File $sourcefile already exist."
+		exit
+	fi
+
+	if [ -f $headerfile ]; then
+	  bpError "File $sourcefile already exist."
+		exit
+	fi
+
   # timestamp
   ts=`date +"%Y-%m-%d %H:%M:%S"`
 	
@@ -149,7 +158,11 @@ cfile() { ## Create a new C file
   setTag __FILE__ $(basename $headerfile) $headerfile
   setTag __DATE__ "${ts}" $sourcefile
   setTag __DATE__ "${ts}" $headerfile
-
+	setTag __AUTHOR__ "$3" $sourcefile
+	setTag __AUTHOR__ "$3" $headerfile
+	setTag __LICENCE__ "$4" $sourcefile
+	setTag __LICENCE__ "$4" $headerfile
+	
 }
 
 cppfile() { ## Create a new C++ file
@@ -201,17 +214,17 @@ bpInfo() {
 
 bpWarning() {
   bpLog "[Warn] $1"
-  echo -e "[${E_WARNING}Warn${E_END}] $1"
+  echo -e "[${E_WARNING}Warning${E_END}] $1"
 }
 
 bpError() {
   bpLog "[Erro] $1"
-  echo -e "[${E_ERROR}Erro${E_END}] $1"
+  echo -e "[${E_ERROR}Error${E_END}] $1"
 }
 
 bpCritical() {
   bpLog "[Crit] $1"
-  echo -e "[${E_CRITICAL}Crit${E_END}] $1"
+  echo -e "[${E_CRITICAL}Critical${E_END}] $1"
 	exit
 }
 

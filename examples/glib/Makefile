@@ -137,12 +137,11 @@ ASFLAGS = $(ADEFS) -Wa,-adhlns=$(<:%.S=$(OBJDIR)/%.lst),-gstabs,--listing-cont-l
 #  -Wl,...:     tell GCC to pass this to linker.
 #    -Map:      create map file
 #    --cref:    add cross reference to  map file
-LDFLAGS = -Wl,-Map=$(OUTDIR)/$(TARGET).map,--cref
+LDFLAGS  = -Wl
+LDFLAGS += -Map=$(OUTDIR)/$(TARGET).map
+LDFLAGS += --cref
 LDFLAGS += $(EXTMEMOPTS)
 #LDFLAGS += -T linker_script.x
-
-
-
 
 #
 # Tool settings
@@ -175,9 +174,6 @@ OBJDUMP   = ${TCHAIN}objdump
 SIZE      = ${TCHAIN}size
 AR        = ${TCHAIN}ar rcs
 NM        = ${TCHAIN}nm
-
-# Backup directory
-BACKUP_DIR=backup
 
 #
 # Message settings
@@ -263,7 +259,8 @@ bin: $(OUTDIR)/$(TARGET).bin
 
 # Eye candy.
 begin:
-	@echo
+#	@echo
+	@echo -e "$(E_BR_GREEN)Building:     $(TARGET) $(E_END)"
 	@echo -e $(MSG_BEGIN)
  
 end:
@@ -422,25 +419,11 @@ debug:  ## Debug application
 # Include the dependency files.
 -include $(shell mkdir .dep 2>/dev/null) $(wildcard .dep/*)
 
-
-#splint: 
-#	@echo
-#	@echo
-#	splint src/main.c
-
-
-#newproj: # Create a new project
-#	@$(MKDIR) src
-#	@$(MKDIR) output
-#	@$(MKDIR) doc
-#	@$(MKDIR) backup
-
 newfile:  ## Create a new C file
-	@${CTEMPLATE} cfile src
-
+	@${CTEMPLATE} cfile src "$(AUTHOR)" "$(LICENCE)"
 	
 install: ## Install program
-#	@cp output/${TARGET} /usr/local/bin
+	@${COPY} output/${TARGET} /usr/local/bin
 
 #
 # Help information
