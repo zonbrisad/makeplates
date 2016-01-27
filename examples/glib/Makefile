@@ -137,12 +137,11 @@ ASFLAGS = $(ADEFS) -Wa,-adhlns=$(<:%.S=$(OBJDIR)/%.lst),-gstabs,--listing-cont-l
 #  -Wl,...:     tell GCC to pass this to linker.
 #    -Map:      create map file
 #    --cref:    add cross reference to  map file
-LDFLAGS = -Wl,-Map=$(OUTDIR)/$(TARGET).map,--cref
+LDFLAGS  = -Wl
+LDFLAGS += -Map=$(OUTDIR)/$(TARGET).map
+LDFLAGS += --cref
 LDFLAGS += $(EXTMEMOPTS)
 #LDFLAGS += -T linker_script.x
-
-
-
 
 #
 # Tool settings
@@ -175,9 +174,6 @@ OBJDUMP   = ${TCHAIN}objdump
 SIZE      = ${TCHAIN}size
 AR        = ${TCHAIN}ar rcs
 NM        = ${TCHAIN}nm
-
-# Backup directory
-BACKUP_DIR=backup
 
 #
 # Message settings
@@ -263,7 +259,8 @@ bin: $(OUTDIR)/$(TARGET).bin
 
 # Eye candy.
 begin:
-	@echo
+#	@echo
+	@echo -e "$(E_BR_GREEN)Building:     $(TARGET) $(E_END)"
 	@echo -e $(MSG_BEGIN)
  
 end:
@@ -299,10 +296,28 @@ $(OUTDIR)/$(TARGET): $(OBJS) $(OUTDIR)
 	@echo -e $(MSG_SYMBOL_TABLE) "\n             $(E_BR_CYAN)" $@ "$(E_END)"
 	@$(NM) -n $< > $@
 
+
+#while read x ; do echo $x ; done \
+#| sed -e "s/.*error:.*/\x1b[1;36m&\x1b[0m/" \
+#-e "s/.*warning:.*/\x1b[1;36m&\x1b[0m/" \
+#-e "s/^\(.*\)\(required from\)/\x1b[1;36m\1\x1b[0mnote: \2/" \
+#-e "s/^\(.*\)\(In instantiation of\)/\x1b[1;36m\1\x1b[0mnote: \2/" \
+#-e "s/^\(.*\)\(In member\)/\x1b[1;36m\1\x1b[0mnote: \2/" \
+#| sed -e "s/error:/\x1b[1;31m&\x1b[1;36m/" \
+#-e "s/warning:/\x1b[1;35m&\x1b[1;36m/" \
+#-e "s/note:/\x1b[1;30m&\x1b[0m/"
+
+COLORFILTER = sed -e "s/.*error:.*/$(E_BR_RED)&$(E_END)/" \
+                  -e "s/.*warning:.*/$(E_BR_YELLOW)&$(E_END)/" 
+           
+	
+
 # Compile: create object files from C source files.
 $(OBJDIR)/%.o : %.c
 	@echo -e $(MSG_COMPILING) "$(E_BR_CYAN)" $< "$(E_END)"
-	@$(CC) -c $(ALL_CFLAGS) $< -o $@ 
+#	@$(CC) -c $(ALL_CFLAGS) $< -o $@ 2>&1 | sed -e "s/error/$(E_BR_RED)&$(E_END)/"
+	@$(CC) -c $(ALL_CFLAGS) $< -o $@ 2>&1 | sed -re 's/.*error:.*/$(E_BR_RED)&$(E_END)/'
+#	@$(CC) -c $(ALL_CFLAGS) $< -o $@ 2>&1 | $(COLORFILTER)
 
 # Compile: create object files from C++ source files.
 $(OBJDIR)/%.o : %.cpp
@@ -422,25 +437,11 @@ debug:  ## Debug application
 # Include the dependency files.
 -include $(shell mkdir .dep 2>/dev/null) $(wildcard .dep/*)
 
-
-#splint: 
-#	@echo
-#	@echo
-#	splint src/main.c
-
-
-#newproj: # Create a new project
-#	@$(MKDIR) src
-#	@$(MKDIR) output
-#	@$(MKDIR) doc
-#	@$(MKDIR) backup
-
 newfile:  ## Create a new C file
-	@${CTEMPLATE} cfile src
-
+	@${CTEMPLATE} cfile src "$(AUTHOR)" "$(LICENCE)"
 	
 install: ## Install program
-#	@cp output/${TARGET} /usr/local/bin
+	@${COPY} output/${TARGET} /usr/local/bin
 
 #
 # Help information
