@@ -296,10 +296,28 @@ $(OUTDIR)/$(TARGET): $(OBJS) $(OUTDIR)
 	@echo -e $(MSG_SYMBOL_TABLE) "\n             $(E_BR_CYAN)" $@ "$(E_END)"
 	@$(NM) -n $< > $@
 
+
+#while read x ; do echo $x ; done \
+#| sed -e "s/.*error:.*/\x1b[1;36m&\x1b[0m/" \
+#-e "s/.*warning:.*/\x1b[1;36m&\x1b[0m/" \
+#-e "s/^\(.*\)\(required from\)/\x1b[1;36m\1\x1b[0mnote: \2/" \
+#-e "s/^\(.*\)\(In instantiation of\)/\x1b[1;36m\1\x1b[0mnote: \2/" \
+#-e "s/^\(.*\)\(In member\)/\x1b[1;36m\1\x1b[0mnote: \2/" \
+#| sed -e "s/error:/\x1b[1;31m&\x1b[1;36m/" \
+#-e "s/warning:/\x1b[1;35m&\x1b[1;36m/" \
+#-e "s/note:/\x1b[1;30m&\x1b[0m/"
+
+COLORFILTER = sed -e "s/.*error:.*/$(E_BR_RED)&$(E_END)/" \
+                  -e "s/.*warning:.*/$(E_BR_YELLOW)&$(E_END)/" 
+           
+	
+
 # Compile: create object files from C source files.
 $(OBJDIR)/%.o : %.c
 	@echo -e $(MSG_COMPILING) "$(E_BR_CYAN)" $< "$(E_END)"
-	@$(CC) -c $(ALL_CFLAGS) $< -o $@ 
+#	@$(CC) -c $(ALL_CFLAGS) $< -o $@ 2>&1 | sed -e "s/error/$(E_BR_RED)&$(E_END)/"
+	@$(CC) -c $(ALL_CFLAGS) $< -o $@ 2>&1 | sed -re 's/.*error:.*/$(E_BR_RED)&$(E_END)/'
+#	@$(CC) -c $(ALL_CFLAGS) $< -o $@ 2>&1 | $(COLORFILTER)
 
 # Compile: create object files from C++ source files.
 $(OBJDIR)/%.o : %.cpp

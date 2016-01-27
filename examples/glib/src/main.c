@@ -60,7 +60,7 @@ typedef struct kalle {
 }
 */
 /**
- *
+ * Coed
  *---------------------------------------------------------------------------
  */
 
@@ -73,12 +73,12 @@ void safeExit() {
 void errorTest() {
 	gp_log_set_verbose(TRUE);
 //  g_info("This is information\n");
-  g_message("This is message\n");
-  g_warning("This is warning\n");
-  g_debug("This is debug\n");
+  g_message("This is a message\n");
+  g_warning("This is a warning\n");
+  g_debug("This is a debug message\n");
   g_error("This is an error\n");
 	g_critical("This is critical\n");
-
+x
 }
 
 void sig_ctrl_c(int sig) {
@@ -133,7 +133,7 @@ int main(int argc, char *argv[]) {
 
 	// print version information
 	if (opt_version) {
-		printf("Program Version: %s\n", VERSION);
+		printf("Program version %s\nBuild ("__DATE__" "__TIME__")\n", VERSION);
 		exit(0);
 	}
 	
