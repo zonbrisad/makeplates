@@ -229,7 +229,6 @@ MSG_CREATING_LIBRARY = "${E_BR_MAGENTA}Creating library:${E_END}"
 MSG_FLASH            = "${E_BR_MAGENTA}Creating load file for Flash:${E_END}"
 MSG_EEPROM           = "${E_BR_MAGENTA}Creating load file for EEPROM:${E_END}"
 MSG_BACKUP           = "${E_BR_GREEN}Making incremental backup of project:${E_END}"
-	
 
 #
 # Build rules	
