@@ -137,9 +137,7 @@ ASFLAGS = $(ADEFS) -Wa,-adhlns=$(<:%.S=$(OBJDIR)/%.lst),-gstabs,--listing-cont-l
 #  -Wl,...:     tell GCC to pass this to linker.
 #    -Map:      create map file
 #    --cref:    add cross reference to  map file
-LDFLAGS  = -Wl
-LDFLAGS += -Map=$(OUTDIR)/$(TARGET).map
-LDFLAGS += --cref
+LDFLAGS = -Wl,-Map=$(OUTDIR)/$(TARGET).map,--cref
 LDFLAGS += $(EXTMEMOPTS)
 #LDFLAGS += -T linker_script.x
 
@@ -236,9 +234,9 @@ GENDEPFLAGS = -MMD -MP -MF .dep/$(@F).d
 
 # Combine all necessary flags and optional flags.
 # Add target processor to flags.
-ALL_CFLAGS =  -I. $(CFLAGS) $(GENDEPFLAGS)
+ALL_CFLAGS   =  -I. $(CFLAGS) $(GENDEPFLAGS)
 ALL_CPPFLAGS =  -I. -x c++ $(CPPFLAGS) $(GENDEPFLAGS)
-ALL_ASFLAGS =  -I. -x assembler-with-cpp $(ASFLAGS)
+ALL_ASFLAGS  =  -I. -x assembler-with-cpp $(ASFLAGS)
 
 # Define all object files.
 OBJS = $(SRC:%.c=$(OBJDIR)/%.o) $(CPPSRC:%.cpp=$(OBJDIR)/%.o) $(ASRC:%.S=$(OBJDIR)/%.o)
@@ -307,16 +305,28 @@ $(OUTDIR)/$(TARGET): $(OBJS) $(OUTDIR)
 #-e "s/warning:/\x1b[1;35m&\x1b[1;36m/" \
 #-e "s/note:/\x1b[1;30m&\x1b[0m/"
 
-COLORFILTER = sed -e "s/.*error:.*/$(E_BR_RED)&$(E_END)/" \
-                  -e "s/.*warning:.*/$(E_BR_YELLOW)&$(E_END)/" 
-           
-	
+#COLORFILTER = sed -r -e "s/.*error:.*/$(E_BR_RED)&$(E_END)/" \
+#                     -e "s/.*warning:.*/$(E_BR_YELLOW)&$(E_END)/" 
+
+#COLORFILTER = sed -r -e "s/error:*/ERROR:/" \
+#                     -e "s/.*warning:.*/WARNING:/" 
+       
+#https://github.com/renatosilva/colormake/blob/master/colormake.sh
+    
+red='\e[1;31m'
+normal='\e[0m'
+error="s/(^error|^.*[^a-z]error:)/$(printf $(red))\\1$(printf $(normal))/i"
 
 # Compile: create object files from C source files.
 $(OBJDIR)/%.o : %.c
 	@echo -e $(MSG_COMPILING) "$(E_BR_CYAN)" $< "$(E_END)"
-#	@$(CC) -c $(ALL_CFLAGS) $< -o $@ 2>&1 | sed -e "s/error/$(E_BR_RED)&$(E_END)/"
-	@$(CC) -c $(ALL_CFLAGS) $< -o $@ 2>&1 | sed -re 's/.*error:.*/$(E_BR_RED)&$(E_END)/'
+	$(CC) -c $(ALL_CFLAGS) $< -o $@ 2>&1 | sed -r -e "$(error)"
+#	@$(CC) -c $(ALL_CFLAGS) $< -o $@ 2>&1 | sed -re "s/error/XXX/"
+#	@$(CC) -c $(ALL_CFLAGS) $< -o $@ 
+#	@$(CC) -c $(ALL_CFLAGS) $< -o $@ 2>&1 | sed -e "s|error|\\${E_BR_RED}&\\${E_END}|"
+#	@$($(CC) -c $(ALL_CFLAGS) $< -o $@ 2>&1 | sed -e "s|error|\\${E_BR_RED}&\\${E_END}|")
+	
+#	@$(CC) -c $(ALL_CFLAGS) $< -o $@ 2>&1 | sed -re 's/.*error:.*/$(E_BR_RED)&$(E_END)/'
 #	@$(CC) -c $(ALL_CFLAGS) $< -o $@ 2>&1 | $(COLORFILTER)
 
 # Compile: create object files from C++ source files.

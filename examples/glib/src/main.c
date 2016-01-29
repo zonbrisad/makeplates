@@ -78,7 +78,7 @@ void errorTest() {
   g_debug("This is a debug message\n");
   g_error("This is an error\n");
 	g_critical("This is critical\n");
-x
+//x
 }
 
 void sig_ctrl_c(int sig) {
@@ -112,7 +112,7 @@ void threadTest() {
 //	thread = g_thread_new("TestThread", thread_t, NULL);
 	
 	g_main_loop_run(mLoop);
-
+  x
 }
 								 
 
@@ -122,6 +122,8 @@ int main(int argc, char *argv[]) {
 	
 	// init log system
 	gp_log_init();                 
+
+	
 	
   // parse command line arguments
   context = g_option_context_new (DESCRIPTION);
