@@ -175,10 +175,6 @@ NM        = ${TCHAIN}nm
 # Message settings
 #============================================================================
 
-BLUE           = \033[34;01m
-YELLOW         = \033[33;01m
-RED            = \033[31;01m
-GREEN          = \033[32;01m
 E_BLACK        = \033[0;300m
 E_RED          = \033[0;31m
 E_GREEN        = \033[0;32m
@@ -196,22 +192,25 @@ E_BR_MAGENTA   = \033[1;35m
 E_BR_CYAN      = \033[1;36m
 E_WHITE        = \033[1;37m
 E_END          = \033[0m
-E_OK           = $(E_BR_GREEN)
-E_WARN         = $(E_BR_YELLOW)
-E_ERROR        = $(E_BR_RED)
+
+C_OK=$(E_BR_GREEN)
+C_ERROR=$(E_BR_RED)
+C_WARNING=$(E_BR_YELLOW)
+C_FILE=$(E_BR_CYAN)
+C_NOTE=$(E_BR_GREEN)
 
 MSG_LINE             = "$(E_WHITE)------------------------------------------------------------------$(E_END)"
 MSG_BEGIN            = "${E_WHITE}-------------------------------- Begin ---------------------------${E_END}"
 MSG_END              = "${E_WHITE}-------------------------------- End -----------------------------${E_END}"
-MSG_ERRORS_NONE      = "${E_OK}Errors: none ${E_END}"
+MSG_ERRORS_NONE      = "${C_OK}Errors: none ${E_END}"
 MSG_LINKING          = "${E_BR_MAGENTA}Linking:${E_END}"
 MSG_COMPILING        = "${E_BR_MAGENTA}Compiling C:${E_END}"
 MSG_COMPILING_CPP    = "${E_BR_MAGENTA}Compiling C++:${E_END}"
 MSG_ASSEMBLING       = "${E_BR_MAGENTA}Assembling:${E_END}"
-MSG_CLEANING         = "$(E_OK)Cleaning project:$(E_END)"
+MSG_CLEANING         = "$(C_OK)Cleaning project:$(E_END)"
 MSG_EXTENDED_LISTING = "${E_BR_MAGENTA}Creating Extended Listing/Disassembly:$(E_END)"
 MSG_SYMBOL_TABLE     = "${E_BR_MAGENTA}Creating Symbol Table:$(E_END)"
-MSG_FORMATERROR      = "${E_ERROR}Can not handle output-format${E_END}"
+MSG_FORMATERROR      = "${C_ERROR}Can not handle output-format${E_END}"
 MSG_ASMFROMC         = "${E_BR_MAGENTA}Creating asm-File from C-Source:$(E_END)"
 MSG_SIZE_BEFORE      = "${E_BR_MAGENTA}Size before:${E_END}"
 MSG_SIZE_AFTER       = "${E_BR_MAGENTA}Size after build:${E_END}"
@@ -291,21 +290,46 @@ $(OUTDIR)/$(TARGET): $(OBJS) $(OUTDIR)
 	@echo -e $(MSG_SYMBOL_TABLE) "\n             $(E_BR_CYAN)" $@ "$(E_END)"
 	@$(NM) -n $< > $@
 
+#while read x ; do echo $x ; done \
+#| sed -e "s/.*error:.*/\x1b[1;36m&\x1b[0m/" \
+#-e "s/.*warning:.*/\x1b[1;36m&\x1b[0m/" \
+#-e "s/^\(.*\)\(required from\)/\x1b[1;36m\1\x1b[0mnote: \2/" \
+#-e "s/^\(.*\)\(In instantiation of\)/\x1b[1;36m\1\x1b[0mnote: \2/" \
+#-e "s/^\(.*\)\(In member\)/\x1b[1;36m\1\x1b[0mnote: \2/" \
+#| sed -e "s/error:/\x1b[1;31m&\x1b[1;36m/" \
+#-e "s/warning:/\x1b[1;35m&\x1b[1;36m/" \
+#-e "s/note:/\x1b[1;30m&\x1b[0m/"
+
+#http://stackoverflow.com/questions/1032237/highlight-and-filter-gcc-compiler-messages
+#https://github.com/renatosilva/colormake
+
+# Compiler output colorizer filter
+F_ERROR="s/error:/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
+F_WARNING="s/warning:/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
+F_NOTE="s/note:/$$(printf "$(C_NOTE)")&$$(printf "$(E_END)")/i"
+FF_ERROR="s/^.*error:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
+FF_WARNING="s/^.*warning:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
+FF_NOTE="s/^.*note:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
+
+C_FILTER   = sed -ru -e $(F_ERROR)  -e $(F_WARNING)  -e $(F_NOTE) \
+                     -e $(FF_ERROR) -e $(FF_WARNING) -e $(FF_NOTE)
+CPP_FILTER = $(C_FILTER)
+
 # Compile: create object files from C source files.
 $(OBJDIR)/%.o : %.c
-	@echo -e $(MSG_COMPILING) "$(E_BR_CYAN)" $< "$(E_END)"
-	@$(CC) -c $(ALL_CFLAGS) $< -o $@ 
+	@echo -e $(MSG_COMPILING) "$(C_FILE)" $< "$(E_END)"
+	@$(CC) -c $(ALL_CFLAGS) $< -o $@ 2>&1 | $(C_FILTER)
 
 # Compile: create object files from C++ source files.
 $(OBJDIR)/%.o : %.cpp
 	@echo
-	@echo -e $(MSG_COMPILING_CPP) "$(E_BR_CYAN)" $< "$(E_END)"
-	@$(CC) -c $(ALL_CPPFLAGS) $< -o $@ 
+	@echo -e $(MSG_COMPILING_CPP) "$(C_FILE)" $< "$(E_END)"
+	@$(CC) -c $(ALL_CPPFLAGS) $< -o $@ 2>&1 | $(CPP_FILTER)
 	
 # Assemble: create object files from assembler source files.
 $(OBJDIR)/%.o : %.S
 	@echo
-	@echo -e $(MSG_ASSEMBLING) "$(E_CYAN)" $< "$(E_END)"
+	@echo -e $(MSG_ASSEMBLING) "$(C_FILE)" $< "$(E_END)"
 	@$(CC) -c $(ALL_ASFLAGS) $< -o $@
 
 # Compile: create assembler files from C source files.

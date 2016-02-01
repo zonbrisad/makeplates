@@ -80,6 +80,7 @@ void errorTest() {
   g_error("This is an error\n");
 	g_critical("This is critical\n");
   
+	nisse(12);
 	while(i<10) {
 	  i++;
 	}
