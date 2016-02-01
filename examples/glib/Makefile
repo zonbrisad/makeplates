@@ -197,13 +197,13 @@ E_BR_BLUE      = \033[1;34m
 E_BR_MAGENTA   = \033[1;35m
 E_BR_CYAN      = \033[1;36m
 E_WHITE        = \033[1;37m
-E_END          = \033[0m
+E_END          = "\033[0m"
 E_OK           = $(E_BR_GREEN)
 E_WARN         = $(E_BR_YELLOW)
 E_ERROR        = $(E_BR_RED)
 
 MSG_LINE             = "$(E_WHITE)------------------------------------------------------------------$(E_END)"
-MSG_BEGIN            = "${E_WHITE}-------------------------------- Begin ---------------------------${E_END}"
+MSG_BEGIN            = "${E_WHITE}-------------------------------- Begin ---------------------------"${E_END}
 MSG_END              = "${E_WHITE}-------------------------------- End -----------------------------${E_END}"
 MSG_ERRORS_NONE      = "${E_OK}Errors: none ${E_END}"
 MSG_LINKING          = "${E_BR_MAGENTA}Linking:${E_END}"
@@ -305,29 +305,54 @@ $(OUTDIR)/$(TARGET): $(OBJS) $(OUTDIR)
 #-e "s/warning:/\x1b[1;35m&\x1b[1;36m/" \
 #-e "s/note:/\x1b[1;30m&\x1b[0m/"
 
+
+#https://github.com/renatosilva/colormake/blob/master/colormake.sh
+#http://stackoverflow.com/questions/1032237/highlight-and-filter-gcc-compiler-messages
+#https://github.com/renatosilva/colormake
+
+#COLORFILTER = sed -e "s/.*error:.*/$(E_BR_RED)&$(E_END)/" \
+#                  -e "s/.*warning:.*/$(E_BR_YELLOW)&$(E_END)/" 
+
 #COLORFILTER = sed -r -e "s/.*error:.*/$(E_BR_RED)&$(E_END)/" \
 #                     -e "s/.*warning:.*/$(E_BR_YELLOW)&$(E_END)/" 
 
 #COLORFILTER = sed -r -e "s/error:*/ERROR:/" \
 #                     -e "s/.*warning:.*/WARNING:/" 
-       
-#https://github.com/renatosilva/colormake/blob/master/colormake.sh
-    
-red='\e[1;31m'
-normal='\e[0m'
-error="s/(^error|^.*[^a-z]error:)/$(printf $(red))\\1$(printf $(normal))/i"
+
+           
+COLORFILTER = grep --color -iP "\^|warning:|error:|"
+
+
+red="\e[1;31m"
+normal="\e[0m"
+#Errors, warnings, notes and compiler recipes
+#error="s/(^error|^.*[^a-z]error:)/$$(printf $(red))\\1$$(printf $(normal))/i"
+error='s/(^error|^.*[^a-z]error:)/$$(printf "$(E_BR_RED)")\\1$$(printf $(E_END))/i'
+#error='s/(^error|^.*[^a-z]error:)/$(printf kalle)\\1$(printf nisse)/i'
+#error="s/(^error|^.*[^a-z]error:)/$$(printf kalle)\\1$$(printf nisse)/i"
+#error='s/error/KALLE/'
+
+C_FILTER = sed -ru -e $(error)
+
 
 # Compile: create object files from C source files.
 $(OBJDIR)/%.o : %.c
-	@echo -e $(MSG_COMPILING) "$(E_BR_CYAN)" $< "$(E_END)"
-	$(CC) -c $(ALL_CFLAGS) $< -o $@ 2>&1 | sed -r -e "$(error)"
+	@echo -e $(MSG_COMPILING) "$(E_BR_CYAN)" $< $(E_END)
+	$(CC) -c $(ALL_CFLAGS) $< -o $@ 2>&1 | sed -ru -e  $(error)
+#	$(CC) -c $(ALL_CFLAGS) $< -o $@ 2>&1 | sed -re 's/error/\\$(E_BR_RED)&\\$(E_END)/' | cat -e
+#	@$(CC) -c $(ALL_CFLAGS) $< -o $@ 2>&1 | $(COLORFILTER)
+#	$(CC) -c $(ALL_CFLAGS) $< -o $@ 2>&1 | sed -e 's/error:/\\033[41m\\033[37m&\033[0m/') | cat
+
+# #	@$(CC) -c $(ALL_CFLAGS) $< -o $@ 2>&1 | sed -e "s/error/ERROR/"
+#	@$(CC) -c $(ALL_CFLAGS) $< -o $@ 2>&1 | $(COLORFILTER)
 #	@$(CC) -c $(ALL_CFLAGS) $< -o $@ 2>&1 | sed -re "s/error/XXX/"
 #	@$(CC) -c $(ALL_CFLAGS) $< -o $@ 
 #	@$(CC) -c $(ALL_CFLAGS) $< -o $@ 2>&1 | sed -e "s|error|\\${E_BR_RED}&\\${E_END}|"
 #	@$($(CC) -c $(ALL_CFLAGS) $< -o $@ 2>&1 | sed -e "s|error|\\${E_BR_RED}&\\${E_END}|")
 	
 #	@$(CC) -c $(ALL_CFLAGS) $< -o $@ 2>&1 | sed -re 's/.*error:.*/$(E_BR_RED)&$(E_END)/'
-#	@$(CC) -c $(ALL_CFLAGS) $< -o $@ 2>&1 | $(COLORFILTER)
+
+
 
 # Compile: create object files from C++ source files.
 $(OBJDIR)/%.o : %.cpp

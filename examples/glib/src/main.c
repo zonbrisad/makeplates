@@ -71,6 +71,7 @@ void safeExit() {
 }
 
 void errorTest() {
+	int i;
 	gp_log_set_verbose(TRUE);
 //  g_info("This is information\n");
   g_message("This is a message\n");
@@ -78,7 +79,12 @@ void errorTest() {
   g_debug("This is a debug message\n");
   g_error("This is an error\n");
 	g_critical("This is critical\n");
-//x
+  
+	while(i<10) {
+	  i++;
+	}
+	x
+
 }
 
 void sig_ctrl_c(int sig) {
