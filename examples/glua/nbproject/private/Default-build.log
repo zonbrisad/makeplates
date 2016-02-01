@@ -1,0 +1,272 @@
+
+[0;36m-------------------------------- Begin ---------------------------[0m
+[0;35mCompiling C:[0m [0;36m src/main.c [0m
+src/main.c: In function 'main':
+src/main.c:59:2: warning: implicit declaration of function 'luaL_openlibs'
+src/main.c:60:2: warning: value computed is not used
+[0;35mCompiling C:[0m [0;36m src/iniparser3.1/src/dictionary.c [0m
+[0;35mCompiling C:[0m [0;36m src/iniparser3.1/src/iniparser.c [0m
+[0;35mCompiling C:[0m [0;36m src/lua-5.2.3/src/lstrlib.c [0m
+[0;35mCompiling C:[0m [0;36m src/lua-5.2.3/src/lvm.c [0m
+[0;35mCompiling C:[0m [0;36m src/lua-5.2.3/src/lzio.c [0m
+[0;35mCompiling C:[0m [0;36m src/lua-5.2.3/src/lfunc.c [0m
+[0;35mCompiling C:[0m [0;36m src/lua-5.2.3/src/ldo.c [0m
+[0;35mCompiling C:[0m [0;36m src/lua-5.2.3/src/lgc.c [0m
+[0;35mCompiling C:[0m [0;36m src/lua-5.2.3/src/lbitlib.c [0m
+[0;35mCompiling C:[0m [0;36m src/lua-5.2.3/src/ldump.c [0m
+[0;35mCompiling C:[0m [0;36m src/lua-5.2.3/src/lctype.c [0m
+[0;35mCompiling C:[0m [0;36m src/lua-5.2.3/src/lauxlib.c [0m
+[0;35mCompiling C:[0m [0;36m src/lua-5.2.3/src/lundump.c [0m
+[0;35mCompiling C:[0m [0;36m src/lua-5.2.3/src/lmem.c [0m
+[0;35mCompiling C:[0m [0;36m src/lua-5.2.3/src/ltm.c [0m
+[0;35mCompiling C:[0m [0;36m src/lua-5.2.3/src/ldebug.c [0m
+[0;35mCompiling C:[0m [0;36m src/lua-5.2.3/src/lmathlib.c [0m
+[0;35mCompiling C:[0m [0;36m src/lua-5.2.3/src/ltablib.c [0m
+[0;35mCompiling C:[0m [0;36m src/lua-5.2.3/src/lapi.c [0m
+[0;35mCompiling C:[0m [0;36m src/lua-5.2.3/src/loadlib.c [0m
+[0;35mCompiling C:[0m [0;36m src/lua-5.2.3/src/llex.c [0m
+[0;35mCompiling C:[0m [0;36m src/lua-5.2.3/src/lstring.c [0m
+[0;35mCompiling C:[0m [0;36m src/lua-5.2.3/src/lbaselib.c [0m
+[0;35mCompiling C:[0m [0;36m src/lua-5.2.3/src/lobject.c [0m
+[0;35mCompiling C:[0m [0;36m src/lua-5.2.3/src/loslib.c [0m
+[0;35mCompiling C:[0m [0;36m src/lua-5.2.3/src/lstate.c [0m
+[0;35mCompiling C:[0m [0;36m src/lua-5.2.3/src/lparser.c [0m
+[0;35mCompiling C:[0m [0;36m src/lua-5.2.3/src/ltable.c [0m
+[0;35mCompiling C:[0m [0;36m src/lua-5.2.3/src/lopcodes.c [0m
+[0;35mCompiling C:[0m [0;36m src/lua-5.2.3/src/linit.c [0m
+[0;35mCompiling C:[0m [0;36m src/lua-5.2.3/src/lcorolib.c [0m
+[0;35mCompiling C:[0m [0;36m src/lua-5.2.3/src/lcode.c [0m
+[0;35mCompiling C:[0m [0;36m src/lua-5.2.3/src/liolib.c [0m
+[0;35mCompiling C:[0m [0;36m src/lua-5.2.3/src/ldblib.c [0m
+[0;35mCompiling C:[0m [0;36m src/argtable2-13/src/arg_lit.c [0m
+[0;35mCompiling C:[0m [0;36m src/argtable2-13/src/arg_rex.c [0m
+[0;35mCompiling C:[0m [0;36m src/argtable2-13/src/arg_end.c [0m
+[0;35mCompiling C:[0m [0;36m src/argtable2-13/src/getopt.c [0m
+[0;35mCompiling C:[0m [0;36m src/argtable2-13/src/arg_int.c [0m
+src/argtable2-13/src/arg_int.c: In function 'strtol0X':
+src/argtable2-13/src/arg_int.c:60:5: warning: implicit declaration of function 'isspace'
+src/argtable2-13/src/arg_int.c:89:4: warning: implicit declaration of function 'toupper'
+[0;35mCompiling C:[0m [0;36m src/argtable2-13/src/argtable2.c [0m
+src/argtable2-13/src/argtable2.c:97:6: warning: 'dump_longoptions' defined but not used
+[0;35mCompiling C:[0m [0;36m src/argtable2-13/src/arg_rem.c [0m
+[0;35mCompiling C:[0m [0;36m src/argtable2-13/src/arg_file.c [0m
+[0;35mCompiling C:[0m [0;36m src/argtable2-13/src/getopt1.c [0m
+In file included from src/argtable2-13/src/getopt1.c:26:0:
+src/argtable2-13/src/getopt.h:109:2: warning: function declaration isn't a prototype
+[0;35mCompiling C:[0m [0;36m src/argtable2-13/src/arg_str.c [0m
+[0;35mCompiling C:[0m [0;36m src/argtable2-13/src/arg_dbl.c [0m
+[0;35mCompiling C:[0m [0;36m src/argtable2-13/src/arg_date.c [0m
+[0;35mCompiling C:[0m [0;36m src/SWILL-0.3/Source/SWILL/encoding.c [0m
+In file included from src/SWILL-0.3/Source/SWILL/swillint.h:30:0,
+                 from src/SWILL-0.3/Source/SWILL/encoding.c:16:
+src/SWILL-0.3/Source/Objects/doh.h:277:1: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/Objects/doh.h:283:1: warning: function declaration isn't a prototype
+In file included from src/SWILL-0.3/Source/SWILL/encoding.c:16:0:
+src/SWILL-0.3/Source/SWILL/swillint.h:61:1: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/SWILL/swillint.h:62:1: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/SWILL/swillint.h:64:1: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/SWILL/encoding.c:153:13: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/SWILL/encoding.c: In function 'init_base64':
+src/SWILL-0.3/Source/SWILL/encoding.c:159:7: warning: array subscript has type 'char'
+src/SWILL-0.3/Source/SWILL/encoding.c: In function 'swill_base64_decode':
+src/SWILL-0.3/Source/SWILL/encoding.c:210:3: warning: array subscript has type 'char'
+src/SWILL-0.3/Source/SWILL/encoding.c: At top level:
+src/SWILL-0.3/Source/SWILL/encoding.c:14:13: warning: 'cvsroot' defined but not used
+src/SWILL-0.3/Source/SWILL/encoding.c: In function 'swill_base64_decode':
+src/SWILL-0.3/Source/SWILL/encoding.c:179:10: warning: 'ch' may be used uninitialized in this function
+[0;35mCompiling C:[0m [0;36m src/SWILL-0.3/Source/SWILL/handlers.c [0m
+In file included from src/SWILL-0.3/Source/SWILL/swillint.h:30:0,
+                 from src/SWILL-0.3/Source/SWILL/handlers.c:16:
+src/SWILL-0.3/Source/Objects/doh.h:277:1: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/Objects/doh.h:283:1: warning: function declaration isn't a prototype
+In file included from src/SWILL-0.3/Source/SWILL/handlers.c:16:0:
+src/SWILL-0.3/Source/SWILL/swillint.h:61:1: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/SWILL/swillint.h:62:1: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/SWILL/swillint.h:64:1: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/SWILL/handlers.c: In function 'swill_printurl':
+src/SWILL-0.3/Source/SWILL/handlers.c:418:6: warning: unknown conversion type character '(' in format
+src/SWILL-0.3/Source/SWILL/handlers.c:418:6: warning: too many arguments for format
+src/SWILL-0.3/Source/SWILL/handlers.c:425:6: warning: unknown conversion type character '(' in format
+src/SWILL-0.3/Source/SWILL/handlers.c:425:6: warning: too many arguments for format
+src/SWILL-0.3/Source/SWILL/handlers.c:430:6: warning: unknown conversion type character '(' in format
+src/SWILL-0.3/Source/SWILL/handlers.c:430:6: warning: too many arguments for format
+src/SWILL-0.3/Source/SWILL/handlers.c:437:6: warning: unknown conversion type character '(' in format
+src/SWILL-0.3/Source/SWILL/handlers.c:437:6: warning: too many arguments for format
+src/SWILL-0.3/Source/SWILL/handlers.c:442:6: warning: unknown conversion type character '(' in format
+src/SWILL-0.3/Source/SWILL/handlers.c:442:6: warning: too many arguments for format
+src/SWILL-0.3/Source/SWILL/handlers.c:448:6: warning: unknown conversion type character '(' in format
+src/SWILL-0.3/Source/SWILL/handlers.c:448:6: warning: too many arguments for format
+src/SWILL-0.3/Source/SWILL/handlers.c:453:6: warning: unknown conversion type character '(' in format
+src/SWILL-0.3/Source/SWILL/handlers.c:453:6: warning: too many arguments for format
+src/SWILL-0.3/Source/SWILL/handlers.c: At top level:
+src/SWILL-0.3/Source/SWILL/handlers.c:14:13: warning: 'cvsroot' defined but not used
+[0;35mCompiling C:[0m [0;36m src/SWILL-0.3/Source/SWILL/io.c [0m
+In file included from src/SWILL-0.3/Source/SWILL/swillint.h:30:0,
+                 from src/SWILL-0.3/Source/SWILL/io.c:9:
+src/SWILL-0.3/Source/Objects/doh.h:277:1: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/Objects/doh.h:283:1: warning: function declaration isn't a prototype
+In file included from src/SWILL-0.3/Source/SWILL/io.c:9:0:
+src/SWILL-0.3/Source/SWILL/swillint.h:61:1: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/SWILL/swillint.h:62:1: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/SWILL/swillint.h:64:1: warning: function declaration isn't a prototype
+[0;35mCompiling C:[0m [0;36m src/SWILL-0.3/Source/SWILL/log.c [0m
+In file included from src/SWILL-0.3/Source/SWILL/swillint.h:30:0,
+                 from src/SWILL-0.3/Source/SWILL/log.c:15:
+src/SWILL-0.3/Source/Objects/doh.h:277:1: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/Objects/doh.h:283:1: warning: function declaration isn't a prototype
+In file included from src/SWILL-0.3/Source/SWILL/log.c:15:0:
+src/SWILL-0.3/Source/SWILL/swillint.h:61:1: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/SWILL/swillint.h:62:1: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/SWILL/swillint.h:64:1: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/SWILL/log.c:13:13: warning: 'cvsroot' defined but not used
+[0;35mCompiling C:[0m [0;36m src/SWILL-0.3/Source/SWILL/mime.c [0m
+In file included from src/SWILL-0.3/Source/SWILL/swillint.h:30:0,
+                 from src/SWILL-0.3/Source/SWILL/mime.c:15:
+src/SWILL-0.3/Source/Objects/doh.h:277:1: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/Objects/doh.h:283:1: warning: function declaration isn't a prototype
+In file included from src/SWILL-0.3/Source/SWILL/mime.c:15:0:
+src/SWILL-0.3/Source/SWILL/swillint.h:61:1: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/SWILL/swillint.h:62:1: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/SWILL/swillint.h:64:1: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/SWILL/mime.c:13:13: warning: 'cvsroot' defined but not used
+[0;35mCompiling C:[0m [0;36m src/SWILL-0.3/Source/SWILL/parse.c [0m
+In file included from src/SWILL-0.3/Source/SWILL/swillint.h:30:0,
+                 from src/SWILL-0.3/Source/SWILL/parse.c:15:
+src/SWILL-0.3/Source/Objects/doh.h:277:1: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/Objects/doh.h:283:1: warning: function declaration isn't a prototype
+In file included from src/SWILL-0.3/Source/SWILL/parse.c:15:0:
+src/SWILL-0.3/Source/SWILL/swillint.h:61:1: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/SWILL/swillint.h:62:1: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/SWILL/swillint.h:64:1: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/SWILL/parse.c:13:13: warning: 'cvsroot' defined but not used
+[0;35mCompiling C:[0m [0;36m src/SWILL-0.3/Source/SWILL/security.c [0m
+In file included from src/SWILL-0.3/Source/SWILL/swillint.h:30:0,
+                 from src/SWILL-0.3/Source/SWILL/security.c:16:
+src/SWILL-0.3/Source/Objects/doh.h:277:1: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/Objects/doh.h:283:1: warning: function declaration isn't a prototype
+In file included from src/SWILL-0.3/Source/SWILL/security.c:16:0:
+src/SWILL-0.3/Source/SWILL/swillint.h:61:1: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/SWILL/swillint.h:62:1: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/SWILL/swillint.h:64:1: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/SWILL/security.c:86:1: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/SWILL/security.c:113:6: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/SWILL/security.c:119:6: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/SWILL/security.c:14:13: warning: 'cvsroot' defined but not used
+[0;35mCompiling C:[0m [0;36m src/SWILL-0.3/Source/SWILL/sock.c [0m
+In file included from src/SWILL-0.3/Source/SWILL/swillint.h:30:0,
+                 from src/SWILL-0.3/Source/SWILL/sock.c:35:
+src/SWILL-0.3/Source/Objects/doh.h:277:1: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/Objects/doh.h:283:1: warning: function declaration isn't a prototype
+In file included from src/SWILL-0.3/Source/SWILL/sock.c:35:0:
+src/SWILL-0.3/Source/SWILL/swillint.h:61:1: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/SWILL/swillint.h:62:1: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/SWILL/swillint.h:64:1: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/SWILL/sock.c: In function 'swill_accept_connection':
+src/SWILL-0.3/Source/SWILL/sock.c:197:7: warning: implicit declaration of function 'swill_ssl_accept'
+src/SWILL-0.3/Source/SWILL/sock.c: In function 'swill_close_socket':
+src/SWILL-0.3/Source/SWILL/sock.c:207:7: warning: implicit declaration of function 'swill_ssl_close'
+src/SWILL-0.3/Source/SWILL/sock.c: In function 'swill_sock_do_read':
+src/SWILL-0.3/Source/SWILL/sock.c:270:7: warning: implicit declaration of function 'swill_ssl_read'
+src/SWILL-0.3/Source/SWILL/sock.c: In function 'swill_sock_do_write':
+src/SWILL-0.3/Source/SWILL/sock.c:317:7: warning: implicit declaration of function 'swill_ssl_write'
+src/SWILL-0.3/Source/SWILL/sock.c: At top level:
+src/SWILL-0.3/Source/SWILL/sock.c:11:13: warning: 'cvsroot' defined but not used
+[0;35mCompiling C:[0m [0;36m src/SWILL-0.3/Source/SWILL/ssl.c [0m
+src/SWILL-0.3/Source/SWILL/ssl.c:11:13: warning: 'cvsroot' defined but not used
+[0;35mCompiling C:[0m [0;36m src/SWILL-0.3/Source/SWILL/web.c [0m
+In file included from src/SWILL-0.3/Source/SWILL/swillint.h:30:0,
+                 from src/SWILL-0.3/Source/SWILL/web.c:32:
+src/SWILL-0.3/Source/Objects/doh.h:277:1: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/Objects/doh.h:283:1: warning: function declaration isn't a prototype
+In file included from src/SWILL-0.3/Source/SWILL/web.c:32:0:
+src/SWILL-0.3/Source/SWILL/swillint.h:61:1: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/SWILL/swillint.h:62:1: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/SWILL/swillint.h:64:1: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/SWILL/web.c: In function 'swill_serve_one':
+src/SWILL-0.3/Source/SWILL/web.c:587:4: warning: format '%-15s' expects type 'char *', but argument 2 has type 'DOH *'
+src/SWILL-0.3/Source/SWILL/web.c:620:7: warning: format '%s' expects type 'char *', but argument 3 has type 'DOH *'
+src/SWILL-0.3/Source/SWILL/web.c:620:7: warning: format '%s' expects type 'char *', but argument 4 has type 'DOH *'
+src/SWILL-0.3/Source/SWILL/web.c: In function 'swill_serve':
+src/SWILL-0.3/Source/SWILL/web.c:806:3: warning: implicit declaration of function 'dup'
+src/SWILL-0.3/Source/SWILL/web.c:808:3: warning: implicit declaration of function 'dup2'
+src/SWILL-0.3/Source/SWILL/web.c:818:3: warning: implicit declaration of function 'close'
+src/SWILL-0.3/Source/SWILL/web.c: In function 'swill_temp_clear':
+src/SWILL-0.3/Source/SWILL/web.c:1126:4: warning: implicit declaration of function 'ftruncate'
+src/SWILL-0.3/Source/SWILL/web.c: At top level:
+src/SWILL-0.3/Source/SWILL/web.c:14:13: warning: 'cvsroot' defined but not used
+src/SWILL-0.3/Source/SWILL/web.c: In function 'swill_serve':
+src/SWILL-0.3/Source/SWILL/web.c:773:8: warning: 'oldstdout' may be used uninitialized in this function
+[0;35mCompiling C:[0m [0;36m src/SWILL-0.3/Source/Objects/base.c [0m
+In file included from src/SWILL-0.3/Source/Objects/dohint.h:10:0,
+                 from src/SWILL-0.3/Source/Objects/base.c:15:
+src/SWILL-0.3/Source/Objects/doh.h:277:1: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/Objects/doh.h:283:1: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/Objects/base.c: In function '_swilLStr':
+src/SWILL-0.3/Source/Objects/base.c:97:63: warning: cast from pointer to integer of different size
+src/SWILL-0.3/Source/Objects/base.c: At top level:
+src/SWILL-0.3/Source/Objects/base.c:13:13: warning: 'cvsroot' defined but not used
+[0;35mCompiling C:[0m [0;36m src/SWILL-0.3/Source/Objects/file.c [0m
+In file included from src/SWILL-0.3/Source/Objects/dohint.h:10:0,
+                 from src/SWILL-0.3/Source/Objects/file.c:19:
+src/SWILL-0.3/Source/Objects/doh.h:277:1: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/Objects/doh.h:283:1: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/Objects/file.c: In function 'DelFile':
+src/SWILL-0.3/Source/Objects/file.c:45:3: warning: implicit declaration of function 'close'
+src/SWILL-0.3/Source/Objects/file.c: In function 'File_read':
+src/SWILL-0.3/Source/Objects/file.c:64:7: warning: implicit declaration of function 'read'
+src/SWILL-0.3/Source/Objects/file.c: In function 'File_write':
+src/SWILL-0.3/Source/Objects/file.c:81:7: warning: implicit declaration of function 'write'
+src/SWILL-0.3/Source/Objects/file.c: In function 'File_seek':
+src/SWILL-0.3/Source/Objects/file.c:98:7: warning: implicit declaration of function 'lseek'
+src/SWILL-0.3/Source/Objects/file.c: At top level:
+src/SWILL-0.3/Source/Objects/file.c:13:13: warning: 'cvsroot' defined but not used
+[0;35mCompiling C:[0m [0;36m src/SWILL-0.3/Source/Objects/fio.c [0m
+In file included from src/SWILL-0.3/Source/Objects/dohint.h:10:0,
+                 from src/SWILL-0.3/Source/Objects/fio.c:15:
+src/SWILL-0.3/Source/Objects/doh.h:277:1: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/Objects/doh.h:283:1: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/Objects/fio.c:13:13: warning: 'cvsroot' defined but not used
+[0;35mCompiling C:[0m [0;36m src/SWILL-0.3/Source/Objects/hash.c [0m
+In file included from src/SWILL-0.3/Source/Objects/dohint.h:10:0,
+                 from src/SWILL-0.3/Source/Objects/hash.c:14:
+src/SWILL-0.3/Source/Objects/doh.h:277:1: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/Objects/doh.h:283:1: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/Objects/hash.c:550:1: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/Objects/hash.c:12:13: warning: 'cvsroot' defined but not used
+[0;35mCompiling C:[0m [0;36m src/SWILL-0.3/Source/Objects/list.c [0m
+In file included from src/SWILL-0.3/Source/Objects/dohint.h:10:0,
+                 from src/SWILL-0.3/Source/Objects/list.c:14:
+src/SWILL-0.3/Source/Objects/doh.h:277:1: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/Objects/doh.h:283:1: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/Objects/list.c:338:1: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/Objects/list.c:12:13: warning: 'cvsroot' defined but not used
+[0;35mCompiling C:[0m [0;36m src/SWILL-0.3/Source/Objects/memory.c [0m
+In file included from src/SWILL-0.3/Source/Objects/dohint.h:10:0,
+                 from src/SWILL-0.3/Source/Objects/memory.c:15:
+src/SWILL-0.3/Source/Objects/doh.h:277:1: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/Objects/doh.h:283:1: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/Objects/memory.c:42:1: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/Objects/memory.c:60:1: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/Objects/memory.c:13:13: warning: 'cvsroot' defined but not used
+[0;35mCompiling C:[0m [0;36m src/SWILL-0.3/Source/Objects/string.c [0m
+In file included from src/SWILL-0.3/Source/Objects/dohint.h:10:0,
+                 from src/SWILL-0.3/Source/Objects/string.c:15:
+src/SWILL-0.3/Source/Objects/doh.h:277:1: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/Objects/doh.h:283:1: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/Objects/string.c:13:13: warning: 'cvsroot' defined but not used
+[0;35mCompiling C:[0m [0;36m src/SWILL-0.3/Source/Objects/void.c [0m
+In file included from src/SWILL-0.3/Source/Objects/dohint.h:10:0,
+                 from src/SWILL-0.3/Source/Objects/void.c:15:
+src/SWILL-0.3/Source/Objects/doh.h:277:1: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/Objects/doh.h:283:1: warning: function declaration isn't a prototype
+src/SWILL-0.3/Source/Objects/void.c:13:13: warning: 'cvsroot' defined but not used
+
+[0;35mLinking:[0m [0;36m output/example [0m
+
+[0;35mCreating Extended Listing/Disassembly:[0m [0;36m output/example.lss [0m
+
+[0;35mCreating Symbol Table:[0m [0;36m output/example.sym [0m
+
+[0;32mErrors: none [0m
+
+[0;36m-------------------------------- End -----------------------------[0m
