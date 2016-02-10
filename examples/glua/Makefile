@@ -15,13 +15,12 @@
 LICENCE = GPLv2
 
 # Target file name (without extension).
-TARGET = example
+TARGET = glua
 
 # List C source files here. (C dependencies are automatically generated.)
 SRC = src/main.c \
-      src/iniparser3.1/src/dictionary.c \
-			src/iniparser3.1/src/iniparser.c \
-			src/lua-5.2.3/src/lstrlib.c \
+      src/gp_log.c \
+      src/lua-5.2.3/src/lstrlib.c \
 			src/lua-5.2.3/src/lvm.c \
 			src/lua-5.2.3/src/lzio.c \
 			src/lua-5.2.3/src/lfunc.c \
@@ -53,18 +52,6 @@ SRC = src/main.c \
 			src/lua-5.2.3/src/lcode.c \
 			src/lua-5.2.3/src/liolib.c \
 			src/lua-5.2.3/src/ldblib.c \
-			src/argtable2-13/src/arg_lit.c \
-			src/argtable2-13/src/arg_rex.c \
-			src/argtable2-13/src/arg_end.c \
-			src/argtable2-13/src/getopt.c \
-			src/argtable2-13/src/arg_int.c \
-			src/argtable2-13/src/argtable2.c \
-			src/argtable2-13/src/arg_rem.c \
-			src/argtable2-13/src/arg_file.c \
-			src/argtable2-13/src/getopt1.c \
-			src/argtable2-13/src/arg_str.c \
-			src/argtable2-13/src/arg_dbl.c \
-			src/argtable2-13/src/arg_date.c \
 			src/SWILL-0.3/Source/SWILL/encoding.c \
 			src/SWILL-0.3/Source/SWILL/handlers.c \
 			src/SWILL-0.3/Source/SWILL/io.c \
@@ -85,6 +72,12 @@ SRC = src/main.c \
 			src/SWILL-0.3/Source/Objects/void.c 
 
 
+# List C++ source files here. (C dependencies are automatically generated.)
+CPPSRC = 
+
+# List Assembler source files here.
+#     Make them always end in a capital .S.  
+ASRC =
 
 # Include directories
 INCLUDE = inc \
@@ -99,8 +92,8 @@ INCLUDE = inc \
 
 # Libraries to link
 LIB = -lm 
-#LIB += $(shell pkg-config --libs glib-2.0)
-#LIB += $(shell pkg-config --libs gthread-2.0)
+LIB += $(shell pkg-config --libs glib-2.0)
+LIB += $(shell pkg-config --libs gthread-2.0)
 #LIB += $(shell pkg-config --libs ncurses)
 #LIB += $(shell pkg-config --libs lua5.1)
 
@@ -144,7 +137,7 @@ CFLAGS += -funsigned-char
 #CFLAGS += -fpack-struct
 #CFLAGS += -fshort-enums
 CFLAGS += -Wall
-CFLAGS += -Wstrict-prototypes
+#CFLAGS += -Wstrict-prototypes
 #CFLAGS += -mshort-calls
 #CFLAGS += -fno-unit-at-a-time
 #CFLAGS += -Wundef
@@ -153,8 +146,8 @@ CFLAGS += -Wunreachable-code
 #CFLAGS += -Wa,-adhlns=$(<:%.c=$(OBJDIR)/%.lst)
 CFLAGS += $(patsubst %,-I%,$(INCLUDE))
 CFLAGS += $(CSTANDARD)
-#CFLAGS += $(shell pkg-config --cflags glib-2.0)
-#CFLAGS += $(shell pkg-config --cflags gthread-2.0)
+CFLAGS += $(shell pkg-config --cflags glib-2.0)
+CFLAGS += $(shell pkg-config --cflags gthread-2.0)
 
 
 #---------------- Compiler Options C++ ----------------
@@ -182,8 +175,8 @@ CPPFLAGS += -Wundef
 CPPFLAGS += -Wa,-adhlns=$(<:%.cpp=$(OBJDIR)/%.lst)
 CPPFLAGS += $(patsubst %,-I%,$(INCLUDE))
 #CPPFLAGS += $(CSTANDARD)
-#CPPFLAGS += $(shell pkg-config --cflags glib-2.0)
-#CPPFLAGS += $(shell pkg-config --cflags gthread-2.0)
+CPPFLAGS += $(shell pkg-config --cflags glib-2.0)
+CPPFLAGS += $(shell pkg-config --cflags gthread-2.0)
 
 
 #---------------- Assembler Options ----------------
@@ -201,9 +194,7 @@ ASFLAGS = $(ADEFS) -Wa,-adhlns=$(<:%.S=$(OBJDIR)/%.lst),-gstabs,--listing-cont-l
 #  -Wl,...:     tell GCC to pass this to linker.
 #    -Map:      create map file
 #    --cref:    add cross reference to  map file
-LDFLAGS  = -Wl
-LDFLAGS += -Map=$(OUTDIR)/$(TARGET).map
-LDFLAGS += --cref
+LDFLAGS = -Wl,-Map=$(OUTDIR)/$(TARGET).map,--cref
 LDFLAGS += $(EXTMEMOPTS)
 #LDFLAGS += -T linker_script.x
 
@@ -260,12 +251,28 @@ E_BR_MAGENTA   = \033[1;35m
 E_BR_CYAN      = \033[1;36m
 E_WHITE        = \033[1;37m
 E_END          = \033[0m
+E_ON_BLACK     = \033[40
+E_ON_RED       = \033[41
+E_ON_GREEN     = \033[42
+E_ON_YELLOW    = \033[43
+E_ON_BLUE      = \033[44
+E_ON_MAGENTA   = \033[45
+E_ON_CYAN      = \033[46
+E_ON_WHITE     = \033[1;47
 
 C_OK=$(E_BR_GREEN)
 C_ERROR=$(E_BR_RED)
 C_WARNING=$(E_BR_YELLOW)
 C_FILE=$(E_BR_CYAN)
 C_NOTE=$(E_BR_GREEN)
+
+#C_OK=$(E_BR_GREEN)
+#C_ERROR=$(E_BR_RED)
+#C_WARNING=$(E_ON_BLACK)$(E_BR_YELLOW)
+#C_FILE=$(E_ON_BLACK)$(E_BR_CYAN)
+#C_NOTE=$(E_BR_GREEN)
+
+
 
 MSG_LINE             = "$(E_WHITE)------------------------------------------------------------------$(E_END)"
 MSG_BEGIN            = "${E_WHITE}-------------------------------- Begin ---------------------------${E_END}"
@@ -293,15 +300,14 @@ MSG_BACKUP           = "${E_BR_GREEN}Making incremental backup of project:${E_EN
 # Build rules	
 #============================================================================
 
-
 # Compiler flags to generate dependency files.
 GENDEPFLAGS = -MMD -MP -MF .dep/$(@F).d
 
 # Combine all necessary flags and optional flags.
 # Add target processor to flags.
-ALL_CFLAGS =  -I. $(CFLAGS) $(GENDEPFLAGS)
+ALL_CFLAGS   =  -I. $(CFLAGS) $(GENDEPFLAGS)
 ALL_CPPFLAGS =  -I. -x c++ $(CPPFLAGS) $(GENDEPFLAGS)
-ALL_ASFLAGS =  -I. -x assembler-with-cpp $(ASFLAGS)
+ALL_ASFLAGS  =  -I. -x assembler-with-cpp $(ASFLAGS)
 
 # Define all object files.
 OBJS = $(SRC:%.c=$(OBJDIR)/%.o) $(CPPSRC:%.cpp=$(OBJDIR)/%.o) $(ASRC:%.S=$(OBJDIR)/%.o)
@@ -369,6 +375,8 @@ $(OUTDIR)/$(TARGET): $(OBJS) $(OUTDIR)
 #-e "s/warning:/\x1b[1;35m&\x1b[1;36m/" \
 #-e "s/note:/\x1b[1;30m&\x1b[0m/"
 
+
+#https://github.com/renatosilva/colormake/blob/master/colormake.sh
 #http://stackoverflow.com/questions/1032237/highlight-and-filter-gcc-compiler-messages
 #https://github.com/renatosilva/colormake
 
@@ -565,7 +573,7 @@ info: list-info list-flags list-ldflags list-src ## Print information about proj
 #============================================================================
 
 # Only for default settings. Change value in settings.mk
-AUTHOR=Your Name <your.name@yourdomain.org>
+AUTHOR=Peter Malmberg <peter.malmberg@gmail.com>
 EDITOR=jed
 US:=$$USER
 #PERSONAL=personal_$${USER}.mk
@@ -591,4 +599,4 @@ $(PERSONAL):	# Create a settings file
 
 	
 # Listing of phony targets.
-.PHONY : all clean gccversion build begin finished end elf lss sym archive
+.PHONY : all clean gccversion build begin finished end elf lss sym archive edit help backup list-src list-flags newproj run install

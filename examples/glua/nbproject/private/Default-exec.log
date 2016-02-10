@@ -1,8 +1,9 @@
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -19,6 +20,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -28,10 +34,11 @@ called: /usr/bin/gcc
 	src/main.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -48,6 +55,46 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-MMD
+	-MP
+	-MF
+	.dep/gp_log.o.d
+	src/gp_log.c
+	-o
+	src/gp_log.o
+
+called: /usr/bin/gcc
+	/storage/home/pmg/Tester/makeplates/examples/glua
+	/usr/bin/gcc
+	-c
+	-I.
+	-g
+	-DHAVE_CONFIG_H
+	-DLUA_USE_MKSTEMP
+	-O2
+	-funsigned-char
+	-Wall
+	-Wstrict-prototypes
+	-Wunreachable-code
+	-Iinc
+	-Isrc
+	-Isrc/iniparser3.1/src
+	-Isrc/lua-5.2.3/src
+	-Isrc/argtable2-13/src
+	-Isrc/SWILL-0.3/Include
+	-Isrc/SWILL-0.3/Source/SWILL
+	-Isrc/SWILL-0.3/Source/Objects
+	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -57,10 +104,11 @@ called: /usr/bin/gcc
 	src/iniparser3.1/src/dictionary.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -77,6 +125,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -86,10 +139,11 @@ called: /usr/bin/gcc
 	src/iniparser3.1/src/iniparser.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -106,6 +160,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -115,10 +174,11 @@ called: /usr/bin/gcc
 	src/lua-5.2.3/src/lstrlib.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -135,6 +195,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -144,10 +209,11 @@ called: /usr/bin/gcc
 	src/lua-5.2.3/src/lvm.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -164,6 +230,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -173,10 +244,11 @@ called: /usr/bin/gcc
 	src/lua-5.2.3/src/lzio.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -193,6 +265,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -202,10 +279,11 @@ called: /usr/bin/gcc
 	src/lua-5.2.3/src/lfunc.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -222,6 +300,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -231,10 +314,11 @@ called: /usr/bin/gcc
 	src/lua-5.2.3/src/ldo.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -251,6 +335,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -260,10 +349,11 @@ called: /usr/bin/gcc
 	src/lua-5.2.3/src/lgc.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -280,6 +370,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -289,10 +384,11 @@ called: /usr/bin/gcc
 	src/lua-5.2.3/src/lbitlib.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -309,6 +405,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -318,10 +419,11 @@ called: /usr/bin/gcc
 	src/lua-5.2.3/src/ldump.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -338,6 +440,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -347,10 +454,11 @@ called: /usr/bin/gcc
 	src/lua-5.2.3/src/lctype.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -367,6 +475,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -376,10 +489,11 @@ called: /usr/bin/gcc
 	src/lua-5.2.3/src/lauxlib.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -396,6 +510,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -405,10 +524,11 @@ called: /usr/bin/gcc
 	src/lua-5.2.3/src/lundump.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -425,6 +545,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -434,10 +559,11 @@ called: /usr/bin/gcc
 	src/lua-5.2.3/src/lmem.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -454,6 +580,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -463,10 +594,11 @@ called: /usr/bin/gcc
 	src/lua-5.2.3/src/ltm.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -483,6 +615,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -492,10 +629,11 @@ called: /usr/bin/gcc
 	src/lua-5.2.3/src/ldebug.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -512,6 +650,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -521,10 +664,11 @@ called: /usr/bin/gcc
 	src/lua-5.2.3/src/lmathlib.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -541,6 +685,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -550,10 +699,11 @@ called: /usr/bin/gcc
 	src/lua-5.2.3/src/ltablib.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -570,6 +720,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -579,10 +734,11 @@ called: /usr/bin/gcc
 	src/lua-5.2.3/src/lapi.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -599,6 +755,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -608,10 +769,11 @@ called: /usr/bin/gcc
 	src/lua-5.2.3/src/loadlib.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -628,6 +790,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -637,10 +804,11 @@ called: /usr/bin/gcc
 	src/lua-5.2.3/src/llex.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -657,6 +825,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -666,10 +839,11 @@ called: /usr/bin/gcc
 	src/lua-5.2.3/src/lstring.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -686,6 +860,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -695,10 +874,11 @@ called: /usr/bin/gcc
 	src/lua-5.2.3/src/lbaselib.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -715,6 +895,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -724,10 +909,11 @@ called: /usr/bin/gcc
 	src/lua-5.2.3/src/lobject.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -744,6 +930,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -753,10 +944,11 @@ called: /usr/bin/gcc
 	src/lua-5.2.3/src/loslib.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -773,6 +965,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -782,10 +979,11 @@ called: /usr/bin/gcc
 	src/lua-5.2.3/src/lstate.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -802,6 +1000,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -811,10 +1014,11 @@ called: /usr/bin/gcc
 	src/lua-5.2.3/src/lparser.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -831,6 +1035,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -840,10 +1049,11 @@ called: /usr/bin/gcc
 	src/lua-5.2.3/src/ltable.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -860,6 +1070,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -869,10 +1084,11 @@ called: /usr/bin/gcc
 	src/lua-5.2.3/src/lopcodes.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -889,6 +1105,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -898,10 +1119,11 @@ called: /usr/bin/gcc
 	src/lua-5.2.3/src/linit.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -918,6 +1140,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -927,10 +1154,11 @@ called: /usr/bin/gcc
 	src/lua-5.2.3/src/lcorolib.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -947,6 +1175,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -956,10 +1189,11 @@ called: /usr/bin/gcc
 	src/lua-5.2.3/src/lcode.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -976,6 +1210,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -985,10 +1224,11 @@ called: /usr/bin/gcc
 	src/lua-5.2.3/src/liolib.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -1005,6 +1245,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -1014,10 +1259,11 @@ called: /usr/bin/gcc
 	src/lua-5.2.3/src/ldblib.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -1034,6 +1280,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -1043,10 +1294,11 @@ called: /usr/bin/gcc
 	src/argtable2-13/src/arg_lit.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -1063,6 +1315,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -1072,10 +1329,11 @@ called: /usr/bin/gcc
 	src/argtable2-13/src/arg_rex.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -1092,6 +1350,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -1101,10 +1364,11 @@ called: /usr/bin/gcc
 	src/argtable2-13/src/arg_end.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -1121,6 +1385,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -1130,10 +1399,11 @@ called: /usr/bin/gcc
 	src/argtable2-13/src/getopt.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -1150,6 +1420,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -1159,10 +1434,11 @@ called: /usr/bin/gcc
 	src/argtable2-13/src/arg_int.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -1179,6 +1455,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -1188,10 +1469,11 @@ called: /usr/bin/gcc
 	src/argtable2-13/src/argtable2.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -1208,6 +1490,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -1217,10 +1504,11 @@ called: /usr/bin/gcc
 	src/argtable2-13/src/arg_rem.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -1237,6 +1525,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -1246,10 +1539,11 @@ called: /usr/bin/gcc
 	src/argtable2-13/src/arg_file.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -1266,6 +1560,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -1275,10 +1574,11 @@ called: /usr/bin/gcc
 	src/argtable2-13/src/getopt1.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -1295,6 +1595,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -1304,10 +1609,11 @@ called: /usr/bin/gcc
 	src/argtable2-13/src/arg_str.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -1324,6 +1630,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -1333,10 +1644,11 @@ called: /usr/bin/gcc
 	src/argtable2-13/src/arg_dbl.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -1353,6 +1665,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -1362,10 +1679,11 @@ called: /usr/bin/gcc
 	src/argtable2-13/src/arg_date.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -1382,6 +1700,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -1391,10 +1714,11 @@ called: /usr/bin/gcc
 	src/SWILL-0.3/Source/SWILL/encoding.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -1411,6 +1735,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -1420,10 +1749,11 @@ called: /usr/bin/gcc
 	src/SWILL-0.3/Source/SWILL/handlers.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -1440,6 +1770,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -1449,10 +1784,11 @@ called: /usr/bin/gcc
 	src/SWILL-0.3/Source/SWILL/io.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -1469,6 +1805,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -1478,10 +1819,11 @@ called: /usr/bin/gcc
 	src/SWILL-0.3/Source/SWILL/log.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -1498,6 +1840,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -1507,10 +1854,11 @@ called: /usr/bin/gcc
 	src/SWILL-0.3/Source/SWILL/mime.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -1527,6 +1875,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -1536,10 +1889,11 @@ called: /usr/bin/gcc
 	src/SWILL-0.3/Source/SWILL/parse.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -1556,6 +1910,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -1565,10 +1924,11 @@ called: /usr/bin/gcc
 	src/SWILL-0.3/Source/SWILL/security.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -1585,6 +1945,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -1594,10 +1959,11 @@ called: /usr/bin/gcc
 	src/SWILL-0.3/Source/SWILL/sock.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -1614,6 +1980,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -1623,10 +1994,11 @@ called: /usr/bin/gcc
 	src/SWILL-0.3/Source/SWILL/ssl.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -1643,6 +2015,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -1652,10 +2029,11 @@ called: /usr/bin/gcc
 	src/SWILL-0.3/Source/SWILL/web.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -1672,6 +2050,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -1681,10 +2064,11 @@ called: /usr/bin/gcc
 	src/SWILL-0.3/Source/Objects/base.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -1701,6 +2085,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -1710,10 +2099,11 @@ called: /usr/bin/gcc
 	src/SWILL-0.3/Source/Objects/file.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -1730,6 +2120,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -1739,10 +2134,11 @@ called: /usr/bin/gcc
 	src/SWILL-0.3/Source/Objects/fio.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -1759,6 +2155,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -1768,10 +2169,11 @@ called: /usr/bin/gcc
 	src/SWILL-0.3/Source/Objects/hash.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -1788,6 +2190,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -1797,10 +2204,11 @@ called: /usr/bin/gcc
 	src/SWILL-0.3/Source/Objects/list.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -1817,6 +2225,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -1826,10 +2239,11 @@ called: /usr/bin/gcc
 	src/SWILL-0.3/Source/Objects/memory.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -1846,6 +2260,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -1855,10 +2274,11 @@ called: /usr/bin/gcc
 	src/SWILL-0.3/Source/Objects/string.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-c
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -1875,6 +2295,11 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
@@ -1884,9 +2309,10 @@ called: /usr/bin/gcc
 	src/SWILL-0.3/Source/Objects/void.o
 
 called: /usr/bin/gcc
-	/home/peterm/tester/make/example
+	/storage/home/pmg/Tester/makeplates/examples/glua
 	/usr/bin/gcc
 	-I.
+	-g
 	-DHAVE_CONFIG_H
 	-DLUA_USE_MKSTEMP
 	-O2
@@ -1903,11 +2329,17 @@ called: /usr/bin/gcc
 	-Isrc/SWILL-0.3/Source/SWILL
 	-Isrc/SWILL-0.3/Source/Objects
 	-std=gnu99
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+	-pthread
+	-I/usr/include/glib-2.0
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 	-MMD
 	-MP
 	-MF
 	.dep/example.d
 	./src/main.o
+	./src/gp_log.o
 	./src/iniparser3.1/src/dictionary.o
 	./src/iniparser3.1/src/iniparser.o
 	./src/lua-5.2.3/src/lstrlib.o
@@ -1977,26 +2409,35 @@ called: /usr/bin/gcc
 	-Wl,-Map=output/example.map,--cref
 	-lm
 
-called: /usr/lib64/gcc/x86_64-slackware-linux/4.5.2/../../../../x86_64-slackware-linux/bin/ld
-	/home/peterm/tester/make/example
-	/usr/lib64/gcc/x86_64-slackware-linux/4.5.2/../../../../x86_64-slackware-linux/bin/ld
+called: /usr/bin/ld
+	/storage/home/pmg/Tester/makeplates/examples/glua
+	/usr/bin/ld
+	--sysroot=/
+	--build-id
 	--eh-frame-hdr
 	-m
 	elf_x86_64
+	--hash-style=gnu
+	--as-needed
 	-dynamic-linker
 	/lib64/ld-linux-x86-64.so.2
+	-z
+	relro
 	-o
 	output/example
-	/usr/lib64/gcc/x86_64-slackware-linux/4.5.2/../../../../lib64/crt1.o
-	/usr/lib64/gcc/x86_64-slackware-linux/4.5.2/../../../../lib64/crti.o
-	/usr/lib64/gcc/x86_64-slackware-linux/4.5.2/crtbegin.o
-	-L/usr/lib64/gcc/x86_64-slackware-linux/4.5.2
-	-L/usr/lib64/gcc/x86_64-slackware-linux/4.5.2/../../../../lib64
-	-L/lib/../lib64
-	-L/usr/lib/../lib64
-	-L/usr/lib64/gcc/x86_64-slackware-linux/4.5.2/../../../../x86_64-slackware-linux/lib
-	-L/usr/lib64/gcc/x86_64-slackware-linux/4.5.2/../../..
+	/usr/lib/gcc/x86_64-linux-gnu/4.8/../../../x86_64-linux-gnu/crt1.o
+	/usr/lib/gcc/x86_64-linux-gnu/4.8/../../../x86_64-linux-gnu/crti.o
+	/usr/lib/gcc/x86_64-linux-gnu/4.8/crtbegin.o
+	-L/usr/lib/gcc/x86_64-linux-gnu/4.8
+	-L/usr/lib/gcc/x86_64-linux-gnu/4.8/../../../x86_64-linux-gnu
+	-L/usr/lib/gcc/x86_64-linux-gnu/4.8/../../../../lib
+	-L/lib/x86_64-linux-gnu
+	-L/lib/../lib
+	-L/usr/lib/x86_64-linux-gnu
+	-L/usr/lib/../lib
+	-L/usr/lib/gcc/x86_64-linux-gnu/4.8/../../..
 	./src/main.o
+	./src/gp_log.o
 	./src/iniparser3.1/src/dictionary.o
 	./src/iniparser3.1/src/iniparser.o
 	./src/lua-5.2.3/src/lstrlib.o
@@ -2068,11 +2509,12 @@ called: /usr/lib64/gcc/x86_64-slackware-linux/4.5.2/../../../../x86_64-slackware
 	--as-needed
 	-lgcc_s
 	--no-as-needed
+	-lpthread
 	-lc
 	-lgcc
 	--as-needed
 	-lgcc_s
 	--no-as-needed
-	/usr/lib64/gcc/x86_64-slackware-linux/4.5.2/crtend.o
-	/usr/lib64/gcc/x86_64-slackware-linux/4.5.2/../../../../lib64/crtn.o
+	/usr/lib/gcc/x86_64-linux-gnu/4.8/crtend.o
+	/usr/lib/gcc/x86_64-linux-gnu/4.8/../../../x86_64-linux-gnu/crtn.o
 

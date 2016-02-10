@@ -194,6 +194,14 @@ E_BR_MAGENTA   = \033[1;35m
 E_BR_CYAN      = \033[1;36m
 E_WHITE        = \033[1;37m
 E_END          = \033[0m
+E_ON_BLACK     = \033[40
+E_ON_RED       = \033[41
+E_ON_GREEN     = \033[42
+E_ON_YELLOW    = \033[43
+E_ON_BLUE      = \033[44
+E_ON_MAGENTA   = \033[45
+E_ON_CYAN      = \033[46
+E_ON_WHITE     = \033[1;47
 
 C_OK=$(E_BR_GREEN)
 C_ERROR=$(E_BR_RED)
@@ -322,8 +330,8 @@ CPP_FILTER = $(C_FILTER)
 # Compile: create object files from C source files.
 $(OBJDIR)/%.o : %.c
 	@echo -e $(MSG_COMPILING) "$(C_FILE)" $< "$(E_END)"
-	@$(CC) -c $(ALL_CFLAGS) $< -o $@ 2>&1 | $(C_FILTER)
-
+#	@$(CC) -c $(ALL_CFLAGS) $< -o $@ 2>&1 | $(C_FILTER)
+	@$(CC) -c $(ALL_CFLAGS) $< -o $@ 2>&1
 
 # Compile: create object files from C++ source files.
 $(OBJDIR)/%.o : %.cpp

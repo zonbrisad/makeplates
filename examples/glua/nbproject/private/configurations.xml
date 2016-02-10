@@ -9,69 +9,6 @@
       <df name="output">
       </df>
       <df name="src">
-        <df name="argtable2-13">
-          <df name="doc">
-          </df>
-          <df name="example">
-            <in>argcustom.c</in>
-            <in>argxxx.c</in>
-            <in>argxxx.h</in>
-            <in>callbacks.c</in>
-            <in>echo.c</in>
-            <in>hasoptvalue.c</in>
-            <in>ls.c</in>
-            <in>multisyntax.c</in>
-            <in>mv.c</in>
-            <in>myprog.c</in>
-            <in>myprog_C89.c</in>
-            <in>rm.c</in>
-            <in>uname.c</in>
-          </df>
-          <df name="m4">
-          </df>
-          <df name="src">
-            <in>arg_date.c</in>
-            <in>arg_dbl.c</in>
-            <in>arg_end.c</in>
-            <in>arg_file.c</in>
-            <in>arg_int.c</in>
-            <in>arg_lit.c</in>
-            <in>arg_rem.c</in>
-            <in>arg_rex.c</in>
-            <in>arg_str.c</in>
-            <in>argtable2.c</in>
-            <in>argtable2.h</in>
-            <in>config.h</in>
-            <in>getopt.c</in>
-            <in>getopt.h</in>
-            <in>getopt1.c</in>
-          </df>
-          <df name="tests">
-            <in>fntests.c</in>
-            <in>test_date.c</in>
-            <in>test_dbl.c</in>
-            <in>test_file.c</in>
-            <in>test_int.c</in>
-            <in>test_lit.c</in>
-            <in>test_rex.c</in>
-          </df>
-        </df>
-        <df name="iniparser3.1">
-          <df name="doc">
-          </df>
-          <df name="html">
-          </df>
-          <df name="src">
-            <in>dictionary.c</in>
-            <in>dictionary.h</in>
-            <in>iniparser.c</in>
-            <in>iniparser.h</in>
-          </df>
-          <df name="test">
-            <in>iniexample.c</in>
-            <in>parse.c</in>
-          </df>
-        </df>
         <df name="lua-5.2.3">
           <df name="doc">
           </df>
@@ -199,6 +136,9 @@
           <df name="Test">
           </df>
         </df>
+        <in>Def.h</in>
+        <in>gp_log.c</in>
+        <in>gp_log.h</in>
         <in>main.c</in>
       </df>
     </df>

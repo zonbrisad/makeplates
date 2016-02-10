@@ -17,7 +17,7 @@ extern "C" {
   /**
    * Init log system.
    */
-  void gp_log_init();
+  void gp_log_init(char *logfile);
 	
 	
 	/**
@@ -25,6 +25,12 @@ extern "C" {
 	 */
 	void gp_log_set_verbose(gboolean v);
 
+  /**
+   * Print log to stdout.
+   */
+  void gp_log_print();
+  
+  
 	
 	/**
 	 * Close down log system

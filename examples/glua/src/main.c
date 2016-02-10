@@ -1,57 +1,91 @@
+/**
+ *---------------------------------------------------------------------------
+ *
+ * @brief Makeplate GLIB example
+ *
+ * @file    main.c
+ * @author  Peter Malmberg <peter.malmberg@gmail.com>
+ * @date    2015-05-19 01:20:00
+ *
+ *---------------------------------------------------------------------------
+ */
 
-#include "stdio.h"
-#include "stdlib.h"
-#include "main.h"
-#include "argtable2.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <signal.h>
+#include <glib-2.0/glib.h>
+
 #include "lua.h"
 #include "lauxlib.h"
 
+#include "gp_log.h"
 
 /**
  * Defines
  *---------------------------------------------------------------------------
  */
 #define VERSION "0.1"
+#define DESCRIPTION "- a general purpose log program"
 
+/**
+ * Variables
+ *---------------------------------------------------------------------------
+ */
 
+GTimer    *timer;
+GThread   *thread1;
+GThread   *thread2;
+GMainLoop *mLoop;
+
+static gboolean opt_verbose    = FALSE;
+static gboolean opt_version    = FALSE;
+static gboolean opt_quiet      = FALSE;
+static gboolean opt_daemon     = FALSE;
+
+static GOptionEntry entries[] = {
+  { "verbose",  'v', 0, G_OPTION_ARG_NONE, &opt_verbose,    "Be verbose output",    NULL },
+  { "version",  'b', 0, G_OPTION_ARG_NONE, &opt_version,    "Output version info",  NULL },
+  { "quiet",    'q', 0, G_OPTION_ARG_NONE, &opt_quiet,      "No output to console", NULL },
+  { "daemon",    0,  0, G_OPTION_ARG_NONE, &opt_daemon,     "Start as daemon",      NULL },
+  { NULL }
+};
+
+/**
+ * Code
+ *---------------------------------------------------------------------------
+ */
+ 
+void safeExit() {
+  gp_log_close();
+	exit(0);
+}
 
 int main(int argc, char *argv[]) {
-	int error;
-
-	// --- Command line arguments ---
-	//---------------------------------------------------------------------------
-	struct arg_lit *help     = arg_lit0("h",  "help",                  "Show help");
-	struct arg_lit *version  = arg_lit0(NULL, "version",               "Version");
-	struct arg_lit *verbose  = arg_lit0("v",  "verbose",               "Verbose output");
-	struct arg_end *end      = arg_end(20);
+	GError *error = NULL;
+	GOptionContext *context;
 	
-	void *argtable[] = { help, version, verbose, end};
-	  
-	if (arg_nullcheck(argtable) != 0) {
-		/* NULL entries were detected, some allocations must have failed */
-		printf("Argtable: insufficient memory\n");
-		exit(0);
-	}
-	 
-	error = arg_parse(argc,argv,argtable);
+	// init log system
+	gp_log_init();                 
 	
-	if (error > 0) {
-	  arg_print_errors(stdout,end,"program");
-		exit(1);
-	}
-	if (verbose->count) {
-	}
+  // parse command line arguments
+  context = g_option_context_new (DESCRIPTION);
+  g_option_context_add_main_entries (context, entries, NULL);
+  if (!g_option_context_parse (context, &argc, &argv, &error)) {
+    g_print ("option parsing failed: %s\n", error->message);
+    exit (1);
+  }
 
-	if (version->count) {
+	// print version information
+	if (opt_version) {
 		printf("Program version %s\nBuild ("__DATE__" "__TIME__")\n", VERSION);
-		exit(0);
+		safeExit();
 	}
 	
-	// Print helptext
-	if (help->count) {
-		arg_print_glossary(stdout,argtable,"  %-30s %s\n");
-		exit(0);
+	// enable verbose mode
+	if (opt_verbose) {
+	  gp_log_set_verbose(TRUE);  
 	}
+	
 	
 	printf("Ett litet testprogram.\n");
 	
@@ -61,5 +95,5 @@ int main(int argc, char *argv[]) {
 	//luaL_close(L);
 	 
 	
-	return 0;
+	safeExit();
 }

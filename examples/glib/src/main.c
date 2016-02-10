@@ -10,9 +10,10 @@
  *---------------------------------------------------------------------------
  */
 
-#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <signal.h>
+#include <unistd.h>
 #include <glib-2.0/glib.h>
 
 #include "gp_log.h"
@@ -23,7 +24,7 @@
  */
 #define VERSION "0.1"
 #define DESCRIPTION "- a general purpose log program"
-
+#define LOGFILE "glib.log"
 /**
  * Variables
  *---------------------------------------------------------------------------
@@ -40,6 +41,7 @@ static gboolean opt_quiet      = FALSE;
 static gboolean opt_daemon     = FALSE;
 static gboolean opt_errorTest  = FALSE;
 static gboolean opt_threadTest = FALSE;
+static gboolean opt_info       = FALSE;
 
 static GOptionEntry entries[] = {
 	//  { "repeats",  'r', 0, G_OPTION_ARG_INT,  &repeats,   "Average over N repetitions", "N" },
@@ -49,8 +51,8 @@ static GOptionEntry entries[] = {
   { "quiet",    'q', 0, G_OPTION_ARG_NONE, &opt_quiet,      "No output to console", NULL },
   { "daemon",    0,  0, G_OPTION_ARG_NONE, &opt_daemon,     "Start as daemon",      NULL },
 	{ "error",     0,  0, G_OPTION_ARG_NONE, &opt_errorTest,  "Error test",           NULL },
-	{ "thread",    0,  0, G_OPTION_ARG_NONE, &opt_threadTest, "Thread test",          NULL },	
-	
+  { "thread",    0,  0, G_OPTION_ARG_NONE, &opt_threadTest, "Thread test",          NULL },	
+  { "info",     'i', 0, G_OPTION_ARG_NONE, &opt_info,       "Show info",            NULL },	
   { NULL }
 };
 
@@ -60,7 +62,7 @@ typedef struct kalle {
 }
 */
 /**
- * Coed
+ * Code
  *---------------------------------------------------------------------------
  */
 
@@ -71,21 +73,14 @@ void safeExit() {
 }
 
 void errorTest() {
-	int i;
+//	int i;
 	gp_log_set_verbose(TRUE);
 //  g_info("This is information\n");
   g_message("This is a message\n");
   g_warning("This is a warning\n");
   g_debug("This is a debug message\n");
-  g_error("This is an error\n");
-	g_critical("This is critical\n");
-  
-	nisse(12);
-	while(i<10) {
-	  i++;
-	}
-	x
-
+  //g_error("This is an error\n");
+	//g_critical("This is critical\n");
 }
 
 void sig_ctrl_c(int sig) {
@@ -119,19 +114,32 @@ void threadTest() {
 //	thread = g_thread_new("TestThread", thread_t, NULL);
 	
 	g_main_loop_run(mLoop);
-  x
+
 }
-								 
+							
+void infoTest() {
+  pid_t pid;
+  pid = getpid();
+  GError *err;
+  char *buf;
+  
+  buf = g_file_read_link("/proc/self/exe", &err);
+  
+  printf("PID:          %d\n", pid);
+  printf("Program path: %s\n", buf);
+  printf("Username:     %s\n", g_get_user_name());
+  printf("Full name:    %s\n", g_get_real_name());
+  printf("Home dir:     %s\n", g_get_home_dir());
+  printf("Hostname:     %s\n", g_get_host_name());
+}
 
 int main(int argc, char *argv[]) {
 	GError *error = NULL;
 	GOptionContext *context;
 	
 	// init log system
-	gp_log_init();                 
-
-	
-	
+	gp_log_init(LOGFILE);
+  
   // parse command line arguments
   context = g_option_context_new (DESCRIPTION);
   g_option_context_add_main_entries (context, entries, NULL);
@@ -140,16 +148,19 @@ int main(int argc, char *argv[]) {
     exit (1);
   }
 
-	// print version information
+	// enable verbose mode
+	if (opt_verbose) {
+	  gp_log_set_verbose(TRUE);  
+	}
+  
+  g_message("Program start\n");
+	
+  // print version information
 	if (opt_version) {
 		printf("Program version %s\nBuild ("__DATE__" "__TIME__")\n", VERSION);
 		exit(0);
 	}
 	
-	// enable verbose mode
-	if (opt_verbose) {
-	  gp_log_set_verbose(TRUE);  
-	}
 	
 	// Error Test
 	if (opt_errorTest) {
@@ -160,6 +171,12 @@ int main(int argc, char *argv[]) {
 	// thread test
 	if (opt_threadTest) { 
 		threadTest();
+		exit(0);
+	}
+  
+	// thread test
+	if (opt_info) { 
+		infoTest();
 		exit(0);
 	}
 	
