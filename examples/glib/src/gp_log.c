@@ -33,7 +33,7 @@ void gp_log_init(char *logfile) {
 	gp_log_set_verbose(FALSE);
 	
 	/* Set handler for all levels */
-  g_log_set_handler(G_LOG_DOMAIN, G_LOG_LEVEL_MASK, gp_log_handler, NULL);
+  g_log_set_handler(G_LOG_DOMAIN, G_LOG_LEVEL_MASK | G_LOG_LEVEL_ERROR | G_LOG_FLAG_FATAL, gp_log_handler, NULL);
 	
 	gpLogFile = g_fopen(logfile, "a");
   if (gpLogFile==NULL) {
@@ -56,14 +56,19 @@ static void gp_log_handler(const gchar *log_domain,
   GDateTime *dt;
   char *dateTime;
     
+	//color = E_WHITE;
+	//level = "    ";
   switch (log_level) {
-      case G_LOG_LEVEL_WARNING:  color = E_BR_YELLOW;  level = "warn"; break;
-	    case G_LOG_LEVEL_ERROR:    color = E_BR_RED;     level = "err "; break;
-      case G_LOG_LEVEL_CRITICAL: color = E_ON_RED E_WHITE;  level = "crit"; break;
-      case G_LOG_LEVEL_DEBUG:    color = E_BR_GREEN;   level = "dbg ";  break;
-      case G_LOG_LEVEL_INFO:     color = E_WHITE;      level = "info";   break;
-      case G_LOG_LEVEL_MESSAGE:  color = E_BR_CYAN;    level = "msg ";break;
-      default:                   color = E_WHITE;
+	 case G_LOG_LEVEL_WARNING:  color = E_BR_YELLOW;  level = "warn";      break;
+	 case G_LOG_LEVEL_ERROR:    color = E_BR_RED;     level = "err ";      break;
+	 case G_LOG_LEVEL_CRITICAL: color = E_ON_RED E_WHITE; level = "crit";  break;
+	 case G_LOG_LEVEL_DEBUG:    color = E_BR_GREEN;   level = "dbg ";      break;
+	 case G_LOG_LEVEL_INFO:     color = E_WHITE;      level = "info";      break;
+	 case G_LOG_LEVEL_MESSAGE:  color = E_BR_CYAN;    level = "msg ";      break;
+	 case G_LOG_FLAG_RECURSION: break;
+	 case G_LOG_FLAG_FATAL:     break;
+	 case G_LOG_LEVEL_MASK:     break;
+      //default:                   color = E_WHITE; break; 
   }
   
   // date and time information

@@ -14,6 +14,8 @@
 #include <stdlib.h>
 #include <signal.h>
 #include <unistd.h>
+#include <fcntl.h>
+#include <sys/stat.h>
 #include <glib-2.0/glib.h>
 
 #include "gp_log.h"
@@ -42,17 +44,18 @@ static gboolean opt_daemon     = FALSE;
 static gboolean opt_errorTest  = FALSE;
 static gboolean opt_threadTest = FALSE;
 static gboolean opt_info       = FALSE;
+static gboolean opt_daemonTest = FALSE;
+
 
 static GOptionEntry entries[] = {
-	//  { "repeats",  'r', 0, G_OPTION_ARG_INT,  &repeats,   "Average over N repetitions", "N" },
-  //  { "max-size", 'm', 0, G_OPTION_ARG_INT,  &max_size,  "Test up to 2^M items", "M" },
   { "verbose",  'v', 0, G_OPTION_ARG_NONE, &opt_verbose,    "Be verbose output",    NULL },
   { "version",  'b', 0, G_OPTION_ARG_NONE, &opt_version,    "Output version info",  NULL },
   { "quiet",    'q', 0, G_OPTION_ARG_NONE, &opt_quiet,      "No output to console", NULL },
   { "daemon",    0,  0, G_OPTION_ARG_NONE, &opt_daemon,     "Start as daemon",      NULL },
 	{ "error",     0,  0, G_OPTION_ARG_NONE, &opt_errorTest,  "Error test",           NULL },
   { "thread",    0,  0, G_OPTION_ARG_NONE, &opt_threadTest, "Thread test",          NULL },	
-  { "info",     'i', 0, G_OPTION_ARG_NONE, &opt_info,       "Show info",            NULL },	
+  { "info",     'i', 0, G_OPTION_ARG_NONE, &opt_info,       "Show info",            NULL },
+	{ "daemon",   'd', 0, G_OPTION_ARG_NONE, &opt_daemonTest, "Daemon test",          NULL },
   { NULL }
 };
 
@@ -79,7 +82,7 @@ void errorTest() {
   g_message("This is a message\n");
   g_warning("This is a warning\n");
   g_debug("This is a debug message\n");
-  //g_error("This is an error\n");
+  g_error("This is an error\n");
 	//g_critical("This is critical\n");
 }
 
@@ -133,6 +136,64 @@ void infoTest() {
   printf("Hostname:     %s\n", g_get_host_name());
 }
 
+
+void daemonize(void) {
+	pid_t pid, sid;
+	int fd;
+	
+	/* already a daemon */
+	if ( getppid() == 1 ) return;
+	
+	/* Fork off the parent process */
+	pid = fork();
+	if (pid < 0) {
+		exit(EXIT_FAILURE);
+	}
+	
+	/* Killing the Parent Process*/
+	if (pid > 0) {
+		exit(EXIT_SUCCESS); 
+	}
+	
+	/* At this point we are executing as the child process */
+	
+	/* Create a new SID for the child process */
+	sid = setsid();
+	if (sid < 0) {
+		exit(EXIT_FAILURE);
+	}
+	
+	/* Change the current working directory. */
+	if ((chdir("/")) < 0)	{
+		exit(EXIT_FAILURE);
+	}
+	
+	fd = open("/dev/null",O_RDWR, 0);
+	
+	// redirect streams
+	if (fd != -1) {
+		dup2 (fd, STDIN_FILENO);
+		dup2 (fd, STDOUT_FILENO);
+		dup2 (fd, STDERR_FILENO);
+			
+		if (fd > 2) {
+			close (fd);
+		}
+	}
+	
+	/* resettign File Creation Mask */
+	umask(027);
+}
+
+void daemonTest(void) {
+  printf("Starting up daemon\n");
+	daemonize();
+
+	mLoop = g_main_loop_new(NULL, FALSE);
+	g_main_loop_run(mLoop);
+}
+
+
 int main(int argc, char *argv[]) {
 	GError *error = NULL;
 	GOptionContext *context;
@@ -179,6 +240,13 @@ int main(int argc, char *argv[]) {
 		infoTest();
 		exit(0);
 	}
-	
+
+	// daemon test
+	if (opt_daemonTest) { 
+		daemonTest();
+		exit(0);
+	}
+
+ 	
 	return 0;
 }
