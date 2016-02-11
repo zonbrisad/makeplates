@@ -13,10 +13,14 @@ gboolean gp_syslog=FALSE;
 gboolean gp_debug=FALSE;
 gboolean gp_noColor=FALSE;
 
+int gp_maxSize;
+int gp_logSize;
+
 char *gp_logFile;
 char *gp_logDir;
 
 FILE *gpLogFile = NULL;
+char *gpLogFilename;
 
 static void gp_log_handler(const gchar *log_domain,
                    GLogLevelFlags log_level,
@@ -29,7 +33,9 @@ void gp_log_set_verbose(gboolean v) {
 }
 
 void gp_log_init(char *logfile) {
+	GStatBuf st;
 	
+	gpLogFilename = logfile;
 	gp_log_set_verbose(FALSE);
 	
 	/* Set handler for all levels */
@@ -37,8 +43,13 @@ void gp_log_init(char *logfile) {
 	
 	gpLogFile = g_fopen(logfile, "a");
   if (gpLogFile==NULL) {
-    printf("Could not open file\n");
+    g_warning("Could not open file for message logging\n");
+		return;
   }
+	
+  g_stat(gpLogFilename, &st);
+	gp_logSize = st.st_size;
+	g_debug("Logfile size: %d\n", gp_logSize);
 
 }
 
@@ -55,6 +66,7 @@ static void gp_log_handler(const gchar *log_domain,
   char *level;
   GDateTime *dt;
   char *dateTime;
+  int i;
     
 	//color = E_WHITE;
 	//level = "    ";
@@ -79,8 +91,15 @@ static void gp_log_handler(const gchar *log_domain,
     printf("%s [%s%s%s] %s",dateTime,color,level,E_END,message);
   }
   
-  fprintf(gpLogFile, "%s [%s] %s", dateTime, level, message);
-  
+  if (gp_logSize>gp_maxSize) {
+  	//g_see
+  }
+
+  if (gpLogFile!=NULL) {
+    i = fprintf(gpLogFile, "%s [%s] %s", dateTime, level, message);
+    if (i>0)
+    	gp_logSize += i;
+  }
   g_free(dateTime);
   
   return ;
