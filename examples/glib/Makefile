@@ -72,7 +72,8 @@ CPPDEFS =
 #  -Wall...:     warning level
 #  -Wa,...:      tell GCC to pass this to the assembler.
 #    -adhlns...: create assembler listing
-CFLAGS = -g$(DEBUG)
+#CFLAGS = -g$(DEBUG)
+CFLAGS = -g
 CFLAGS += $(CDEFS)
 CFLAGS += -O$(OPT)
 CFLAGS += -funsigned-char
@@ -140,6 +141,7 @@ ASFLAGS = $(ADEFS) -Wa,-adhlns=$(<:%.S=$(OBJDIR)/%.lst),-gstabs,--listing-cont-l
 LDFLAGS = -Wl,-Map=$(OUTDIR)/$(TARGET).map,--cref
 LDFLAGS += $(EXTMEMOPTS)
 #LDFLAGS += -T linker_script.x
+LDFLAGS += -g
 
 #
 # Tool settings
