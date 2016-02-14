@@ -65,7 +65,7 @@ int main(int argc, char *argv[]) {
 	GOptionContext *context;
 	
 	// init log system
-	gp_log_init();                 
+	gp_log_init("glua.log");                 
 	
   // parse command line arguments
   context = g_option_context_new (DESCRIPTION);

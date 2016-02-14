@@ -1,7 +1,7 @@
 # Hey Emacs, this is a -*- makefile -*-
 #----------------------------------------------------------------------------
 # 
-# General Makefile template.
+# Makeplate glib example program
 #
 # author: Peter Malmberg <peter.malmberg@gmail.com>
 #
@@ -11,7 +11,7 @@
 # >make help 
 #----------------------------------------------------------------------------
 
-# Project Licence (GPL, GPLv2, MIT, BSD, Apache, etc.). 
+# Project Licence (GPL, GPLv2, MIT, BSD, Apache, etc.) 
 LICENCE = GPLv2
 
 # Target file name (without extension).
@@ -32,13 +32,14 @@ ASRC =
 # Include directories
 INCLUDE = inc \
           src \
-					libtermkey-0.17 
 
 
 # Libraries to link
 LIB  = -lm 
 LIB += $(shell pkg-config --libs glib-2.0)
 LIB += $(shell pkg-config --libs gthread-2.0)
+#LIB += $(shell pkg-config --libs ncurses)
+LIB += $(shell pkg-config --libs lua5.1)
 
 # Object files directory
 #     To put object files in current directory, use a dot (.), do NOT make
@@ -92,6 +93,7 @@ CFLAGS += $(patsubst %,-I%,$(INCLUDE))
 CFLAGS += $(CSTANDARD)
 CFLAGS += $(shell pkg-config --cflags glib-2.0)
 CFLAGS += $(shell pkg-config --cflags gthread-2.0)
+#CFLAGS += $(shell pkg-config --cflags lua5.1)
 
 
 #---------------- Compiler Options C++ ----------------
@@ -232,6 +234,35 @@ MSG_CREATING_LIBRARY = "${E_BR_MAGENTA}Creating library:${E_END}"
 MSG_FLASH            = "${E_BR_MAGENTA}Creating load file for Flash:${E_END}"
 MSG_EEPROM           = "${E_BR_MAGENTA}Creating load file for EEPROM:${E_END}"
 MSG_BACKUP           = "${E_BR_GREEN}Making incremental backup of project:${E_END}"
+
+#while read x ; do echo $x ; done \
+#| sed -e "s/.*error:.*/\x1b[1;36m&\x1b[0m/" \
+#-e "s/.*warning:.*/\x1b[1;36m&\x1b[0m/" \
+#-e "s/^\(.*\)\(required from\)/\x1b[1;36m\1\x1b[0mnote: \2/" \
+#-e "s/^\(.*\)\(In instantiation of\)/\x1b[1;36m\1\x1b[0mnote: \2/" \
+#-e "s/^\(.*\)\(In member\)/\x1b[1;36m\1\x1b[0mnote: \2/" \
+#| sed -e "s/error:/\x1b[1;31m&\x1b[1;36m/" \
+#-e "s/warning:/\x1b[1;35m&\x1b[1;36m/" \
+#-e "s/note:/\x1b[1;30m&\x1b[0m/"
+
+
+#https://github.com/renatosilva/colormake/blob/master/colormake.sh
+#http://stackoverflow.com/questions/1032237/highlight-and-filter-gcc-compiler-messages
+#https://github.com/renatosilva/colormake
+
+# Compiler output colorizer filter
+F_ERROR="s/error:/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
+F_WARNING="s/warning:/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
+F_NOTE="s/note:/$$(printf "$(C_NOTE)")&$$(printf "$(E_END)")/i"
+FF_ERROR="s/^.*error:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
+FF_WARNING="s/^.*warning:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
+FF_NOTE="s/^.*note:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
+
+C_FILTER   = | sed -ru -e $(F_ERROR)  -e $(F_WARNING)  -e $(F_NOTE) \
+                     -e $(FF_ERROR) -e $(FF_WARNING) -e $(FF_NOTE)
+CPP_FILTER = $(C_FILTER)
+
+
 	
 #
 # Build rules	
@@ -254,6 +285,17 @@ LST = $(SRC:%.c=$(OBJDIR)/%.lst) $(CPPSRC:%.cpp=$(OBJDIR)/%.lst) $(ASRC:%.S=$(OB
 
 # Default target.
 all:	begin build finished end
+
+# Remove colorfilter
+nocolor:
+	$(eval C_FILTER:= )
+	
+#
+# Build with no color filter on compiler output
+# Useful for Netbeans, Eclipse builds etc. 
+#	
+nc: nocolor all   ## Build with no color on compiler output
+
 
 build: elf lss sym
 
@@ -302,38 +344,10 @@ $(OUTDIR)/$(TARGET): $(OBJS) $(OUTDIR)
 	@echo -e $(MSG_SYMBOL_TABLE) "\n             $(E_BR_CYAN)" $@ "$(E_END)"
 	@$(NM) -n $< > $@
 
-#while read x ; do echo $x ; done \
-#| sed -e "s/.*error:.*/\x1b[1;36m&\x1b[0m/" \
-#-e "s/.*warning:.*/\x1b[1;36m&\x1b[0m/" \
-#-e "s/^\(.*\)\(required from\)/\x1b[1;36m\1\x1b[0mnote: \2/" \
-#-e "s/^\(.*\)\(In instantiation of\)/\x1b[1;36m\1\x1b[0mnote: \2/" \
-#-e "s/^\(.*\)\(In member\)/\x1b[1;36m\1\x1b[0mnote: \2/" \
-#| sed -e "s/error:/\x1b[1;31m&\x1b[1;36m/" \
-#-e "s/warning:/\x1b[1;35m&\x1b[1;36m/" \
-#-e "s/note:/\x1b[1;30m&\x1b[0m/"
-
-
-#https://github.com/renatosilva/colormake/blob/master/colormake.sh
-#http://stackoverflow.com/questions/1032237/highlight-and-filter-gcc-compiler-messages
-#https://github.com/renatosilva/colormake
-
-# Compiler output colorizer filter
-F_ERROR="s/error:/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
-F_WARNING="s/warning:/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
-F_NOTE="s/note:/$$(printf "$(C_NOTE)")&$$(printf "$(E_END)")/i"
-FF_ERROR="s/^.*error:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
-FF_WARNING="s/^.*warning:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
-FF_NOTE="s/^.*note:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
-
-C_FILTER   = sed -ru -e $(F_ERROR)  -e $(F_WARNING)  -e $(F_NOTE) \
-                     -e $(FF_ERROR) -e $(FF_WARNING) -e $(FF_NOTE)
-CPP_FILTER = $(C_FILTER)
-
 # Compile: create object files from C source files.
 $(OBJDIR)/%.o : %.c
 	@echo -e $(MSG_COMPILING) "$(C_FILE)" $< "$(E_END)"
-#	@$(CC) -c $(ALL_CFLAGS) $< -o $@ 2>&1 | $(C_FILTER)
-	@$(CC) -c $(ALL_CFLAGS) $< -o $@ 2>&1
+	@$(CC) -c $(ALL_CFLAGS) $< -o $@ 2>&1  $(C_FILTER)
 
 # Compile: create object files from C++ source files.
 $(OBJDIR)/%.o : %.cpp
@@ -441,8 +455,7 @@ backup: ## Make an incremental backup
 
 
 edit:   ## Open source and makefile in editor
-	@$(EDITOR) Makefile src/gpio.c src/main.c src/gpio.h
-# #	@$(EDITOR) Makefile $(SRC)
+	@$(EDITOR) Makefile $(SRC)
 
 run:    ## Run application
 	@output/$(TARGET)
