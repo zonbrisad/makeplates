@@ -39,7 +39,7 @@ LIB  = -lm
 LIB += $(shell pkg-config --libs glib-2.0)
 LIB += $(shell pkg-config --libs gthread-2.0)
 #LIB += $(shell pkg-config --libs ncurses)
-LIB += $(shell pkg-config --libs lua5.1)
+#LIB += $(shell pkg-config --libs lua5.1)
 
 # Object files directory
 #     To put object files in current directory, use a dot (.), do NOT make

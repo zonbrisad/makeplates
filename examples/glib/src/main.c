@@ -76,6 +76,7 @@ void safeExit() {
 }
 
 void errorTest() {
+	int i;
   gp_log_set_verbose(TRUE);
   g_message("This is a message\n");
   g_warning("This is a warning\n");
