@@ -19,6 +19,7 @@
 #include <glib-2.0/glib.h>
 
 #include "gp_log.h"
+#include "Def.h"
 
 /**
  * Defines
@@ -32,10 +33,12 @@
  *---------------------------------------------------------------------------
  */
 
-GTimer    *timer;
-GThread   *thread1;
-GThread   *thread2;
-GMainLoop *mLoop;
+GTimer      *timer;
+GThread     *thread1;
+GThread     *thread2;
+GMainLoop   *mLoop;
+GAsyncQueue *queue1;
+
 
 static gboolean opt_verbose    = FALSE;
 static gboolean opt_version    = FALSE;
@@ -88,6 +91,10 @@ void sig_ctrl_c(int sig) {
   g_main_loop_quit(mLoop);
 }
 
+void sig_usr1(int sig) {
+  printf("Sigusr1\n");
+}
+
 void thread_t() {
 	while (1) {
 	  printf("Kalle");	
@@ -105,8 +112,11 @@ gboolean timeout_1() {
 void threadTest() {
 	timer = g_timer_new();
 	g_timer_start(timer);
+  queue1 = g_async_queue_new();
 	
-  signal(SIGINT, sig_ctrl_c);
+  //signal(SIGINT, sig_ctrl_c);
+  g_unix_signal_add(SIGINT, sig_ctrl_c);
+  g_unix_signal_add(SIGUSR1, sig_usr1);
 	
 	mLoop = g_main_loop_new(NULL, FALSE);
 	  
