@@ -17,6 +17,7 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <glib-2.0/glib.h>
+#include <pthread.h>
 
 #include "gp_log.h"
 
@@ -24,18 +25,22 @@
  * Defines
  *---------------------------------------------------------------------------
  */
-#define VERSION "0.1"
+#define VERSION     "0.1"
 #define DESCRIPTION "- a general purpose log program"
-#define LOGFILE "glib.log"
+#define LOGFILE     "glib.log"
 /**
  * Variables
  *---------------------------------------------------------------------------
  */
 
-GTimer    *timer;
-GThread   *thread1;
-GThread   *thread2;
-GMainLoop *mLoop;
+GTimer      *timer;
+//GThread     *thread1;
+//GThread     *thread2;
+pthread_t   thread1;
+pthread_t   thread2;
+GMainLoop   *mLoop1;
+GMainLoop   *mLoop2;
+GAsyncQueue *queue1;
 
 static gboolean opt_verbose    = FALSE;
 static gboolean opt_version    = FALSE;
@@ -86,12 +91,19 @@ void errorTest() {
 }
 
 void sig_ctrl_c(int sig) {
-  g_main_loop_quit(mLoop);
+  g_main_loop_quit(mLoop1);
+}
+void sig_usr1(int sig) {
+  printf("Signal USR1\n");
 }
 
-void thread_t() {
+void thread_1(void *ptr) {
+	gpointer *data;
+	printf("Starting thread 1\n");
 	while (1) {
-	  printf("Kalle");	
+		sleep(2);
+		printf("Thread 1\n");
+		//data=g_async_queue_pop(queue1);
 	}
 }
 
@@ -108,14 +120,19 @@ void threadTest() {
 	g_timer_start(timer);
 	
   signal(SIGINT, sig_ctrl_c);
+	signal(SIGUSR1, sig_usr1);
+
+//	queue1 = g_async_queue_new();
 	
-	mLoop = g_main_loop_new(NULL, FALSE);
+	mLoop1 = g_main_loop_new(NULL, FALSE);
 	  
 	g_timeout_add_seconds(1, timeout_1, "Timeout 1");
 
-//	thread = g_thread_new("TestThread", thread_t, NULL);
+//  thread1 = g_thread_new("TestThread", thread_1, NULL);
 	
-	g_main_loop_run(mLoop);
+	pthread_create(&thread1, NULL, thread_1, NULL);
+	
+	g_main_loop_run(mLoop1);
 
 }
 							
@@ -188,8 +205,8 @@ void daemonTest(void) {
   printf("Starting up daemon\n");
 	daemonize();
 
-	mLoop = g_main_loop_new(NULL, FALSE);
-	g_main_loop_run(mLoop);
+	mLoop1 = g_main_loop_new(NULL, FALSE);
+	g_main_loop_run(mLoop1);
 }
 
 
