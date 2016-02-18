@@ -1,7 +1,7 @@
 /**
  *---------------------------------------------------------------------------
  *
- * @brief Makeplate GLIB example
+ * @brief Makeplate GLIB test example
  *
  * @file    main.c
  * @author  Peter Malmberg <peter.malmberg@gmail.com>
@@ -17,6 +17,7 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <glib-2.0/glib.h>
+#include <glib-2.0/glib/gstdio.h>
 
 #include "gp_log.h"
 #include "Def.h"
@@ -25,20 +26,24 @@
  * Defines
  *---------------------------------------------------------------------------
  */
-#define VERSION "0.1"
-#define DESCRIPTION "- a general purpose log program"
-#define LOGFILE "glib.log"
+#define APP_NAME        "glibtest"
+#define APP_VERSION     "0.1"
+#define APP_DESCRIPTION "- a general purpose log program"
+#define APP_LOGFILE     "glib.log"
+#define APP_PIDFILE     "/tmp/glibtest.pid"
+
 /**
  * Variables
  *---------------------------------------------------------------------------
  */
 
-GTimer      *timer;
-GThread     *thread1;
-GThread     *thread2;
-GMainLoop   *mLoop;
-GAsyncQueue *queue1;
-
+pid_t  appPid;
+pid_t  appPid2;
+char  *appPath;
+char  *appHomeDir;
+char  *appUserName;
+char  *appRealName;
+char  *appHostName;
 
 static gboolean opt_verbose    = FALSE;
 static gboolean opt_version    = FALSE;
@@ -48,7 +53,6 @@ static gboolean opt_errorTest  = FALSE;
 static gboolean opt_threadTest = FALSE;
 static gboolean opt_info       = FALSE;
 static gboolean opt_daemonTest = FALSE;
-
 
 static GOptionEntry entries[] = {
   { "verbose",  'v', 0, G_OPTION_ARG_NONE, &opt_verbose,    "Be verbose output",    NULL },
@@ -62,6 +66,13 @@ static GOptionEntry entries[] = {
   { NULL }
 };
 
+GTimer      *timer;
+GThread     *thread1;
+GThread     *thread2;
+GMainLoop   *mLoop1;
+GMainLoop   *mLoop2;
+GAsyncQueue *queue1;
+
 /*
 typedef struct kalle {
   *fun(void )
@@ -72,32 +83,122 @@ typedef struct kalle {
  *---------------------------------------------------------------------------
  */
 
+void writePidFile() {
+  FILE *f;
+  f = g_fopen(APP_PIDFILE, "w");
+  if (f!=NULL) {
+    fprintf(f, "%d\n", appPid);
+    fclose(f);
+  }
+}
+void removePidFile() {
+  g_unlink(APP_PIDFILE);
+}
+
+int isAppRunning() {
+  FILE *f;
+  int  pid;
+  char buf[20];
+  
+  appPid2 = 0;
+  f = g_fopen(APP_PIDFILE, "r");
+  if (f!=NULL) {
+    fscanf(f, "%d", &pid);
+    fclose(f);
+    
+    sprintf(buf, "/proc/%d", pid);
+    if (g_file_test(buf,G_FILE_TEST_EXISTS)) {
+      appPid2 = pid;
+      return pid;
+    }
+    
+//    f = g_fopen(buf, "r");
+//    if (f!=NULL) {
+//      fclose(f);
+//      appPid2 = pid;
+//      return pid;
+//    } 
+  }
+ 
+  // write to pidfile
+  f = g_fopen(APP_PIDFILE, "w");
+  if (f!=NULL) {
+    fprintf(f, "%d\n", appPid);
+    fclose(f);
+  }
+  
+  return 0;
+}
+
+/**
+ * Retrieve some basic information about system.
+ */
+void appInfo() {
+  GError *err; 
+  int xpid;
+  // get some system data
+  appPid      = getpid();
+  appPath     = g_file_read_link("/proc/self/exe", &err);
+  appHomeDir  = g_get_home_dir();
+  appUserName = g_get_user_name();
+  appRealName = g_get_real_name();
+  appHostName = g_get_host_name();
+
+ // xpid = isAppRunning();
+ // printf("Pid: %d\n", xpid);
+  
+  //writePidFile();
+}
 
 void safeExit() {
   gp_log_close();
+  
+  // Do not remove file if already running.
+  if (appPid2==0) {
+    removePidFile();
+  }
 	exit(0);
 }
 
 void errorTest() {
+	int i;
   gp_log_set_verbose(TRUE);
   g_message("This is a message\n");
   g_warning("This is a warning\n");
   g_debug("This is a debug message\n");
- // g_error("This is an error\n");
+  g_error("This is an error\n");
   g_critical("This is critical\n");
 }
 
 void sig_ctrl_c(int sig) {
-  g_main_loop_quit(mLoop);
+  g_main_loop_quit(mLoop1);
 }
 
 void sig_usr1(int sig) {
-  printf("Sigusr1\n");
+  static int x;
+  
+  x = 12;
+  printf("Signal USR1\n");
+  //g_async_queue_push(queue1, &x);
 }
 
-void thread_t() {
+
+void thread_2(void *ptr) {
+  printf("Starting thread 2\n");
+
 	while (1) {
-	  printf("Kalle");	
+		sleep(3);
+		printf("Thread 2\n");
+	}
+}
+void thread_1(void *ptr) {
+	gpointer *data;
+	printf("Starting thread 1\n");
+  
+	while (1) {
+		//sleep(2);
+		data=g_async_queue_pop(queue1);
+		printf("Data received from queue\n");
 	}
 }
 
@@ -117,33 +218,35 @@ void threadTest() {
   //signal(SIGINT, sig_ctrl_c);
   g_unix_signal_add(SIGINT, sig_ctrl_c);
   g_unix_signal_add(SIGUSR1, sig_usr1);
-	
-	mLoop = g_main_loop_new(NULL, FALSE);
+
+	queue1 = g_async_queue_new();
+
+	mLoop1 = g_main_loop_new(NULL, FALSE);
 	  
 	g_timeout_add_seconds(1, timeout_1, "Timeout 1");
 
-//	thread = g_thread_new("TestThread", thread_t, NULL);
+  thread1 = g_thread_new("TestThread1", thread_1, NULL);
+  thread2 = g_thread_new("TestThread2", thread_2, NULL);
 	
-	g_main_loop_run(mLoop);
+	//pthread_create(&thread1, NULL, thread_1, NULL);
+	
+	g_main_loop_run(mLoop1);
 
 }
-							
+
 void infoTest() {
-  pid_t pid;
-  pid = getpid();
-  GError *err;
-  char *buf;
-  
-  buf = g_file_read_link("/proc/self/exe", &err);
-  
-  printf("PID:          %d\n", pid);
-  printf("Program path: %s\n", buf);
-  printf("Username:     %s\n", g_get_user_name());
-  printf("Full name:    %s\n", g_get_real_name());
-  printf("Home dir:     %s\n", g_get_home_dir());
-  printf("Hostname:     %s\n", g_get_host_name());
+  printf("PID:          %d\n", appPid);
+  printf("Program path: %s\n", appPath);
+  printf("Username:     %s\n", appUserName);
+  printf("Full name:    %s\n", appRealName);
+  printf("Home dir:     %s\n", appHomeDir);
+  printf("Hostname:     %s\n", appHostName);
+  printf("App. name:    %s\n", APP_NAME);
+  printf("Version:      %s\n", APP_VERSION);
+  printf("Description:  %s\n", APP_DESCRIPTION);
+  printf("Logfile:      %s\n", APP_LOGFILE);
+  printf("Pidfile:      %s\n", APP_PIDFILE);
 }
-
 
 void daemonize(void) {
 	pid_t pid, sid;
@@ -197,8 +300,8 @@ void daemonTest(void) {
   printf("Starting up daemon\n");
 	daemonize();
 
-	mLoop = g_main_loop_new(NULL, FALSE);
-	g_main_loop_run(mLoop);
+	mLoop1 = g_main_loop_new(NULL, FALSE);
+	g_main_loop_run(mLoop1);
 }
 
 
@@ -206,11 +309,22 @@ int main(int argc, char *argv[]) {
 	GError *error = NULL;
 	GOptionContext *context;
 	
+  atexit(safeExit);
+  
 	// init log system
-	gp_log_init(LOGFILE);
+	gp_log_init(APP_LOGFILE);
+  
+  // Get some application/host data
+  appInfo();
+  
+  if (isAppRunning()) {
+    printf("Application is already running\n");
+    exit(0);
+    g_critical("Application is already running");
+  }
   
   // parse command line arguments
-  context = g_option_context_new (DESCRIPTION);
+  context = g_option_context_new (APP_DESCRIPTION);
   g_option_context_add_main_entries (context, entries, NULL);
   if (!g_option_context_parse (context, &argc, &argv, &error)) {
     g_print ("option parsing failed: %s\n", error->message);
@@ -226,7 +340,7 @@ int main(int argc, char *argv[]) {
 	
   // print version information
 	if (opt_version) {
-		printf("Program version %s\nBuild ("__DATE__" "__TIME__")\n", VERSION);
+		printf("Program version %s\nBuild ("__DATE__" "__TIME__")\n", APP_VERSION);
 		exit(0);
 	}
 	
