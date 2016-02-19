@@ -416,7 +416,7 @@ archive: ## Make a tar archive of the source code
 	     --exclude='*.lss'   \
 	     --exclude='*.map'   \
 	     --exclude='*~'      \
-	     --exclude=".old"    \
+	     --exclude="*.old"   \
 
 # Backup directory
 BACKUP_DIR=backup
@@ -448,7 +448,7 @@ backup: ## Make an incremental backup
 				--exclude=".git"       \
 				--exclude=".svn"       \
 				--exclude="*~"         \
-				--exclude=".old"       \
+				--exclude="*.old"      \
 				--link-dest=$(CURDIR)/$(BACKUP_DIR)/backup_1 \
 				.                      \
 				$(BACKUP_DIR)/backup_0 

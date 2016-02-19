@@ -79,7 +79,7 @@ printLine() {
 #
 setTag() {
 #  echo $1 $2 $3
-  sed  -i.bak "s/$1/$2/" $3 
+  sed  -i.bak "s/"$1"/$2/" $3 
 	rm $3.bak
 }
 
@@ -88,7 +88,6 @@ newhfile() {
   sleep 1
 }
 
-
 addSection() {
   echo -e "/**\n"   \
           "* $1\n"  \
@@ -96,10 +95,17 @@ addSection() {
   				"*/\n" >> $2
 }
 
-addSections() {
-  addSection "Defines"   $1
-  addSection "Variables" $1
-  addSection "Body"      $1
+addSectionsC() {
+	addSection "Macro declarations"     $1
+	addSection "Variable declarations"  $1
+	addSection "Prototype declarations" $1 
+  addSection "Code"       $1
+}
+
+addSectionsH() {
+  addSection "Macro declarations"    $1
+  addSection "Variable declarations" $1
+	addSection "Function declarations" $1 
 }
 
 addHeader() {
@@ -108,22 +114,30 @@ addHeader() {
   cat ${BASEDIR}/header.txt > $1
 }
 
+# adding sentintels to h file
 addSentinel() {
-  # adding sentintels to h file
   sentinel=${filename^^}_H
   echo "#ifndef $sentinel" >> $1
   echo -e "#define $sentinel\n\n\n" >> $1
-  echo "#endif" >> $1
-
 }
+
+addSentinelEnd() {
+  echo "#endif" >> $1
+}
+
+
+#addMainSection() {
+#}
 
 cfile() { ## Create a new C file
 
   # get the filenames
-  read -p "Name of new C file: >" filename
+  read -p "Name of new C file(exclude extention): >" filename
   sourcefile=$2/${filename}.c
   headerfile=$2/${filename}.h
   hfile=${filename}.h
+	
+	read -p "Enter breif description: >" desc
 	
 	if [ -f $sourcefile ]; then
 	  bpError "File $sourcefile already exist."
@@ -137,31 +151,43 @@ cfile() { ## Create a new C file
 
   # timestamp
   ts=`date +"%Y-%m-%d %H:%M:%S"`
-	
-  # creating files
-  echo "Creating $sourcefile"
-	cat ${BASEDIR}/header.txt > $sourcefile
+
+  # Creating header file
 	echo "Creating $headerfile"
 	cat ${BASEDIR}/header.txt > $headerfile
+	
+	# add sentintels to header file
+  addSentinel $headerfile
+	
+	# adding sections
+	addSectionsH $headerfile
+	
+	# ending sentinel
+	addSentinelEnd $headerfile
+
+  # setting tags
+  setTag __FILE__ $(basename $headerfile) $headerfile
+  setTag __DATE__ "${ts}" $headerfile
+	setTag __AUTHOR__ "$3" $headerfile
+	setTag __LICENCE__ "$4" $headerfile
+	setTag __BRIEF__  "$brief" $sourcefile
+
+  # Creating source file
+  echo "Creating $sourcefile"
+	cat ${BASEDIR}/header.txt > $sourcefile
 	
   # adding include to c file
 	echo -e "\n#include \"$hfile\"\n" >> $sourcefile
 	
-  # add sentintels to header file
-  addSentinel $headerfile
-	
   # add section to c file
-  addSections $sourcefile
+  addSectionsC $sourcefile
 
   # setting tags
   setTag __FILE__ $(basename $sourcefile) $sourcefile
-  setTag __FILE__ $(basename $headerfile) $headerfile
   setTag __DATE__ "${ts}" $sourcefile
-  setTag __DATE__ "${ts}" $headerfile
 	setTag __AUTHOR__ "$3" $sourcefile
-	setTag __AUTHOR__ "$3" $headerfile
 	setTag __LICENCE__ "$4" $sourcefile
-	setTag __LICENCE__ "$4" $headerfile
+	setTag __BRIEF__  "$brief" $sourcefile
 	
 }
 
