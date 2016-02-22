@@ -302,7 +302,6 @@ bin: $(OUTDIR)/$(TARGET).bin
 
 # Eye candy.
 begin:
-#	@echo
 	@echo -e "$(E_BR_GREEN)Building:     $(TARGET) $(E_END)"
 	@echo -e $(MSG_BEGIN)
  
@@ -386,6 +385,11 @@ clean:  ## Remove all build files
 	@$(REMOVE) $(OUTDIR)/$(TARGET).bin
 	@$(REMOVE) $(OUTDIR)/$(TARGET).eep
 	@$(REMOVE) $(OUTDIR)/$(TARGET).cof
+	@$(REMOVE) $(SRC:%.c=$(OBJDIR)/%.o)
+	@$(REMOVE) $(SRC:%.c=$(OBJDIR)/%.lst)
+	@$(REMOVE) $(SRC:.c=.s)
+	@$(REMOVE) $(SRC:.c=.d)
+	@$(REMOVE) $(SRC:.c=.i)
 	@$(REMOVEDIR) .dep
 	@$(REMOVE) $(OBJS)
 	@find . -name *~ -delete
