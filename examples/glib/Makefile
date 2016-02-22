@@ -432,7 +432,7 @@ backup: ## Make an incremental backup
 	@$(RM) -rf $(BACKUP_DIR)/backup_$(BACKUPS) 
   # rotate backups 
 	@for ((x=$(BACKUPS);x>0;x--)); do                 \
-	  bdir=$(BACKUP_DIR)/backup_`expr $${x} - 1` ;    \
+	  bdir=$(BACKUP_DIR)/bacSET_LOG_SETTINGS(LEVEL, OUTPUT)kup_`expr $${x} - 1` ;    \
 	  # check if directory exist before renameing  it \
 	  if [ -d $${bdir} ]; then                        \
 	    mv -f $${bdir}  $(BACKUP_DIR)/backup_$${x} ;  \

@@ -3,37 +3,54 @@
 # 
 # Convert binary file to a hex encoded array for inclusion in C projects
 #
-# File:   bin2array.py
-# Author: Peter Malmberg <peter.malmberg@gmail.com>
-# Date:   2016-02-19
-# Version: 1.2
+# File:    bin2array.py
+# Author:  Peter Malmberg <peter.malmberg@gmail.com>
+# Date:    2016-02-19
+# Version: 1.3
 # Python:  >=3
-# 
+# Licence: MIT
+# Credits: Based on code written by ???
 # -----------------------------------------------------------------------
+# 
 # History
-#
+#   1.3 Changed to Python 3
+#       Added header to C and H files
 # Todo 
-#   - C++ support
+#   Fix 2 and 4 byte integer size
 
-import parser
 import os
 import struct
 import logging
 import argparse
+from datetime import datetime, date, time
+
+CHUNK_SIZE=12
+
+def addHeader(file, fileName, brief, date, author, licence):
+    file.write( 
+    "/**\n"
+    " *---------------------------------------------------------------------------\n"
+    " * @file    "+fileName+"\n"
+    " * @brief   "+brief+"\n"
+    " *\n"
+    " * @author  "+author+"\n"
+    " * @date    "+date+"\n"
+    " * @licence "+licence+"\n"
+    " *\n"
+    " *---------------------------------------------------------------------------\n"
+    " */\n\n")
 
 def readChunk(fd, size, nullTerminate):
-    buf = fd.read(size)
-    
+    buf = fd.read(size)   
     if len(buf)<size and nullTerminate:
         buf = buf + "0x00"
-        
     return buf
 
 class BinToArray:
     def __init__(self):
         pass
     
-    def ConvertFileToArray(self, strInFile, strOutFile, integerSize, ignoreBytes, endianNess, arrayName, nullTerminate, append):
+    def ConvertFileToArray(self, strInFile, strOutFile, integerSize, ignoreBytes, endianNess, arrayName, nullTerminate, append, licence, author):
         """ Reads binary file at location strInFile and writes out a C array of hex values
         Parameters -
         strInFile - Path and filename of binary file to convert
@@ -87,72 +104,64 @@ class BinToArray:
             return
         # end try
         
+        if not append:
+            date = datetime.now().strftime("%Y-%m-%d")
+            addHeader(fileOut,     strOutFile+'.c', 'Binary resources', date, author, licence)
+            addHeader(fileInclude, strOutFile+'.h', 'Binary resources', date, author, licence)
+            fileOut.write("#include <stdint.h>\n\n")
+        
         # Start array definition preamble
         inFileName = os.path.basename(strInFile)
         
         strVarType = "uint%d_t" % (integerSize * 8)
         
-        if not append:
-            fileOut.write("#include <stdint.h>\n\n")
-            
         # if no arrayname is given use filename
         if arrayName=='':
             spl = strInFile.split('.')
             arrayName = spl[0] + '_' + spl[1]
             
-                
-        fileOut.write("// Array representation of binary file %s\n" % (inFileName))
         fileOut.write("%s %s[] = {\n" % (strVarType,arrayName))
-                
-                
-        if not append:
-            fileInclude.write("/**\n")
-            #fileInclude.write(" * Array representation of binary file %s\n" % (inFileName))
-            fileInclude.write(" *\n")
-            fileInclude.write(" */\n\n")
-            fileInclude.write("#include <stdint.h>\n\n")
-            
         fileInclude.write("extern %s %s[];\n\n" % (strVarType,arrayName))
                     
         # Convert and write array into C file
         fileIn.seek(ignoreBytes)
         if integerSize == 1:
-            bufChunk = fileIn.read(20)
-            #bufChunk = readChunk(fileIn, 20, nullTerminate)
-            print(bufChunk)
+            #bufChunk = fileIn.read(CHUNK_SIZE)
+            bufChunk = readChunk(fileIn, CHUNK_SIZE, nullTerminate)
+#            print(bufChunk)
             #print "Length ", len(bufChunk)
             #if len(bufChunk) < 20 and nullTerminate:
             #    bufChunk = bufChunk + "0x00"
                 
                 
             while bufChunk:
-                fileOut.write("        ")
+                fileOut.write("    ")
                 for byteVal in bufChunk:
-                    print(byteVal)
+#                    print(byteVal)
                     #fileOut.write("0x%02x, " % ord(byteVal))
                     fileOut.write("0x%02x, " % byteVal)
                 # end for
                     
                 fileOut.write("\n")
-                bufChunk = fileIn.read(20)
+                bufChunk = fileIn.read(CHUNK_SIZE)
             # end while
         else:
             if   endianNess == 'l' and integerSize == 2:
                 endianFormatter = '<H'
-                maxWordsPerLine = 10
+                maxWordsPerLine = 8
             elif endianNess == 'l' and integerSize == 4:
                 endianFormatter = '<L'
                 maxWordsPerLine = 6
             elif endianNess == 'b' and integerSize == 2:
                 endianFormatter = '>H'
-                maxWordsPerLine = 10
+                maxWordsPerLine = 8
             elif endianNess == 'b' and integerSize == 4:
                 endianFormatter = '>L'
                 maxWordsPerLine = 6
             # endif
             bufChunk = fileIn.read(integerSize)
             i = 0
-            fileOut.write("        ")
+            fileOut.write("    ")
             while bufChunk != '':
                 wordVal = struct.unpack(endianFormatter, bufChunk)
                 if integerSize == 2:
@@ -162,10 +171,11 @@ class BinToArray:
                 # endif
                 i += 1
                 if i == maxWordsPerLine:
-                    fileOut.write("\n        ")
+                    fileOut.write("\n    ")
                     i = 0
                 # endif
-                bufChunk = fileIn.read(integerSize)
+#                bufChunk = fileIn.read(integerSize)
+                bufChunk = readChunk(fileIn,integerSize, nullTerminate)
             # end while
         # end if
         
@@ -184,16 +194,17 @@ if __name__ == "__main__":
  
     # options parsing
     parser = argparse.ArgumentParser(description="File to C array converter")
-    parser.add_argument("infile",  type=str, help="Input file")
-    parser.add_argument("outfile", type=str, help="Output file")
-    parser.add_argument("-a", "--append",  action="store_true", help="append to existing file",     default=False)
-#    parser.add_argument("--licence", type=str,            help="Licence of new file", default="")
-#    parser.add_argument("--author",  type=str,            help="Author of file",      default="")
-#    parser.add_argument("--dir",     type=str,            help="Directory where to store file",       default=".")
+    parser.add_argument("infile",               type=str, help="Input file")
+    parser.add_argument("outfile",              type=str, help="Output file")
+    parser.add_argument("--licence",            type=str, help="Licence of new file", default="")
+    parser.add_argument("--author",             type=str, help="Author of file",      default="")
+#    parser.add_argument("--dir",                type=str, help="Directory where to store file",       default=".")
+    parser.add_argument("-s","--intsize",       type=int, help="Integer size 1,2 or 4 bytes",       default=1)
     parser.add_argument("-i","--ignore",        type=int, help="Nr of bytes to ignore in begining", default=0)
     parser.add_argument("-e","--endian",        type=str, help="Endian [l, b]",                     default='l')
-    parser.add_argument("-r","--arrayname",     type=str, help="Name of array",                     default='x')
+    parser.add_argument("-r","--arrayname",     type=str, help="Name of array",                     default='')
     parser.add_argument("-n","--nullterminate", action="store_true",   help="nullterminate",        default=False)
+    parser.add_argument("-a", "--append",       action="store_true", help="append to existing file",     default=False)
     
     # parse arguments
     args = parser.parse_args()
@@ -202,39 +213,10 @@ if __name__ == "__main__":
     converter = BinToArray()                            
     
     # do the conversion
-    converter.ConvertFileToArray( args.infile, args.outfile, 1, 
+    converter.ConvertFileToArray( args.infile, args.outfile, args.intsize, 
     args.ignore, args.endian, args.arrayname, 
-    args.nullterminate, args.append)
+    args.nullterminate, args.append, args.licence, args.author)
 
-#    print(args)
-    
-    exit
-    
-#    parser = OptionParser(usage)                      # create parser object
-    
-    # options table
-#    parser.add_option("-i","--infile",        action="store", dest="infile",      type="string", help="Input file")
-#    parser.add_option("-o","--outfile",       action="store", dest="outfile",     type="string", help="Output file")
-    #    parser.add_option("-s","--integersize",   action="store", dest="integerSize", type="int",    help="Integer size = 1, 2, 4 bytes",       default=1)
-#    parser.add_option("-b","--ignore",        action="store", dest="ignoreBytes", type="int",    help="Nr of bytes to ignore in begining",  default=0)
-#    parser.add_option("-e","--endian",        action="store", dest="endian",      type="string", help="Endian [l, b]",                      default='l')
-#    parser.add_option("-a","--arrayname",     action="store", dest="arrayName",   type="string", help="Name of array",                      default='')
-#    parser.add_option("-n","--nullterminate", action="store_true", dest="nullterminate",         help="nullterminate",                      default=False)
-#    parser.add_option("-p","--append",        action="store_true", dest="append",                help="append to existing file",            default=False)
-    
-    
-#    (options, args) = parser.parse_args()               # parse options
-    
-    #print 'Infile       = ' + options.infile           # print the options
-    #print 'Outfile      = ' + options.outfile
-    #print 'Int Size     = ', options.integerSize
-    #print 'Ignore bytes = ', options.ignoreBytes
-    #print 'Arrayname    = ' + options.arrayName
-    
-#    converter = BinToArray()                            # create conversion object
-    
-    # do the conversion
-#    converter.ConvertFileToArray( options.infile, options.outfile, 1, 
-#    options.ignoreBytes, options.endian, options.arrayName, 
-#    options.nullterminate, options.append)
-    
+
+
+
