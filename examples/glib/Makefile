@@ -160,7 +160,8 @@ MKDIR     = mkdir -p
 SED       = sed
 MOC       = moc
 QMAKE     = qmake
-CTEMPLATE = script/ctemplate
+CTEMPLATE = python3 tools/ctemplate.py
+BIN2ARRAY = python3 tools/bin2array.py
 
 # Toolchain base directory
 TCHAIN_BASE=/usr/bin
@@ -262,7 +263,9 @@ C_FILTER   = | sed -ru -e $(F_ERROR)  -e $(F_WARNING)  -e $(F_NOTE) \
                      -e $(FF_ERROR) -e $(FF_WARNING) -e $(FF_NOTE)
 CPP_FILTER = $(C_FILTER)
 
+LD_ERROR="s/undefined reference/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
 
+LD_FILTER = | sed -ru -e $(LD_ERROR) 
 	
 #
 # Build rules	
@@ -329,7 +332,7 @@ gccversion :  ## Display compiler version
 $(OUTDIR)/$(TARGET): $(OBJS) $(OUTDIR)
 	@echo 
 	@echo -e $(MSG_LINKING)"\n             $(E_BR_CYAN)" $@ "$(E_END)"
-	@$(CC) $(ALL_CFLAGS) $(OBJS) --output $@ $(LDFLAGS) $(LIB)
+	@$(CC) $(ALL_CFLAGS) $(OBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)
 	
 # Create extended listing file/disassambly from ELF output file.
 # using objdump testing: option -C
@@ -467,7 +470,7 @@ debug:  ## Debug application
 -include $(shell mkdir .dep 2>/dev/null) $(wildcard .dep/*)
 
 newfile:  ## Create a new C file
-	@${CTEMPLATE} cfile src "$(AUTHOR)" "$(LICENCE)"
+	@${CTEMPLATE} --newc --dir src --author "$(AUTHOR)" --licence "$(LICENCE)"
 	
 install: ## Install program
 	@${COPY} output/${TARGET} /usr/local/bin
