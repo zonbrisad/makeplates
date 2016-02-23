@@ -11,7 +11,7 @@
  * See the file LICENSE for information on usage and redistribution.	
  * ----------------------------------------------------------------------------- */
 
-static char cvsroot[] = "$Header: /cvsroot/swill/SWILL/Source/SWILL/web.c,v 1.18 2008/02/26 21:32:18 gonzalodiethelm Exp $";
+//static char cvsroot[] = "$Header: /cvsroot/swill/SWILL/Source/SWILL/web.c,v 1.18 2008/02/26 21:32:18 gonzalodiethelm Exp $";
 
 #if ! defined(GONZO_DEBUG)
 #define GONZO_DEBUG 0
@@ -32,6 +32,7 @@ static char cvsroot[] = "$Header: /cvsroot/swill/SWILL/Source/SWILL/web.c,v 1.18
 #include "swillint.h"
 #include "sock.h"
 #include "ssl.h"
+#include "unistd.h"
 
 /* 
    #define __USE_MPI

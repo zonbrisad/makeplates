@@ -265,9 +265,9 @@ C_FILTER   = | sed -ru -e $(F_ERROR)  -e $(F_WARNING)  -e $(F_NOTE) \
                      -e $(FF_ERROR) -e $(FF_WARNING) -e $(FF_NOTE)
 CPP_FILTER = $(C_FILTER)
 
-LD_ERROR="s/undefined reference/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
-
-LD_FILTER = | sed -ru -e $(LD_ERROR) 
+LD_ERROR1="s/undefined reference/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
+LD_ERROR2="s/No such file or directory/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
+LD_FILTER = | sed -ru -e $(LD_ERROR1) -e $(LD_ERROR2)
 	
 #
 # Build rules	
@@ -312,8 +312,7 @@ bin: $(OUTDIR)/$(TARGET).bin
 
 # Eye candy.
 begin:
-#	@echo
-	@echo -e "$(E_BR_GREEN)Building:     $(TARGET) $(E_END)"
+	@echo -e "$(E_BR_MAGENTA)Building:     $(E_BR_GREEN)$(TARGET) $(E_END)"
 	@echo -e $(MSG_BEGIN)
  
 end:
@@ -404,6 +403,8 @@ clean:  ## Remove all build files
 archive: ## Make a tar archive of the source code
 	@echo
 	@echo -e $(MSG_ARCHIVING)
+#	TS=$(shell date +"%Y%m%d_%H%M%S") 
+#	echo $(TS)
 	@$(MKDIR) archive
 	@tar -cvzf archive/$(TARGET).tar.gz *  \
 	     --exclude='archive' \
@@ -437,7 +438,7 @@ backup: ## Make an incremental backup
 	@$(RM) -rf $(BACKUP_DIR)/backup_$(BACKUPS) 
   # rotate backups 
 	@for ((x=$(BACKUPS);x>0;x--)); do                 \
-	  bdir=$(BACKUP_DIR)/bacSET_LOG_SETTINGS(LEVEL, OUTPUT)kup_`expr $${x} - 1` ;    \
+	  bdir=$(BACKUP_DIR)/backup_`expr $${x} - 1` ;    \
 	  # check if directory exist before renameing  it \
 	  if [ -d $${bdir} ]; then                        \
 	    mv -f $${bdir}  $(BACKUP_DIR)/backup_$${x} ;  \
@@ -491,7 +492,7 @@ help: ## This help information
 		help_split=($$help_line) ;                                               \
 		help_command=`echo $${help_split[0]} | sed -e 's/^ *//' -e 's/ *$$//'` ; \
 		help_info=`echo $${help_split[2]} | sed -e 's/^ *//' -e 's/ *$$//'` ;    \
-		printf "$(E_BR_CYAN)%-30s %s$(E_END)" $$help_command ;                 \
+		printf "$(E_BR_CYAN)%-15s %s$(E_END)" $$help_command ;                 \
 		printf "$(E_BR_GREEN)%s$(E_END)\n" $$help_info ;                       \
 	done ; 
 	@echo -e $(MSG_LINE)
@@ -552,7 +553,7 @@ $(PERSONAL):	# Create a settings file
 #
 # CppCheck static code analysis
 #============================================================================
-.PHONY: check
+.PHONY: ccheck acheck
 
 ccheck: ## Static code analysis using cppcheck(errors only)
 	@$(CPPCHECK) --inline-suppr $(SRC) 

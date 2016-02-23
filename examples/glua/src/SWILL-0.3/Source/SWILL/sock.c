@@ -8,7 +8,7 @@
  * See the file LICENSE for information on usage and redistribution.	
  * ----------------------------------------------------------------------------- */
 
-static char cvsroot[] = "$Header: /cvsroot/swill/SWILL/Source/SWILL/sock.c,v 1.8 2008/04/10 03:55:01 gonzalodiethelm Exp $";
+//static char cvsroot[] = "$Header: /cvsroot/swill/SWILL/Source/SWILL/sock.c,v 1.8 2008/04/10 03:55:01 gonzalodiethelm Exp $";
 
 #if defined(WIN32)
 

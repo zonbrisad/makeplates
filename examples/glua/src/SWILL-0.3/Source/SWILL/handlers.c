@@ -11,7 +11,7 @@
  * See the file LICENSE for information on usage and redistribution.	
  * ----------------------------------------------------------------------------- */
 
-static char cvsroot[] = "$Header: /cvsroot/swill/SWILL/Source/SWILL/handlers.c,v 1.3 2008/02/26 21:32:17 gonzalodiethelm Exp $";
+//static char cvsroot[] = "$Header: /cvsroot/swill/SWILL/Source/SWILL/handlers.c,v 1.3 2008/02/26 21:32:17 gonzalodiethelm Exp $";
 
 #include "swillint.h"
 #include <stdarg.h>

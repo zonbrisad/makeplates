@@ -9,7 +9,7 @@
  * See the file LICENSE for information on usage and redistribution.
  * ----------------------------------------------------------------------------- */
 
-static char cvsroot[] = "$Header: /cvsroot/swill/SWILL/Source/Objects/hash.c,v 1.3 2006/12/22 14:37:37 gonzalodiethelm Exp $";
+//static char cvsroot[] = "$Header: /cvsroot/swill/SWILL/Source/Objects/hash.c,v 1.3 2006/12/22 14:37:37 gonzalodiethelm Exp $";
 
 #include "dohint.h"
 
