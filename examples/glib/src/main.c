@@ -164,8 +164,8 @@ void errorTest() {
 	int i;
   gp_log_set_verbose(TRUE);
   g_message("This is a message\n");
+	g_debug("This is a debug message\n");
   g_warning("This is a warning\n");
-  g_debug("This is a debug message\n");
   g_error("This is an error\n");
   g_critical("This is critical\n");
 }
@@ -302,6 +302,17 @@ void daemonTest(void) {
 
 	mLoop1 = g_main_loop_new(NULL, FALSE);
 	g_main_loop_run(mLoop1);
+}
+
+int cppCheckErrors() {
+	char a[10];
+  int b;
+	a[10] = 'a';
+	
+	// cppcheck-suppress arrayIndexOutOfBounds
+	a[11] = 'b';
+
+	return b;
 }
 
 

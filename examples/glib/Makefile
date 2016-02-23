@@ -163,6 +163,8 @@ QMAKE     = qmake
 CTEMPLATE = python3 tools/ctemplate.py
 BIN2ARRAY = python3 tools/bin2array.py
 
+CPPCHECK  = cppcheck
+
 # Toolchain base directory
 TCHAIN_BASE=/usr/bin
 
@@ -545,6 +547,18 @@ $(PERSONAL):	# Create a settings file
 	@echo "EDITOR=${EDITOR}" >> ${PERSONAL}
 	@echo "AUTHOR=${AUTHOR}" >> ${PERSONAL}
 
+
+
+#
+# CppCheck static code analysis
+#============================================================================
+.PHONY: check
+
+ccheck: ## Static code analysis using cppcheck(errors only)
+	@$(CPPCHECK) --inline-suppr $(SRC) 
+
+acheck: ## Static code analysis using cppcheck(all warnings)
+	@$(CPPCHECK) --inline-suppr --enable=all $(SRC) 
 
 #
 # Version control handling

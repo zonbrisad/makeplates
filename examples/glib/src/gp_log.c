@@ -1,3 +1,14 @@
+/**
+ *---------------------------------------------------------------------------
+ * @file    gp_log.c
+ * @brief   A general purpose log/error management library.
+ *
+ * @author  Peter Malmberg <peter.malmberg@gmail.com>
+ * @date    2015-04-14
+ * @licence GPLv2
+ *
+ *---------------------------------------------------------------------------
+ */
 
 #include <syslog.h>
 #include <stdio.h>
@@ -7,10 +18,21 @@
 #include "Def.h"
 #include "gp_log.h"
 
+/**
+ * Macro declarations
+ *------------------------------------------------------------------
+ */
+
+
+
+/**
+ * Variable declarations
+ *------------------------------------------------------------------
+ */
 
 gboolean gp_verbose=FALSE;
 gboolean gp_syslog=FALSE;
-gboolean gp_debug=FALSE;
+//gboolean gp_debug=FALSE;
 gboolean gp_noColor=FALSE;
 
 int gp_maxSize;
@@ -22,15 +44,33 @@ char *gp_logDir;
 FILE *gpLogFile = NULL;
 char *gpLogFilename;
 
+int log_mask;
+int verbose_mask;
+
 static void gp_log_handler(const gchar *log_domain,
                    GLogLevelFlags log_level,
                    const gchar *message,
                    gpointer user_data );
 
 
+/**
+ * Code
+ *------------------------------------------------------------------
+ */
+
 void gp_log_set_verbose(gboolean v) {
   gp_verbose = v;
 }
+
+void gp_log_set_verbose_mask(int mask) {
+	log_mask = mask;
+}
+
+void gp_log_set_log_mask(int mask) {
+  verbose_mask = mask;
+}
+
+
 
 void gp_log_init(char *logfile) {
 	GStatBuf st;
@@ -50,6 +90,8 @@ void gp_log_init(char *logfile) {
   g_stat(gpLogFilename, &st);
 	gp_logSize = st.st_size;
 	g_debug("Logfile size: %d\n", gp_logSize);
+	
+	verbose_mask = GP_WARNING;
 
 }
 
@@ -66,17 +108,18 @@ static void gp_log_handler(const gchar *log_domain,
   char *level;
   GDateTime *dt;
   char *dateTime;
-  int i;
-    
+	int i;
+  int lm,vm;
+
   color = E_WHITE;
   level = "    ";
   switch (log_level & G_LOG_LEVEL_MASK) {
-	 case G_LOG_LEVEL_WARNING:  color = E_BR_YELLOW;  level = "warn"; break;
-	 case G_LOG_LEVEL_ERROR:    color = E_BR_RED;     level = "err "; break;
-	 case G_LOG_LEVEL_CRITICAL: color = E_WONR;       level = "crit"; break;
-	 case G_LOG_LEVEL_DEBUG:    color = E_BR_GREEN;   level = "dbg "; break;
-	 case G_LOG_LEVEL_INFO:     color = E_WHITE;      level = "info"; break;
-	 case G_LOG_LEVEL_MESSAGE:  color = E_BR_CYAN;    level = "msg "; break;
+	 case G_LOG_LEVEL_WARNING:  color = E_BR_YELLOW;  level = "warn"; lm = log_mask & GP_WARNING;  vm = verbose_mask & GP_WARNING;  break;
+	 case G_LOG_LEVEL_ERROR:    color = E_BR_RED;     level = "err "; lm = log_mask & GP_ERROR;    vm = verbose_mask & GP_ERROR;    break;
+	 case G_LOG_LEVEL_CRITICAL: color = E_WONR;       level = "crit"; lm = log_mask & GP_CRITICAL; vm = verbose_mask & GP_CRITICAL; break;
+	 case G_LOG_LEVEL_DEBUG:    color = E_BR_GREEN;   level = "dbg "; lm = log_mask & GP_DEBUG;    vm = verbose_mask & GP_DEBUG;    break;
+	 case G_LOG_LEVEL_INFO:     color = E_WHITE;      level = "info"; lm = log_mask & GP_INFO;     vm = verbose_mask & GP_INFO;     break;
+	 case G_LOG_LEVEL_MESSAGE:  color = E_BR_CYAN;    level = "msg "; lm = log_mask & GP_MESSAGE;  vm = verbose_mask & GP_MESSAGE;  break;
    default: color = E_WHITE; level="dflt"; break; 
   }
   
@@ -85,7 +128,7 @@ static void gp_log_handler(const gchar *log_domain,
   dateTime = g_date_time_format(dt,"%Y-%m-%d %k:%M:%S");
   
   // print to stdout if in verbose mode
-  if ( gp_verbose ) {
+  if ( gp_verbose && vm ) {
     printf("%s [%s%s%s] %s",dateTime,color,level,E_END,message);
   }
   
@@ -94,7 +137,7 @@ static void gp_log_handler(const gchar *log_domain,
   }
 
   // write to logfile if existing
-  if (gpLogFile!=NULL) {
+  if (gpLogFile!=NULL && lm) {
     i = fprintf(gpLogFile, "%s [%s] %s", dateTime, level, message);
     if (i>0)
     	gp_logSize += i;

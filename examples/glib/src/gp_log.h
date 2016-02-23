@@ -1,26 +1,62 @@
-/* 
- * File:   gp_log.h
- * Author: pmg
+/**
+ *---------------------------------------------------------------------------
+ * @file    gp_log.h
+ * @brief   A general purpose log/error management library.
  *
- * Created on April 14, 2015, 6:34 PM
+ * @author  Peter Malmberg <peter.malmberg@gmail.com>
+ * @date    2015-04-14
+ * @licence GPLv2
+ *
+ *---------------------------------------------------------------------------
  */
-
 #ifndef GP_LOG_H
 #define	GP_LOG_H
 
 #include <glib-2.0/glib.h>
 
-
-
 #ifdef	__cplusplus
 extern "C" {
 #endif
 
+/**
+ * Macro declarations
+ *------------------------------------------------------------------
+ */
+/*
+	#define gp_log_message()
+	#define gp_log_debug()
+  #define gp_log_warning()
+  #define gp_log_error()
+	#define gp_log_critical()
+*/
+	#define GP_MESSAGE   0x01
+	#define GP_DEBUG     0x02
+	#define GP_WARNING	 0x04
+	#define GP_ERROR	   0x08
+	#define GP_CRITICAL  0x10
+	#define GP_INFO      0x20
+	
+	#define GP_ALL (GP_MESSAGE | GP_DEBUG | GP_WARNING | GP_ERROR | GP_CRITICAL | GP_INFO)
+	
+/**
+ * Variable declarations
+ *------------------------------------------------------------------
+ */
+
+
+/**
+ * Function declarations
+ *------------------------------------------------------------------
+ */
+	
   /**
    * Init log system.
    */
   void gp_log_init(char *logfile);
+
+	void gp_log_set_verbose_mask(int mask);
 	
+	void gp_log_set_log_mask(int mask);
 	
 	/**
 	 *  Set verbose mode
@@ -32,8 +68,7 @@ extern "C" {
    */
   void gp_log_print();
   
-  
-	
+  	
 	/**
 	 * Close down log system
 	 */
