@@ -76,7 +76,12 @@ void gp_log_init(char *logfile) {
 	GStatBuf st;
 	
 	gpLogFilename = logfile;
+	
 	gp_log_set_verbose(FALSE);
+	
+	gp_log_set_verbose_mask(GP_ALL);
+	
+	gp_log_set_log_mask(GP_ALL);
 	
 	/* Set handler for all levels */
   g_log_set_handler(G_LOG_DOMAIN, G_LOG_LEVEL_MASK | G_LOG_LEVEL_ERROR | G_LOG_FLAG_FATAL, gp_log_handler, NULL);
@@ -90,8 +95,6 @@ void gp_log_init(char *logfile) {
   g_stat(gpLogFilename, &st);
 	gp_logSize = st.st_size;
 	g_debug("Logfile size: %d\n", gp_logSize);
-	
-	verbose_mask = GP_WARNING;
 
 }
 
