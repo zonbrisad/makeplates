@@ -10,7 +10,7 @@
  * See the file LICENSE for information on usage and redistribution.	
  * ----------------------------------------------------------------------------- */
 
-static char cvsroot[] = "$Header: /cvsroot/swill/SWILL/Source/Objects/file.c,v 1.6 2006/12/22 14:37:37 gonzalodiethelm Exp $";
+//static char cvsroot[] = "$Header: /cvsroot/swill/SWILL/Source/Objects/file.c,v 1.6 2006/12/22 14:37:37 gonzalodiethelm Exp $";
 
 #if defined(WIN32)
 #include <io.h>

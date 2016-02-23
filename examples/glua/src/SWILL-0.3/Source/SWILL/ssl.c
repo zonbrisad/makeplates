@@ -8,7 +8,7 @@
  * See the file LICENSE for information on usage and redistribution.	
  * ----------------------------------------------------------------------------- */
 
-static char cvsroot[] = "$Header: /cvsroot/swill/SWILL/Source/SWILL/ssl.c,v 1.5 2007/07/10 02:42:43 gonzalodiethelm Exp $";
+//static char cvsroot[] = "$Header: /cvsroot/swill/SWILL/Source/SWILL/ssl.c,v 1.5 2007/07/10 02:42:43 gonzalodiethelm Exp $";
 
 #include <stdio.h>
 #include "swill/swill.h"

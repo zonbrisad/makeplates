@@ -10,7 +10,7 @@
  * See the file LICENSE for information on usage and redistribution.	
  * ----------------------------------------------------------------------------- */
 
-static char cvsroot[]="$Header: /cvsroot/swill/SWILL/Source/SWILL/log.c,v 1.2 2006/12/22 14:37:37 gonzalodiethelm Exp $";
+//static char cvsroot[]="$Header: /cvsroot/swill/SWILL/Source/SWILL/log.c,v 1.2 2006/12/22 14:37:37 gonzalodiethelm Exp $";
 
 #include "swillint.h"
 #include <stdarg.h>

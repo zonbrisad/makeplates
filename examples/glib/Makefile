@@ -160,7 +160,8 @@ MKDIR     = mkdir -p
 SED       = sed
 MOC       = moc
 QMAKE     = qmake
-CTEMPLATE = script/ctemplate
+CTEMPLATE = python3 tools/ctemplate.py
+BIN2ARRAY = python3 tools/bin2array.py
 
 CPPCHECK  = cppcheck
 
@@ -264,7 +265,9 @@ C_FILTER   = | sed -ru -e $(F_ERROR)  -e $(F_WARNING)  -e $(F_NOTE) \
                      -e $(FF_ERROR) -e $(FF_WARNING) -e $(FF_NOTE)
 CPP_FILTER = $(C_FILTER)
 
-
+LD_ERROR1="s/undefined reference/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
+LD_ERROR2="s/No such file or directory/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
+LD_FILTER = | sed -ru -e $(LD_ERROR1) -e $(LD_ERROR2)
 	
 #
 # Build rules	
@@ -309,8 +312,7 @@ bin: $(OUTDIR)/$(TARGET).bin
 
 # Eye candy.
 begin:
-#	@echo
-	@echo -e "$(E_BR_GREEN)Building:     $(TARGET) $(E_END)"
+	@echo -e "$(E_BR_MAGENTA)Building:     $(E_BR_GREEN)$(TARGET) $(E_END)"
 	@echo -e $(MSG_BEGIN)
  
 end:
@@ -331,7 +333,7 @@ gccversion :  ## Display compiler version
 $(OUTDIR)/$(TARGET): $(OBJS) $(OUTDIR)
 	@echo 
 	@echo -e $(MSG_LINKING)"\n             $(E_BR_CYAN)" $@ "$(E_END)"
-	@$(CC) $(ALL_CFLAGS) $(OBJS) --output $@ $(LDFLAGS) $(LIB)
+	@$(CC) $(ALL_CFLAGS) $(OBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)
 	
 # Create extended listing file/disassambly from ELF output file.
 # using objdump testing: option -C
@@ -401,6 +403,8 @@ clean:  ## Remove all build files
 archive: ## Make a tar archive of the source code
 	@echo
 	@echo -e $(MSG_ARCHIVING)
+#	TS=$(shell date +"%Y%m%d_%H%M%S") 
+#	echo $(TS)
 	@$(MKDIR) archive
 	@tar -cvzf archive/$(TARGET).tar.gz *  \
 	     --exclude='archive' \
@@ -469,7 +473,7 @@ debug:  ## Debug application
 -include $(shell mkdir .dep 2>/dev/null) $(wildcard .dep/*)
 
 newfile:  ## Create a new C file
-	@${CTEMPLATE} cfile src "$(AUTHOR)" "$(LICENCE)"
+	@${CTEMPLATE} --newc --dir src --author "$(AUTHOR)" --licence "$(LICENCE)"
 	
 install: ## Install program
 	@${COPY} output/${TARGET} /usr/local/bin
@@ -488,7 +492,7 @@ help: ## This help information
 		help_split=($$help_line) ;                                               \
 		help_command=`echo $${help_split[0]} | sed -e 's/^ *//' -e 's/ *$$//'` ; \
 		help_info=`echo $${help_split[2]} | sed -e 's/^ *//' -e 's/ *$$//'` ;    \
-		printf "$(E_BR_CYAN)%-30s %s$(E_END)" $$help_command ;                 \
+		printf "$(E_BR_CYAN)%-15s %s$(E_END)" $$help_command ;                 \
 		printf "$(E_BR_GREEN)%s$(E_END)\n" $$help_info ;                       \
 	done ; 
 	@echo -e $(MSG_LINE)
@@ -549,7 +553,7 @@ $(PERSONAL):	# Create a settings file
 #
 # CppCheck static code analysis
 #============================================================================
-.PHONY: check
+.PHONY: ccheck acheck
 
 ccheck: ## Static code analysis using cppcheck(errors only)
 	@$(CPPCHECK) --inline-suppr $(SRC) 
