@@ -66,7 +66,7 @@ ADEFS =
 # Place -D or -U options here for C++ sources
 CPPDEFS = 
 
-#---------------- Compiler Options C ----------------
+# Compiler Options C ---------------------------------------------------------
 #  -g*:          generate debugging information
 #  -O*:          optimization level
 #  -f...:        tuning, see GCC manual
@@ -96,7 +96,7 @@ CFLAGS += $(shell pkg-config --cflags gthread-2.0)
 #CFLAGS += $(shell pkg-config --cflags lua5.1)
 
 
-#---------------- Compiler Options C++ ----------------
+# Compiler Options C++ -------------------------------------------------------
 #  -g*:          generate debugging information
 #  -O*:          optimization level
 #  -f...:        tuning, see GCC manual and avr-libc documentation
@@ -125,7 +125,7 @@ CPPFLAGS += $(patsubst %,-I%,$(INCLUDE))
 #CPPFLAGS += $(shell pkg-config --cflags gthread-2.0)
 
 
-#---------------- Assembler Options ----------------
+# Assembler Options ----------------------------------------------------------
 #  -Wa,...:   tell GCC to pass this to the assembler.
 #  -adhlns:   create listing
 #  -gstabs:   have the assembler create line number information; note that
@@ -136,7 +136,7 @@ CPPFLAGS += $(patsubst %,-I%,$(INCLUDE))
 #       dump that will be displayed for a given single line of source input.
 ASFLAGS = $(ADEFS) -Wa,-adhlns=$(<:%.S=$(OBJDIR)/%.lst),-gstabs,--listing-cont-lines=100
 
-#---------------- Linker Options ----------------
+# Linker Options -------------------------------------------------------------
 #  -Wl,...:     tell GCC to pass this to linker.
 #    -Map:      create map file
 #    --cref:    add cross reference to  map file
@@ -144,6 +144,10 @@ LDFLAGS = -Wl,-Map=$(OUTDIR)/$(TARGET).map,--cref
 LDFLAGS += $(EXTMEMOPTS)
 #LDFLAGS += -T linker_script.x
 LDFLAGS += -g
+
+# Linux options --------------------------------------------------------------
+
+# Windows options ------------------------------------------------------------
 
 #
 # Tool settings
@@ -236,22 +240,9 @@ MSG_ARCHIVING        = "${E_BR_MAGENTA}Creating tar archive:${E_END}"
 MSG_CREATING_LIBRARY = "${E_BR_MAGENTA}Creating library:${E_END}"
 MSG_FLASH            = "${E_BR_MAGENTA}Creating load file for Flash:${E_END}"
 MSG_EEPROM           = "${E_BR_MAGENTA}Creating load file for EEPROM:${E_END}"
+MSG_COFF             = "${E_BR_MAGENTA}Converting to AVR COFF:${E_END}"
+MSG_EXTENDED_COFF    = "${E_BR_MAGENTA}Converting to AVR Extended COFF:${E_END}"
 MSG_BACKUP           = "${E_BR_GREEN}Making incremental backup of project:${E_END}"
-
-#while read x ; do echo $x ; done \
-#| sed -e "s/.*error:.*/\x1b[1;36m&\x1b[0m/" \
-#-e "s/.*warning:.*/\x1b[1;36m&\x1b[0m/" \
-#-e "s/^\(.*\)\(required from\)/\x1b[1;36m\1\x1b[0mnote: \2/" \
-#-e "s/^\(.*\)\(In instantiation of\)/\x1b[1;36m\1\x1b[0mnote: \2/" \
-#-e "s/^\(.*\)\(In member\)/\x1b[1;36m\1\x1b[0mnote: \2/" \
-#| sed -e "s/error:/\x1b[1;31m&\x1b[1;36m/" \
-#-e "s/warning:/\x1b[1;35m&\x1b[1;36m/" \
-#-e "s/note:/\x1b[1;30m&\x1b[0m/"
-
-
-#https://github.com/renatosilva/colormake/blob/master/colormake.sh
-#http://stackoverflow.com/questions/1032237/highlight-and-filter-gcc-compiler-messages
-#https://github.com/renatosilva/colormake
 
 # Compiler output colorizer filter
 F_ERROR="s/error:/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
@@ -262,7 +253,7 @@ FF_WARNING="s/^.*warning:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
 FF_NOTE="s/^.*note:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
 
 C_FILTER   = | sed -ru -e $(F_ERROR)  -e $(F_WARNING)  -e $(F_NOTE) \
-                     -e $(FF_ERROR) -e $(FF_WARNING) -e $(FF_NOTE)
+                       -e $(FF_ERROR) -e $(FF_WARNING) -e $(FF_NOTE)
 CPP_FILTER = $(C_FILTER)
 
 LD_ERROR1="s/undefined reference/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"

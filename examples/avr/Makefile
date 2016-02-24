@@ -1,19 +1,18 @@
 # Hey Emacs, this is a -*- makefile -*-
-#-----------------------------------------------------------------------------
+#----------------------------------------------------------------------------
 # 
 # General Atmel AVR  Makefile template.
 #
 # author: Peter Malmberg <peter.malmberg@gmail.com>
 #
 #  
-#-----------------------------------------------------------------------------
+#----------------------------------------------------------------------------
 # On command line:
 # >make help 
-#-----------------------------------------------------------------------------
+#----------------------------------------------------------------------------
 
-
-# Output format. (can be srec, ihex, binary)
-FORMAT = ihex
+# Project Licence (GPL, GPLv2, MIT, BSD, Apache, etc.) 
+LICENCE = GPLv2
 
 # Target file name (without extension).
 TARGET = avr
@@ -59,23 +58,16 @@ DEBUG = dwarf-2
 CSTANDARD = -std=gnu99
 
 # Place -D or -U options here for C sources
-CDEFS = -DF_CPU=$(F_CPU)UL
-
+CDEFS = 
 
 # Place -D or -U options here for ASM sources
-ADEFS = -DF_CPU=$(F_CPU)
-
+ADEFS = 
 
 # Place -D or -U options here for C++ sources
-CPPDEFS = -DF_CPU=$(F_CPU)UL
-#CPPDEFS += -D__STDC_LIMIT_MACROS
-#CPPDEFS += -D__STDC_CONSTANT_MACROS
-
-
+CPPDEFS = 
 
 # Compiler Options C ---------------------------------------------------------
-
-# #  -g*:          generate debugging information
+#  -g*:          generate debugging information
 #  -O*:          optimization level
 #  -f...:        tuning, see GCC manual
 #  -Wall...:     warning level
@@ -100,9 +92,7 @@ CFLAGS += $(patsubst %,-I%,$(INCLUDE))
 CFLAGS += $(CSTANDARD)
 
 
-
 # Compiler Options C++ -------------------------------------------------------
-
 #  -g*:          generate debugging information
 #  -O*:          optimization level
 #  -f...:        tuning, see GCC manual and avr-libc documentation
@@ -181,13 +171,8 @@ EXTRALIBDIRS =
 #    -Map:      create map file
 #    --cref:    add cross reference to  map file
 LDFLAGS = -Wl,-Map=$(OUTDIR)/$(TARGET).map,--cref
-#LDFLAGS  = -Wl
-#LDFLAGS += -Map=$(OUTDIR)/$(TARGET).map
-#LDFLAGS += --cref
 LDFLAGS += $(EXTMEMOPTS)
-#LDFLAGS += -T linker_script.x
 LDFLAGS += $(patsubst %,-L%,$(INCLUDE))
-LDFLAGS += $(PRINTF_LIB) $(SCANF_LIB) $(MATH_LIB)
 
 # MCU Options ----------------------------------------------------------------
 
@@ -199,13 +184,30 @@ MCU = atmega2560
 #  1000000  1843200  2000000 3686400 4000000 7372800 8000000 11059200 14745600
 F_CPU = 8000000
 
+CFLAGS   += -mmcu=$(MCU)
+CPPFLAGS += -mmcu=$(MCU)
+ASFLAGS  += -mmcu=$(MCU)
 
-# Atmel AVR options ---------------------------------------------------------
+# # Atmel AVR options ---------------------------------------------------------
 
+# Output format. (can be srec, ihex, binary)
+FORMAT = ihex
 
-# ARM Cortex settings -------------------------------------------------------
+CDEFS   += -DF_CPU=$(F_CPU)UL
+ADEFS   += -DF_CPU=$(F_CPU)UL
+CPPDEFS += -DF_CPU=$(F_CPU)UL
 
-# Tool options --------------------------------------------------------------
+LDFLAGS += $(PRINTF_LIB) $(SCANF_LIB) $(MATH_LIB)
+
+# ARM Cortex options --------------------------------------------------------
+
+#LDFLAGS += -T linker_script.x
+ 
+# Linux options --------------------------------------------------------------
+
+# Windows options ------------------------------------------------------------
+
+# Tool options ---------------------------------------------------------------
 
 # Define programs and commands.
 SHELL     = bash
@@ -321,9 +323,9 @@ GENDEPFLAGS = -MMD -MP -MF .dep/$(@F).d
 
 # Combine all necessary flags and optional flags.
 # Add target processor to flags.
-ALL_CFLAGS = -mmcu=$(MCU) -I. $(CFLAGS) $(GENDEPFLAGS)
-ALL_CPPFLAGS = -mmcu=$(MCU) -I. -x c++ $(CPPFLAGS) $(GENDEPFLAGS)
-ALL_ASFLAGS = -mmcu=$(MCU) -I. -x assembler-with-cpp $(ASFLAGS)
+ALL_CFLAGS   =  -I. $(CFLAGS) $(GENDEPFLAGS)
+ALL_CPPFLAGS =  -I. -x c++ $(CPPFLAGS) $(GENDEPFLAGS)
+ALL_ASFLAGS  =  -I. -x assembler-with-cpp $(ASFLAGS)
 
 # Define all object files.
 OBJS = $(SRC:%.c=$(OBJDIR)/%.o) $(CPPSRC:%.cpp=$(OBJDIR)/%.o) $(ASRC:%.S=$(OBJDIR)/%.o)
@@ -692,6 +694,37 @@ acheck: ## Static code analysis using cppcheck(all warnings)
 
 # Avrdude settings ----------------------------------------------------------
 
+# Programming hardware
+# Type: avrdude -c ?
+# to get a full listing.
+#
+AVRDUDE_PROGRAMMER = stk500v2
+ 
+# com1 = serial port. Use lpt1 to connect to parallel port.
+AVRDUDE_PORT = com1    # programmer connected to serial device
+ 
+AVRDUDE_WRITE_FLASH = -U flash:w:$(TARGET).hex
+#AVRDUDE_WRITE_EEPROM = -U eeprom:w:$(TARGET).eep
+  
+# Uncomment the following if you want avrdude's erase cycle counter.
+# Note that this counter needs to be initialized first using -Yn,
+# see avrdude manual.
+#AVRDUDE_ERASE_COUNTER = -y
+
+# Uncomment the following if you do /not/ wish a verification to be
+# performed after programming the device.
+#AVRDUDE_NO_VERIFY = -V
+
+# Increase verbosity level.  Please use this when submitting bug
+# reports about avrdude. See <http://savannah.nongnu.org/projects/avrdude>
+# to submit bug reports.
+#AVRDUDE_VERBOSE = -v -v
+ 
+AVRDUDE_FLAGS = -p $(MCU) -P $(AVRDUDE_PORT) -c $(AVRDUDE_PROGRAMMER)
+AVRDUDE_FLAGS += $(AVRDUDE_NO_VERIFY)
+AVRDUDE_FLAGS += $(AVRDUDE_VERBOSE)
+AVRDUDE_FLAGS += $(AVRDUDE_ERASE_COUNTER)
+# 
 	
 # Listing of phony targets.
 .PHONY : all clean gccversion build begin finished end elf lss sym archive edit help backup list-src list-flags newproj run install

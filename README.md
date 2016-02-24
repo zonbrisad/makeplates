@@ -3,6 +3,12 @@
 Makefile templates is a set of example makefiles.
 
 
+### Makefile 
+
+#### Links
+
+- [Panda fruits](http://pandafruits.com/stm32_primer/stm32_primer_minimal.php)
+
 
 ### Color encoding
 
