@@ -1,7 +1,7 @@
 # Hey Emacs, this is a -*- makefile -*-
 #-----------------------------------------------------------------------------
 # 
-# Makeplate example project
+# General Atmel AVR  Makefile template.
 #
 # author: Peter Malmberg <peter.malmberg@gmail.com>
 #
@@ -11,11 +11,12 @@
 # >make help 
 #-----------------------------------------------------------------------------
 
-# Project Licence (GPL, GPLv2, MIT, BSD, Apache, etc.) 
-LICENCE = GPLv2
+
+# Output format. (can be srec, ihex, binary)
+FORMAT = ihex
 
 # Target file name (without extension).
-TARGET = makeplate
+TARGET = avr
 
 # List C source files here. (C dependencies are automatically generated.)
 SRC = src/main.c 
@@ -31,12 +32,7 @@ ASRC =
 INCLUDE = inc \
           src 
 
-# Libraries to link
-LIB = -lm 
-#LIB += $(shell pkg-config --libs glib-2.0)
-#LIB += $(shell pkg-config --libs gthread-2.0)
-#LIB += $(shell pkg-config --libs ncurses)
-#LIB += $(shell pkg-config --libs lua5.1)
+LIB  = 
 
 # Object files directory
 #     To put object files in current directory, use a dot (.), do NOT make
@@ -48,23 +44,38 @@ OUTDIR = output
 
 # Optimization level, can be [0, 1, 2, 3, s]. 
 #     0 = turn off optimization. s = optimize for size.
-OPT = 2
+OPT = s
+
+
+# Debugging format.
+#     Native formats for AVR-GCC's -g are dwarf-2 [default] or stabs.
+#     AVR Studio 4.10 requires dwarf-2.
+#     AVR [Extended] COFF format requires stabs, plus an avr-objcopy run.
+DEBUG = dwarf-2
+
 
 # Compiler flag to set the C Standard level.
 # [ gnu99 gnu11 c++98 c++03 c++11 c++14 ] 
 CSTANDARD = -std=gnu99
 
 # Place -D or -U options here for C sources
-CDEFS = 
+CDEFS = -DF_CPU=$(F_CPU)UL
+
 
 # Place -D or -U options here for ASM sources
-ADEFS = 
+ADEFS = -DF_CPU=$(F_CPU)
+
 
 # Place -D or -U options here for C++ sources
-CPPDEFS = 
+CPPDEFS = -DF_CPU=$(F_CPU)UL
+#CPPDEFS += -D__STDC_LIMIT_MACROS
+#CPPDEFS += -D__STDC_CONSTANT_MACROS
 
-#---------------- Compiler Options C ----------------
-#  -g*:          generate debugging information
+
+
+# Compiler Options C ---------------------------------------------------------
+
+# #  -g*:          generate debugging information
 #  -O*:          optimization level
 #  -f...:        tuning, see GCC manual
 #  -Wall...:     warning level
@@ -74,9 +85,9 @@ CFLAGS = -g$(DEBUG)
 CFLAGS += $(CDEFS)
 CFLAGS += -O$(OPT)
 CFLAGS += -funsigned-char
-#CFLAGS += -funsigned-bitfields
-#CFLAGS += -fpack-struct
-#CFLAGS += -fshort-enums
+CFLAGS += -funsigned-bitfields
+CFLAGS += -fpack-struct
+CFLAGS += -fshort-enums
 CFLAGS += -Wall
 CFLAGS += -Wstrict-prototypes
 #CFLAGS += -mshort-calls
@@ -87,12 +98,11 @@ CFLAGS += -Wunreachable-code
 #CFLAGS += -Wa,-adhlns=$(<:%.c=$(OBJDIR)/%.lst)
 CFLAGS += $(patsubst %,-I%,$(INCLUDE))
 CFLAGS += $(CSTANDARD)
-#CFLAGS += $(shell pkg-config --cflags glib-2.0)
-#CFLAGS += $(shell pkg-config --cflags gthread-2.0)
-#CFLAGS += $(shell pkg-config --cflags lua5.1)
 
 
-#---------------- Compiler Options C++ ----------------
+
+# Compiler Options C++ -------------------------------------------------------
+
 #  -g*:          generate debugging information
 #  -O*:          optimization level
 #  -f...:        tuning, see GCC manual and avr-libc documentation
@@ -117,8 +127,6 @@ CPPFLAGS += -Wundef
 CPPFLAGS += -Wa,-adhlns=$(<:%.cpp=$(OBJDIR)/%.lst)
 CPPFLAGS += $(patsubst %,-I%,$(INCLUDE))
 #CPPFLAGS += $(CSTANDARD)
-#CPPFLAGS += $(shell pkg-config --cflags glib-2.0)
-#CPPFLAGS += $(shell pkg-config --cflags gthread-2.0)
 
 
 # Assembler Options ----------------------------------------------------------
@@ -132,17 +140,72 @@ CPPFLAGS += $(patsubst %,-I%,$(INCLUDE))
 #       dump that will be displayed for a given single line of source input.
 ASFLAGS = $(ADEFS) -Wa,-adhlns=$(<:%.S=$(OBJDIR)/%.lst),-gstabs,--listing-cont-lines=100
 
-#---------------- Linker Options ----------------
+
+# Library Options ------------------------------------------------------------
+# Minimalistic printf version
+PRINTF_LIB_MIN = -Wl,-u,vfprintf -lprintf_min
+
+# Floating point printf version (requires MATH_LIB = -lm below)
+PRINTF_LIB_FLOAT = -Wl,-u,vfprintf -lprintf_flt
+
+# If this is left blank, then it will use the Standard printf version.
+PRINTF_LIB = 
+#PRINTF_LIB = $(PRINTF_LIB_MIN)
+#PRINTF_LIB = $(PRINTF_LIB_FLOAT)
+
+
+# Minimalistic scanf version
+SCANF_LIB_MIN = -Wl,-u,vfscanf -lscanf_min
+
+# Floating point + %[ scanf version (requires MATH_LIB = -lm below)
+SCANF_LIB_FLOAT = -Wl,-u,vfscanf -lscanf_flt
+
+# If this is left blank, then it will use the Standard scanf version.
+SCANF_LIB = 
+#SCANF_LIB = $(SCANF_LIB_MIN)
+#SCANF_LIB = $(SCANF_LIB_FLOAT)
+
+
+MATH_LIB = -lm
+
+
+# List any extra directories to look for libraries here.
+#     Each directory must be seperated by a space.
+#     Use forward slashes for directory separators.
+#     For a directory that has spaces, enclose it in quotes.
+EXTRALIBDIRS = 
+
+
+# Linker Options -------------------------------------------------------------
 #  -Wl,...:     tell GCC to pass this to linker.
 #    -Map:      create map file
 #    --cref:    add cross reference to  map file
 LDFLAGS = -Wl,-Map=$(OUTDIR)/$(TARGET).map,--cref
+#LDFLAGS  = -Wl
+#LDFLAGS += -Map=$(OUTDIR)/$(TARGET).map
+#LDFLAGS += --cref
 LDFLAGS += $(EXTMEMOPTS)
 #LDFLAGS += -T linker_script.x
+LDFLAGS += $(patsubst %,-L%,$(INCLUDE))
+LDFLAGS += $(PRINTF_LIB) $(SCANF_LIB) $(MATH_LIB)
 
-#
-# Tool settings
-#============================================================================
+# MCU Options ----------------------------------------------------------------
+
+# MCU name
+MCU = atmega2560
+
+# Processor frequency.
+# Some common values:
+#  1000000  1843200  2000000 3686400 4000000 7372800 8000000 11059200 14745600
+F_CPU = 8000000
+
+
+# Atmel AVR options ---------------------------------------------------------
+
+
+# ARM Cortex settings -------------------------------------------------------
+
+# Tool options --------------------------------------------------------------
 
 # Define programs and commands.
 SHELL     = bash
@@ -164,7 +227,7 @@ CPPCHECK  = cppcheck
 TCHAIN_BASE=/usr/bin
 
 # Toolchain prefix (i.e arm-elf- -> arm-elf-gcc.exe)
-TCHAIN_PREFIX=
+TCHAIN_PREFIX=avr-
 
 TCHAIN = $(TCHAIN_BASE)/$(TCHAIN_PREFIX)
 
@@ -175,9 +238,7 @@ SIZE      = ${TCHAIN}size
 AR        = ${TCHAIN}ar rcs
 NM        = ${TCHAIN}nm
 
-#
-# Message settings
-#============================================================================
+# Message settings -----------------------------------------------------------
 
 E_BLACK        = \033[0;300m
 E_RED          = \033[0;31m
@@ -260,9 +321,9 @@ GENDEPFLAGS = -MMD -MP -MF .dep/$(@F).d
 
 # Combine all necessary flags and optional flags.
 # Add target processor to flags.
-ALL_CFLAGS   =  -I. $(CFLAGS) $(GENDEPFLAGS)
-ALL_CPPFLAGS =  -I. -x c++ $(CPPFLAGS) $(GENDEPFLAGS)
-ALL_ASFLAGS  =  -I. -x assembler-with-cpp $(ASFLAGS)
+ALL_CFLAGS = -mmcu=$(MCU) -I. $(CFLAGS) $(GENDEPFLAGS)
+ALL_CPPFLAGS = -mmcu=$(MCU) -I. -x c++ $(CPPFLAGS) $(GENDEPFLAGS)
+ALL_ASFLAGS = -mmcu=$(MCU) -I. -x assembler-with-cpp $(ASFLAGS)
 
 # Define all object files.
 OBJS = $(SRC:%.c=$(OBJDIR)/%.o) $(CPPSRC:%.cpp=$(OBJDIR)/%.o) $(ASRC:%.S=$(OBJDIR)/%.o)
@@ -271,7 +332,7 @@ OBJS = $(SRC:%.c=$(OBJDIR)/%.o) $(CPPSRC:%.cpp=$(OBJDIR)/%.o) $(ASRC:%.S=$(OBJDI
 LST = $(SRC:%.c=$(OBJDIR)/%.lst) $(CPPSRC:%.cpp=$(OBJDIR)/%.lst) $(ASRC:%.S=$(OBJDIR)/%.lst) 
 
 # Default target.
-all:	begin build finished end
+all: begin sizebefore build sizeafter end
 
 # Remove colorfilter
 nocolor:
@@ -283,10 +344,11 @@ nocolor:
 #	
 nc: nocolor all   ## Build with no color on compiler output
 
+# Change the build target to build a HEX file or a library.
+build: elf hex eep lss sym
 
-build: elf lss sym
 
-elf: $(OUTDIR)/$(TARGET)
+elf: $(OUTDIR)/$(TARGET).elf
 lss: $(OUTDIR)/$(TARGET).lss
 sym: $(OUTDIR)/$(TARGET).sym
 hex: $(OUTDIR)/$(TARGET).hex
@@ -306,30 +368,117 @@ finished:
 	@echo
 	@echo -e $(MSG_ERRORS_NONE)
 
+
+# Display size of file.
+HEXSIZE = $(SIZE) --target=$(FORMAT) $(OUTDIR)/$(TARGET).hex
+ELFSIZE = $(SIZE) --mcu=$(MCU) --format=avr $(OUTDIR)/$(TARGET).elf
+
+sizebefore:
+	@if [ -f $(OUTDIR)/$(TARGET).elf ]; then echo; echo $(MSG_SIZE_BEFORE); $(ELFSIZE); \
+ 	2>/dev/null; echo; fi
+
+sizeafter:
+	@if [ -f $(OUTDIR)/$(TARGET).elf ]; then echo; echo -e $(MSG_SIZE_AFTER); $(ELFSIZE); \
+	2>/dev/null; echo; fi
+
+
+
 # Display compiler version information.
 gccversion :  ## Display compiler version
 	@$(CC) --version
 
-# Link target
-#.SECONDARY : $(TARGET)
-.PRECIOUS : $(OBJS)
-$(OUTDIR)/$(TARGET): $(OBJS) $(OUTDIR)
-	@echo 
-	@echo -e $(MSG_LINKING)"\n             $(E_BR_CYAN)" $@ "$(E_END)"
-	@$(CC) $(ALL_CFLAGS) $(OBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)
-	
+
+
+# Program the device.  
+program: $(TARGET).hex $(TARGET).eep
+	$(AVRDUDE) $(AVRDUDE_FLAGS) $(AVRDUDE_WRITE_FLASH) $(AVRDUDE_WRITE_EEPROM)
+
+
+# Generate avr-gdb config/init file which does the following:
+#     define the reset signal, load the target file, connect to target, and set 
+#     a breakpoint at main().
+gdb-config: 
+	@$(REMOVE) $(GDBINIT_FILE)
+	@echo define reset >> $(GDBINIT_FILE)
+	@echo SIGNAL SIGHUP >> $(GDBINIT_FILE)
+	@echo end >> $(GDBINIT_FILE)
+	@echo file $(TARGET).elf >> $(GDBINIT_FILE)
+	@echo target remote $(DEBUG_HOST):$(DEBUG_PORT)  >> $(GDBINIT_FILE)
+ifeq ($(DEBUG_BACKEND),simulavr)
+	@echo load  >> $(GDBINIT_FILE)
+endif
+	@echo break main >> $(GDBINIT_FILE)
+
+debug: gdb-config $(TARGET).elf
+#ifeq ($(DEBUG_BACKEND), avarice)
+#	@echo Starting AVaRICE - Press enter when "waiting to connect" message displays.
+#	@$(WINSHELL) /c start avarice --jtag $(JTAG_DEV) --erase --program --file \
+#	$(TARGET).elf $(DEBUG_HOST):$(DEBUG_PORT)
+#	@$(WINSHELL) /c pause
+#else
+#@$(WINSHELL) /c start simulavr --gdbserver --device $(MCU) --clock-freq \
+#$(DEBUG_MFREQ) --port $(DEBUG_PORT)
+#endif
+#@$(WINSHELL) /c start avr-$(DEBUG_UI) --command=$(GDBINIT_FILE)
+
+
+
+
+# Convert ELF to COFF for use in debugging / simulating in AVR Studio or VMLAB.
+COFFCONVERT = $(OBJCOPY) --debugging
+COFFCONVERT += --change-section-address .data-0x800000
+COFFCONVERT += --change-section-address .bss-0x800000
+COFFCONVERT += --change-section-address .noinit-0x800000
+COFFCONVERT += --change-section-address .eeprom-0x810000
+
+
+
+coff: $(TARGET).elf
+	@echo
+	@echo -e $(MSG_COFF)"\n  " "$(E_BR_CYAN)" $(TARGET).cof "$(E_END)"
+	$(COFFCONVERT) -O coff-avr $< $(TARGET).cof
+
+
+extcoff: $(TARGET).elf
+	@echo
+	@echo -e $(MSG_EXTENDED_COFF)"\n  " "$(E_BR_CYAN)" $(TARGET).cof "$(E_END)"
+	@$(COFFCONVERT) -O coff-ext-avr $< $(TARGET).cof
+
+
+
+# Create final output files (.hex, .eep) from ELF output file.
+%.hex: %.elf
+	@echo
+	@echo -e $(MSG_FLASH)"\n  " "$(E_BR_CYAN)" $@ "$(E_END)"
+	@$(OBJCOPY) -O $(FORMAT) -R .eeprom -R .fuse -R .lock -R .signature $< $@
+
+%.eep: %.elf
+	@echo
+	@echo -e $(MSG_EEPROM)"\n  " "$(E_BR_CYAN)" $@ "$(E_END)"
+	@$(OBJCOPY) -j .eeprom --set-section-flags=.eeprom="alloc,load" \
+	--change-section-lma .eeprom=0 --no-change-warnings -O $(FORMAT) $< $@ || exit 0
+
 # Create extended listing file/disassambly from ELF output file.
 # using objdump testing: option -C
-%.lss:	$(OUTDIR)/$(TARGET)
+%.lss: %.elf
 	@echo
-	@echo -e $(MSG_EXTENDED_LISTING) "\n             $(E_BR_CYAN)" $@ "$(E_END)"
-	@$(OBJDUMP) -h -S -C -r $< > $@
-	
+	@echo -e $(MSG_EXTENDED_LISTING)"\n  " "$(E_BR_CYAN)" $@ "$(E_END)"
+	@$(OBJDUMP) -h -S -z $< > $@
+
 # Create a symbol table from ELF output file.
-%.sym: $(OUTDIR)/$(TARGET)
+%.sym: %.elf
 	@echo
 	@echo -e $(MSG_SYMBOL_TABLE) "\n             $(E_BR_CYAN)" $@ "$(E_END)"
 	@$(NM) -n $< > $@
+
+
+# Link: create ELF output file from object files.
+.SECONDARY : $(TARGET).elf
+.PRECIOUS : $(OBJS)
+%.elf: $(OBJS) $(OUTDIR)
+	@echo -e $(MSG_LINKING)"\n  " "$(E_BR_CYAN)" $@ "$(E_END)"
+	@$(CC) $(ALL_CFLAGS) $(OBJS) --output $@ $(LDFLAGS) $(LIB)
+
 
 # Compile: create object files from C source files.
 $(OBJDIR)/%.o : %.c
@@ -444,11 +593,6 @@ backup: ## Make an incremental backup
 edit:   ## Open source and makefile in editor
 	@$(EDITOR) Makefile $(SRC)
 
-run:    ## Run application
-	@output/$(TARGET)
-
-debug:  ## Debug application
-
 
 # Include the dependency files.
 -include $(shell mkdir .dep 2>/dev/null) $(wildcard .dep/*)
@@ -546,7 +690,7 @@ acheck: ## Static code analysis using cppcheck(all warnings)
 # Version control handling
 #============================================================================
 
-
+# Avrdude settings ----------------------------------------------------------
 
 	
 # Listing of phony targets.
