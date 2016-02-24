@@ -143,6 +143,8 @@
         <in>gp_log.h</in>
         <in>main.c</in>
       </df>
+      <df name="tools">
+      </df>
     </df>
   </logicalFolder>
   <projectmakefile>Makefile</projectmakefile>

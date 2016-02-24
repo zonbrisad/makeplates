@@ -20,6 +20,7 @@
 #include "lauxlib.h"
 
 #include "gp_log.h"
+#include "swill/swill.h"
 
 /**
  * Defines
@@ -42,12 +43,15 @@ static gboolean opt_verbose    = FALSE;
 static gboolean opt_version    = FALSE;
 static gboolean opt_quiet      = FALSE;
 static gboolean opt_daemon     = FALSE;
+static gboolean opt_webtest    = FALSE;
+
 
 static GOptionEntry entries[] = {
   { "verbose",  'v', 0, G_OPTION_ARG_NONE, &opt_verbose,    "Be verbose output",    NULL },
   { "version",  'b', 0, G_OPTION_ARG_NONE, &opt_version,    "Output version info",  NULL },
   { "quiet",    'q', 0, G_OPTION_ARG_NONE, &opt_quiet,      "No output to console", NULL },
   { "daemon",    0,  0, G_OPTION_ARG_NONE, &opt_daemon,     "Start as daemon",      NULL },
+  { "webtest",   0,  0, G_OPTION_ARG_NONE, &opt_webtest,    "SWILL web test",       NULL },
   { NULL }
 };
 
@@ -56,6 +60,22 @@ static GOptionEntry entries[] = {
  *---------------------------------------------------------------------------
  */
  
+void testPage(FILE *f) {
+  swill_printf(f, "Kalle");
+}
+
+void webTest() {
+  printf("Starting webserver");
+  swill_init(8080);
+  swill_handle("testPage", testPage, NULL);
+//  swill_handle("mandelpage.html", mandelpage,m);
+
+  while (1) {
+    sleep(1);
+    swill_serve();
+  }
+}
+
 void safeExit() {
   gp_log_close();
 	exit(0);
@@ -87,6 +107,9 @@ int main(int argc, char *argv[]) {
 	  gp_log_set_verbose(TRUE);  
 	}
 	
+  if (opt_webtest) {
+    webTest();
+  }
 	
 	printf("Ett litet testprogram.\n");
 	

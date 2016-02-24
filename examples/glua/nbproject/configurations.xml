@@ -96,7 +96,7 @@
       <makefileType>
         <makeTool>
           <buildCommandWorkingDir>.</buildCommandWorkingDir>
-          <buildCommand>${MAKE} -f Makefile</buildCommand>
+          <buildCommand>${MAKE} -f Makefile nc</buildCommand>
           <cleanCommand>${MAKE} -f Makefile clean</cleanCommand>
           <executablePath>output/glua</executablePath>
           <cTool>
@@ -107,11 +107,6 @@
               <pElem>src/iniparser3.1/src</pElem>
               <pElem>src/lua-5.2.3/src</pElem>
               <pElem>src/argtable2-13/src</pElem>
-              <pElem>src/SWILL-0.3/Include</pElem>
-              <pElem>src/SWILL-0.3/Source/SWILL</pElem>
-              <pElem>src/SWILL-0.3/Source/Objects</pElem>
-              <pElem>/usr/include/glib-2.0</pElem>
-              <pElem>/usr/lib/x86_64-linux-gnu/glib-2.0/include</pElem>
             </incDir>
             <preprocessorList>
               <Elem>HAVE_CONFIG_H</Elem>
@@ -124,6 +119,28 @@
           <preBuildCommand></preBuildCommand>
         </preBuild>
       </makefileType>
+      <folder path="0/src/SWILL-0.3">
+        <cTool>
+          <incDir>
+            <pElem>src/SWILL-0.3/Include</pElem>
+            <pElem>src/SWILL-0.3/Source/SWILL</pElem>
+            <pElem>src/SWILL-0.3/Source/Objects</pElem>
+            <pElem>/usr/include/glib-2.0</pElem>
+            <pElem>/usr/lib/x86_64-linux-gnu/glib-2.0/include</pElem>
+          </incDir>
+        </cTool>
+      </folder>
+      <folder path="0/src/lua-5.2.3">
+        <cTool>
+          <incDir>
+            <pElem>src/SWILL-0.3/Include/swill</pElem>
+            <pElem>src/SWILL-0.3/Source/SWILL</pElem>
+            <pElem>src/SWILL-0.3/Source/Objects</pElem>
+            <pElem>/usr/include/glib-2.0</pElem>
+            <pElem>/usr/lib/x86_64-linux-gnu/glib-2.0/include</pElem>
+          </incDir>
+        </cTool>
+      </folder>
       <item path="src/SWILL-0.3/Source/Objects/base.c"
             ex="false"
             tool="0"
@@ -228,6 +245,13 @@
       </item>
       <item path="src/gp_log.c" ex="false" tool="0" flavor2="3">
         <cTool flags="0">
+          <incDir>
+            <pElem>src/SWILL-0.3/Include/swill</pElem>
+            <pElem>src/SWILL-0.3/Source/SWILL</pElem>
+            <pElem>src/SWILL-0.3/Source/Objects</pElem>
+            <pElem>/usr/include/glib-2.0</pElem>
+            <pElem>/usr/lib/x86_64-linux-gnu/glib-2.0/include</pElem>
+          </incDir>
         </cTool>
       </item>
       <item path="src/lua-5.2.3/src/lapi.c" ex="false" tool="0" flavor2="3">
@@ -360,6 +384,13 @@
       </item>
       <item path="src/main.c" ex="false" tool="0" flavor2="3">
         <cTool flags="0">
+          <incDir>
+            <pElem>src/SWILL-0.3/Include</pElem>
+            <pElem>src/SWILL-0.3/Source/SWILL</pElem>
+            <pElem>src/SWILL-0.3/Source/Objects</pElem>
+            <pElem>/usr/include/glib-2.0</pElem>
+            <pElem>/usr/lib/x86_64-linux-gnu/glib-2.0/include</pElem>
+          </incDir>
         </cTool>
       </item>
     </conf>

@@ -17,6 +17,7 @@
 #endif
 
 #include "dohint.h"
+#include <unistd.h>
 
 #define DOH_INTFILE  1
 

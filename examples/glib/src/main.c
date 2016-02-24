@@ -39,11 +39,11 @@
 
 pid_t  appPid;
 pid_t  appPid2;
-char  *appPath;
-char  *appHomeDir;
-char  *appUserName;
-char  *appRealName;
-char  *appHostName;
+const char  *appPath;
+const char  *appHomeDir;
+const char  *appUserName;
+const char  *appRealName;
+const char  *appHostName;
 
 static gboolean opt_verbose    = FALSE;
 static gboolean opt_version    = FALSE;
@@ -73,11 +73,6 @@ GMainLoop   *mLoop1;
 GMainLoop   *mLoop2;
 GAsyncQueue *queue1;
 
-/*
-typedef struct kalle {
-  *fun(void )
-}
-*/
 /**
  * Code
  *---------------------------------------------------------------------------
@@ -135,7 +130,7 @@ int isAppRunning() {
  */
 void appInfo() {
   GError *err; 
-  int xpid;
+
   // get some system data
   appPid      = getpid();
   appPath     = g_file_read_link("/proc/self/exe", &err);
@@ -143,11 +138,6 @@ void appInfo() {
   appUserName = g_get_user_name();
   appRealName = g_get_real_name();
   appHostName = g_get_host_name();
-
- // xpid = isAppRunning();
- // printf("Pid: %d\n", xpid);
-  
-  //writePidFile();
 }
 
 void safeExit() {
@@ -161,7 +151,6 @@ void safeExit() {
 }
 
 void errorTest() {
-	int i;
   gp_log_set_verbose(TRUE);
   g_message("This is a message\n");
 	g_debug("This is a debug message\n");
@@ -171,15 +160,15 @@ void errorTest() {
 }
 
 void sig_ctrl_c(int sig) {
-  g_main_loop_quit(mLoop1);
+  int x;
+  //g_main_loop_quit(mLoop1);
 }
 
 void sig_usr1(int sig) {
-  static int x;
-  
-  x = 12;
+  int *x;
+  x=malloc(sizeof(int));
   printf("Signal USR1\n");
-  //g_async_queue_push(queue1, &x);
+  g_async_queue_push(queue1, x);
 }
 
 
@@ -196,7 +185,6 @@ void thread_1(void *ptr) {
 	printf("Starting thread 1\n");
   
 	while (1) {
-		//sleep(2);
 		data=g_async_queue_pop(queue1);
 		printf("Data received from queue\n");
 	}
@@ -303,18 +291,6 @@ void daemonTest(void) {
 	mLoop1 = g_main_loop_new(NULL, FALSE);
 	g_main_loop_run(mLoop1);
 }
-
-int cppCheckErrors() {
-	char a[10];
-  int b;
-	a[10] = 'a';
-	
-	// cppcheck-suppress arrayIndexOutOfBounds
-	a[11] = 'b';
-
-	return b;
-}
-
 
 int main(int argc, char *argv[]) {
 	GError *error = NULL;

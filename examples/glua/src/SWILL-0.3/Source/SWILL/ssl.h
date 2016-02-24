@@ -11,7 +11,7 @@
 #ifndef _SSL_H
 #define _SSL_H
 
-#if defined(SWILL_SSL) && (SWILL_SSL > 0)
+//#if defined(SWILL_SSL) && (SWILL_SSL > 0)
 
 int swill_ssl_init(int use);
 int swill_ssl_term(void);
@@ -20,10 +20,10 @@ int swill_ssl_close(int sock);
 int swill_ssl_read(int sock, char* buf, int size);
 int swill_ssl_write(int sock, char* buf, int size);
 
-#else
+//#else
 
 void swill_ssl_not_supported(const char* name);
 
-#endif
+//#endif
 
 #endif

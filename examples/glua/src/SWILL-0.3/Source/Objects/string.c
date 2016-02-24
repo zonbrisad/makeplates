@@ -246,12 +246,12 @@ static int
 String_insert(DOH *so, int pos, DOH *str)
 {
    String *s = (String *) ObjData(so);
-   char *nstr;
+//   char *nstr;
    int   len;
    char *data;
 
    data = (char *) DohData(str);
-   nstr = s->str;
+//   nstr = s->str;
 
    s->hashkey = -1;
    if (pos == DOH_END) {

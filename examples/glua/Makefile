@@ -85,7 +85,7 @@ INCLUDE = inc \
 					src/iniparser3.1/src \
 					src/lua-5.2.3/src \
 					src/argtable2-13/src \
-			    src/SWILL-0.3/Include \
+			    src/SWILL-0.3/Include   \
 			    src/SWILL-0.3/Source/SWILL \
 			    src/SWILL-0.3/Source/Objects 
 
