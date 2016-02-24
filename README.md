@@ -7,7 +7,7 @@ Makefile templates is a set of example makefiles.
 ### Color encoding
 
 #### Links
-[l1]https://github.com/renatosilva/colormake/blob/master/colormake.sh
+[l1](https://github.com/renatosilva/colormake/blob/master/colormake.sh)
 http://stackoverflow.com/questions/1032237/highlight-and-filter-gcc-compiler-messages
 https://github.com/renatosilva/colormake
 
