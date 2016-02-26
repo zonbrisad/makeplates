@@ -119,7 +119,7 @@ CPPFLAGS += $(patsubst %,-I%,$(INCLUDE))
 #CPPFLAGS += $(CSTANDARD)
 
 
-# Assembler Options ----------------------------------------------------------
+# Linker Options -------------------------------------------------------------
 #  -Wa,...:   tell GCC to pass this to the assembler.
 #  -adhlns:   create listing
 #  -gstabs:   have the assembler create line number information; note that
@@ -285,6 +285,7 @@ MSG_ASSEMBLING       = "${E_BR_MAGENTA}Assembling:${E_END}"
 MSG_CLEANING         = "$(C_OK)Cleaning project:$(E_END)"
 MSG_EXTENDED_LISTING = "${E_BR_MAGENTA}Creating Extended Listing/Disassembly:$(E_END)"
 MSG_SYMBOL_TABLE     = "${E_BR_MAGENTA}Creating Symbol Table:$(E_END)"
+MSG_HEX_FILE         = "${E_BR_MAGENTA}Creating Hex file:$(E_END)"
 MSG_FORMATERROR      = "${C_ERROR}Can not handle output-format${E_END}"
 MSG_ASMFROMC         = "${E_BR_MAGENTA}Creating asm-File from C-Source:$(E_END)"
 MSG_SIZE_BEFORE      = "${E_BR_MAGENTA}Size before:${E_END}"
@@ -511,7 +512,10 @@ $(OBJDIR)/%.s : %.cpp
 $(OUTDIR):
 	@$(MKDIR) $@
 
-
+size: 
+	@echo
+	@$(SIZE) $(OUTDIR)/$(TARGET)
+	
 #
 # Various utility rules	
 #============================================================================
@@ -647,8 +651,10 @@ list-ldflags: ## List compiler flags
 
 
 list-info: 
-	@echo "Target: $(TARGET)"
-	@echo "Outdir: $(OUTDIR)"
+	@echo "Target:   $(TARGET)"
+	@echo "Platform: $(TARGET_PLATFORM)"
+	@echo "Licence:  $(LICENCE)"
+	@echo "Outdir:   $(OUTDIR)"
 	
  
 info: list-info list-flags list-ldflags list-src ## Print information about project

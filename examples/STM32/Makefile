@@ -12,7 +12,7 @@
 #----------------------------------------------------------------------------
 
 # Target platform
-# linux win32 avr-mcu arm-mcu
+# linux win32 avr arm osx
 TARGET_PLATFORM = linux
 
 # Project Licence (GPL, GPLv2, MIT, BSD, Apache, etc.) 
@@ -128,7 +128,7 @@ CPPFLAGS += $(patsubst %,-I%,$(INCLUDE))
 #CPPFLAGS += $(shell pkg-config --cflags gthread-2.0)
 
 
-#---------------- Assembler Options ----------------
+# Linker Options -------------------------------------------------------------
 #  -Wa,...:   tell GCC to pass this to the assembler.
 #  -adhlns:   create listing
 #  -gstabs:   have the assembler create line number information; note that
@@ -139,7 +139,7 @@ CPPFLAGS += $(patsubst %,-I%,$(INCLUDE))
 #       dump that will be displayed for a given single line of source input.
 ASFLAGS = $(ADEFS) -Wa,-adhlns=$(<:%.S=$(OBJDIR)/%.lst),-gstabs,--listing-cont-lines=100
 
-#---------------- Linker Options ----------------
+# Linker Options -------------------------------------------------------------
 #  -Wl,...:     tell GCC to pass this to linker.
 #    -Map:      create map file
 #    --cref:    add cross reference to  map file
@@ -147,6 +147,34 @@ LDFLAGS = -Wl,-Map=$(OUTDIR)/$(TARGET).map,--cref
 LDFLAGS += $(EXTMEMOPTS)
 #LDFLAGS += -T linker_script.x
 LDFLAGS += -g
+
+# Linux options --------------------------------------------------------------
+
+# Windows options ------------------------------------------------------------
+
+# ARM MCU platform specific options ------------------------------------------
+#ifeq($TARGET_PLATFORM), arm)
+CFLAGS += -mcpu=$(MCU)
+CFLAGS += -mthumb
+#CFLAGS += -mfpu=fpv4-sp-d16 
+#CFLAGS += -mfloat-abi=hard 
+
+LDSCRIPT = stm32_flash.ld
+LDFLAGS += -T$(LDSCRIPT) -mthumb -mcpu=cortex-m4 -nostdlib
+
+
+#
+# Atmel AVR MCU platform specific settings
+#============================================================================
+
+
+#
+# Linux platform specific settings
+#============================================================================
+
+#
+# Win32 platform specific settings
+#============================================================================
 
 #
 # Tool settings
@@ -185,39 +213,6 @@ OBJDUMP   = ${TCHAIN}objdump
 SIZE      = ${TCHAIN}size
 AR        = ${TCHAIN}ar rcs
 NM        = ${TCHAIN}nm
-
-
-# ARM MCU platform specific settings ----------------------------------------
-
-
-
-# 
-# #
-# ARM MCU platform specific settings
-#============================================================================
-
-CFLAGS += -mcpu=$(MCU)
-CFLAGS += -mthumb
-#CFLAGS += -mfpu=fpv4-sp-d16 
-#CFLAGS += -mfloat-abi=hard 
-
-LDSCRIPT = stm32_flash.ld
-LDFLAGS += -T$(LDSCRIPT) -mthumb -mcpu=cortex-m4 -nostdlib
-
-
-#
-# Atmel AVR MCU platform specific settings
-#============================================================================
-
-
-#
-# Linux platform specific settings
-#============================================================================
-
-#
-# Win32 platform specific settings
-#============================================================================
-
 
 #
 # Message settings
@@ -276,22 +271,9 @@ MSG_ARCHIVING        = "${E_BR_MAGENTA}Creating tar archive:${E_END}"
 MSG_CREATING_LIBRARY = "${E_BR_MAGENTA}Creating library:${E_END}"
 MSG_FLASH            = "${E_BR_MAGENTA}Creating load file for Flash:${E_END}"
 MSG_EEPROM           = "${E_BR_MAGENTA}Creating load file for EEPROM:${E_END}"
+MSG_COFF             = "${E_BR_MAGENTA}Converting to AVR COFF:${E_END}"
+MSG_EXTENDED_COFF    = "${E_BR_MAGENTA}Converting to AVR Extended COFF:${E_END}"
 MSG_BACKUP           = "${E_BR_GREEN}Making incremental backup of project:${E_END}"
-
-#while read x ; do echo $x ; done \
-#| sed -e "s/.*error:.*/\x1b[1;36m&\x1b[0m/" \
-#-e "s/.*warning:.*/\x1b[1;36m&\x1b[0m/" \
-#-e "s/^\(.*\)\(required from\)/\x1b[1;36m\1\x1b[0mnote: \2/" \
-#-e "s/^\(.*\)\(In instantiation of\)/\x1b[1;36m\1\x1b[0mnote: \2/" \
-#-e "s/^\(.*\)\(In member\)/\x1b[1;36m\1\x1b[0mnote: \2/" \
-#| sed -e "s/error:/\x1b[1;31m&\x1b[1;36m/" \
-#-e "s/warning:/\x1b[1;35m&\x1b[1;36m/" \
-#-e "s/note:/\x1b[1;30m&\x1b[0m/"
-
-
-#https://github.com/renatosilva/colormake/blob/master/colormake.sh
-#http://stackoverflow.com/questions/1032237/highlight-and-filter-gcc-compiler-messages
-#https://github.com/renatosilva/colormake
 
 # Compiler output colorizer filter
 F_ERROR="s/error:/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
@@ -302,7 +284,7 @@ FF_WARNING="s/^.*warning:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
 FF_NOTE="s/^.*note:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
 
 C_FILTER   = | sed -ru -e $(F_ERROR)  -e $(F_WARNING)  -e $(F_NOTE) \
-                     -e $(FF_ERROR) -e $(FF_WARNING) -e $(FF_NOTE)
+                       -e $(FF_ERROR) -e $(FF_WARNING) -e $(FF_NOTE)
 CPP_FILTER = $(C_FILTER)
 
 LD_ERROR1="s/undefined reference/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
@@ -349,6 +331,7 @@ lss: $(OUTDIR)/$(TARGET).lss
 sym: $(OUTDIR)/$(TARGET).sym
 hex: $(OUTDIR)/$(TARGET).hex
 bin: $(OUTDIR)/$(TARGET).bin
+eep: $(OUTDIR)/$(TARGET).eep
 
 # Eye candy.
 begin:
@@ -425,6 +408,7 @@ $(OUTDIR):
 
 size: 
 	@echo
+	@echo -e $(MSG_SIZE_AFTER)
 	@$(SIZE) $(OUTDIR)/$(TARGET)
 	
 #
@@ -567,6 +551,8 @@ list-ldflags: ## List compiler flags
 	  echo $${f} ;             \
 	done                       \
 
+list-tools: 
+	echo "gcc:    $(CC)"
 
 list-info: 
 	@echo "Target:   $(TARGET)"
