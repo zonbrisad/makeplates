@@ -11,6 +11,10 @@
 # >make help 
 #----------------------------------------------------------------------------
 
+# Target platform
+# linux win32 avr arm osx
+TARGET_PLATFORM = linux
+
 # Project Licence (GPL, GPLv2, MIT, BSD, Apache, etc.) 
 LICENCE = GPLv2
 
@@ -231,6 +235,7 @@ MSG_ASSEMBLING       = "${E_BR_MAGENTA}Assembling:${E_END}"
 MSG_CLEANING         = "$(C_OK)Cleaning project:$(E_END)"
 MSG_EXTENDED_LISTING = "${E_BR_MAGENTA}Creating Extended Listing/Disassembly:$(E_END)"
 MSG_SYMBOL_TABLE     = "${E_BR_MAGENTA}Creating Symbol Table:$(E_END)"
+MSG_HEX_FILE         = "${E_BR_MAGENTA}Creating Hex file:$(E_END)"
 MSG_FORMATERROR      = "${C_ERROR}Can not handle output-format${E_END}"
 MSG_ASMFROMC         = "${E_BR_MAGENTA}Creating asm-File from C-Source:$(E_END)"
 MSG_SIZE_BEFORE      = "${E_BR_MAGENTA}Size before:${E_END}"
@@ -300,6 +305,7 @@ lss: $(OUTDIR)/$(TARGET).lss
 sym: $(OUTDIR)/$(TARGET).sym
 hex: $(OUTDIR)/$(TARGET).hex
 bin: $(OUTDIR)/$(TARGET).bin
+eep: $(OUTDIR)/$(TARGET).eep
 
 # Eye candy.
 begin:
@@ -339,6 +345,12 @@ $(OUTDIR)/$(TARGET): $(OBJS) $(OUTDIR)
 	@echo -e $(MSG_SYMBOL_TABLE) "\n             $(E_BR_CYAN)" $@ "$(E_END)"
 	@$(NM) -n $< > $@
 
+# Create hex file from ELF output file.
+%.hex: $(OUTDIR)/$(TARGET)
+	@echo
+	@echo -e $(MSG_HEX_FILE) "\n             $(E_BR_CYAN)" $@ "$(E_END)"
+	@$(OBJCOPY) -O ihex $< $@
+	
 # Compile: create object files from C source files.
 $(OBJDIR)/%.o : %.c
 	@echo -e $(MSG_COMPILING) "$(C_FILE)" $< "$(E_END)"
@@ -368,7 +380,11 @@ $(OBJDIR)/%.s : %.cpp
 $(OUTDIR):
 	@$(MKDIR) $@
 
-
+size: 
+	@echo
+	@echo -e $(MSG_SIZE_AFTER)
+	@$(SIZE) $(OUTDIR)/$(TARGET)
+	
 #
 # Various utility rules	
 #============================================================================
@@ -509,10 +525,14 @@ list-ldflags: ## List compiler flags
 	  echo $${f} ;             \
 	done                       \
 
+list-tools: 
+	echo "gcc:    $(CC)"
 
 list-info: 
-	@echo "Target: $(TARGET)"
-	@echo "Outdir: $(OUTDIR)"
+	@echo "Target:   $(TARGET)"
+	@echo "Platform: $(TARGET_PLATFORM)"
+	@echo "Licence:  $(LICENCE)"
+	@echo "Outdir:   $(OUTDIR)"
 	
  
 info: list-info list-flags list-ldflags list-src ## Print information about project

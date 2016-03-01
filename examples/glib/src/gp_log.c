@@ -24,7 +24,6 @@
  */
 
 
-
 /**
  * Variable declarations
  *------------------------------------------------------------------
@@ -45,13 +44,12 @@ FILE *gpLogFile = NULL;
 char *gpLogFilename;
 
 int log_mask;
-int verbose_mask;
+unsigned int verbose_mask;
 
 static void gp_log_handler(const gchar *log_domain,
                    GLogLevelFlags log_level,
                    const gchar *message,
                    gpointer user_data );
-
 
 /**
  * Code
@@ -79,7 +77,7 @@ void gp_log_init(char *logfile) {
 	
 	gp_log_set_verbose(FALSE);
 	
-	gp_log_set_verbose_mask(GP_ALL);
+	gp_log_set_verbose_mask(GP_ALL | GP_TIME | GP_DATE);
 	
 	gp_log_set_log_mask(GP_ALL);
 	
@@ -111,6 +109,8 @@ static void gp_log_handler(const gchar *log_domain,
   char *level;
   GDateTime *dt;
   char *dateTime;
+	char *eDate;
+	char *eTime;
 	int i;
   int lm,vm;
 
@@ -129,10 +129,20 @@ static void gp_log_handler(const gchar *log_domain,
   // date and time information
   dt = g_date_time_new_now_local();
   dateTime = g_date_time_format(dt,"%Y-%m-%d %k:%M:%S");
+  eTime = g_date_time_format(dt,"%k:%M:%S");
+	eDate = g_date_time_format(dt,"%Y-%m-%d");
   
+	
   // print to stdout if in verbose mode
+	printf("Verbose mask %x\n", verbose_mask);
   if ( gp_verbose && vm ) {
-    printf("%s [%s%s%s] %s",dateTime,color,level,E_END,message);
+		if (SHOW_DATE()) {
+		  printf("%s ", eDate);
+		}
+		if (SHOW_TIME()) {
+		  printf("%s ", eTime);
+		}
+    printf("[%s%s%s] %s",color,level,E_END,message);
   }
   
   if (gp_logSize>gp_maxSize) {

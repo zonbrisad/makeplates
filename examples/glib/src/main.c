@@ -141,6 +141,7 @@ void appInfo() {
 }
 
 void safeExit() {
+	g_message("Shuting down...");
   gp_log_close();
   
   // Do not remove file if already running.
@@ -152,6 +153,7 @@ void safeExit() {
 
 void errorTest() {
   gp_log_set_verbose(TRUE);
+	
   g_message("This is a message\n");
 	g_debug("This is a debug message\n");
   g_warning("This is a warning\n");
@@ -204,8 +206,8 @@ void threadTest() {
   queue1 = g_async_queue_new();
 	
   //signal(SIGINT, sig_ctrl_c);
-  g_unix_signal_add(SIGINT, sig_ctrl_c);
-  g_unix_signal_add(SIGUSR1, sig_usr1);
+  //g_unix_signal_add(SIGINT, sig_ctrl_c);
+  //g_unix_signal_add(SIGUSR1, sig_usr1);
 
 	queue1 = g_async_queue_new();
 
@@ -213,8 +215,8 @@ void threadTest() {
 	  
 	g_timeout_add_seconds(1, timeout_1, "Timeout 1");
 
-  thread1 = g_thread_new("TestThread1", thread_1, NULL);
-  thread2 = g_thread_new("TestThread2", thread_2, NULL);
+  //thread1 = g_thread_new("TestThread1", thread_1, NULL);
+  //thread2 = g_thread_new("TestThread2", thread_2, NULL);
 	
 	//pthread_create(&thread1, NULL, thread_1, NULL);
 	

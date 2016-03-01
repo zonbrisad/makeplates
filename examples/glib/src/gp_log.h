@@ -29,14 +29,20 @@ extern "C" {
   #define gp_log_error()
 	#define gp_log_critical()
 */
-	#define GP_MESSAGE   0x01
-	#define GP_DEBUG     0x02
-	#define GP_WARNING	 0x04
-	#define GP_ERROR	   0x08
-	#define GP_CRITICAL  0x10
-	#define GP_INFO      0x20
-	
-	#define GP_ALL (GP_MESSAGE | GP_DEBUG | GP_WARNING | GP_ERROR | GP_CRITICAL | GP_INFO)
+#define GP_MESSAGE   0x0001
+#define GP_DEBUG     0x0002
+#define GP_WARNING	 0x0004
+#define GP_ERROR	   0x0008
+#define GP_CRITICAL  0x0010
+#define GP_INFO      0x0020
+#define GP_TIME      0x0040
+#define GP_DATE      0x0080
+
+#define GP_ALL (GP_MESSAGE | GP_DEBUG | GP_WARNING | GP_ERROR | GP_CRITICAL | GP_INFO)
+
+#define SHOW_DATE()  (verbose_mask & GP_DATE) 
+#define SHOW_TIME()  (verbose_mask & GP_TIME)
+
 	
 /**
  * Variable declarations
@@ -49,31 +55,32 @@ extern "C" {
  *------------------------------------------------------------------
  */
 	
-  /**
-   * Init log system.
-   */
-  void gp_log_init(char *logfile);
+/**
+ * Init log system.
+ */
+void gp_log_init(char *logfile);
 
-	void gp_log_set_verbose_mask(int mask);
+void gp_log_set_verbose_mask(int mask);
 	
-	void gp_log_set_log_mask(int mask);
+void gp_log_set_log_mask(int mask);
 	
-	/**
-	 *  Set verbose mode
-	 */
-	void gp_log_set_verbose(gboolean v);
+/**
+ *  Set verbose mode
+ */
+void gp_log_set_verbose(gboolean v);
 
-  /**
-   * Print log to stdout.
-   */
-  void gp_log_print();
+/**
+ * Print log to stdout.
+ */
+void gp_log_print();
   
   	
-	/**
-	 * Close down log system
-	 */
-	void gp_log_close();
+/**
+ * Close down log system
+ */
+void gp_log_close();
 
+	
 #ifdef	__cplusplus
 }
 #endif
