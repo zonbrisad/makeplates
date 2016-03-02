@@ -1,22 +1,46 @@
-# 
-### C ###
+
+
+# Makeplate specific files
+#--------------------------------------------------------------------
+archive
+backup
+output
+personal.mk
+
+# Temporary files
+#--------------------------------------------------------------------
+*.tmp
+*.old
+*~
+
+# Revision control
+#--------------------------------------------------------------------
+.svn
+.git
+
+# C/C++
+#--------------------------------------------------------------------
+
 # Object files
 *.o
 *.ko
 *.obj
 *.elf
+*.lo
+*.slo
 
 # Precompiled Headers
 *.gch
 *.pch
 
-# Libraries
+# Static Libraries
 *.lib
 *.a
 *.la
 *.lo
+*.lai
 
-# Shared objects (inc. Windows DLLs)
+# Shared libraries (inc. Windows DLLs)
 *.dll
 *.so
 *.so.*
@@ -33,42 +57,7 @@
 # Debug files
 *.dSYM/
 
-
-### C++ ###
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-
-# Fortran module files
-*.mod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
-# Executables
-*.exe
-*.out
-*.app
-
-# Directories
-archive
-backup
-output
-
-personal.mk
+# Misc
+#--------------------------------------------------------------------
 *.d
-*.old
+
