@@ -61,11 +61,11 @@ void gp_log_set_verbose(gboolean v) {
 }
 
 void gp_log_set_verbose_mask(int mask) {
-	log_mask = mask;
+	verbose_mask = mask;
 }
 
 void gp_log_set_log_mask(int mask) {
-  verbose_mask = mask;
+	log_mask = mask;
 }
 
 
@@ -77,7 +77,7 @@ void gp_log_init(char *logfile) {
 	
 	gp_log_set_verbose(FALSE);
 	
-	gp_log_set_verbose_mask(GP_ALL | GP_TIME | GP_DATE);
+	gp_log_set_verbose_mask(GP_ALL);
 	
 	gp_log_set_log_mask(GP_ALL);
 	
@@ -134,7 +134,6 @@ static void gp_log_handler(const gchar *log_domain,
   
 	
   // print to stdout if in verbose mode
-	printf("Verbose mask %x\n", verbose_mask);
   if ( gp_verbose && vm ) {
 		if (SHOW_DATE()) {
 		  printf("%s ", eDate);
