@@ -1,0 +1,20 @@
+[1;32mBuilding:     glibtest [0m
+[1;37m-------------------------------- Begin ---------------------------[0m
+[1;35mCompiling C:[0m [1;36m src/main.c [0m
+[1;35mCompiling C:[0m [1;36m src/gp_log.c [0m
+src/gp_log.c: In function 'gp_log_handler':
+src/gp_log.c:65:8: warning: 'color' may be used uninitialized in this function
+src/gp_log.c:66:9: warning: 'level' may be used uninitialized in this function
+
+[1;35mLinking:[0m
+             [1;36m output/glibtest [0m
+
+[1;35mCreating Extended Listing/Disassembly:[0m 
+             [1;36m output/glibtest.lss [0m
+
+[1;35mCreating Symbol Table:[0m 
+             [1;36m output/glibtest.sym [0m
+
+[1;32mErrors: none [0m
+
+[1;37m-------------------------------- End -----------------------------[0m
