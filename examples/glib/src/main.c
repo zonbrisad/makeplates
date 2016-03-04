@@ -53,6 +53,7 @@ static gboolean opt_errorTest  = FALSE;
 static gboolean opt_threadTest = FALSE;
 static gboolean opt_info       = FALSE;
 static gboolean opt_daemonTest = FALSE;
+static gboolean opt_queueTest  = FALSE;
 
 static GOptionEntry entries[] = {
   { "verbose",  'v', 0, G_OPTION_ARG_NONE, &opt_verbose,    "Be verbose output",    NULL },
@@ -63,6 +64,7 @@ static GOptionEntry entries[] = {
   { "thread",    0,  0, G_OPTION_ARG_NONE, &opt_threadTest, "Thread test",          NULL },	
   { "info",     'i', 0, G_OPTION_ARG_NONE, &opt_info,       "Show info",            NULL },
 	{ "daemon",   'd', 0, G_OPTION_ARG_NONE, &opt_daemonTest, "Daemon test",          NULL },
+	{ "queue",     0,  0, G_OPTION_ARG_NONE, &opt_queueTest,  "Queue test",           NULL },
   { NULL }
 };
 
@@ -200,10 +202,10 @@ gboolean timeout_1() {
 	return TRUE;
 }
 
-void threadTest() {
+void threadTesto() {
 	timer = g_timer_new();
 	g_timer_start(timer);
-  queue1 = g_async_queue_new();
+//  queue1 = g_async_queue_new();
 	
   //signal(SIGINT, sig_ctrl_c);
   //g_unix_signal_add(SIGINT, sig_ctrl_c);
@@ -222,6 +224,39 @@ void threadTest() {
 	
 	g_main_loop_run(mLoop1);
 
+}
+
+void threadTest() {
+	timer = g_timer_new();
+	g_timer_start(timer);
+	
+  //signal(SIGINT, sig_ctrl_c);
+
+	queue1 = g_async_queue_new();
+
+	//mLoop1 = g_main_loop_new(NULL, FALSE);
+	  
+	g_timeout_add_seconds(1, timeout_1, "Timeout 1");
+
+	while(1) {
+		sleep(3);
+		printf("A\n");
+	}
+	
+	//g_main_loop_run(mLoop1);
+
+}
+
+
+
+void queueTest() {
+	gpointer *data;
+	queue1 = g_async_queue_new();
+	printf("Queue test\n");
+	while(1) {
+		data=g_async_queue_pop(queue1);
+		printf("Data received\n");
+	}	
 }
 
 void infoTest() {
@@ -356,6 +391,12 @@ int main(int argc, char *argv[]) {
 	if (opt_daemonTest) { 
 		daemonTest();
 		exit(0);
+	}
+	
+	// queue test
+	if (opt_queueTest) {
+	  queueTest();
+		safeExit();
 	}
 
  	

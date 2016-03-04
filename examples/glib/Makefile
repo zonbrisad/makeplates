@@ -37,6 +37,7 @@ ASRC =
 INCLUDE = inc \
           src \
 
+XDIR=$(shell pwd)
 
 # Libraries to link
 LIB  = -lm 
@@ -482,6 +483,9 @@ debug:  ## Debug application
 newfile:  ## Create a new C file
 	@${CTEMPLATE} --newc --dir src --author "$(AUTHOR)" --licence "$(LICENCE)"
 	
+newproj: ##
+	
+	
 install: ## Install program
 	@${COPY} output/${TARGET} /usr/local/bin
 
@@ -533,8 +537,7 @@ list-info:
 	@echo "Platform: $(TARGET_PLATFORM)"
 	@echo "Licence:  $(LICENCE)"
 	@echo "Outdir:   $(OUTDIR)"
-	
- 
+	 
 info: list-info list-flags list-ldflags list-src ## Print information about project
 	
 #
