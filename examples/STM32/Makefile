@@ -13,7 +13,7 @@
 
 # Target platform
 # linux win32 avr arm osx
-TARGET_PLATFORM = linux
+TARGET_PLATFORM = arm
 
 # Project Licence (GPL, GPLv2, MIT, BSD, Apache, etc.) 
 LICENCE = GPLv2
@@ -21,28 +21,43 @@ LICENCE = GPLv2
 # Target file name (without extension).
 TARGET = stm32test
 
+DRIVERS=thirdparty/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/STM32F10x_StdPeriph_Driver/src
+
 # List C source files here. (C dependencies are automatically generated.)
-SRC = src/main.c 
+SRC = src/main.c                   \
+      src/stm32f10x_it.c           \
+      src/startup_Cortex_M3.c      \
+      src/printf.c                 \
+      $(DRIVERS)/stm32f10x_usart.c \
+      $(DRIVERS)/stm32f10x_gpio.c  \
+      $(DRIVERS)/stm32f10x_pwr.c   \
+      $(DRIVERS)/stm32f10x_rcc.c   \
+      thirdparty/STM32F10x_StdPeriph_Lib_V3.5.0/Project/STM32F10x_StdPeriph_Template/system_stm32f10x.c \
+			
       
 # List C++ source files here. (C dependencies are automatically generated.)
 CPPSRC = 
 
 # List Assembler source files here.
 #     Make them always end in a capital .S.  
-ASRC = 
+#ASRC = thirdparty/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/CMSIS/CM3/DeviceSupport/ST/STM32F10x/startup/gcc_ride7/startup_stm32f10x_md_vl.s
+#ASRC =   thirdparty/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/CMSIS/CM3/DeviceSupport/ST/STM32F10x/startup/arm/startup_stm32f10x_md_vl.s
 
-# Include directories
-INCLUDE = src
 
+# Include directories  -------------------------------------------------------
+INCLUDE = src \
+          thirdparty/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/STM32F10x_StdPeriph_Driver/inc \
+          thirdparty/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/CMSIS/CM3/DeviceSupport/ST/STM32F10x \
+	  thirdparty/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/CMSIS/CM3/CoreSupport
 # MCU
 MCU = cortex-m3
 
-# Libraries to link
-#LIB  = -lm 
-#LIB += $(shell pkg-config --libs glib-2.0)
-#LIB += $(shell pkg-config --libs gthread-2.0)
-#LIB += $(shell pkg-config --libs ncurses)
-#LIB += $(shell pkg-config --libs lua5.1)
+# Libraries to link  ---------------------------------------------------------
+LIB  = -lm 
+LIB += -lgcc
+LIB += -lg
+LIB += -lc
+LIB += -lrdimon
 
 # Object files directory
 #     To put object files in current directory, use a dot (.), do NOT make
@@ -54,14 +69,17 @@ OUTDIR = output
 
 # Optimization level, can be [0, 1, 2, 3, s]. 
 #     0 = turn off optimization. s = optimize for size.
-OPT = 0
+OPT = s
 
 # Compiler flag to set the C Standard level.
 # [ gnu99 gnu11 c++98 c++03 c++11 c++14 ] 
 CSTANDARD = -std=gnu99
 
 # Place -D or -U options here for C sources
-CDEFS = 
+CDEFS = -DSTM32F103C8  \
+        -DSTM32F10X_MD \
+	-DUSE_STDPERIPH_DRIVER \
+
 
 # Place -D or -U options here for ASM sources
 ADEFS = 
@@ -69,7 +87,7 @@ ADEFS =
 # Place -D or -U options here for C++ sources
 CPPDEFS = 
 
-#---------------- Compiler Options C ----------------
+# Compiler Options C ---------------------------------------------------------
 #  -g*:          generate debugging information
 #  -O*:          optimization level
 #  -f...:        tuning, see GCC manual
@@ -91,7 +109,7 @@ CFLAGS += -Wall
 #CFLAGS += -Wundef
 CFLAGS += -Wunreachable-code
 #CFLAGS += -Wsign-compare
-#CFLAGS += -Wa,-adhlns=$(<:%.c=$(OBJDIR)/%.lst)
+CFLAGS += -Wa,-adhlns=$(<:%.c=$(OBJDIR)/%.lst)
 CFLAGS += $(patsubst %,-I%,$(INCLUDE))
 CFLAGS += $(CSTANDARD)
 #CFLAGS += $(shell pkg-config --cflags glib-2.0)
@@ -99,7 +117,7 @@ CFLAGS += $(CSTANDARD)
 #CFLAGS += $(shell pkg-config --cflags lua5.1)
 
 
-#---------------- Compiler Options C++ ----------------
+# Compiler Options C++ -------------------------------------------------------
 #  -g*:          generate debugging information
 #  -O*:          optimization level
 #  -f...:        tuning, see GCC manual and avr-libc documentation
@@ -145,40 +163,63 @@ ASFLAGS = $(ADEFS) -Wa,-adhlns=$(<:%.S=$(OBJDIR)/%.lst),-gstabs,--listing-cont-l
 #    --cref:    add cross reference to  map file
 LDFLAGS = -Wl,-Map=$(OUTDIR)/$(TARGET).map,--cref
 LDFLAGS += $(EXTMEMOPTS)
-#LDFLAGS += -T linker_script.x
-LDFLAGS += -g
+LDFLAGS += -g   
+
 
 # Linux options --------------------------------------------------------------
 
+ifeq ($(TARGET_PLATFORM), linux)
+
+endif
 # Windows options ------------------------------------------------------------
 
-# ARM MCU platform specific options ------------------------------------------
-#ifeq($TARGET_PLATFORM), arm)
+# ARM Cortex options --------------------------------------------------------
+
+ifeq ($(TARGET_PLATFORM), arm)
+
 CFLAGS += -mcpu=$(MCU)
 CFLAGS += -mthumb
 #CFLAGS += -mfpu=fpv4-sp-d16 
 #CFLAGS += -mfloat-abi=hard 
 
 LDSCRIPT = stm32_flash.ld
-LDFLAGS += -T$(LDSCRIPT) -mthumb -mcpu=cortex-m4 -nostdlib
+#LDSCRIPT = arm-gcc-link.ld
+LDFLAGS += -T$(LDSCRIPT) -mthumb -mcpu=$(MCU) -nostdlib 
+
+# Toolchain base directory
+TCHAIN_BASE=/usr/bin
+# Toolchain prefix 
+TCHAIN_PREFIX=arm-none-eabi-
+
+endif
+
+# Atmel AVR options ---------------------------------------------------------
+
+ifeq ($(TARGET_PLATFORM), avr)
+# MCU name
+MCU = atmega2560
+
+# Processor frequency.
+# Some common values:
+#  1000000  1843200  2000000 3686400 4000000 7372800 8000000 11059200 14745600
+F_CPU = 8000000
+
+CFLAGS   += -mmcu=$(MCU)
+CPPFLAGS += -mmcu=$(MCU)
+ASFLAGS  += -mmcu=$(MCU)
+# Output format. (can be srec, ihex, binary)
+FORMAT = ihex
+
+CDEFS   += -DF_CPU=$(F_CPU)UL
+ADEFS   += -DF_CPU=$(F_CPU)UL
+CPPDEFS += -DF_CPU=$(F_CPU)UL
+
+LDFLAGS += $(PRINTF_LIB) $(SCANF_LIB) $(MATH_LIB)
 
 
-#
-# Atmel AVR MCU platform specific settings
-#============================================================================
+endif
 
-
-#
-# Linux platform specific settings
-#============================================================================
-
-#
-# Win32 platform specific settings
-#============================================================================
-
-#
-# Tool settings
-#============================================================================
+# Tool options ---------------------------------------------------------------
 
 # Define programs and commands.
 SHELL     = bash
@@ -197,13 +238,13 @@ BIN2ARRAY = python3 tools/bin2array.py
 CPPCHECK  = cppcheck
 
 # Toolchain base directory
-TCHAIN_BASE=/home/buildroot/arm/buildroot-2013.02_ultra/output/host/usr/bin
+#TCHAIN_BASE=/home/buildroot/arm/buildroot-2013.02_ultra/output/host/usr/bin
 
 # Toolchain prefix 
 # arm-elf-
 # arm-linux- 
 # avr-
-TCHAIN_PREFIX=arm-linux-
+#TCHAIN_PREFIX=arm-linux-
 
 TCHAIN = $(TCHAIN_BASE)/$(TCHAIN_PREFIX)
 
@@ -213,6 +254,7 @@ OBJDUMP   = ${TCHAIN}objdump
 SIZE      = ${TCHAIN}size
 AR        = ${TCHAIN}ar rcs
 NM        = ${TCHAIN}nm
+AS        = ${TCHAIN}as
 
 #
 # Message settings
@@ -305,7 +347,7 @@ ALL_CPPFLAGS =  -I. -x c++ $(CPPFLAGS) $(GENDEPFLAGS)
 ALL_ASFLAGS  =  -I. -x assembler-with-cpp $(ASFLAGS)
 
 # Define all object files.
-OBJS = $(SRC:%.c=$(OBJDIR)/%.o) $(CPPSRC:%.cpp=$(OBJDIR)/%.o) $(ASRC:%.S=$(OBJDIR)/%.o)
+OBJS = $(SRC:%.c=$(OBJDIR)/%.o) $(CPPSRC:%.cpp=$(OBJDIR)/%.o) $(ASRC:%.s=$(OBJDIR)/%.o)
 
 # Define all listing files.
 LST = $(SRC:%.c=$(OBJDIR)/%.lst) $(CPPSRC:%.cpp=$(OBJDIR)/%.lst) $(ASRC:%.S=$(OBJDIR)/%.lst) 
@@ -389,7 +431,7 @@ $(OBJDIR)/%.o : %.cpp
 	@$(CC) -c $(ALL_CPPFLAGS) $< -o $@ 2>&1 | $(CPP_FILTER)
 	
 # Assemble: create object files from assembler source files.
-$(OBJDIR)/%.o : %.S
+$(OBJDIR)/%.o : %.s
 	@echo
 	@echo -e $(MSG_ASSEMBLING) "$(C_FILE)" $< "$(E_END)"
 	@$(CC) -c $(ALL_ASFLAGS) $< -o $@
@@ -563,6 +605,8 @@ list-info:
  
 info: list-info list-flags list-ldflags list-src ## Print information about project
 	
+
+	
 #
 # Personal settings
 #============================================================================
@@ -602,7 +646,9 @@ acheck: ## Static code analysis using cppcheck(all warnings)
 # Version control handling
 #============================================================================
 
-
+# 
+# OpenOCD handling
+#============================================================================
 
 	
 # Listing of phony targets.

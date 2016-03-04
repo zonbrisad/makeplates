@@ -22,8 +22,9 @@ LICENCE = GPLv2
 TARGET = conflog
 
 # List C source files here. (C dependencies are automatically generated.)
-SRC = src/main.c \
-      src/gp_log.c
+SRC = src/main.c    \
+      src/gp_log.c  \
+			src/conflog.c \
 
 
 # List C++ source files here. (C dependencies are automatically generated.)

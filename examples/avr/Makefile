@@ -174,7 +174,14 @@ LDFLAGS = -Wl,-Map=$(OUTDIR)/$(TARGET).map,--cref
 LDFLAGS += $(EXTMEMOPTS)
 LDFLAGS += $(patsubst %,-L%,$(INCLUDE))
 
-# MCU Options ----------------------------------------------------------------
+# Linux options --------------------------------------------------------------
+
+# Windows options ------------------------------------------------------------
+
+# ARM Cortex options --------------------------------------------------------
+
+
+# Atmel AVR options ---------------------------------------------------------
 
 # MCU name
 MCU = atmega2560
@@ -187,9 +194,6 @@ F_CPU = 8000000
 CFLAGS   += -mmcu=$(MCU)
 CPPFLAGS += -mmcu=$(MCU)
 ASFLAGS  += -mmcu=$(MCU)
-
-# # Atmel AVR options ---------------------------------------------------------
-
 # Output format. (can be srec, ihex, binary)
 FORMAT = ihex
 
@@ -199,13 +203,8 @@ CPPDEFS += -DF_CPU=$(F_CPU)UL
 
 LDFLAGS += $(PRINTF_LIB) $(SCANF_LIB) $(MATH_LIB)
 
-# ARM Cortex options --------------------------------------------------------
-
-#LDFLAGS += -T linker_script.x
  
-# Linux options --------------------------------------------------------------
 
-# Windows options ------------------------------------------------------------
 
 # Tool options ---------------------------------------------------------------
 
@@ -649,6 +648,8 @@ list-ldflags: ## List compiler flags
 	  echo $${f} ;             \
 	done                       \
 
+list-tools: 
+	echo "gcc:    $(CC)"
 
 list-info: 
 	@echo "Target:   $(TARGET)"

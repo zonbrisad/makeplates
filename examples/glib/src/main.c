@@ -164,8 +164,7 @@ void errorTest() {
 }
 
 void sig_ctrl_c(int sig) {
-  int x;
-  //g_main_loop_quit(mLoop1);
+  g_main_loop_quit(mLoop1);
 }
 
 void sig_usr1(int sig) {

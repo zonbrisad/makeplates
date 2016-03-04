@@ -11,6 +11,10 @@
 # >make help 
 #----------------------------------------------------------------------------
 
+# Target platform
+# linux win32 avr arm osx
+TARGET_PLATFORM = linux
+
 # Project Licence (GPL, GPLv2, MIT, BSD, Apache, etc.) 
 LICENCE = GPLv2
 
@@ -122,7 +126,11 @@ ADEFS =
 # Place -D or -U options here for C++ sources
 CPPDEFS = 
 
-#---------------- Compiler Options C ----------------
+#
+# Compiler and Linker options
+#============================================================================
+
+# Compiler Options C ---------------------------------------------------------
 #  -g*:          generate debugging information
 #  -O*:          optimization level
 #  -f...:        tuning, see GCC manual
@@ -151,7 +159,7 @@ CFLAGS += $(shell pkg-config --cflags gthread-2.0)
 #CFLAGS += $(shell pkg-config --cflags lua5.1)
 
 
-#---------------- Compiler Options C++ ----------------
+# Compiler Options C++ -------------------------------------------------------
 #  -g*:          generate debugging information
 #  -O*:          optimization level
 #  -f...:        tuning, see GCC manual and avr-libc documentation
@@ -180,7 +188,7 @@ CPPFLAGS += $(shell pkg-config --cflags glib-2.0)
 CPPFLAGS += $(shell pkg-config --cflags gthread-2.0)
 
 
-#---------------- Assembler Options ----------------
+# Assembler Options ----------------------------------------------------------
 #  -Wa,...:   tell GCC to pass this to the assembler.
 #  -adhlns:   create listing
 #  -gstabs:   have the assembler create line number information; note that
@@ -191,19 +199,27 @@ CPPFLAGS += $(shell pkg-config --cflags gthread-2.0)
 #       dump that will be displayed for a given single line of source input.
 ASFLAGS = $(ADEFS) -Wa,-adhlns=$(<:%.S=$(OBJDIR)/%.lst),-gstabs,--listing-cont-lines=100
 
-#---------------- Linker Options ----------------
+# Linker Options -------------------------------------------------------------
 #  -Wl,...:     tell GCC to pass this to linker.
 #    -Map:      create map file
 #    --cref:    add cross reference to  map file
 LDFLAGS = -Wl,-Map=$(OUTDIR)/$(TARGET).map,--cref
 LDFLAGS += $(EXTMEMOPTS)
-#LDFLAGS += -T linker_script.x
+LDFLAGS += -g
+
+#
+# Platform specific options
+#============================================================================
+
+# Linux options --------------------------------------------------------------
+
+# Windows options ------------------------------------------------------------
 
 #
 # Tool settings
 #============================================================================
 
-# Define programs and commands.
+# Define programs and commands ----------------------------------------------
 SHELL     = bash
 REMOVE    = rm -f
 REMOVEDIR = rm -rf
@@ -216,7 +232,7 @@ MOC       = moc
 QMAKE     = qmake
 CTEMPLATE = python3 tools/ctemplate.py
 BIN2ARRAY = python3 tools/bin2array.py
-
+PROJECT   = tools/project.sh
 CPPCHECK  = cppcheck
 
 # Toolchain base directory
@@ -235,9 +251,10 @@ AR        = ${TCHAIN}ar rcs
 NM        = ${TCHAIN}nm
 
 #
-# Message settings
+# Message/Filter settings
 #============================================================================
 
+# Color definitions ---------------------------------------------------------
 E_BLACK        = \033[0;300m
 E_RED          = \033[0;31m
 E_GREEN        = \033[0;32m
@@ -270,6 +287,7 @@ C_WARNING=$(E_BR_YELLOW)
 C_FILE=$(E_BR_CYAN)
 C_NOTE=$(E_BR_GREEN)
 
+# Messages -------------------------------------------------------------------
 MSG_LINE             = "$(E_WHITE)------------------------------------------------------------------$(E_END)"
 MSG_BEGIN            = "${E_WHITE}-------------------------------- Begin ---------------------------${E_END}"
 MSG_END              = "${E_WHITE}-------------------------------- End -----------------------------${E_END}"
@@ -281,6 +299,7 @@ MSG_ASSEMBLING       = "${E_BR_MAGENTA}Assembling:${E_END}"
 MSG_CLEANING         = "$(C_OK)Cleaning project:$(E_END)"
 MSG_EXTENDED_LISTING = "${E_BR_MAGENTA}Creating Extended Listing/Disassembly:$(E_END)"
 MSG_SYMBOL_TABLE     = "${E_BR_MAGENTA}Creating Symbol Table:$(E_END)"
+MSG_HEX_FILE         = "${E_BR_MAGENTA}Creating Hex file:$(E_END)"
 MSG_FORMATERROR      = "${C_ERROR}Can not handle output-format${E_END}"
 MSG_ASMFROMC         = "${E_BR_MAGENTA}Creating asm-File from C-Source:$(E_END)"
 MSG_SIZE_BEFORE      = "${E_BR_MAGENTA}Size before:${E_END}"
@@ -290,24 +309,11 @@ MSG_ARCHIVING        = "${E_BR_MAGENTA}Creating tar archive:${E_END}"
 MSG_CREATING_LIBRARY = "${E_BR_MAGENTA}Creating library:${E_END}"
 MSG_FLASH            = "${E_BR_MAGENTA}Creating load file for Flash:${E_END}"
 MSG_EEPROM           = "${E_BR_MAGENTA}Creating load file for EEPROM:${E_END}"
+MSG_COFF             = "${E_BR_MAGENTA}Converting to AVR COFF:${E_END}"
+MSG_EXTENDED_COFF    = "${E_BR_MAGENTA}Converting to AVR Extended COFF:${E_END}"
 MSG_BACKUP           = "${E_BR_GREEN}Making incremental backup of project:${E_END}"
 
-#while read x ; do echo $x ; done \
-#| sed -e "s/.*error:.*/\x1b[1;36m&\x1b[0m/" \
-#-e "s/.*warning:.*/\x1b[1;36m&\x1b[0m/" \
-#-e "s/^\(.*\)\(required from\)/\x1b[1;36m\1\x1b[0mnote: \2/" \
-#-e "s/^\(.*\)\(In instantiation of\)/\x1b[1;36m\1\x1b[0mnote: \2/" \
-#-e "s/^\(.*\)\(In member\)/\x1b[1;36m\1\x1b[0mnote: \2/" \
-#| sed -e "s/error:/\x1b[1;31m&\x1b[1;36m/" \
-#-e "s/warning:/\x1b[1;35m&\x1b[1;36m/" \
-#-e "s/note:/\x1b[1;30m&\x1b[0m/"
-
-
-#https://github.com/renatosilva/colormake/blob/master/colormake.sh
-#http://stackoverflow.com/questions/1032237/highlight-and-filter-gcc-compiler-messages
-#https://github.com/renatosilva/colormake
-
-# Compiler output colorizer filter
+# Compiler output colorizer filter ------------------------------------------
 F_ERROR="s/error:/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
 F_WARNING="s/warning:/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_NOTE="s/note:/$$(printf "$(C_NOTE)")&$$(printf "$(E_END)")/i"
@@ -316,7 +322,7 @@ FF_WARNING="s/^.*warning:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
 FF_NOTE="s/^.*note:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
 
 C_FILTER   = | sed -ru -e $(F_ERROR)  -e $(F_WARNING)  -e $(F_NOTE) \
-                     -e $(FF_ERROR) -e $(FF_WARNING) -e $(FF_NOTE)
+                       -e $(FF_ERROR) -e $(FF_WARNING) -e $(FF_NOTE)
 CPP_FILTER = $(C_FILTER)
 
 LD_ERROR1="s/undefined reference/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
@@ -363,6 +369,7 @@ lss: $(OUTDIR)/$(TARGET).lss
 sym: $(OUTDIR)/$(TARGET).sym
 hex: $(OUTDIR)/$(TARGET).hex
 bin: $(OUTDIR)/$(TARGET).bin
+eep: $(OUTDIR)/$(TARGET).eep
 
 # Eye candy.
 begin:
@@ -402,6 +409,12 @@ $(OUTDIR)/$(TARGET): $(OBJS) $(OUTDIR)
 	@echo -e $(MSG_SYMBOL_TABLE) "\n             $(E_BR_CYAN)" $@ "$(E_END)"
 	@$(NM) -n $< > $@
 
+# Create hex file from ELF output file.
+%.hex: $(OUTDIR)/$(TARGET)
+	@echo
+	@echo -e $(MSG_HEX_FILE) "\n             $(E_BR_CYAN)" $@ "$(E_END)"
+	@$(OBJCOPY) -O ihex $< $@
+	
 # Compile: create object files from C source files.
 $(OBJDIR)/%.o : %.c
 	@echo -e $(MSG_COMPILING) "$(C_FILE)" $< "$(E_END)"
@@ -431,7 +444,11 @@ $(OBJDIR)/%.s : %.cpp
 $(OUTDIR):
 	@$(MKDIR) $@
 
-
+size: 
+	@echo
+	@echo -e $(MSG_SIZE_AFTER)
+	@$(SIZE) $(OUTDIR)/$(TARGET)
+	
 #
 # Various utility rules	
 #============================================================================
@@ -457,24 +474,39 @@ clean:  ## Remove all build files
 archive: ## Make a tar archive of the source code
 	@echo
 	@echo -e $(MSG_ARCHIVING)
+	@$(eval DT=$(shell date +"%Y%m%d-%H%M%S"))
 	@$(MKDIR) archive
-	@tar -cvzf archive/$(TARGET).tar.gz *  \
-	     --exclude='archive' \
-	     --exclude='backup'  \
-	     --exclude='output'  \
-	     --exclude='*.o'     \
-	     --exclude='*.a'     \
-	     --exclude='.dep'    \
-	     --exclude='.svn'    \
-	     --exclude='.git'    \
-	     --exclude='*.elf'   \
- 	     --exclude='*.hex'   \
-	     --exclude='*.bin'   \
-	     --exclude='*.sym'   \
-	     --exclude='*.lss'   \
-	     --exclude='*.map'   \
-	     --exclude='*~'      \
-	     --exclude="*.old"   \
+	@tar -cvzf archive/$(TARGET)_${DT}.tar.gz *  \
+		--exclude='archive'  \
+		--exclude='backup'   \
+		--exclude='output'   \
+		--exclude='*.a'      \
+		--exclude='*.o'      \
+		--exclude='*.ko'     \
+		--exclude='*.obj'    \
+		--exclude='*.a'      \
+		--exclude='*.la'     \
+		--exclude='*.lo'     \
+		--exclude='*.slo'    \
+		--exclude='*.lib'    \
+		--exclude='*.so'     \
+		--exclude='*.so*'    \
+		--exclude='.dep'     \
+		--exclude='.svn'     \
+		--exclude='.git'     \
+		--exclude='*.elf'    \
+		--exclude='*.hex'    \
+		--exclude='*.bin'    \
+		--exclude='*.exe'    \
+		--exclude='*.sym'    \
+		--exclude='*.lss'    \
+		--exclude='*.map'    \
+		--exclude='*.app'    \
+		--exclude='*.i*86'   \
+		--exclude='*.x86_64' \
+		--exclude='*~'       \
+		--exclude="*.old"    \
+		--exclude="*.tmp"    \
 
 # Backup directory
 BACKUP_DIR=backup
@@ -507,6 +539,7 @@ backup: ## Make an incremental backup
 				--exclude=".svn"       \
 				--exclude="*~"         \
 				--exclude="*.old"      \
+				--exclude="*.tmp"      \			
 				--link-dest=$(CURDIR)/$(BACKUP_DIR)/backup_1 \
 				.                      \
 				$(BACKUP_DIR)/backup_0 
@@ -526,6 +559,9 @@ debug:  ## Debug application
 
 newfile:  ## Create a new C file
 	@${CTEMPLATE} --newc --dir src --author "$(AUTHOR)" --licence "$(LICENCE)"
+	
+newproj:  ## Create a new project
+	@${PROJECT} newproj
 	
 install: ## Install program
 	@${COPY} output/${TARGET} /usr/local/bin
@@ -572,10 +608,11 @@ list-ldflags: ## List compiler flags
 
 
 list-info: 
-	@echo "Target: $(TARGET)"
-	@echo "Outdir: $(OUTDIR)"
-	
- 
+	@echo "Target:   $(TARGET)"
+	@echo "Platform: $(TARGET_PLATFORM)"
+	@echo "Licence:  $(LICENCE)"
+	@echo "Outdir:   $(OUTDIR)"
+	 
 info: list-info list-flags list-ldflags list-src ## Print information about project
 	
 #
