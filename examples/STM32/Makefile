@@ -21,14 +21,19 @@ LICENCE = GPLv2
 # Target file name (without extension).
 TARGET = stm32test
 
+DRIVERS=thirdparty/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/STM32F10x_StdPeriph_Driver/src
+
 # List C source files here. (C dependencies are automatically generated.)
-SRC = src/main.c \
-      src/stm32f10x_it.c \
-      thirdparty/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/STM32F10x_StdPeriph_Driver/src/stm32f10x_gpio.c \
-			thirdparty/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/STM32F10x_StdPeriph_Driver/src/stm32f10x_pwr.c \
-			thirdparty/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/STM32F10x_StdPeriph_Driver/src/stm32f10x_rcc.c \
+SRC = src/main.c                   \
+      src/stm32f10x_it.c           \
+      src/startup_Cortex_M3.c      \
+      src/printf.c                 \
+      $(DRIVERS)/stm32f10x_usart.c \
+      $(DRIVERS)/stm32f10x_gpio.c  \
+      $(DRIVERS)/stm32f10x_pwr.c   \
+      $(DRIVERS)/stm32f10x_rcc.c   \
       thirdparty/STM32F10x_StdPeriph_Lib_V3.5.0/Project/STM32F10x_StdPeriph_Template/system_stm32f10x.c \
-			src/startup_Cortex_M3.c
+			
       
 # List C++ source files here. (C dependencies are automatically generated.)
 CPPSRC = 
@@ -39,20 +44,20 @@ CPPSRC =
 #ASRC =   thirdparty/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/CMSIS/CM3/DeviceSupport/ST/STM32F10x/startup/arm/startup_stm32f10x_md_vl.s
 
 
-# Include directories
+# Include directories  -------------------------------------------------------
 INCLUDE = src \
           thirdparty/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/STM32F10x_StdPeriph_Driver/inc \
           thirdparty/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/CMSIS/CM3/DeviceSupport/ST/STM32F10x \
-					thirdparty/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/CMSIS/CM3/CoreSupport
+	  thirdparty/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/CMSIS/CM3/CoreSupport
 # MCU
 MCU = cortex-m3
 
-# Libraries to link
-#LIB  = -lm 
-#LIB += $(shell pkg-config --libs glib-2.0)
-#LIB += $(shell pkg-config --libs gthread-2.0)
-#LIB += $(shell pkg-config --libs ncurses)
-#LIB += $(shell pkg-config --libs lua5.1)
+# Libraries to link  ---------------------------------------------------------
+LIB  = -lm 
+LIB += -lgcc
+LIB += -lg
+LIB += -lc
+LIB += -lrdimon
 
 # Object files directory
 #     To put object files in current directory, use a dot (.), do NOT make
@@ -73,7 +78,8 @@ CSTANDARD = -std=gnu99
 # Place -D or -U options here for C sources
 CDEFS = -DSTM32F103C8  \
         -DSTM32F10X_MD \
-				-DUSE_STDPERIPH_DRIVER
+	-DUSE_STDPERIPH_DRIVER \
+
 
 # Place -D or -U options here for ASM sources
 ADEFS = 
@@ -157,8 +163,8 @@ ASFLAGS = $(ADEFS) -Wa,-adhlns=$(<:%.S=$(OBJDIR)/%.lst),-gstabs,--listing-cont-l
 #    --cref:    add cross reference to  map file
 LDFLAGS = -Wl,-Map=$(OUTDIR)/$(TARGET).map,--cref
 LDFLAGS += $(EXTMEMOPTS)
-#LDFLAGS += -T linker_script.x
-LDFLAGS += -g
+LDFLAGS += -g   
+
 
 # Linux options --------------------------------------------------------------
 
@@ -178,7 +184,7 @@ CFLAGS += -mthumb
 
 LDSCRIPT = stm32_flash.ld
 #LDSCRIPT = arm-gcc-link.ld
-LDFLAGS += -T$(LDSCRIPT) -mthumb -mcpu=$(MCU) -nostdlib
+LDFLAGS += -T$(LDSCRIPT) -mthumb -mcpu=$(MCU) -nostdlib 
 
 # Toolchain base directory
 TCHAIN_BASE=/usr/bin
@@ -598,10 +604,7 @@ list-info:
 	
  
 info: list-info list-flags list-ldflags list-src ## Print information about project
-	@export IFS=" "
-	@for f in $(OBJS); do      \
-	  echo $${f} ;            \
-	done                      \
+	
 
 	
 #

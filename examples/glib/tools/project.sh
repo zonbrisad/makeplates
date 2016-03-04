@@ -39,8 +39,8 @@ templateVersion="1.07"
 USAGE="Usage: ${scriptName} command [option]" 
 
 # Description text
-DESC="Bashplate is a bash script template to ease development of\n\
-command style shellscripts"
+DESC="project.sh is a simple project management script for makeplates"
+
 
 # logfile (uncomment to use logfile)
 #LOGFILE=${scriptPath}/${scriptName}.log
@@ -58,11 +58,21 @@ DEFAULT=help
 # User functions
 #---------------------------------------------------------------------
 
-newproj() { ## Description of funktion 1 
-  echo "New project name"
-	read -e -p ">" projname
-	echo $projname
-	
+newproj() { ## Create a new project 
+  echo "New project name(use tab completion to set location)"
+	read -e -p ">" PROJNAME
+	if [ -e $PROJNAME ]; then
+	  bpError "File/directory with name $PROJNAME already exist"
+	else
+	  mkdir ${PROJNAME}
+		mkdir ${PROJNAME}/src
+		mkdir ${PROJNAME}/doc
+		mkdir ${PROJNAME}/output
+		mkdir ${PROJNAME}/tools
+		cp -f $scriptPath/../Makefile   ${PROJNAME}/.
+		cp -f $scriptPath/../tools/*.sh ${PROJNAME}/tools/.
+		cp -f $scriptPath/../tools/*.py ${PROJNAME}/tools/.
+	fi
 }
 
 

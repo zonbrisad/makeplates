@@ -36,7 +36,7 @@
  * Variables
  *---------------------------------------------------------------------------
  */
-x
+
 pid_t  appPid;
 pid_t  appPid2;
 const char  *appPath;

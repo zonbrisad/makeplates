@@ -170,7 +170,7 @@ MOC       = moc
 QMAKE     = qmake
 CTEMPLATE = python3 tools/ctemplate.py
 BIN2ARRAY = python3 tools/bin2array.py
-
+PROJECT   = tools/project.sh
 CPPCHECK  = cppcheck
 
 # Toolchain base directory
@@ -481,6 +481,9 @@ debug:  ## Debug application
 
 newfile:  ## Create a new C file
 	@${CTEMPLATE} --newc --dir src --author "$(AUTHOR)" --licence "$(LICENCE)"
+	
+newproj:  ## Create a new project
+	@${PROJECT} newproj
 	
 install: ## Install program
 	@${COPY} output/${TARGET} /usr/local/bin
