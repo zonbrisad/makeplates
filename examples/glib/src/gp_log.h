@@ -39,6 +39,7 @@ extern "C" {
 #define GP_DATE      0x0080
 
 #define GP_ALL (GP_MESSAGE | GP_DEBUG | GP_WARNING | GP_ERROR | GP_CRITICAL | GP_INFO)
+#define GP_NONE 
 
 #define SHOW_DATE()  (verbose_mask & GP_DATE) 
 #define SHOW_TIME()  (verbose_mask & GP_TIME)

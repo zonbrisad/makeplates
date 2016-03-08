@@ -15,6 +15,7 @@
 #include <signal.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <errno.h>
 #include <sys/stat.h>
 #include <glib-2.0/glib.h>
 #include <glib-2.0/glib/gstdio.h>
@@ -54,6 +55,7 @@ static gboolean opt_threadTest = FALSE;
 static gboolean opt_info       = FALSE;
 static gboolean opt_daemonTest = FALSE;
 static gboolean opt_queueTest  = FALSE;
+static gboolean opt_pipeTest   = FALSE;
 
 static GOptionEntry entries[] = {
   { "verbose",  'v', 0, G_OPTION_ARG_NONE, &opt_verbose,    "Be verbose output",    NULL },
@@ -65,6 +67,7 @@ static GOptionEntry entries[] = {
   { "info",     'i', 0, G_OPTION_ARG_NONE, &opt_info,       "Show info",            NULL },
 	{ "daemon",   'd', 0, G_OPTION_ARG_NONE, &opt_daemonTest, "Daemon test",          NULL },
 	{ "queue",     0,  0, G_OPTION_ARG_NONE, &opt_queueTest,  "Queue test",           NULL },
+	{ "pipe",      0,  0, G_OPTION_ARG_NONE, &opt_pipeTest,   "Pipe test",            NULL },
   { NULL }
 };
 
@@ -328,6 +331,55 @@ void daemonTest(void) {
 	g_main_loop_run(mLoop1);
 }
 
+
+static gboolean gio_in (GIOChannel *gio, GIOCondition condition, gpointer data) {
+	GIOStatus ret;
+	GError *err = NULL;
+	gchar *msg;
+	gsize len;
+	char buf[32];
+	printf("Read\n");
+	if (condition & G_IO_HUP)
+		g_error ("Read end of pipe died!\n");
+	
+//	ret = g_io_channel_read_line (gio, &msg, &len, NULL, &err);
+	ret = g_io_channel_read_chars (gio, buf, 4, NULL, &err);
+	if (ret == G_IO_STATUS_ERROR)
+		g_error ("Error reading: %s\n", err->message);
+	
+	printf ("Read %u bytes: %s\n", len, msg);
+	
+	g_free (msg);
+	return TRUE;
+}
+
+void pipeTest() {
+	int fd[2], ret;
+	GIOChannel *channel;
+	pid_t childPid;
+	
+	printf("Pipe test\n");
+
+	timer = g_timer_new();
+	g_timer_start(timer);
+	
+//	g_timeout_add_seconds(5, timeout_1, "Pipe timeout");
+
+	ret = pipe (fd);
+	if (ret == -1)
+		g_error ("Creating pipe failed: %s\n", strerror (errno));
+	
+	channel = g_io_channel_unix_new (fd[0]);
+	if (!channel)
+		g_error ("Cannot create new GIOChannel!\n");
+	
+	if (!g_io_add_watch (channel, G_IO_IN | G_IO_HUP, gio_in, NULL))
+		g_error ("Cannot add watch on GIOChannel!\n");
+	
+	mLoop1 = g_main_loop_new(NULL, FALSE);
+	g_main_loop_run(mLoop1);
+}
+
 int main(int argc, char *argv[]) {
 	GError *error = NULL;
 	GOptionContext *context;
@@ -395,6 +447,12 @@ int main(int argc, char *argv[]) {
 	// queue test
 	if (opt_queueTest) {
 	  queueTest();
+		safeExit();
+	}
+
+	// pipe test
+	if (opt_pipeTest) {
+	  pipeTest();
 		safeExit();
 	}
 

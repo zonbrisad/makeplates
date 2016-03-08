@@ -264,7 +264,8 @@ F_WARNING1="s/defined but not used/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)
 F_WARNING2="s/unused variable/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_ERR1="s/undeclared \(first use in this function\)/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"	
 #XX="s/'.*'/$$(printf "$(E_WHITE)")&$$(printf "$(E_END)")/i"
-#XX="s/'.*'/$$(printf "$(E_ON_BLUE)$(E_BR_YELLOW)")&$$(printf "$(E_END)")/i"
+XX="s/'.*'/$$(printf "$(E_ON_BLUE)$(E_BR_YELLOW)")&$$(printf "$(E_END)")/i"
+#XX="s/'.*'/$$(printf "$(E_ON_WHITE)$(E_BR_CYAN)")&$$(printf "$(E_END)")/i"
 #XX="s/.*''.*/$$(printf "$(E_ON_BLUE)$(E_BR_YELLOW)")&$$(printf "$(E_END)")/i"
 #XX="s/.*'[^a-zA-Z]*'.*/&/i"
 #XX="s/'(.*?)'/A/i"
@@ -273,9 +274,11 @@ F_ERR1="s/undeclared \(first use in this function\)/$$(printf "$(C_ERROR)")&$$(p
 #XX="s/([\"'])(\\?.)*?\1/K/i"
 #XX="s/([\"'])(?:(?=(\\?))\2.)*?\1/K/i"
 
+
 C_FILTER   = | sed -ru -e $(F_ERROR)  -e $(F_WARNING)  -e $(F_NOTE)   \
                        -e $(FF_ERROR) -e $(FF_WARNING) -e $(FF_NOTE)  \
 											 -e $(F_WARNING1) -e $(F_WARNING2) -e $(F_ERR1) \
+											 -e $(XX)
 
 											 
 CPP_FILTER = $(C_FILTER)

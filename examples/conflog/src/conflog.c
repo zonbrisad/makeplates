@@ -23,7 +23,7 @@
 /* Macros -----------------------------------------------------------------*/
 
 /* Variables --------------------------------------------------------------*/
-char *tableGlobal =
+char *tableConflog =
 	"CREATE TABLE conflog ( "
   "  id INTEGER PRIMARY KEY, "
   "  type integer, "
@@ -35,14 +35,21 @@ char *tableGlobal =
   "  description TEXT,"
   "  unique (key) "
   "); "
-"CREATE TRIGGER insert_conflog AFTER INSERT ON conflog "
-"BEGIN "
-"  UPDATE conflog SET timeEnter=DATETIME('NOW') WHERE rowid=new.rowid; "
-"END; "
-"CREATE TRIGGER update_conflog AFTER UPDATE ON conflog "
-"BEGIN "
-"  UPDATE conflog SET timeEnter=DATETIME('NOW') WHERE rowid=new.rowid; "
-"END; ";
+  "CREATE TRIGGER insert_conflog AFTER INSERT ON conflog "
+  "BEGIN "
+  "  UPDATE conflog SET timeEnter=DATETIME('NOW') WHERE rowid=new.rowid; "
+  "END; "
+  "CREATE TRIGGER update_conflog AFTER UPDATE ON conflog "
+  "BEGIN "
+  "  UPDATE conflog SET timeEnter=DATETIME('NOW') WHERE rowid=new.rowid; "
+  "END; ";
+
+#define CLINT(x) 
+char *initValues=
+	"INSERT INTO conflog (key, value, description) VALUES (__CONFLOG_DBVERSION, 0.1, 'Database version')"
+  "INSERT INTO conflog (key, value) VALUES (__CONFLOG_MAXSIZE, 100000)";
+
+
 
 /* Prototypes -------------------------------------------------------------*/
 
@@ -58,6 +65,7 @@ int simpleSQL(sqlite3 *db, char *sql) {
 	}
 	return res;
 }
+
 
 
 int tableExists(sqlite3 *db, char *tableName) {
@@ -123,4 +131,34 @@ int getValueInt(sqlite3 *db, const char *key, int *value) {
 	return -1;
 }
 
+void conflog_createTables(conflog_struct *cl) {
+	simpleSQL(cl->db, tableConflog);
+	simpleSQL(cl->db, initValues);
+}
 
+void conflog_updateTables(conflog_struct *cl) {
+}
+
+void conflogOpen(conflog_struct *cl, const char fileName) {
+ int rc;
+	
+	rc = sqlite3_open(fileName, &cl->db);
+	if(rc != SQLITE_OK) {
+		fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(cl->db));
+		sqlite3_close(cl->db);
+		return NULL;
+	}
+	
+//	rc = sqlite3_busy_timeout(cl->db, DB_BUSY_TIMEOUT);
+	if(rc != SQLITE_OK) {
+		fprintf(stderr, "Can not set busy timeout handler: %i\n", rc);
+		sqlite3_close(cl->db);
+			    return NULL;
+	}
+	
+	if (tableExists(cl->db, "conflog")) {
+		conflog_updateTables(cl);
+	} else {
+	  conflog_createTables(cl);
+	}
+}

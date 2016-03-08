@@ -48,18 +48,20 @@ const char  *appHostName;
 static gboolean opt_verbose    = FALSE;
 static gboolean opt_version    = FALSE;
 static gboolean opt_quiet      = FALSE;
-static gboolean opt_daemon     = FALSE;
-static gboolean opt_errorTest  = FALSE;
-static gboolean opt_threadTest = FALSE;
+//static gboolean opt_daemon     = FALSE;
+//static gboolean opt_errorTest  = FALSE;
+//static gboolean opt_threadTest = FALSE;
 static gboolean opt_info       = FALSE;
-static gboolean opt_daemonTest = FALSE;
-static gboolean opt_queueTest  = FALSE;
+//static gboolean opt_daemonTest = FALSE;
+//static gboolean opt_queueTest  = FALSE;
+char *opt_fileName;
 
 static GOptionEntry entries[] = {
-  { "verbose",  'v', 0, G_OPTION_ARG_NONE, &opt_verbose,    "Be verbose output",    NULL },
-  { "version",  'b', 0, G_OPTION_ARG_NONE, &opt_version,    "Output version info",  NULL },
-  { "quiet",    'q', 0, G_OPTION_ARG_NONE, &opt_quiet,      "No output to console", NULL },
-  { "info",     'i', 0, G_OPTION_ARG_NONE, &opt_info,       "Show info",            NULL },
+  { "verbose",  'v', 0, G_OPTION_ARG_NONE,     &opt_verbose,    "Be verbose output",    NULL },
+  { "version",  'b', 0, G_OPTION_ARG_NONE,     &opt_version,    "Output version info",  NULL },
+  { "quiet",    'q', 0, G_OPTION_ARG_NONE,     &opt_quiet,      "No output to console", NULL },
+  { "info",     'i', 0, G_OPTION_ARG_NONE,     &opt_info,       "Show info",            NULL },
+	{ "file",     'f', 0, G_OPTION_ARG_FILENAME, &opt_fileName,   "Filename",            NULL },
   { NULL }
 };
 
@@ -136,7 +138,7 @@ void safeExit() {
 }
 
 void sig_ctrl_c(int sig) {
-  int x;
+
 
 }
 
