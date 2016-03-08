@@ -338,12 +338,11 @@ static gboolean gio_in (GIOChannel *gio, GIOCondition condition, gpointer data) 
 	gchar *msg;
 	gsize len;
 	char buf[32];
-	printf("Read\n");
+
 	if (condition & G_IO_HUP)
 		g_error ("Read end of pipe died!\n");
 	
-//	ret = g_io_channel_read_line (gio, &msg, &len, NULL, &err);
-	ret = g_io_channel_read_chars (gio, buf, 4, NULL, &err);
+	ret = g_io_channel_read_chars (gio, buf, 4, &len, &err);
 	if (ret == G_IO_STATUS_ERROR)
 		g_error ("Error reading: %s\n", err->message);
 	
@@ -355,11 +354,12 @@ static gboolean gio_in (GIOChannel *gio, GIOCondition condition, gpointer data) 
 
 void pipeTest() {
 	int fd[2], ret;
-	GIOChannel *channel;
+	GIOChannel *channel, *channel2;
 	pid_t childPid;
 	
 	printf("Pipe test\n");
 
+	mLoop1 = g_main_loop_new(NULL, FALSE);
 	timer = g_timer_new();
 	g_timer_start(timer);
 	
@@ -369,14 +369,16 @@ void pipeTest() {
 	if (ret == -1)
 		g_error ("Creating pipe failed: %s\n", strerror (errno));
 	
-	channel = g_io_channel_unix_new (fd[0]);
+	channel = g_io_channel_unix_new (STDIN_FILENO);
+	//channel = g_io_channel_unix_new (fd[0]);
+	//channel2 = g_io_channel_unix_new (fd[1]);
 	if (!channel)
 		g_error ("Cannot create new GIOChannel!\n");
 	
 	if (!g_io_add_watch (channel, G_IO_IN | G_IO_HUP, gio_in, NULL))
 		g_error ("Cannot add watch on GIOChannel!\n");
 	
-	mLoop1 = g_main_loop_new(NULL, FALSE);
+
 	g_main_loop_run(mLoop1);
 }
 
