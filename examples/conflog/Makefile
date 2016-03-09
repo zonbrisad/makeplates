@@ -73,15 +73,25 @@ ADEFS =
 # Place -D or -U options here for C++ sources
 CPPDEFS = 
 
-# Compiler Options C ---------------------------------------------------------
+# Debug information 
+# 0=no debug information 
+# 1=minimal debug information
+#  = normal debug information 
+# 3=maximal debug information
+DEBUG=0
+
+#
+# Compiler and Linker options
+#============================================================================
+
+# Compiler Options C --------------------------------------------------------
 #  -g*:          generate debugging information
 #  -O*:          optimization level
 #  -f...:        tuning, see GCC manual
 #  -Wall...:     warning level
 #  -Wa,...:      tell GCC to pass this to the assembler.
 #    -adhlns...: create assembler listing
-#CFLAGS = -g$(DEBUG)
-CFLAGS = -g
+CFLAGS = -g$(DEBUG)
 CFLAGS += $(CDEFS)
 CFLAGS += -O$(OPT)
 CFLAGS += -funsigned-char
@@ -104,7 +114,7 @@ CFLAGS += $(shell pkg-config --cflags gthread-2.0)
 CFLAGS += $(shell pkg-config --cflags sqlite3)
 
 
-# Compiler Options C++ -------------------------------------------------------
+# Compiler Options C++ ------------------------------------------------------
 #  -g*:          generate debugging information
 #  -O*:          optimization level
 #  -f...:        tuning, see GCC manual and avr-libc documentation
@@ -133,7 +143,7 @@ CPPFLAGS += $(patsubst %,-I%,$(INCLUDE))
 #CPPFLAGS += $(shell pkg-config --cflags gthread-2.0)
 
 
-# Assembler Options ----------------------------------------------------------
+# Assembler Options ---------------------------------------------------------
 #  -Wa,...:   tell GCC to pass this to the assembler.
 #  -adhlns:   create listing
 #  -gstabs:   have the assembler create line number information; note that
@@ -144,24 +154,27 @@ CPPFLAGS += $(patsubst %,-I%,$(INCLUDE))
 #       dump that will be displayed for a given single line of source input.
 ASFLAGS = $(ADEFS) -Wa,-adhlns=$(<:%.S=$(OBJDIR)/%.lst),-gstabs,--listing-cont-lines=100
 
-# Linker Options -------------------------------------------------------------
+# Linker Options ------------------------------------------------------------
 #  -Wl,...:     tell GCC to pass this to linker.
 #    -Map:      create map file
 #    --cref:    add cross reference to  map file
 LDFLAGS = -Wl,-Map=$(OUTDIR)/$(TARGET).map,--cref
 LDFLAGS += $(EXTMEMOPTS)
-#LDFLAGS += -T linker_script.x
 LDFLAGS += -g
 
-# Linux options --------------------------------------------------------------
+#
+# Platform specific options
+#============================================================================
 
-# Windows options ------------------------------------------------------------
+# Linux options -------------------------------------------------------------
+
+# Windows options -----------------------------------------------------------
 
 #
 # Tool settings
 #============================================================================
 
-# Define programs and commands.
+# Define programs and commands ----------------------------------------------
 SHELL     = bash
 REMOVE    = rm -f
 REMOVEDIR = rm -rf
@@ -174,7 +187,7 @@ MOC       = moc
 QMAKE     = qmake
 CTEMPLATE = python3 tools/ctemplate.py
 BIN2ARRAY = python3 tools/bin2array.py
-
+PROJECT   = tools/project.sh
 CPPCHECK  = cppcheck
 
 # Toolchain base directory
@@ -191,11 +204,13 @@ OBJDUMP   = ${TCHAIN}objdump
 SIZE      = ${TCHAIN}size
 AR        = ${TCHAIN}ar rcs
 NM        = ${TCHAIN}nm
+AS        = ${TCHAIN}as
 
 #
-# Message settings
+# Message/Filter settings
 #============================================================================
 
+# Color definitions ---------------------------------------------------------
 E_BLACK        = \033[0;300m
 E_RED          = \033[0;31m
 E_GREEN        = \033[0;32m
@@ -213,14 +228,14 @@ E_BR_MAGENTA   = \033[1;35m
 E_BR_CYAN      = \033[1;36m
 E_WHITE        = \033[1;37m
 E_END          = \033[0m
-E_ON_BLACK     = \033[40m
-E_ON_RED       = \033[41m
-E_ON_GREEN     = \033[42m
-E_ON_YELLOW    = \033[43m
-E_ON_BLUE      = \033[44m
-E_ON_MAGENTA   = \033[45m
-E_ON_CYAN      = \033[46m
-E_ON_WHITE     = \033[47m
+E_ON_BLACK     = \033[40
+E_ON_RED       = \033[41
+E_ON_GREEN     = \033[42
+E_ON_YELLOW    = \033[43
+E_ON_BLUE      = \033[44
+E_ON_MAGENTA   = \033[45
+E_ON_CYAN      = \033[46
+E_ON_WHITE     = \033[1;47
 
 C_OK=$(E_BR_GREEN)
 C_ERROR=$(E_BR_RED)
@@ -228,6 +243,7 @@ C_WARNING=$(E_BR_YELLOW)
 C_FILE=$(E_BR_CYAN)
 C_NOTE=$(E_BR_GREEN)
 
+# Messages ------------------------------------------------------------------
 MSG_LINE             = "$(E_WHITE)------------------------------------------------------------------$(E_END)"
 MSG_BEGIN            = "${E_WHITE}-------------------------------- Begin ---------------------------${E_END}"
 MSG_END              = "${E_WHITE}-------------------------------- End -----------------------------${E_END}"
@@ -253,7 +269,7 @@ MSG_COFF             = "${E_BR_MAGENTA}Converting to AVR COFF:${E_END}"
 MSG_EXTENDED_COFF    = "${E_BR_MAGENTA}Converting to AVR Extended COFF:${E_END}"
 MSG_BACKUP           = "${E_BR_GREEN}Making incremental backup of project:${E_END}"
 
-# Compiler output colorizer filter
+# Compiler output colorizer filter ------------------------------------------
 F_ERROR="s/error:/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
 F_WARNING="s/warning:/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_NOTE="s/note:/$$(printf "$(C_NOTE)")&$$(printf "$(E_END)")/i"
@@ -264,7 +280,8 @@ F_WARNING1="s/defined but not used/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)
 F_WARNING2="s/unused variable/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_ERR1="s/undeclared \(first use in this function\)/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"	
 #XX="s/'.*'/$$(printf "$(E_WHITE)")&$$(printf "$(E_END)")/i"
-XX="s/'.*'/$$(printf "$(E_ON_BLUE)$(E_BR_YELLOW)")&$$(printf "$(E_END)")/i"
+#XX="s/'.*'/$$(printf "$(E_ON_BLUE)$(E_BR_YELLOW)")&$$(printf "$(E_END)")/i"
+XX="s/'.*'/$$(printf "$(E_GREEN)")&$$(printf "$(E_END)")/i"
 #XX="s/'.*'/$$(printf "$(E_ON_WHITE)$(E_BR_CYAN)")&$$(printf "$(E_END)")/i"
 #XX="s/.*''.*/$$(printf "$(E_ON_BLUE)$(E_BR_YELLOW)")&$$(printf "$(E_END)")/i"
 #XX="s/.*'[^a-zA-Z]*'.*/&/i"
@@ -432,26 +449,39 @@ clean:  ## Remove all build files
 archive: ## Make a tar archive of the source code
 	@echo
 	@echo -e $(MSG_ARCHIVING)
-#	TS=$(shell date +"%Y%m%d_%H%M%S") 
-#	echo $(TS)
+	@$(eval DT=$(shell date +"%Y%m%d-%H%M%S"))
 	@$(MKDIR) archive
-	@tar -cvzf archive/$(TARGET).tar.gz *  \
-	     --exclude='archive' \
-	     --exclude='backup'  \
-	     --exclude='output'  \
-	     --exclude='*.o'     \
-	     --exclude='*.a'     \
-	     --exclude='.dep'    \
-	     --exclude='.svn'    \
-	     --exclude='.git'    \
-	     --exclude='*.elf'   \
- 	     --exclude='*.hex'   \
-	     --exclude='*.bin'   \
-	     --exclude='*.sym'   \
-	     --exclude='*.lss'   \
-	     --exclude='*.map'   \
-	     --exclude='*~'      \
-	     --exclude="*.old"   \
+	@tar -cvzf archive/$(TARGET)_${DT}.tar.gz *  \
+		--exclude='archive'  \
+		--exclude='backup'   \
+		--exclude='output'   \
+		--exclude='*.a'      \
+		--exclude='*.o'      \
+		--exclude='*.ko'     \
+		--exclude='*.obj'    \
+		--exclude='*.a'      \
+		--exclude='*.la'     \
+		--exclude='*.lo'     \
+		--exclude='*.slo'    \
+		--exclude='*.lib'    \
+		--exclude='*.so'     \
+		--exclude='*.so*'    \
+		--exclude='.dep'     \
+		--exclude='.svn'     \
+		--exclude='.git'     \
+		--exclude='*.elf'    \
+		--exclude='*.hex'    \
+		--exclude='*.bin'    \
+		--exclude='*.exe'    \
+		--exclude='*.sym'    \
+		--exclude='*.lss'    \
+		--exclude='*.map'    \
+		--exclude='*.app'    \
+		--exclude='*.i*86'   \
+		--exclude='*.x86_64' \
+		--exclude='*~'       \
+		--exclude="*.old"    \
+		--exclude="*.tmp"    \
 
 # Backup directory
 BACKUP_DIR=backup
@@ -484,6 +514,7 @@ backup: ## Make an incremental backup
 				--exclude=".svn"       \
 				--exclude="*~"         \
 				--exclude="*.old"      \
+				--exclude="*.tmp"      \			
 				--link-dest=$(CURDIR)/$(BACKUP_DIR)/backup_1 \
 				.                      \
 				$(BACKUP_DIR)/backup_0 
@@ -504,8 +535,8 @@ debug:  ## Debug application
 newfile:  ## Create a new C file
 	@${CTEMPLATE} --newc --dir src --author "$(AUTHOR)" --licence "$(LICENCE)"
 	
-newproj: ##
-	
+newproj:  ## Create a new project
+	@${PROJECT} newproj
 	
 install: ## Install program
 	@${COPY} output/${TARGET} /usr/local/bin

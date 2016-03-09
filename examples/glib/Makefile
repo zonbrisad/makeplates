@@ -43,6 +43,7 @@ LIB += $(shell pkg-config --libs glib-2.0)
 LIB += $(shell pkg-config --libs gthread-2.0)
 #LIB += $(shell pkg-config --libs ncurses)
 #LIB += $(shell pkg-config --libs lua5.1)
+#LIB += $(shell pkg-config --libs sqlite3)
 
 # Object files directory
 #     To put object files in current directory, use a dot (.), do NOT make
@@ -69,19 +70,25 @@ ADEFS =
 # Place -D or -U options here for C++ sources
 CPPDEFS = 
 
+# Debug information 
+# 0=no debug information 
+# 1=minimal debug information
+#  = normal debug information 
+# 3=maximal debug information
+DEBUG=0
+
 #
 # Compiler and Linker options
 #============================================================================
 
-# Compiler Options C ---------------------------------------------------------
+# Compiler Options C --------------------------------------------------------
 #  -g*:          generate debugging information
 #  -O*:          optimization level
 #  -f...:        tuning, see GCC manual
 #  -Wall...:     warning level
 #  -Wa,...:      tell GCC to pass this to the assembler.
 #    -adhlns...: create assembler listing
-#CFLAGS = -g$(DEBUG)
-CFLAGS = -g
+CFLAGS = -g$(DEBUG)
 CFLAGS += $(CDEFS)
 CFLAGS += -O$(OPT)
 CFLAGS += -funsigned-char
@@ -101,9 +108,10 @@ CFLAGS += $(CSTANDARD)
 CFLAGS += $(shell pkg-config --cflags glib-2.0)
 CFLAGS += $(shell pkg-config --cflags gthread-2.0)
 #CFLAGS += $(shell pkg-config --cflags lua5.1)
+#CFLAGS += $(shell pkg-config --cflags sqlite3)
 
 
-# Compiler Options C++ -------------------------------------------------------
+# Compiler Options C++ ------------------------------------------------------
 #  -g*:          generate debugging information
 #  -O*:          optimization level
 #  -f...:        tuning, see GCC manual and avr-libc documentation
@@ -132,7 +140,7 @@ CPPFLAGS += $(patsubst %,-I%,$(INCLUDE))
 #CPPFLAGS += $(shell pkg-config --cflags gthread-2.0)
 
 
-# Assembler Options ----------------------------------------------------------
+# Assembler Options ---------------------------------------------------------
 #  -Wa,...:   tell GCC to pass this to the assembler.
 #  -adhlns:   create listing
 #  -gstabs:   have the assembler create line number information; note that
@@ -143,7 +151,7 @@ CPPFLAGS += $(patsubst %,-I%,$(INCLUDE))
 #       dump that will be displayed for a given single line of source input.
 ASFLAGS = $(ADEFS) -Wa,-adhlns=$(<:%.S=$(OBJDIR)/%.lst),-gstabs,--listing-cont-lines=100
 
-# Linker Options -------------------------------------------------------------
+# Linker Options ------------------------------------------------------------
 #  -Wl,...:     tell GCC to pass this to linker.
 #    -Map:      create map file
 #    --cref:    add cross reference to  map file
@@ -155,9 +163,55 @@ LDFLAGS += -g
 # Platform specific options
 #============================================================================
 
-# Linux options --------------------------------------------------------------
+# Linux options -------------------------------------------------------------
 
-# Windows options ------------------------------------------------------------
+# Windows options -----------------------------------------------------------
+
+# ARM Cortex options --------------------------------------------------------
+
+ifeq ($(TARGET_PLATFORM), arm)
+
+CFLAGS += -mcpu=$(MCU)
+CFLAGS += -mthumb
+#CFLAGS += -mfpu=fpv4-sp-d16 
+#CFLAGS += -mfloat-abi=hard 
+
+LDSCRIPT = stm32_flash.ld
+#LDSCRIPT = arm-gcc-link.ld
+LDFLAGS += -T$(LDSCRIPT) -mthumb -mcpu=$(MCU) -nostdlib 
+
+# Toolchain base directory
+TCHAIN_BASE=/usr/bin
+# Toolchain prefix 
+TCHAIN_PREFIX=arm-none-eabi-
+
+endif
+
+# Atmel AVR options ---------------------------------------------------------
+
+ifeq ($(TARGET_PLATFORM), avr)
+# MCU name
+MCU = atmega2560
+
+# Processor frequency.
+# Some common values:
+#  1000000  1843200  2000000 3686400 4000000 7372800 8000000 11059200 14745600
+F_CPU = 8000000
+
+CFLAGS   += -mmcu=$(MCU)
+CPPFLAGS += -mmcu=$(MCU)
+ASFLAGS  += -mmcu=$(MCU)
+# Output format. (can be srec, ihex, binary)
+FORMAT = ihex
+
+CDEFS   += -DF_CPU=$(F_CPU)UL
+ADEFS   += -DF_CPU=$(F_CPU)UL
+CPPDEFS += -DF_CPU=$(F_CPU)UL
+
+LDFLAGS += $(PRINTF_LIB) $(SCANF_LIB) $(MATH_LIB)
+
+
+endif
 
 #
 # Tool settings
@@ -193,6 +247,7 @@ OBJDUMP   = ${TCHAIN}objdump
 SIZE      = ${TCHAIN}size
 AR        = ${TCHAIN}ar rcs
 NM        = ${TCHAIN}nm
+AS        = ${TCHAIN}as
 
 #
 # Message/Filter settings
@@ -231,7 +286,7 @@ C_WARNING=$(E_BR_YELLOW)
 C_FILE=$(E_BR_CYAN)
 C_NOTE=$(E_BR_GREEN)
 
-# Messages -------------------------------------------------------------------
+# Messages ------------------------------------------------------------------
 MSG_LINE             = "$(E_WHITE)------------------------------------------------------------------$(E_END)"
 MSG_BEGIN            = "${E_WHITE}-------------------------------- Begin ---------------------------${E_END}"
 MSG_END              = "${E_WHITE}-------------------------------- End -----------------------------${E_END}"
@@ -600,7 +655,9 @@ acheck: ## Static code analysis using cppcheck(all warnings)
 # Version control handling
 #============================================================================
 
-
+# 
+# OpenOCD handling
+#============================================================================
 
 	
 # Listing of phony targets.
