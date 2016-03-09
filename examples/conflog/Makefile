@@ -58,7 +58,7 @@ OUTDIR = output
 
 # Optimization level, can be [0, 1, 2, 3, s]. 
 #     0 = turn off optimization. s = optimize for size.
-OPT = 0
+OPT = 2
 
 # Compiler flag to set the C Standard level.
 # [ gnu99 gnu11 c++98 c++03 c++11 c++14 ] 
@@ -72,6 +72,10 @@ ADEFS =
 
 # Place -D or -U options here for C++ sources
 CPPDEFS = 
+
+#
+# Compiler and Linker options
+#============================================================================
 
 # Compiler Options C ---------------------------------------------------------
 #  -g*:          generate debugging information
@@ -150,8 +154,11 @@ ASFLAGS = $(ADEFS) -Wa,-adhlns=$(<:%.S=$(OBJDIR)/%.lst),-gstabs,--listing-cont-l
 #    --cref:    add cross reference to  map file
 LDFLAGS = -Wl,-Map=$(OUTDIR)/$(TARGET).map,--cref
 LDFLAGS += $(EXTMEMOPTS)
-#LDFLAGS += -T linker_script.x
 LDFLAGS += -g
+
+#
+# Platform specific options
+#============================================================================
 
 # Linux options --------------------------------------------------------------
 
@@ -161,7 +168,7 @@ LDFLAGS += -g
 # Tool settings
 #============================================================================
 
-# Define programs and commands.
+# Define programs and commands ----------------------------------------------
 SHELL     = bash
 REMOVE    = rm -f
 REMOVEDIR = rm -rf
@@ -174,10 +181,10 @@ MOC       = moc
 QMAKE     = qmake
 CTEMPLATE = python3 tools/ctemplate.py
 BIN2ARRAY = python3 tools/bin2array.py
-
+PROJECT   = tools/project.sh
 CPPCHECK  = cppcheck
 
-# Toolchain base directory
+# Toolchain base directory 
 TCHAIN_BASE=/usr/bin
 
 # Toolchain prefix (i.e arm-elf- -> arm-elf-gcc.exe)
@@ -193,9 +200,10 @@ AR        = ${TCHAIN}ar rcs
 NM        = ${TCHAIN}nm
 
 #
-# Message settings
+# Message/Filter settings
 #============================================================================
 
+# Color definitions ---------------------------------------------------------
 E_BLACK        = \033[0;300m
 E_RED          = \033[0;31m
 E_GREEN        = \033[0;32m
@@ -228,6 +236,7 @@ C_WARNING=$(E_BR_YELLOW)
 C_FILE=$(E_BR_CYAN)
 C_NOTE=$(E_BR_GREEN)
 
+# Messages -------------------------------------------------------------------
 MSG_LINE             = "$(E_WHITE)------------------------------------------------------------------$(E_END)"
 MSG_BEGIN            = "${E_WHITE}-------------------------------- Begin ---------------------------${E_END}"
 MSG_END              = "${E_WHITE}-------------------------------- End -----------------------------${E_END}"
@@ -253,7 +262,7 @@ MSG_COFF             = "${E_BR_MAGENTA}Converting to AVR COFF:${E_END}"
 MSG_EXTENDED_COFF    = "${E_BR_MAGENTA}Converting to AVR Extended COFF:${E_END}"
 MSG_BACKUP           = "${E_BR_GREEN}Making incremental backup of project:${E_END}"
 
-# Compiler output colorizer filter
+# Compiler output colorizer filter ------------------------------------------
 F_ERROR="s/error:/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
 F_WARNING="s/warning:/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_NOTE="s/note:/$$(printf "$(C_NOTE)")&$$(printf "$(E_END)")/i"
@@ -262,9 +271,11 @@ FF_WARNING="s/^.*warning:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
 FF_NOTE="s/^.*note:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
 F_WARNING1="s/defined but not used/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_WARNING2="s/unused variable/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
+F_WARNING3="s/may be used uninitialized in this function/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
+F_WARNING4="s/
 F_ERR1="s/undeclared \(first use in this function\)/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"	
 #XX="s/'.*'/$$(printf "$(E_WHITE)")&$$(printf "$(E_END)")/i"
-#XX="s/'.*'/$$(printf "$(E_ON_BLUE)$(E_BR_YELLOW)")&$$(printf "$(E_END)")/i"
+XX="s/'.*'/$$(printf "$(E_ON_BLUE)$(E_BR_YELLOW)")&$$(printf "$(E_END)")/i"
 #XX="s/.*''.*/$$(printf "$(E_ON_BLUE)$(E_BR_YELLOW)")&$$(printf "$(E_END)")/i"
 #XX="s/.*'[^a-zA-Z]*'.*/&/i"
 #XX="s/'(.*?)'/A/i"
@@ -272,10 +283,13 @@ F_ERR1="s/undeclared \(first use in this function\)/$$(printf "$(C_ERROR)")&$$(p
 #XX="s/('[\w\s]+')/K/i"
 #XX="s/([\"'])(\\?.)*?\1/K/i"
 #XX="s/([\"'])(?:(?=(\\?))\2.)*?\1/K/i"
+#XX="s/\[.*\]/K/"
+#XX='s/[^"]*"\([^"]*\)".*/\1/'
 
 C_FILTER   = | sed -ru -e $(F_ERROR)  -e $(F_WARNING)  -e $(F_NOTE)   \
                        -e $(FF_ERROR) -e $(FF_WARNING) -e $(FF_NOTE)  \
-											 -e $(F_WARNING1) -e $(F_WARNING2) -e $(F_ERR1) \
+											 -e $(F_WARNING1) -e $(F_WARNING2) -e $(F_WARNING3) -e $(F_ERR1) \
+											 -e $(XX)
 
 											 
 CPP_FILTER = $(C_FILTER)
@@ -429,26 +443,39 @@ clean:  ## Remove all build files
 archive: ## Make a tar archive of the source code
 	@echo
 	@echo -e $(MSG_ARCHIVING)
-#	TS=$(shell date +"%Y%m%d_%H%M%S") 
-#	echo $(TS)
+	@$(eval DT=$(shell date +"%Y%m%d-%H%M%S"))
 	@$(MKDIR) archive
-	@tar -cvzf archive/$(TARGET).tar.gz *  \
-	     --exclude='archive' \
-	     --exclude='backup'  \
-	     --exclude='output'  \
-	     --exclude='*.o'     \
-	     --exclude='*.a'     \
-	     --exclude='.dep'    \
-	     --exclude='.svn'    \
-	     --exclude='.git'    \
-	     --exclude='*.elf'   \
- 	     --exclude='*.hex'   \
-	     --exclude='*.bin'   \
-	     --exclude='*.sym'   \
-	     --exclude='*.lss'   \
-	     --exclude='*.map'   \
-	     --exclude='*~'      \
-	     --exclude="*.old"   \
+	@tar -cvzf archive/$(TARGET)_${DT}.tar.gz *  \
+		--exclude='archive'  \
+		--exclude='backup'   \
+		--exclude='output'   \
+		--exclude='*.a'      \
+		--exclude='*.o'      \
+		--exclude='*.ko'     \
+		--exclude='*.obj'    \
+		--exclude='*.a'      \
+		--exclude='*.la'     \
+		--exclude='*.lo'     \
+		--exclude='*.slo'    \
+		--exclude='*.lib'    \
+		--exclude='*.so'     \
+		--exclude='*.so*'    \
+		--exclude='.dep'     \
+		--exclude='.svn'     \
+		--exclude='.git'     \
+		--exclude='*.elf'    \
+		--exclude='*.hex'    \
+		--exclude='*.bin'    \
+		--exclude='*.exe'    \
+		--exclude='*.sym'    \
+		--exclude='*.lss'    \
+		--exclude='*.map'    \
+		--exclude='*.app'    \
+		--exclude='*.i*86'   \
+		--exclude='*.x86_64' \
+		--exclude='*~'       \
+		--exclude="*.old"    \
+		--exclude="*.tmp"    \
 
 # Backup directory
 BACKUP_DIR=backup
@@ -481,6 +508,7 @@ backup: ## Make an incremental backup
 				--exclude=".svn"       \
 				--exclude="*~"         \
 				--exclude="*.old"      \
+				--exclude="*.tmp"      \	
 				--link-dest=$(CURDIR)/$(BACKUP_DIR)/backup_1 \
 				.                      \
 				$(BACKUP_DIR)/backup_0 
@@ -501,8 +529,8 @@ debug:  ## Debug application
 newfile:  ## Create a new C file
 	@${CTEMPLATE} --newc --dir src --author "$(AUTHOR)" --licence "$(LICENCE)"
 	
-newproj: ##
-	
+newproj:  ## Create a new project
+	@${PROJECT} newproj
 	
 install: ## Install program
 	@${COPY} output/${TARGET} /usr/local/bin

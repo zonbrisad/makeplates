@@ -41,6 +41,7 @@ LIB = -lm
 #LIB += $(shell pkg-config --libs gthread-2.0)
 #LIB += $(shell pkg-config --libs ncurses)
 #LIB += $(shell pkg-config --libs lua5.1)
+#LIB += $(shell pkg-config --libs sqlite3)
 
 # Object files directory
 #     To put object files in current directory, use a dot (.), do NOT make
@@ -98,6 +99,7 @@ CFLAGS += $(CSTANDARD)
 #CFLAGS += $(shell pkg-config --cflags glib-2.0)
 #CFLAGS += $(shell pkg-config --cflags gthread-2.0)
 #CFLAGS += $(shell pkg-config --cflags lua5.1)
+#CFLAGS += $(shell pkg-config --cflags sqlite3)
 
 
 # Compiler Options C++ -------------------------------------------------------
@@ -213,14 +215,14 @@ E_BR_MAGENTA   = \033[1;35m
 E_BR_CYAN      = \033[1;36m
 E_WHITE        = \033[1;37m
 E_END          = \033[0m
-E_ON_BLACK     = \033[40
-E_ON_RED       = \033[41
-E_ON_GREEN     = \033[42
-E_ON_YELLOW    = \033[43
-E_ON_BLUE      = \033[44
-E_ON_MAGENTA   = \033[45
-E_ON_CYAN      = \033[46
-E_ON_WHITE     = \033[1;47
+E_ON_BLACK     = \033[40m
+E_ON_RED       = \033[41m
+E_ON_GREEN     = \033[42m
+E_ON_YELLOW    = \033[43m
+E_ON_BLUE      = \033[44m
+E_ON_MAGENTA   = \033[45m
+E_ON_CYAN      = \033[46m
+E_ON_WHITE     = \033[47m
 
 C_OK=$(E_BR_GREEN)
 C_ERROR=$(E_BR_RED)
@@ -480,8 +482,7 @@ backup: ## Make an incremental backup
 				--exclude=".svn"       \
 				--exclude="*~"         \
 				--exclude="*.old"      \
-				--exclude="*.tmp"      \
-				
+				--exclude="*.tmp"      \	
 				--link-dest=$(CURDIR)/$(BACKUP_DIR)/backup_1 \
 				.                      \
 				$(BACKUP_DIR)/backup_0 

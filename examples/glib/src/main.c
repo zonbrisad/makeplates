@@ -54,6 +54,7 @@ static gboolean opt_threadTest = FALSE;
 static gboolean opt_info       = FALSE;
 static gboolean opt_daemonTest = FALSE;
 static gboolean opt_queueTest  = FALSE;
+static gboolean opt_pipeTest   = FALSE;
 
 static GOptionEntry entries[] = {
   { "verbose",  'v', 0, G_OPTION_ARG_NONE, &opt_verbose,    "Be verbose output",    NULL },
@@ -65,6 +66,7 @@ static GOptionEntry entries[] = {
   { "info",     'i', 0, G_OPTION_ARG_NONE, &opt_info,       "Show info",            NULL },
 	{ "daemon",   'd', 0, G_OPTION_ARG_NONE, &opt_daemonTest, "Daemon test",          NULL },
 	{ "queue",     0,  0, G_OPTION_ARG_NONE, &opt_queueTest,  "Queue test",           NULL },
+	{ "pipe",      0,  0, G_OPTION_ARG_NONE, &opt_pipeTest,   "Pipe test",            NULL },
   { NULL }
 };
 
@@ -328,6 +330,30 @@ void daemonTest(void) {
 	g_main_loop_run(mLoop1);
 }
 
+void pipe_callback(GIOChannel *source,GIOCondition condition,gpointer data) {
+	char buf[128];
+	gsize size;
+	GError *err;
+	
+	g_io_channel_read_chars(source, buf, 128, &size, &err);
+	printf("Kalle");
+	return FALSE;
+}
+
+void pipeTest(void) {
+	GIOChannel *chn;
+	int fd[2];
+	int ret;
+	
+	printf("PipeTest\n");
+	ret = pipe(fd);
+	chn = g_io_channel_unix_new(fd[0]);
+	
+	g_io_add_watch(chn,G_IO_IN | G_IO_HUP | G_IO_ERR,(GIOFunc)pipe_callback,NULL);
+	mLoop1 = g_main_loop_new(NULL, FALSE);
+	g_main_loop_run(mLoop1);
+}
+
 int main(int argc, char *argv[]) {
 	GError *error = NULL;
 	GOptionContext *context;
@@ -398,6 +424,9 @@ int main(int argc, char *argv[]) {
 		safeExit();
 	}
 
+	if (opt_pipeTest) {
+		pipeTest();
+	}
  	
 	return 0;
 }

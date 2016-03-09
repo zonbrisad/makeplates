@@ -27,6 +27,7 @@
  * Variable declarations
  *------------------------------------------------------------------
  */
+//__flash char *kalle="123412341234";
 
 /**
  * Prototype declarations

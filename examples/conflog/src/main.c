@@ -114,7 +114,7 @@ int isAppRunning() {
  */
 void appInfo() {
   GError *err; 
-
+x
   // get some system data
   appPid      = getpid();
   appPath     = g_file_read_link("/proc/self/exe", &err);
