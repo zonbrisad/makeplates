@@ -187,7 +187,8 @@ MOC       = moc
 QMAKE     = qmake
 CTEMPLATE = python3 tools/ctemplate.py
 BIN2ARRAY = python3 tools/bin2array.py
-PROJECT   = tools/project.sh
+#PROJECT   = tools/project.sh
+MPTOOL    = tools/project.sh
 CPPCHECK  = cppcheck
 
 # Toolchain base directory
@@ -242,32 +243,39 @@ C_ERROR=$(E_BR_RED)
 C_WARNING=$(E_BR_YELLOW)
 C_FILE=$(E_BR_CYAN)
 C_NOTE=$(E_BR_GREEN)
+C_MSG=$(E_BR_GREEN)
+C_ACTION=$(E_BR_MAGENTA)
 
 # Messages ------------------------------------------------------------------
 MSG_LINE             = "$(E_WHITE)------------------------------------------------------------------$(E_END)"
 MSG_BEGIN            = "${E_WHITE}-------------------------------- Begin ---------------------------${E_END}"
 MSG_END              = "${E_WHITE}-------------------------------- End -----------------------------${E_END}"
 MSG_ERRORS_NONE      = "${C_OK}Errors: none ${E_END}"
-MSG_LINKING          = "${E_BR_MAGENTA}Linking:${E_END}"
-MSG_COMPILING        = "${E_BR_MAGENTA}Compiling C:${E_END}"
-MSG_COMPILING_CPP    = "${E_BR_MAGENTA}Compiling C++:${E_END}"
-MSG_ASSEMBLING       = "${E_BR_MAGENTA}Assembling:${E_END}"
-MSG_CLEANING         = "$(C_OK)Cleaning project:$(E_END)"
-MSG_EXTENDED_LISTING = "${E_BR_MAGENTA}Creating Extended Listing/Disassembly:$(E_END)"
-MSG_SYMBOL_TABLE     = "${E_BR_MAGENTA}Creating Symbol Table:$(E_END)"
-MSG_HEX_FILE         = "${E_BR_MAGENTA}Creating Hex file:$(E_END)"
+MSG_LINKING          = "${C_ACTION}Linking:${E_END}"
+MSG_COMPILING        = "${C_ACTION}Compiling C:${E_END}"
+MSG_COMPILING_CPP    = "${C_ACTION}Compiling C++:${E_END}"
+MSG_ASSEMBLING       = "${C_ACTION}Assembling:${E_END}"
+MSG_CLEANING         = "$(C_ACTION)Cleaning project:$(E_END)"
+MSG_EXTENDED_LISTING = "${C_ACTION}Creating Extended Listing/Disassembly:$(E_END)"
+MSG_SYMBOL_TABLE     = "${C_ACTION}Creating Symbol Table:$(E_END)"
+MSG_HEX_FILE         = "${C_ACTION}Creating Hex file:$(E_END)"
 MSG_FORMATERROR      = "${C_ERROR}Can not handle output-format${E_END}"
-MSG_ASMFROMC         = "${E_BR_MAGENTA}Creating asm-File from C-Source:$(E_END)"
-MSG_SIZE_BEFORE      = "${E_BR_MAGENTA}Size before:${E_END}"
-MSG_SIZE_AFTER       = "${E_BR_MAGENTA}Size after build:${E_END}"
-MSG_LOAD_FILE        = "${E_BR_MAGENTA}Creating load file:${E_END}"
-MSG_ARCHIVING        = "${E_BR_MAGENTA}Creating tar archive:${E_END}"
-MSG_CREATING_LIBRARY = "${E_BR_MAGENTA}Creating library:${E_END}"
-MSG_FLASH            = "${E_BR_MAGENTA}Creating load file for Flash:${E_END}"
-MSG_EEPROM           = "${E_BR_MAGENTA}Creating load file for EEPROM:${E_END}"
-MSG_COFF             = "${E_BR_MAGENTA}Converting to AVR COFF:${E_END}"
-MSG_EXTENDED_COFF    = "${E_BR_MAGENTA}Converting to AVR Extended COFF:${E_END}"
+MSG_ASMFROMC         = "${C_ACTION}Creating asm-File from C-Source:$(E_END)"
+MSG_SIZE_BEFORE      = "${C_ACTION}Size before:${E_END}"
+MSG_SIZE_AFTER       = "${C_ACTION}Size after build:${E_END}"
+MSG_LOAD_FILE        = "${C_ACTION}Creating load file:${E_END}"
+MSG_ARCHIVING        = "${C_ACTION}Creating tar archive:${E_END}"
+MSG_CREATING_LIBRARY = "${C_ACTION}Creating library:${E_END}"
+MSG_FLASH            = "${C_ACTION}Creating load file for Flash:${E_END}"
+MSG_EEPROM           = "${C_ACTION}Creating load file for EEPROM:${E_END}"
+MSG_COFF             = "${C_ACTION}Converting to AVR COFF:${E_END}"
+MSG_EXTENDED_COFF    = "${C_ACTION}Converting to AVR Extended COFF:${E_END}"
 MSG_BACKUP           = "${E_BR_GREEN}Making incremental backup of project:${E_END}"
+MSG_SRC              = "${C_MSG}Source files $(E_GREEN)-----------------------------------------------------${E_END}"
+MSG_FLAGS            = "${C_MSG}Compiler Flags $(E_GREEN)---------------------------------------------------${E_END}"
+MSG_LINKER           = "${C_MSG}Linker Flags $(E_GREEN)-----------------------------------------------------${E_END}"
+MSG_PROJECT          = "${C_MSG}Project info $(E_GREEN)-----------------------------------------------------${E_END}"
+
 
 # Compiler output colorizer filter ------------------------------------------
 F_ERROR="s/error:/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
@@ -561,30 +569,45 @@ help: ## This help information
 	@echo -e $(MSG_LINE)
 
 list-src: ## List all source files
-	@echo -e "$(E_BR_CYAN)#----------------- Source files$(E_END)"
+	@echo -e $(MSG_SRC)
 	@export IFS=" "
 	@for f in $(SRC); do      \
 	  echo $${f} ;            \
 	done                      \
 	
 list-flags: ## List compiler flags
-	@echo -e "$(E_BR_CYAN)#----------------- Compiler Flags$(E_END)"
+	@echo -e $(MSG_FLAGS)
 	@export IFS=" "
 	@for f in $(CFLAGS); do   \
 	  echo $${f} ;            \
 	done                      \
 
-list-ldflags: ## List compiler flags
-	@echo -e "$(E_BR_CYAN)#----------------- Linker Flags$(E_END)"
+list-ldflags: ## List linker flags
+	@echo -e $(MSG_LINKER)
 	@export IFS=" "
 	@for f in $(LDFLAGS); do   \
 	  echo $${f} ;             \
 	done                       \
 
+
 list-tools: 
-	echo "gcc:    $(CC)"
+	@$(MPTOOL) ce $(CC)
+	@$(MPTOOL) ce $(OBJCOPY)
+	@$(MPTOOL) ce $(OBJDUMP)
+	@$(MPTOOL) ce $(SIZE)
+	@$(MPTOOL) ce $(AR)
+	@$(MPTOOL) ce $(NM)
+	@$(MPTOOL) ce $(AS)
+	@$(MPTOOL) ce $(QMAKE)
+	@$(MPTOOL) ce python3
+	@$(MPTOOL) ce $(CPPCHECK)
+	@for f in $(LIB); do      \
+	  echo $${f} ;            \
+	done                      \
+	
 
 list-info: 
+	@echo -e $(MSG_PROJECT)
 	@echo "Target:   $(TARGET)"
 	@echo "Platform: $(TARGET_PLATFORM)"
 	@echo "Licence:  $(LICENCE)"
