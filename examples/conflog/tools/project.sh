@@ -61,10 +61,21 @@ DEFAULT=help
 newproj() { ## Description of funktion 1 
   echo "New project name"
 	read -e -p ">" projname
-	echo $projname
-	
+	echo $projname	
 }
 
+ce() { ## Check if file exists
+  bn=$(basename $2)
+  cmd=$(command -v $2)
+	if [ $? -ne 0 ]; then
+	  #echo -e "${bn}       ${E_BR_RED}N/A${E_END}"
+		printf "%-20s${E_BR_RED}N/A${E_END}\n" "${bn}"
+	else
+		dn=$(dirname ${cmd})
+#	  echo -e "${bn}       ${E_BR_GREEN}$dn${E_END}"
+		printf "%-20s${E_BR_GREEN}%s${E_END}\n" "${bn}" "$dn"
+	fi
+}
 
 
 #--------------------------------------------------------------------- 
