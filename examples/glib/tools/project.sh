@@ -75,6 +75,9 @@ newproj() { ## Create a new project
 	fi
 }
 
+backup() { ## Backup project
+} 
+
 
 
 #--------------------------------------------------------------------- 

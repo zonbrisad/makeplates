@@ -117,12 +117,12 @@ static void gp_log_handler(const gchar *log_domain,
   color = E_WHITE;
   level = "    ";
   switch (log_level & G_LOG_LEVEL_MASK) {
-	 case G_LOG_LEVEL_WARNING:  color = E_BR_YELLOW;  level = "warn"; lm = log_mask & GP_WARNING;  vm = verbose_mask & GP_WARNING;  break;
-	 case G_LOG_LEVEL_ERROR:    color = E_BR_RED;     level = "err "; lm = log_mask & GP_ERROR;    vm = verbose_mask & GP_ERROR;    break;
-	 case G_LOG_LEVEL_CRITICAL: color = E_WONR;       level = "crit"; lm = log_mask & GP_CRITICAL; vm = verbose_mask & GP_CRITICAL; break;
-	 case G_LOG_LEVEL_DEBUG:    color = E_BR_GREEN;   level = "dbg "; lm = log_mask & GP_DEBUG;    vm = verbose_mask & GP_DEBUG;    break;
-	 case G_LOG_LEVEL_INFO:     color = E_WHITE;      level = "info"; lm = log_mask & GP_INFO;     vm = verbose_mask & GP_INFO;     break;
-	 case G_LOG_LEVEL_MESSAGE:  color = E_BR_CYAN;    level = "msg "; lm = log_mask & GP_MESSAGE;  vm = verbose_mask & GP_MESSAGE;  break;
+	 case G_LOG_LEVEL_WARNING:  color = E_BR_YELLOW;  level = "warning";  lm = log_mask & GP_WARNING;  vm = verbose_mask & GP_WARNING;  break;
+	 case G_LOG_LEVEL_ERROR:    color = E_BR_RED;     level = "error";    lm = log_mask & GP_ERROR;    vm = verbose_mask & GP_ERROR;    break;
+	 case G_LOG_LEVEL_CRITICAL: color = E_WONR;       level = "critical"; lm = log_mask & GP_CRITICAL; vm = verbose_mask & GP_CRITICAL; break;
+	 case G_LOG_LEVEL_DEBUG:    color = E_BR_GREEN;   level = "debug";    lm = log_mask & GP_DEBUG;    vm = verbose_mask & GP_DEBUG;    break;
+	 case G_LOG_LEVEL_INFO:     color = E_WHITE;      level = "info";     lm = log_mask & GP_INFO;     vm = verbose_mask & GP_INFO;     break;
+	 case G_LOG_LEVEL_MESSAGE:  color = E_BR_CYAN;    level = "message";  lm = log_mask & GP_MESSAGE;  vm = verbose_mask & GP_MESSAGE;  break;
    default: color = E_WHITE; level="dflt"; break; 
   }
   

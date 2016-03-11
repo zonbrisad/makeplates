@@ -15,6 +15,7 @@
 #include <signal.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <errno.h>
 #include <sys/stat.h>
 #include <glib-2.0/glib.h>
 #include <glib-2.0/glib/gstdio.h>
@@ -330,6 +331,7 @@ void daemonTest(void) {
 	g_main_loop_run(mLoop1);
 }
 
+<<<<<<< HEAD
 void pipe_callback(GIOChannel *source,GIOCondition condition,gpointer data) {
 	char buf[128];
 	gsize size;
@@ -351,6 +353,53 @@ void pipeTest(void) {
 	
 	g_io_add_watch(chn,G_IO_IN | G_IO_HUP | G_IO_ERR,(GIOFunc)pipe_callback,NULL);
 	mLoop1 = g_main_loop_new(NULL, FALSE);
+=======
+
+static gboolean gio_in (GIOChannel *gio, GIOCondition condition, gpointer data) {
+	GIOStatus ret;
+	GError *err = NULL;
+	gchar *msg;
+	gsize len=0;
+	char buf[32];
+
+	
+//	printf("Cond: %x\n",condition);
+	if (condition & G_IO_IN) {
+		ret = g_io_channel_read_chars (gio, buf, 4, &len, &err);
+
+		if (ret == G_IO_STATUS_ERROR)
+			g_error ("Error reading: %s\n", err->message);
+		printf ("Read %u bytes: %s\n", len, msg);
+	}
+
+	if ((condition & G_IO_HUP) && (len==0)) {
+		 g_main_loop_quit(mLoop1);
+	}
+	
+	g_free (msg);
+	return TRUE;
+}
+
+void pipeTest() {
+	GIOChannel *channel, *channel2;
+	pid_t childPid;
+	
+	printf("Pipe test\n");
+
+	mLoop1 = g_main_loop_new(NULL, FALSE);
+	timer = g_timer_new();
+	g_timer_start(timer);
+	
+//	g_timeout_add_seconds(5, timeout_1, "Pipe timeout");
+
+	channel = g_io_channel_unix_new (STDIN_FILENO);
+	if (!channel)
+		g_error ("Cannot create new GIOChannel!\n");
+	
+	if (!g_io_add_watch (channel, G_IO_IN | G_IO_HUP, gio_in, NULL))
+		g_error ("Cannot add watch on GIOChannel!\n");
+	
+>>>>>>> fe6f31dde9e3cf11599f574b7c7912683f462314
 	g_main_loop_run(mLoop1);
 }
 
@@ -424,9 +473,18 @@ int main(int argc, char *argv[]) {
 		safeExit();
 	}
 
+<<<<<<< HEAD
 	if (opt_pipeTest) {
 		pipeTest();
 	}
+=======
+	// pipe test
+	if (opt_pipeTest) {
+	  pipeTest();
+		safeExit();
+	}
+
+>>>>>>> fe6f31dde9e3cf11599f574b7c7912683f462314
  	
 	return 0;
 }

@@ -66,7 +66,7 @@ ADEFS =
 # Place -D or -U options here for C++ sources
 CPPDEFS = 
 
-# Compiler Options C ---------------------------------------------------------
+# Compiler Options C --------------------------------------------------------
 #  -g*:          generate debugging information
 #  -O*:          optimization level
 #  -f...:        tuning, see GCC manual
@@ -92,7 +92,7 @@ CFLAGS += $(patsubst %,-I%,$(INCLUDE))
 CFLAGS += $(CSTANDARD)
 
 
-# Compiler Options C++ -------------------------------------------------------
+# Compiler Options C++ ------------------------------------------------------
 #  -g*:          generate debugging information
 #  -O*:          optimization level
 #  -f...:        tuning, see GCC manual and avr-libc documentation
@@ -119,7 +119,7 @@ CPPFLAGS += $(patsubst %,-I%,$(INCLUDE))
 #CPPFLAGS += $(CSTANDARD)
 
 
-# Linker Options -------------------------------------------------------------
+# Assembler Options ---------------------------------------------------------
 #  -Wa,...:   tell GCC to pass this to the assembler.
 #  -adhlns:   create listing
 #  -gstabs:   have the assembler create line number information; note that
@@ -166,7 +166,7 @@ MATH_LIB = -lm
 EXTRALIBDIRS = 
 
 
-# Linker Options -------------------------------------------------------------
+# Linker Options ------------------------------------------------------------
 #  -Wl,...:     tell GCC to pass this to linker.
 #    -Map:      create map file
 #    --cref:    add cross reference to  map file
@@ -174,7 +174,11 @@ LDFLAGS = -Wl,-Map=$(OUTDIR)/$(TARGET).map,--cref
 LDFLAGS += $(EXTMEMOPTS)
 LDFLAGS += $(patsubst %,-L%,$(INCLUDE))
 
-# Linux options --------------------------------------------------------------
+#
+# Platform specific options
+#============================================================================
+
+# Linux options -------------------------------------------------------------
 
 # Windows options ------------------------------------------------------------
 
@@ -206,9 +210,11 @@ LDFLAGS += $(PRINTF_LIB) $(SCANF_LIB) $(MATH_LIB)
  
 
 
-# Tool options ---------------------------------------------------------------
+#
+# Tool settings
+#============================================================================
 
-# Define programs and commands.
+# Define programs and commands ----------------------------------------------
 SHELL     = bash
 REMOVE    = rm -f
 REMOVEDIR = rm -rf
@@ -221,7 +227,7 @@ MOC       = moc
 QMAKE     = qmake
 CTEMPLATE = python3 tools/ctemplate.py
 BIN2ARRAY = python3 tools/bin2array.py
-
+PROJECT   = tools/project.sh
 CPPCHECK  = cppcheck
 
 # Toolchain base directory
@@ -238,9 +244,13 @@ OBJDUMP   = ${TCHAIN}objdump
 SIZE      = ${TCHAIN}size
 AR        = ${TCHAIN}ar rcs
 NM        = ${TCHAIN}nm
+AS        = ${TCHAIN}as
 
-# Message settings -----------------------------------------------------------
+#
+# Message/Filter settings
+#============================================================================
 
+# Color definitions ---------------------------------------------------------
 E_BLACK        = \033[0;300m
 E_RED          = \033[0;31m
 E_GREEN        = \033[0;32m
@@ -273,6 +283,7 @@ C_WARNING=$(E_BR_YELLOW)
 C_FILE=$(E_BR_CYAN)
 C_NOTE=$(E_BR_GREEN)
 
+# Messages ------------------------------------------------------------------
 MSG_LINE             = "$(E_WHITE)------------------------------------------------------------------$(E_END)"
 MSG_BEGIN            = "${E_WHITE}-------------------------------- Begin ---------------------------${E_END}"
 MSG_END              = "${E_WHITE}-------------------------------- End -----------------------------${E_END}"
@@ -298,7 +309,7 @@ MSG_COFF             = "${E_BR_MAGENTA}Converting to AVR COFF:${E_END}"
 MSG_EXTENDED_COFF    = "${E_BR_MAGENTA}Converting to AVR Extended COFF:${E_END}"
 MSG_BACKUP           = "${E_BR_GREEN}Making incremental backup of project:${E_END}"
 
-# Compiler output colorizer filter
+# Compiler output colorizer filter ------------------------------------------
 F_ERROR="s/error:/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
 F_WARNING="s/warning:/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_NOTE="s/note:/$$(printf "$(C_NOTE)")&$$(printf "$(E_END)")/i"
@@ -513,6 +524,7 @@ $(OUTDIR):
 
 size: 
 	@echo
+	@echo -e $(MSG_SIZE_AFTER)
 	@$(SIZE) $(OUTDIR)/$(TARGET)
 	
 #
@@ -590,6 +602,7 @@ backup: ## Make an incremental backup
 				--exclude=".svn"       \
 				--exclude="*~"         \
 				--exclude="*.old"      \
+				--exclude="*.tmp"      \			
 				--link-dest=$(CURDIR)/$(BACKUP_DIR)/backup_1 \
 				.                      \
 				$(BACKUP_DIR)/backup_0 
@@ -656,8 +669,7 @@ list-info:
 	@echo "Platform: $(TARGET_PLATFORM)"
 	@echo "Licence:  $(LICENCE)"
 	@echo "Outdir:   $(OUTDIR)"
-	
- 
+	 
 info: list-info list-flags list-ldflags list-src ## Print information about project
 	
 #

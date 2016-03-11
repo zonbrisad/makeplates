@@ -87,15 +87,25 @@ ADEFS =
 # Place -D or -U options here for C++ sources
 CPPDEFS = 
 
-# Compiler Options C ---------------------------------------------------------
+# Debug information 
+# 0=no debug information 
+# 1=minimal debug information
+#  = normal debug information 
+# 3=maximal debug information
+DEBUG=0
+
+#
+# Compiler and Linker options
+#============================================================================
+
+# Compiler Options C --------------------------------------------------------
 #  -g*:          generate debugging information
 #  -O*:          optimization level
 #  -f...:        tuning, see GCC manual
 #  -Wall...:     warning level
 #  -Wa,...:      tell GCC to pass this to the assembler.
 #    -adhlns...: create assembler listing
-#CFLAGS = -g$(DEBUG)
-CFLAGS = -g
+CFLAGS = -g$(DEBUG)
 CFLAGS += $(CDEFS)
 CFLAGS += -O$(OPT)
 CFLAGS += -funsigned-char
@@ -115,9 +125,10 @@ CFLAGS += $(CSTANDARD)
 #CFLAGS += $(shell pkg-config --cflags glib-2.0)
 #CFLAGS += $(shell pkg-config --cflags gthread-2.0)
 #CFLAGS += $(shell pkg-config --cflags lua5.1)
+#CFLAGS += $(shell pkg-config --cflags sqlite3)
 
 
-# Compiler Options C++ -------------------------------------------------------
+# Compiler Options C++ ------------------------------------------------------
 #  -g*:          generate debugging information
 #  -O*:          optimization level
 #  -f...:        tuning, see GCC manual and avr-libc documentation
@@ -146,7 +157,7 @@ CPPFLAGS += $(patsubst %,-I%,$(INCLUDE))
 #CPPFLAGS += $(shell pkg-config --cflags gthread-2.0)
 
 
-# Linker Options -------------------------------------------------------------
+# Assembler Options ---------------------------------------------------------
 #  -Wa,...:   tell GCC to pass this to the assembler.
 #  -adhlns:   create listing
 #  -gstabs:   have the assembler create line number information; note that
@@ -157,7 +168,7 @@ CPPFLAGS += $(patsubst %,-I%,$(INCLUDE))
 #       dump that will be displayed for a given single line of source input.
 ASFLAGS = $(ADEFS) -Wa,-adhlns=$(<:%.S=$(OBJDIR)/%.lst),-gstabs,--listing-cont-lines=100
 
-# Linker Options -------------------------------------------------------------
+# Linker Options ------------------------------------------------------------
 #  -Wl,...:     tell GCC to pass this to linker.
 #    -Map:      create map file
 #    --cref:    add cross reference to  map file
@@ -165,12 +176,12 @@ LDFLAGS = -Wl,-Map=$(OUTDIR)/$(TARGET).map,--cref
 LDFLAGS += $(EXTMEMOPTS)
 LDFLAGS += -g   
 
+#
+# Platform specific options
+#============================================================================
 
-# Linux options --------------------------------------------------------------
+# Linux options -------------------------------------------------------------
 
-ifeq ($(TARGET_PLATFORM), linux)
-
-endif
 # Windows options ------------------------------------------------------------
 
 # ARM Cortex options --------------------------------------------------------
@@ -219,9 +230,11 @@ LDFLAGS += $(PRINTF_LIB) $(SCANF_LIB) $(MATH_LIB)
 
 endif
 
-# Tool options ---------------------------------------------------------------
+#
+# Tool settings
+#============================================================================
 
-# Define programs and commands.
+# Define programs and commands ----------------------------------------------
 SHELL     = bash
 REMOVE    = rm -f
 REMOVEDIR = rm -rf
@@ -234,7 +247,7 @@ MOC       = moc
 QMAKE     = qmake
 CTEMPLATE = python3 tools/ctemplate.py
 BIN2ARRAY = python3 tools/bin2array.py
-
+PROJECT   = tools/project.sh
 CPPCHECK  = cppcheck
 
 # Toolchain base directory
@@ -257,9 +270,10 @@ NM        = ${TCHAIN}nm
 AS        = ${TCHAIN}as
 
 #
-# Message settings
+# Message/Filter settings
 #============================================================================
 
+# Color definitions ---------------------------------------------------------
 E_BLACK        = \033[0;300m
 E_RED          = \033[0;31m
 E_GREEN        = \033[0;32m
@@ -292,6 +306,7 @@ C_WARNING=$(E_BR_YELLOW)
 C_FILE=$(E_BR_CYAN)
 C_NOTE=$(E_BR_GREEN)
 
+# Messages ------------------------------------------------------------------
 MSG_LINE             = "$(E_WHITE)------------------------------------------------------------------$(E_END)"
 MSG_BEGIN            = "${E_WHITE}-------------------------------- Begin ---------------------------${E_END}"
 MSG_END              = "${E_WHITE}-------------------------------- End -----------------------------${E_END}"
@@ -317,7 +332,7 @@ MSG_COFF             = "${E_BR_MAGENTA}Converting to AVR COFF:${E_END}"
 MSG_EXTENDED_COFF    = "${E_BR_MAGENTA}Converting to AVR Extended COFF:${E_END}"
 MSG_BACKUP           = "${E_BR_GREEN}Making incremental backup of project:${E_END}"
 
-# Compiler output colorizer filter
+# Compiler output colorizer filter ------------------------------------------
 F_ERROR="s/error:/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
 F_WARNING="s/warning:/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_NOTE="s/note:/$$(printf "$(C_NOTE)")&$$(printf "$(E_END)")/i"
@@ -478,26 +493,39 @@ clean:  ## Remove all build files
 archive: ## Make a tar archive of the source code
 	@echo
 	@echo -e $(MSG_ARCHIVING)
-#	TS=$(shell date +"%Y%m%d_%H%M%S") 
-#	echo $(TS)
+	@$(eval DT=$(shell date +"%Y%m%d-%H%M%S"))
 	@$(MKDIR) archive
-	@tar -cvzf archive/$(TARGET).tar.gz *  \
-	     --exclude='archive' \
-	     --exclude='backup'  \
-	     --exclude='output'  \
-	     --exclude='*.o'     \
-	     --exclude='*.a'     \
-	     --exclude='.dep'    \
-	     --exclude='.svn'    \
-	     --exclude='.git'    \
-	     --exclude='*.elf'   \
- 	     --exclude='*.hex'   \
-	     --exclude='*.bin'   \
-	     --exclude='*.sym'   \
-	     --exclude='*.lss'   \
-	     --exclude='*.map'   \
-	     --exclude='*~'      \
-	     --exclude="*.old"   \
+	@tar -cvzf archive/$(TARGET)_${DT}.tar.gz *  \
+		--exclude='archive'  \
+		--exclude='backup'   \
+		--exclude='output'   \
+		--exclude='*.a'      \
+		--exclude='*.o'      \
+		--exclude='*.ko'     \
+		--exclude='*.obj'    \
+		--exclude='*.a'      \
+		--exclude='*.la'     \
+		--exclude='*.lo'     \
+		--exclude='*.slo'    \
+		--exclude='*.lib'    \
+		--exclude='*.so'     \
+		--exclude='*.so*'    \
+		--exclude='.dep'     \
+		--exclude='.svn'     \
+		--exclude='.git'     \
+		--exclude='*.elf'    \
+		--exclude='*.hex'    \
+		--exclude='*.bin'    \
+		--exclude='*.exe'    \
+		--exclude='*.sym'    \
+		--exclude='*.lss'    \
+		--exclude='*.map'    \
+		--exclude='*.app'    \
+		--exclude='*.i*86'   \
+		--exclude='*.x86_64' \
+		--exclude='*~'       \
+		--exclude="*.old"    \
+		--exclude="*.tmp"    \
 
 # Backup directory
 BACKUP_DIR=backup
@@ -530,6 +558,7 @@ backup: ## Make an incremental backup
 				--exclude=".svn"       \
 				--exclude="*~"         \
 				--exclude="*.old"      \
+				--exclude="*.tmp"      \			
 				--link-dest=$(CURDIR)/$(BACKUP_DIR)/backup_1 \
 				.                      \
 				$(BACKUP_DIR)/backup_0 
@@ -600,12 +629,9 @@ list-info:
 	@echo "Target:   $(TARGET)"
 	@echo "Platform: $(TARGET_PLATFORM)"
 	@echo "Licence:  $(LICENCE)"
-	@echo "Outdir:   $(OUTDIR)"
-	
+	@echo "Outdir:   $(OUTDIR)"	
  
 info: list-info list-flags list-ldflags list-src ## Print information about project
-	
-
 	
 #
 # Personal settings

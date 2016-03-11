@@ -73,19 +73,25 @@ ADEFS =
 # Place -D or -U options here for C++ sources
 CPPDEFS = 
 
+# Debug information 
+# 0=no debug information 
+# 1=minimal debug information
+#  = normal debug information 
+# 3=maximal debug information
+DEBUG=0
+
 #
 # Compiler and Linker options
 #============================================================================
 
-# Compiler Options C ---------------------------------------------------------
+# Compiler Options C --------------------------------------------------------
 #  -g*:          generate debugging information
 #  -O*:          optimization level
 #  -f...:        tuning, see GCC manual
 #  -Wall...:     warning level
 #  -Wa,...:      tell GCC to pass this to the assembler.
 #    -adhlns...: create assembler listing
-#CFLAGS = -g$(DEBUG)
-CFLAGS = -g
+CFLAGS = -g$(DEBUG)
 CFLAGS += $(CDEFS)
 CFLAGS += -O$(OPT)
 CFLAGS += -funsigned-char
@@ -108,7 +114,7 @@ CFLAGS += $(shell pkg-config --cflags gthread-2.0)
 CFLAGS += $(shell pkg-config --cflags sqlite3)
 
 
-# Compiler Options C++ -------------------------------------------------------
+# Compiler Options C++ ------------------------------------------------------
 #  -g*:          generate debugging information
 #  -O*:          optimization level
 #  -f...:        tuning, see GCC manual and avr-libc documentation
@@ -137,7 +143,7 @@ CPPFLAGS += $(patsubst %,-I%,$(INCLUDE))
 #CPPFLAGS += $(shell pkg-config --cflags gthread-2.0)
 
 
-# Assembler Options ----------------------------------------------------------
+# Assembler Options ---------------------------------------------------------
 #  -Wa,...:   tell GCC to pass this to the assembler.
 #  -adhlns:   create listing
 #  -gstabs:   have the assembler create line number information; note that
@@ -148,7 +154,7 @@ CPPFLAGS += $(patsubst %,-I%,$(INCLUDE))
 #       dump that will be displayed for a given single line of source input.
 ASFLAGS = $(ADEFS) -Wa,-adhlns=$(<:%.S=$(OBJDIR)/%.lst),-gstabs,--listing-cont-lines=100
 
-# Linker Options -------------------------------------------------------------
+# Linker Options ------------------------------------------------------------
 #  -Wl,...:     tell GCC to pass this to linker.
 #    -Map:      create map file
 #    --cref:    add cross reference to  map file
@@ -160,9 +166,9 @@ LDFLAGS += -g
 # Platform specific options
 #============================================================================
 
-# Linux options --------------------------------------------------------------
+# Linux options -------------------------------------------------------------
 
-# Windows options ------------------------------------------------------------
+# Windows options -----------------------------------------------------------
 
 #
 # Tool settings
@@ -198,6 +204,7 @@ OBJDUMP   = ${TCHAIN}objdump
 SIZE      = ${TCHAIN}size
 AR        = ${TCHAIN}ar rcs
 NM        = ${TCHAIN}nm
+AS        = ${TCHAIN}as
 
 #
 # Message/Filter settings
@@ -221,14 +228,14 @@ E_BR_MAGENTA   = \033[1;35m
 E_BR_CYAN      = \033[1;36m
 E_WHITE        = \033[1;37m
 E_END          = \033[0m
-E_ON_BLACK     = \033[40m
-E_ON_RED       = \033[41m
-E_ON_GREEN     = \033[42m
-E_ON_YELLOW    = \033[43m
-E_ON_BLUE      = \033[44m
-E_ON_MAGENTA   = \033[45m
-E_ON_CYAN      = \033[46m
-E_ON_WHITE     = \033[47m
+E_ON_BLACK     = \033[40
+E_ON_RED       = \033[41
+E_ON_GREEN     = \033[42
+E_ON_YELLOW    = \033[43
+E_ON_BLUE      = \033[44
+E_ON_MAGENTA   = \033[45
+E_ON_CYAN      = \033[46
+E_ON_WHITE     = \033[1;47
 
 C_OK=$(E_BR_GREEN)
 C_ERROR=$(E_BR_RED)
@@ -236,7 +243,7 @@ C_WARNING=$(E_BR_YELLOW)
 C_FILE=$(E_BR_CYAN)
 C_NOTE=$(E_BR_GREEN)
 
-# Messages -------------------------------------------------------------------
+# Messages ------------------------------------------------------------------
 MSG_LINE             = "$(E_WHITE)------------------------------------------------------------------$(E_END)"
 MSG_BEGIN            = "${E_WHITE}-------------------------------- Begin ---------------------------${E_END}"
 MSG_END              = "${E_WHITE}-------------------------------- End -----------------------------${E_END}"
@@ -276,6 +283,9 @@ F_WARNING4="s/
 F_ERR1="s/undeclared \(first use in this function\)/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"	
 #XX="s/'.*'/$$(printf "$(E_WHITE)")&$$(printf "$(E_END)")/i"
 XX="s/'.*'/$$(printf "$(E_ON_BLUE)$(E_BR_YELLOW)")&$$(printf "$(E_END)")/i"
+#XX="s/'.*'/$$(printf "$(E_ON_BLUE)$(E_BR_YELLOW)")&$$(printf "$(E_END)")/i"
+#XX="s/'.*'/$$(printf "$(E_GREEN)")&$$(printf "$(E_END)")/i"
+#XX="s/'.*'/$$(printf "$(E_ON_WHITE)$(E_BR_CYAN)")&$$(printf "$(E_END)")/i"
 #XX="s/.*''.*/$$(printf "$(E_ON_BLUE)$(E_BR_YELLOW)")&$$(printf "$(E_END)")/i"
 #XX="s/.*'[^a-zA-Z]*'.*/&/i"
 #XX="s/'(.*?)'/A/i"
@@ -286,9 +296,10 @@ XX="s/'.*'/$$(printf "$(E_ON_BLUE)$(E_BR_YELLOW)")&$$(printf "$(E_END)")/i"
 #XX="s/\[.*\]/K/"
 #XX='s/[^"]*"\([^"]*\)".*/\1/'
 
+
 C_FILTER   = | sed -ru -e $(F_ERROR)  -e $(F_WARNING)  -e $(F_NOTE)   \
                        -e $(FF_ERROR) -e $(FF_WARNING) -e $(FF_NOTE)  \
-											 -e $(F_WARNING1) -e $(F_WARNING2) -e $(F_WARNING3) -e $(F_ERR1) \
+  										 -e $(F_WARNING1) -e $(F_WARNING2) -e $(F_WARNING3) -e $(F_ERR1) \
 											 -e $(XX)
 
 											 
