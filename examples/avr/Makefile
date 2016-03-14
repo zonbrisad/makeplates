@@ -11,11 +11,15 @@
 # >make help 
 #----------------------------------------------------------------------------
 
+# Target platform
+# linux win32 avr arm osx
+TARGET_PLATFORM = avr
+
 # Project Licence (GPL, GPLv2, MIT, BSD, Apache, etc.) 
 LICENCE = GPLv2
 
 # Target file name (without extension).
-TARGET = avr
+TARGET = avrtest
 
 # List C source files here. (C dependencies are automatically generated.)
 SRC = src/main.c 
@@ -65,6 +69,17 @@ ADEFS =
 
 # Place -D or -U options here for C++ sources
 CPPDEFS = 
+
+# Debug information 
+# 0=no debug information 
+# 1=minimal debug information
+#  = normal debug information 
+# 3=maximal debug information
+DEBUG=0
+
+#
+# Compiler and Linker options
+#============================================================================
 
 # Compiler Options C --------------------------------------------------------
 #  -g*:          generate debugging information
@@ -130,42 +145,6 @@ CPPFLAGS += $(patsubst %,-I%,$(INCLUDE))
 #       dump that will be displayed for a given single line of source input.
 ASFLAGS = $(ADEFS) -Wa,-adhlns=$(<:%.S=$(OBJDIR)/%.lst),-gstabs,--listing-cont-lines=100
 
-
-# Library Options ------------------------------------------------------------
-# Minimalistic printf version
-PRINTF_LIB_MIN = -Wl,-u,vfprintf -lprintf_min
-
-# Floating point printf version (requires MATH_LIB = -lm below)
-PRINTF_LIB_FLOAT = -Wl,-u,vfprintf -lprintf_flt
-
-# If this is left blank, then it will use the Standard printf version.
-PRINTF_LIB = 
-#PRINTF_LIB = $(PRINTF_LIB_MIN)
-#PRINTF_LIB = $(PRINTF_LIB_FLOAT)
-
-
-# Minimalistic scanf version
-SCANF_LIB_MIN = -Wl,-u,vfscanf -lscanf_min
-
-# Floating point + %[ scanf version (requires MATH_LIB = -lm below)
-SCANF_LIB_FLOAT = -Wl,-u,vfscanf -lscanf_flt
-
-# If this is left blank, then it will use the Standard scanf version.
-SCANF_LIB = 
-#SCANF_LIB = $(SCANF_LIB_MIN)
-#SCANF_LIB = $(SCANF_LIB_FLOAT)
-
-
-MATH_LIB = -lm
-
-
-# List any extra directories to look for libraries here.
-#     Each directory must be seperated by a space.
-#     Use forward slashes for directory separators.
-#     For a directory that has spaces, enclose it in quotes.
-EXTRALIBDIRS = 
-
-
 # Linker Options ------------------------------------------------------------
 #  -Wl,...:     tell GCC to pass this to linker.
 #    -Map:      create map file
@@ -179,14 +158,42 @@ LDFLAGS += $(patsubst %,-L%,$(INCLUDE))
 #============================================================================
 
 # Linux options -------------------------------------------------------------
+ifeq ($(TARGET_PLATFORM), linux)
+TRGFILE=$(OUTDIR)/$(TARGET)
 
-# Windows options ------------------------------------------------------------
+# Toolchain base directory
+TCHAIN_BASE=/usr/bin
+# Toolchain prefix 
+TCHAIN_PREFIX=
+
+endif
+# Windows options -----------------------------------------------------------
 
 # ARM Cortex options --------------------------------------------------------
 
+ifeq ($(TARGET_PLATFORM), arm)
+
+CFLAGS += -mcpu=$(MCU)
+CFLAGS += -mthumb
+#CFLAGS += -mfpu=fpv4-sp-d16 
+#CFLAGS += -mfloat-abi=hard 
+
+LDSCRIPT = stm32_flash.ld
+#LDSCRIPT = arm-gcc-link.ld
+LDFLAGS += -T$(LDSCRIPT) -mthumb -mcpu=$(MCU) -nostdlib 
+
+# Toolchain base directory
+TCHAIN_BASE=/usr/bin
+# Toolchain prefix 
+TCHAIN_PREFIX=arm-none-eabi-
+
+TRGFILE=$(OUTDIR)/$(TARGET).elf
+
+endif
 
 # Atmel AVR options ---------------------------------------------------------
 
+ifeq ($(TARGET_PLATFORM), avr)
 # MCU name
 MCU = atmega2560
 
@@ -198,6 +205,7 @@ F_CPU = 8000000
 CFLAGS   += -mmcu=$(MCU)
 CPPFLAGS += -mmcu=$(MCU)
 ASFLAGS  += -mmcu=$(MCU)
+
 # Output format. (can be srec, ihex, binary)
 FORMAT = ihex
 
@@ -205,10 +213,45 @@ CDEFS   += -DF_CPU=$(F_CPU)UL
 ADEFS   += -DF_CPU=$(F_CPU)UL
 CPPDEFS += -DF_CPU=$(F_CPU)UL
 
+# Toolchain base directory
+TCHAIN_BASE=/usr/bin
+# Toolchain prefix 
+TCHAIN_PREFIX=avr-
+
+# Library Options ------------------------------------------------------------
+# Minimalistic printf version
+PRINTF_LIB_MIN = -Wl,-u,vfprintf -lprintf_min
+
+# Floating point printf version (requires MATH_LIB = -lm below)
+PRINTF_LIB_FLOAT = -Wl,-u,vfprintf -lprintf_flt
+
+# If this is left blank, then it will use the Standard printf version.
+PRINTF_LIB = 
+#PRINTF_LIB = $(PRINTF_LIB_MIN)
+#PRINTF_LIB = $(PRINTF_LIB_FLOAT)
+
+# Minimalistic scanf version
+SCANF_LIB_MIN = -Wl,-u,vfscanf -lscanf_min
+
+# Floating point + %[ scanf version (requires MATH_LIB = -lm below)
+SCANF_LIB_FLOAT = -Wl,-u,vfscanf -lscanf_flt
+
+# If this is left blank, then it will use the Standard scanf version.
+SCANF_LIB = 
+#SCANF_LIB = $(SCANF_LIB_MIN)
+#SCANF_LIB = $(SCANF_LIB_FLOAT)
+
+MATH_LIB = -lm
+
+# List any extra directories to look for libraries here.
+#     Each directory must be seperated by a space.
+#     Use forward slashes for directory separators.
+#     For a directory that has spaces, enclose it in quotes.
+EXTRALIBDIRS = 
+
 LDFLAGS += $(PRINTF_LIB) $(SCANF_LIB) $(MATH_LIB)
 
- 
-
+endif
 
 #
 # Tool settings
@@ -227,14 +270,8 @@ MOC       = moc
 QMAKE     = qmake
 CTEMPLATE = python3 tools/ctemplate.py
 BIN2ARRAY = python3 tools/bin2array.py
-PROJECT   = tools/project.sh
+MPTOOL    = tools/mkptools
 CPPCHECK  = cppcheck
-
-# Toolchain base directory
-TCHAIN_BASE=/usr/bin
-
-# Toolchain prefix (i.e arm-elf- -> arm-elf-gcc.exe)
-TCHAIN_PREFIX=avr-
 
 TCHAIN = $(TCHAIN_BASE)/$(TCHAIN_PREFIX)
 
@@ -268,46 +305,53 @@ E_BR_MAGENTA   = \033[1;35m
 E_BR_CYAN      = \033[1;36m
 E_WHITE        = \033[1;37m
 E_END          = \033[0m
-E_ON_BLACK     = \033[40
-E_ON_RED       = \033[41
-E_ON_GREEN     = \033[42
-E_ON_YELLOW    = \033[43
-E_ON_BLUE      = \033[44
-E_ON_MAGENTA   = \033[45
-E_ON_CYAN      = \033[46
-E_ON_WHITE     = \033[1;47
+E_ON_BLACK     = \033[40m
+E_ON_RED       = \033[41m
+E_ON_GREEN     = \033[42m
+E_ON_YELLOW    = \033[43m
+E_ON_BLUE      = \033[44m
+E_ON_MAGENTA   = \033[45m
+E_ON_CYAN      = \033[46m
+E_ON_WHITE     = \033[47m
 
 C_OK=$(E_BR_GREEN)
 C_ERROR=$(E_BR_RED)
 C_WARNING=$(E_BR_YELLOW)
 C_FILE=$(E_BR_CYAN)
 C_NOTE=$(E_BR_GREEN)
+C_MSG=$(E_BR_GREEN)
+C_ACTION=$(E_BR_MAGENTA)
 
 # Messages ------------------------------------------------------------------
 MSG_LINE             = "$(E_WHITE)------------------------------------------------------------------$(E_END)"
 MSG_BEGIN            = "${E_WHITE}-------------------------------- Begin ---------------------------${E_END}"
 MSG_END              = "${E_WHITE}-------------------------------- End -----------------------------${E_END}"
 MSG_ERRORS_NONE      = "${C_OK}Errors: none ${E_END}"
-MSG_LINKING          = "${E_BR_MAGENTA}Linking:${E_END}"
-MSG_COMPILING        = "${E_BR_MAGENTA}Compiling C:${E_END}"
-MSG_COMPILING_CPP    = "${E_BR_MAGENTA}Compiling C++:${E_END}"
-MSG_ASSEMBLING       = "${E_BR_MAGENTA}Assembling:${E_END}"
-MSG_CLEANING         = "$(C_OK)Cleaning project:$(E_END)"
-MSG_EXTENDED_LISTING = "${E_BR_MAGENTA}Creating Extended Listing/Disassembly:$(E_END)"
-MSG_SYMBOL_TABLE     = "${E_BR_MAGENTA}Creating Symbol Table:$(E_END)"
-MSG_HEX_FILE         = "${E_BR_MAGENTA}Creating Hex file:$(E_END)"
+MSG_LINKING          = "${C_ACTION}Linking:${E_END}"
+MSG_COMPILING        = "${C_ACTION}Compiling C:${E_END}"
+MSG_COMPILING_CPP    = "${C_ACTION}Compiling C++:${E_END}"
+MSG_ASSEMBLING       = "${C_ACTION}Assembling:${E_END}"
+MSG_CLEANING         = "$(C_ACTION)Cleaning project:$(E_END)"
+MSG_EXTENDED_LISTING = "${C_ACTION}Creating Extended Listing/Disassembly:$(E_END)"
+MSG_SYMBOL_TABLE     = "${C_ACTION}Creating Symbol Table:$(E_END)"
+MSG_HEX_FILE         = "${C_ACTION}Creating Hex file:$(E_END)"
 MSG_FORMATERROR      = "${C_ERROR}Can not handle output-format${E_END}"
-MSG_ASMFROMC         = "${E_BR_MAGENTA}Creating asm-File from C-Source:$(E_END)"
-MSG_SIZE_BEFORE      = "${E_BR_MAGENTA}Size before:${E_END}"
-MSG_SIZE_AFTER       = "${E_BR_MAGENTA}Size after build:${E_END}"
-MSG_LOAD_FILE        = "${E_BR_MAGENTA}Creating load file:${E_END}"
-MSG_ARCHIVING        = "${E_BR_MAGENTA}Creating tar archive:${E_END}"
-MSG_CREATING_LIBRARY = "${E_BR_MAGENTA}Creating library:${E_END}"
-MSG_FLASH            = "${E_BR_MAGENTA}Creating load file for Flash:${E_END}"
-MSG_EEPROM           = "${E_BR_MAGENTA}Creating load file for EEPROM:${E_END}"
-MSG_COFF             = "${E_BR_MAGENTA}Converting to AVR COFF:${E_END}"
-MSG_EXTENDED_COFF    = "${E_BR_MAGENTA}Converting to AVR Extended COFF:${E_END}"
+MSG_ASMFROMC         = "${C_ACTION}Creating asm-File from C-Source:$(E_END)"
+MSG_SIZE_BEFORE      = "${C_ACTION}Size before:${E_END}"
+MSG_SIZE_AFTER       = "${C_ACTION}Size after build:${E_END}"
+MSG_LOAD_FILE        = "${C_ACTION}Creating load file:${E_END}"
+MSG_ARCHIVING        = "${C_ACTION}Creating tar archive:${E_END}"
+MSG_CREATING_LIBRARY = "${C_ACTION}Creating library:${E_END}"
+MSG_FLASH            = "${C_ACTION}Creating load file for Flash:${E_END}"
+MSG_EEPROM           = "${C_ACTION}Creating load file for EEPROM:${E_END}"
+MSG_COFF             = "${C_ACTION}Converting to AVR COFF:${E_END}"
+MSG_EXTENDED_COFF    = "${C_ACTION}Converting to AVR Extended COFF:${E_END}"
 MSG_BACKUP           = "${E_BR_GREEN}Making incremental backup of project:${E_END}"
+MSG_SRC              = "${C_MSG}Source files $(E_GREEN)-----------------------------------------------------${E_END}"
+MSG_FLAGS            = "${C_MSG}Compiler Flags $(E_GREEN)---------------------------------------------------${E_END}"
+MSG_LINKER           = "${C_MSG}Linker Flags $(E_GREEN)-----------------------------------------------------${E_END}"
+MSG_PROJECT          = "${C_MSG}Project info $(E_GREEN)-----------------------------------------------------${E_END}"
+
 
 # Compiler output colorizer filter ------------------------------------------
 F_ERROR="s/error:/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
@@ -345,7 +389,7 @@ OBJS = $(SRC:%.c=$(OBJDIR)/%.o) $(CPPSRC:%.cpp=$(OBJDIR)/%.o) $(ASRC:%.S=$(OBJDI
 LST = $(SRC:%.c=$(OBJDIR)/%.lst) $(CPPSRC:%.cpp=$(OBJDIR)/%.lst) $(ASRC:%.S=$(OBJDIR)/%.lst) 
 
 # Default target.
-all: begin sizebefore build sizeafter end
+all:  begin build finished end
 
 # Remove colorfilter
 nocolor:
@@ -357,11 +401,10 @@ nocolor:
 #	
 nc: nocolor all   ## Build with no color on compiler output
 
-# Change the build target to build a HEX file or a library.
-build: elf hex eep lss sym
+build: elf hex eep lss sym sizeafter
 
 
-elf: $(OUTDIR)/$(TARGET).elf
+elf: $(TRGFILE)
 lss: $(OUTDIR)/$(TARGET).lss
 sym: $(OUTDIR)/$(TARGET).sym
 hex: $(OUTDIR)/$(TARGET).hex
@@ -384,66 +427,22 @@ finished:
 
 # Display size of file.
 HEXSIZE = $(SIZE) --target=$(FORMAT) $(OUTDIR)/$(TARGET).hex
-ELFSIZE = $(SIZE) --mcu=$(MCU) --format=avr $(OUTDIR)/$(TARGET).elf
+ELFSIZE = $(SIZE) --mcu=$(MCU) --format=avr $(TRGFILE)
 
 sizebefore:
-	@if [ -f $(OUTDIR)/$(TARGET).elf ]; then echo; echo $(MSG_SIZE_BEFORE); $(ELFSIZE); \
+	@if [ -f $(OUTDIR)/$(TARGET).elf ]; then echo; echo -e $(MSG_SIZE_BEFORE); $(ELFSIZE); \
  	2>/dev/null; echo; fi
 
-sizeafter:
-	@if [ -f $(OUTDIR)/$(TARGET).elf ]; then echo; echo -e $(MSG_SIZE_AFTER); $(ELFSIZE); \
-	2>/dev/null; echo; fi
+sizeafter: $(TRGFILE)
+	@echo
+	@echo -e $(MSG_SIZE_AFTER) 
+	@$(ELFSIZE); 
 
 
 
 # Display compiler version information.
 gccversion :  ## Display compiler version
 	@$(CC) --version
-
-
-
-# Program the device.  
-program: $(TARGET).hex $(TARGET).eep
-	$(AVRDUDE) $(AVRDUDE_FLAGS) $(AVRDUDE_WRITE_FLASH) $(AVRDUDE_WRITE_EEPROM)
-
-
-# Generate avr-gdb config/init file which does the following:
-#     define the reset signal, load the target file, connect to target, and set 
-#     a breakpoint at main().
-gdb-config: 
-	@$(REMOVE) $(GDBINIT_FILE)
-	@echo define reset >> $(GDBINIT_FILE)
-	@echo SIGNAL SIGHUP >> $(GDBINIT_FILE)
-	@echo end >> $(GDBINIT_FILE)
-	@echo file $(TARGET).elf >> $(GDBINIT_FILE)
-	@echo target remote $(DEBUG_HOST):$(DEBUG_PORT)  >> $(GDBINIT_FILE)
-ifeq ($(DEBUG_BACKEND),simulavr)
-	@echo load  >> $(GDBINIT_FILE)
-endif
-	@echo break main >> $(GDBINIT_FILE)
-
-debug: gdb-config $(TARGET).elf
-#ifeq ($(DEBUG_BACKEND), avarice)
-#	@echo Starting AVaRICE - Press enter when "waiting to connect" message displays.
-#	@$(WINSHELL) /c start avarice --jtag $(JTAG_DEV) --erase --program --file \
-#	$(TARGET).elf $(DEBUG_HOST):$(DEBUG_PORT)
-#	@$(WINSHELL) /c pause
-#else
-#@$(WINSHELL) /c start simulavr --gdbserver --device $(MCU) --clock-freq \
-#$(DEBUG_MFREQ) --port $(DEBUG_PORT)
-#endif
-#@$(WINSHELL) /c start avr-$(DEBUG_UI) --command=$(GDBINIT_FILE)
-
-
-
-
-# Convert ELF to COFF for use in debugging / simulating in AVR Studio or VMLAB.
-COFFCONVERT = $(OBJCOPY) --debugging
-COFFCONVERT += --change-section-address .data-0x800000
-COFFCONVERT += --change-section-address .bss-0x800000
-COFFCONVERT += --change-section-address .noinit-0x800000
-COFFCONVERT += --change-section-address .eeprom-0x810000
-
 
 
 coff: $(TARGET).elf
@@ -473,13 +472,13 @@ extcoff: $(TARGET).elf
 
 # Create extended listing file/disassambly from ELF output file.
 # using objdump testing: option -C
-%.lss: %.elf
+%.lss:	$(TRGFILE)
 	@echo
-	@echo -e $(MSG_EXTENDED_LISTING)"\n  " "$(E_BR_CYAN)" $@ "$(E_END)"
+	@echo -e $(MSG_EXTENDED_LISTING) "\n             $(E_BR_CYAN)" $@ "$(E_END)"
 	@$(OBJDUMP) -h -S -z $< > $@
 
 # Create a symbol table from ELF output file.
-%.sym: %.elf
+%.sym: $(TRGFILE)
 	@echo
 	@echo -e $(MSG_SYMBOL_TABLE) "\n             $(E_BR_CYAN)" $@ "$(E_END)"
 	@$(NM) -n $< > $@
@@ -522,10 +521,10 @@ $(OBJDIR)/%.s : %.cpp
 $(OUTDIR):
 	@$(MKDIR) $@
 
-size: 
+size: $(TRGFILE)
 	@echo
 	@echo -e $(MSG_SIZE_AFTER)
-	@$(SIZE) $(OUTDIR)/$(TARGET)
+	@$(SIZE) $(TRGFILE)
 	
 #
 # Various utility rules	
@@ -552,24 +551,39 @@ clean:  ## Remove all build files
 archive: ## Make a tar archive of the source code
 	@echo
 	@echo -e $(MSG_ARCHIVING)
+	@$(eval DT=$(shell date +"%Y%m%d-%H%M%S"))
 	@$(MKDIR) archive
-	@tar -cvzf archive/$(TARGET).tar.gz *  \
-	     --exclude='archive' \
-	     --exclude='backup'  \
-	     --exclude='output'  \
-	     --exclude='*.o'     \
-	     --exclude='*.a'     \
-	     --exclude='.dep'    \
-	     --exclude='.svn'    \
-	     --exclude='.git'    \
-	     --exclude='*.elf'   \
- 	     --exclude='*.hex'   \
-	     --exclude='*.bin'   \
-	     --exclude='*.sym'   \
-	     --exclude='*.lss'   \
-	     --exclude='*.map'   \
-	     --exclude='*~'      \
-	     --exclude="*.old"   \
+	@tar -cvzf archive/$(TARGET)_${DT}.tar.gz *  \
+		--exclude='archive'  \
+		--exclude='backup'   \
+		--exclude='output'   \
+		--exclude='*.a'      \
+		--exclude='*.o'      \
+		--exclude='*.ko'     \
+		--exclude='*.obj'    \
+		--exclude='*.a'      \
+		--exclude='*.la'     \
+		--exclude='*.lo'     \
+		--exclude='*.slo'    \
+		--exclude='*.lib'    \
+		--exclude='*.so'     \
+		--exclude='*.so*'    \
+		--exclude='.dep'     \
+		--exclude='.svn'     \
+		--exclude='.git'     \
+		--exclude='*.elf'    \
+		--exclude='*.hex'    \
+		--exclude='*.bin'    \
+		--exclude='*.exe'    \
+		--exclude='*.sym'    \
+		--exclude='*.lss'    \
+		--exclude='*.map'    \
+		--exclude='*.app'    \
+		--exclude='*.i*86'   \
+		--exclude='*.x86_64' \
+		--exclude='*~'       \
+		--exclude="*.old"    \
+		--exclude="*.tmp"    \
 
 # Backup directory
 BACKUP_DIR=backup
@@ -602,7 +616,7 @@ backup: ## Make an incremental backup
 				--exclude=".svn"       \
 				--exclude="*~"         \
 				--exclude="*.old"      \
-				--exclude="*.tmp"      \			
+				--exclude="*.tmp"      \	
 				--link-dest=$(CURDIR)/$(BACKUP_DIR)/backup_1 \
 				.                      \
 				$(BACKUP_DIR)/backup_0 
@@ -617,6 +631,9 @@ edit:   ## Open source and makefile in editor
 
 newfile:  ## Create a new C file
 	@${CTEMPLATE} --newc --dir src --author "$(AUTHOR)" --licence "$(LICENCE)"
+	
+newproj:  ## Create a new project
+	@${PROJECT} newproj
 	
 install: ## Install program
 	@${COPY} output/${TARGET} /usr/local/bin
@@ -641,30 +658,45 @@ help: ## This help information
 	@echo -e $(MSG_LINE)
 
 list-src: ## List all source files
-	@echo -e "$(E_BR_CYAN)#----------------- Source files$(E_END)"
+	@echo -e $(MSG_SRC)
 	@export IFS=" "
 	@for f in $(SRC); do      \
 	  echo $${f} ;            \
 	done                      \
 	
 list-flags: ## List compiler flags
-	@echo -e "$(E_BR_CYAN)#----------------- Compiler Flags$(E_END)"
+	@echo -e $(MSG_FLAGS)
 	@export IFS=" "
 	@for f in $(CFLAGS); do   \
 	  echo $${f} ;            \
 	done                      \
 
-list-ldflags: ## List compiler flags
-	@echo -e "$(E_BR_CYAN)#----------------- Linker Flags$(E_END)"
+list-ldflags: ## List linker flags
+	@echo -e $(MSG_LINKER)
 	@export IFS=" "
 	@for f in $(LDFLAGS); do   \
 	  echo $${f} ;             \
 	done                       \
 
-list-tools: 
-	echo "gcc:    $(CC)"
+check: ## Check if tools and libraries are present 
+	@$(MPTOOL) ce $(CC)
+	@$(MPTOOL) ce $(OBJCOPY)
+	@$(MPTOOL) ce $(OBJDUMP)
+	@$(MPTOOL) ce $(SIZE)
+	@$(MPTOOL) ce $(AR)
+	@$(MPTOOL) ce $(NM)
+	@$(MPTOOL) ce $(AS)
+	@$(MPTOOL) ce $(QMAKE)
+	@$(MPTOOL) ce $(MOC)
+	@$(MPTOOL) ce python3
+	@$(MPTOOL) ce $(CPPCHECK)
+	@for f in $(LIB); do               \
+		${MPTOOL} cl ${CC} $${f};        \
+	done                               \
+	
 
 list-info: 
+	@echo -e $(MSG_PROJECT)
 	@echo "Target:   $(TARGET)"
 	@echo "Platform: $(TARGET_PLATFORM)"
 	@echo "Licence:  $(LICENCE)"
@@ -711,7 +743,9 @@ acheck: ## Static code analysis using cppcheck(all warnings)
 # Version control handling
 #============================================================================
 
-# Avrdude settings ----------------------------------------------------------
+#
+# Avrdude settings 
+# ----------------------------------------------------------
 
 # Programming hardware
 # Type: avrdude -c ?
@@ -743,7 +777,12 @@ AVRDUDE_FLAGS = -p $(MCU) -P $(AVRDUDE_PORT) -c $(AVRDUDE_PROGRAMMER)
 AVRDUDE_FLAGS += $(AVRDUDE_NO_VERIFY)
 AVRDUDE_FLAGS += $(AVRDUDE_VERBOSE)
 AVRDUDE_FLAGS += $(AVRDUDE_ERASE_COUNTER)
-# 
+
+
+# Program the device.  
+program: $(TARGET).hex $(TARGET).eep
+	$(AVRDUDE) $(AVRDUDE_FLAGS) $(AVRDUDE_WRITE_FLASH) $(AVRDUDE_WRITE_EEPROM)
+ 
 	
 # Listing of phony targets.
 .PHONY : all clean gccversion build begin finished end elf lss sym archive edit help backup list-src list-flags newproj run install

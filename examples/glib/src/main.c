@@ -331,7 +331,7 @@ void daemonTest(void) {
 	g_main_loop_run(mLoop1);
 }
 
-<<<<<<< HEAD
+/*
 void pipe_callback(GIOChannel *source,GIOCondition condition,gpointer data) {
 	char buf[128];
 	gsize size;
@@ -353,7 +353,7 @@ void pipeTest(void) {
 	
 	g_io_add_watch(chn,G_IO_IN | G_IO_HUP | G_IO_ERR,(GIOFunc)pipe_callback,NULL);
 	mLoop1 = g_main_loop_new(NULL, FALSE);
-=======
+*/
 
 static gboolean gio_in (GIOChannel *gio, GIOCondition condition, gpointer data) {
 	GIOStatus ret;
@@ -399,7 +399,6 @@ void pipeTest() {
 	if (!g_io_add_watch (channel, G_IO_IN | G_IO_HUP, gio_in, NULL))
 		g_error ("Cannot add watch on GIOChannel!\n");
 	
->>>>>>> fe6f31dde9e3cf11599f574b7c7912683f462314
 	g_main_loop_run(mLoop1);
 }
 
@@ -473,18 +472,11 @@ int main(int argc, char *argv[]) {
 		safeExit();
 	}
 
-<<<<<<< HEAD
-	if (opt_pipeTest) {
-		pipeTest();
-	}
-=======
 	// pipe test
 	if (opt_pipeTest) {
 	  pipeTest();
 		safeExit();
 	}
 
->>>>>>> fe6f31dde9e3cf11599f574b7c7912683f462314
- 	
 	return 0;
 }

@@ -164,52 +164,29 @@ LDFLAGS += -g
 #============================================================================
 
 # Linux options -------------------------------------------------------------
+ifeq ($(TARGET_PLATFORM), linux)
 
-# Windows options -----------------------------------------------------------
-
-# ARM Cortex options --------------------------------------------------------
-
-ifeq ($(TARGET_PLATFORM), arm)
-
-CFLAGS += -mcpu=$(MCU)
-CFLAGS += -mthumb
-#CFLAGS += -mfpu=fpv4-sp-d16 
-#CFLAGS += -mfloat-abi=hard 
-
-LDSCRIPT = stm32_flash.ld
-#LDSCRIPT = arm-gcc-link.ld
-LDFLAGS += -T$(LDSCRIPT) -mthumb -mcpu=$(MCU) -nostdlib 
+# Target filename
+TRGFILE=$(OUTDIR)/$(TARGET)
 
 # Toolchain base directory
 TCHAIN_BASE=/usr/bin
+
 # Toolchain prefix 
-TCHAIN_PREFIX=arm-none-eabi-
+TCHAIN_PREFIX=
 
 endif
+# Windows options -----------------------------------------------------------
+ifeq ($(TARGET_PLATFORM), win32)
 
-# Atmel AVR options ---------------------------------------------------------
+# Target filename
+TRGFILE=$(OUTDIR)/$(TARGET).exe
 
-ifeq ($(TARGET_PLATFORM), avr)
-# MCU name
-MCU = atmega2560
+# Toolchain base directory
+TCHAIN_BASE=/usr/bin
 
-# Processor frequency.
-# Some common values:
-#  1000000  1843200  2000000 3686400 4000000 7372800 8000000 11059200 14745600
-F_CPU = 8000000
-
-CFLAGS   += -mmcu=$(MCU)
-CPPFLAGS += -mmcu=$(MCU)
-ASFLAGS  += -mmcu=$(MCU)
-# Output format. (can be srec, ihex, binary)
-FORMAT = ihex
-
-CDEFS   += -DF_CPU=$(F_CPU)UL
-ADEFS   += -DF_CPU=$(F_CPU)UL
-CPPDEFS += -DF_CPU=$(F_CPU)UL
-
-LDFLAGS += $(PRINTF_LIB) $(SCANF_LIB) $(MATH_LIB)
-
+# Toolchain prefix 
+TCHAIN_PREFIX=
 
 endif
 
@@ -230,14 +207,8 @@ MOC       = moc
 QMAKE     = qmake
 CTEMPLATE = python3 tools/ctemplate.py
 BIN2ARRAY = python3 tools/bin2array.py
-PROJECT   = tools/project.sh
+MPTOOL    = tools/mkptools
 CPPCHECK  = cppcheck
-
-# Toolchain base directory
-TCHAIN_BASE=/usr/bin
-
-# Toolchain prefix (i.e arm-elf- -> arm-elf-gcc.exe)
-TCHAIN_PREFIX=
 
 TCHAIN = $(TCHAIN_BASE)/$(TCHAIN_PREFIX)
 
@@ -271,14 +242,14 @@ E_BR_MAGENTA   = \033[1;35m
 E_BR_CYAN      = \033[1;36m
 E_WHITE        = \033[1;37m
 E_END          = \033[0m
-E_ON_BLACK     = \033[40
-E_ON_RED       = \033[41
-E_ON_GREEN     = \033[42
-E_ON_YELLOW    = \033[43
-E_ON_BLUE      = \033[44
-E_ON_MAGENTA   = \033[45
-E_ON_CYAN      = \033[46
-E_ON_WHITE     = \033[1;47
+E_ON_BLACK     = \033[40m
+E_ON_RED       = \033[41m
+E_ON_GREEN     = \033[42m
+E_ON_YELLOW    = \033[43m
+E_ON_BLUE      = \033[44m
+E_ON_MAGENTA   = \033[45m
+E_ON_CYAN      = \033[46m
+E_ON_WHITE     = \033[47m
 
 C_OK=$(E_BR_GREEN)
 C_ERROR=$(E_BR_RED)
@@ -326,9 +297,12 @@ F_NOTE="s/note:/$$(printf "$(C_NOTE)")&$$(printf "$(E_END)")/i"
 FF_ERROR="s/^.*error:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
 FF_WARNING="s/^.*warning:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
 FF_NOTE="s/^.*note:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
-
+F_WARNING1="s/defined but not used/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
+F_WARNING2="s/unused variable/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
+F_WARNING3="s/may be used uninitialized in this function/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 C_FILTER   = | sed -ru -e $(F_ERROR)  -e $(F_WARNING)  -e $(F_NOTE) \
-                       -e $(FF_ERROR) -e $(FF_WARNING) -e $(FF_NOTE)
+                       -e $(FF_ERROR) -e $(FF_WARNING) -e $(FF_NOTE) \
+                       -e $(F_WARNING1) -e $(F_WARNING2) -e $(F_WARNING3) 
 CPP_FILTER = $(C_FILTER)
 
 LD_ERROR1="s/undefined reference/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
@@ -368,9 +342,9 @@ nocolor:
 nc: nocolor all   ## Build with no color on compiler output
 
 
-build: elf lss sym
+build: elf lss sym size
 
-elf: $(OUTDIR)/$(TARGET)
+elf: $(TRGFILE)
 lss: $(OUTDIR)/$(TARGET).lss
 sym: $(OUTDIR)/$(TARGET).sym
 hex: $(OUTDIR)/$(TARGET).hex
@@ -397,26 +371,26 @@ gccversion :  ## Display compiler version
 # Link target
 #.SECONDARY : $(TARGET)
 .PRECIOUS : $(OBJS)
-$(OUTDIR)/$(TARGET): $(OBJS) $(OUTDIR)
+$(TRGFILE): $(OBJS) $(OUTDIR)
 	@echo 
 	@echo -e $(MSG_LINKING)"\n             $(E_BR_CYAN)" $@ "$(E_END)"
 	@$(CC) $(ALL_CFLAGS) $(OBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)
 	
 # Create extended listing file/disassambly from ELF output file.
 # using objdump testing: option -C
-%.lss:	$(OUTDIR)/$(TARGET)
+%.lss:	$(TRGFILE)
 	@echo
 	@echo -e $(MSG_EXTENDED_LISTING) "\n             $(E_BR_CYAN)" $@ "$(E_END)"
 	@$(OBJDUMP) -h -S -C -r $< > $@
 	
 # Create a symbol table from ELF output file.
-%.sym: $(OUTDIR)/$(TARGET)
+%.sym: $(TRGFILE)
 	@echo
 	@echo -e $(MSG_SYMBOL_TABLE) "\n             $(E_BR_CYAN)" $@ "$(E_END)"
 	@$(NM) -n $< > $@
 
 # Create hex file from ELF output file.
-%.hex: $(OUTDIR)/$(TARGET)
+%.hex: $(TRGFILE)
 	@echo
 	@echo -e $(MSG_HEX_FILE) "\n             $(E_BR_CYAN)" $@ "$(E_END)"
 	@$(OBJCOPY) -O ihex $< $@
@@ -450,10 +424,10 @@ $(OBJDIR)/%.s : %.cpp
 $(OUTDIR):
 	@$(MKDIR) $@
 
-size: 
+size: $(TRGFILE)
 	@echo
 	@echo -e $(MSG_SIZE_AFTER)
-	@$(SIZE) $(OUTDIR)/$(TARGET)
+	@$(SIZE) $(TRGFILE)
 	
 #
 # Various utility rules	
@@ -545,7 +519,7 @@ backup: ## Make an incremental backup
 				--exclude=".svn"       \
 				--exclude="*~"         \
 				--exclude="*.old"      \
-				--exclude="*.tmp"      \			
+				--exclude="*.tmp"      \	
 				--link-dest=$(CURDIR)/$(BACKUP_DIR)/backup_1 \
 				.                      \
 				$(BACKUP_DIR)/backup_0 
@@ -612,8 +586,22 @@ list-ldflags: ## List linker flags
 	  echo $${f} ;             \
 	done                       \
 
-list-tools: 
-	echo "gcc:    $(CC)"
+check: ## Check if tools and libraries are present 
+	@$(MPTOOL) ce $(CC)
+	@$(MPTOOL) ce $(OBJCOPY)
+	@$(MPTOOL) ce $(OBJDUMP)
+	@$(MPTOOL) ce $(SIZE)
+	@$(MPTOOL) ce $(AR)
+	@$(MPTOOL) ce $(NM)
+	@$(MPTOOL) ce $(AS)
+	@$(MPTOOL) ce $(QMAKE)
+	@$(MPTOOL) ce $(MOC)
+	@$(MPTOOL) ce python3
+	@$(MPTOOL) ce $(CPPCHECK)
+	@for f in $(LIB); do               \
+		${MPTOOL} cl ${CC} $${f};      \
+	done                               \
+	
 
 list-info: 
 	@echo -e $(MSG_PROJECT)
@@ -659,13 +647,7 @@ ccheck: ## Static code analysis using cppcheck(errors only)
 acheck: ## Static code analysis using cppcheck(all warnings)
 	@$(CPPCHECK) --inline-suppr --enable=all $(SRC) 
 
-#
-# Version control handling
-#============================================================================
 
-# 
-# OpenOCD handling
-#============================================================================
 
 	
 # Listing of phony targets.

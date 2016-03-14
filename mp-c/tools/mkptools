@@ -30,7 +30,7 @@ scriptName=$(basename $0)
 #---------------------------------------------------------------------
 
 # Script version info
-VERSION="1.00"
+VERSION="1.01"
 
 # Bashplate version
 templateVersion="1.07"   
@@ -39,8 +39,8 @@ templateVersion="1.07"
 USAGE="Usage: ${scriptName} command [option]" 
 
 # Description text
-DESC="project.sh is a simple project management script for makeplates"
-
+DESC="Bashplate is a bash script template to ease development of\n\
+command style shellscripts"
 
 # logfile (uncomment to use logfile)
 #LOGFILE=${scriptPath}/${scriptName}.log
@@ -58,27 +58,35 @@ DEFAULT=help
 # User functions
 #---------------------------------------------------------------------
 
-newproj() { ## Create a new project 
-  echo "New project name(use tab completion to set location)"
-	read -e -p ">" PROJNAME
-	if [ -e $PROJNAME ]; then
-	  bpError "File/directory with name $PROJNAME already exist"
+newproj() { 
+  echo "New project name"
+	read -e -p ">" projname
+	echo $projname	
+}
+
+ce() { ## Check if file exists
+  bn=$(basename $2)
+  cmd=$(command -v $2)
+	if [ $? -ne 0 ]; then
+		printf "%-30s${E_BR_RED}N/A${E_END}\n" "${bn}"
 	else
-	  mkdir ${PROJNAME}
-		mkdir ${PROJNAME}/src
-		mkdir ${PROJNAME}/doc
-		mkdir ${PROJNAME}/output
-		mkdir ${PROJNAME}/tools
-		cp -f $scriptPath/../Makefile   ${PROJNAME}/.
-		cp -f $scriptPath/../tools/*.sh ${PROJNAME}/tools/.
-		cp -f $scriptPath/../tools/*.py ${PROJNAME}/tools/.
+		dn=$(dirname ${cmd})
+		printf "%-30s${E_BR_GREEN}%s${E_END}\n" "${bn}" "$dn"
 	fi
 }
 
-backup() { ## Backup project
-} 
-
-
+cl() { ## Check if library exists
+  CC=$2
+	LIB=$3
+	data=$(${CC} ${LIB} 2>&1 )
+ 
+  echo $data | grep "cannot find" > /dev/null
+	if [ $? -eq 1 ]; then
+	  printf "%-30s${E_BR_GREEN}Exists${E_END}\n" "$LIB"
+	else
+	  printf "%-30s${E_BR_RED}Missing${E_END}\n"  "$LIB"
+	fi
+}
 
 #--------------------------------------------------------------------- 
 # Signal traps
