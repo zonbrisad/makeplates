@@ -1,0 +1,1181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="97">
+  <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
+    <df root="." name="0">
+      <df name=".dep">
+      </df>
+      <df name="doc">
+      </df>
+      <df name="output">
+      </df>
+      <df name="src">
+        <in>main.c</in>
+        <in>printf.c</in>
+        <in>startup_Cortex_M3.c</in>
+        <in>stm32f10x_conf.h</in>
+        <in>stm32f10x_it.c</in>
+        <in>stm32f10x_it.h</in>
+      </df>
+      <df name="thirdparty">
+        <df name="STM32F10x_StdPeriph_Lib_V3.5.0">
+          <df name="_htmresc">
+          </df>
+          <df name="Libraries">
+            <df name="CMSIS">
+              <df name="CM3">
+                <df name="CoreSupport">
+                  <in>core_cm3.c</in>
+                  <in>core_cm3.h</in>
+                </df>
+                <df name="DeviceSupport">
+                  <df name="ST">
+                    <df name="STM32F10x">
+                      <df name="startup">
+                        <df name="arm">
+                          <in>startup_stm32f10x_cl.s</in>
+                          <in>startup_stm32f10x_hd.s</in>
+                          <in>startup_stm32f10x_hd_vl.s</in>
+                          <in>startup_stm32f10x_ld.s</in>
+                          <in>startup_stm32f10x_ld_vl.s</in>
+                          <in>startup_stm32f10x_md.s</in>
+                          <in>startup_stm32f10x_md_vl.s</in>
+                          <in>startup_stm32f10x_xl.s</in>
+                        </df>
+                        <df name="gcc_ride7">
+                          <in>startup_stm32f10x_cl.s</in>
+                          <in>startup_stm32f10x_hd.s</in>
+                          <in>startup_stm32f10x_hd_vl.s</in>
+                          <in>startup_stm32f10x_ld.s</in>
+                          <in>startup_stm32f10x_ld_vl.s</in>
+                          <in>startup_stm32f10x_md_vl.s</in>
+                          <in>startup_stm32f10x_xl.s</in>
+                        </df>
+                        <df name="iar">
+                          <in>startup_stm32f10x_cl.s</in>
+                          <in>startup_stm32f10x_hd.s</in>
+                          <in>startup_stm32f10x_hd_vl.s</in>
+                          <in>startup_stm32f10x_ld.s</in>
+                          <in>startup_stm32f10x_ld_vl.s</in>
+                          <in>startup_stm32f10x_md.s</in>
+                          <in>startup_stm32f10x_md_vl.s</in>
+                          <in>startup_stm32f10x_xl.s</in>
+                        </df>
+                        <df name="TrueSTUDIO">
+                          <in>startup_stm32f10x_cl.s</in>
+                          <in>startup_stm32f10x_hd.s</in>
+                          <in>startup_stm32f10x_hd_vl.s</in>
+                          <in>startup_stm32f10x_ld.s</in>
+                          <in>startup_stm32f10x_ld_vl.s</in>
+                          <in>startup_stm32f10x_md.s</in>
+                          <in>startup_stm32f10x_md_vl.s</in>
+                          <in>startup_stm32f10x_xl.s</in>
+                        </df>
+                      </df>
+                      <in>stm32f10x.h</in>
+                      <in>system_stm32f10x.c</in>
+                      <in>system_stm32f10x.h</in>
+                    </df>
+                  </df>
+                </df>
+              </df>
+              <df name="Documentation">
+              </df>
+            </df>
+            <df name="STM32F10x_StdPeriph_Driver">
+              <df name="inc">
+                <in>misc.h</in>
+                <in>stm32f10x_adc.h</in>
+                <in>stm32f10x_bkp.h</in>
+                <in>stm32f10x_can.h</in>
+                <in>stm32f10x_cec.h</in>
+                <in>stm32f10x_crc.h</in>
+                <in>stm32f10x_dac.h</in>
+                <in>stm32f10x_dbgmcu.h</in>
+                <in>stm32f10x_dma.h</in>
+                <in>stm32f10x_exti.h</in>
+                <in>stm32f10x_flash.h</in>
+                <in>stm32f10x_fsmc.h</in>
+                <in>stm32f10x_gpio.h</in>
+                <in>stm32f10x_i2c.h</in>
+                <in>stm32f10x_iwdg.h</in>
+                <in>stm32f10x_pwr.h</in>
+                <in>stm32f10x_rcc.h</in>
+                <in>stm32f10x_rtc.h</in>
+                <in>stm32f10x_sdio.h</in>
+                <in>stm32f10x_spi.h</in>
+                <in>stm32f10x_tim.h</in>
+                <in>stm32f10x_usart.h</in>
+                <in>stm32f10x_wwdg.h</in>
+              </df>
+              <df name="src">
+                <in>misc.c</in>
+                <in>stm32f10x_adc.c</in>
+                <in>stm32f10x_bkp.c</in>
+                <in>stm32f10x_can.c</in>
+                <in>stm32f10x_cec.c</in>
+                <in>stm32f10x_crc.c</in>
+                <in>stm32f10x_dac.c</in>
+                <in>stm32f10x_dbgmcu.c</in>
+                <in>stm32f10x_dma.c</in>
+                <in>stm32f10x_exti.c</in>
+                <in>stm32f10x_flash.c</in>
+                <in>stm32f10x_fsmc.c</in>
+                <in>stm32f10x_gpio.c</in>
+                <in>stm32f10x_i2c.c</in>
+                <in>stm32f10x_iwdg.c</in>
+                <in>stm32f10x_pwr.c</in>
+                <in>stm32f10x_rcc.c</in>
+                <in>stm32f10x_rtc.c</in>
+                <in>stm32f10x_sdio.c</in>
+                <in>stm32f10x_spi.c</in>
+                <in>stm32f10x_tim.c</in>
+                <in>stm32f10x_usart.c</in>
+                <in>stm32f10x_wwdg.c</in>
+              </df>
+            </df>
+          </df>
+          <df name="Project">
+            <df name="STM32F10x_StdPeriph_Examples">
+              <df name="ADC">
+                <df name="3ADCs_DMA">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="ADC1_DMA">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="AnalogWatchdog">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="ExtLinesTrigger">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="RegSimul_DualMode">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="TIMTrigger_AutoInjection">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+              </df>
+              <df name="BKP">
+                <df name="Backup_Data">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="Tamper">
+                  <in>main.c</in>
+                  <in>main.h</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+              </df>
+              <df name="CAN">
+                <df name="DualCAN">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="LoopBack">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="Networking">
+                  <in>main.c</in>
+                  <in>platform_config.h</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+              </df>
+              <df name="CEC">
+                <df name="DataExchangeInterrupt">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+              </df>
+              <df name="CortexM3">
+                <df name="BitBand">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="Mode_Privilege">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="MPU">
+                  <df name="Linker">
+                    <df name="RIDE">
+                    </df>
+                    <df name="TrueSTUDIO">
+                    </df>
+                  </df>
+                  <in>accesspermission.c</in>
+                  <in>main.c</in>
+                  <in>main.h</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+              </df>
+              <df name="CRC">
+                <df name="CRC_Calculation">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+              </df>
+              <df name="DAC">
+                <df name="DualModeDMA_SineWave">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="OneChannel_NoiseWave">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="OneChannelDMA_Escalator">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="TwoChannels_TriangleWave">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+              </df>
+              <df name="DMA">
+                <df name="ADC_TIM1">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="FLASH_RAM">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="FSMC">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="I2C_RAM">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="SPI_RAM">
+                  <in>main.c</in>
+                  <in>platform_config.h</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+              </df>
+              <df name="EXTI">
+                <df name="EXTI_Config">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+              </df>
+              <df name="FLASH">
+                <df name="Dual_Boot">
+                  <df name="EWARM">
+                  </df>
+                  <df name="HiTOP">
+                    <df name="STM3210X-XL_BANK1">
+                      <df name="Settings">
+                      </df>
+                      <in>cstart_thumb2.asm</in>
+                      <in>setstack.asm</in>
+                    </df>
+                    <df name="STM3210X-XL_BANK2">
+                      <df name="Settings">
+                      </df>
+                      <in>cstart_thumb2.asm</in>
+                      <in>setstack.asm</in>
+                    </df>
+                  </df>
+                  <df name="MDK-ARM">
+                  </df>
+                  <df name="TrueSTUDIO">
+                    <df name="STM32F10X_XL_BANK1">
+                      <df name=".settings">
+                      </df>
+                    </df>
+                    <df name="STM32F10X_XL_BANK2">
+                      <df name=".settings">
+                      </df>
+                    </df>
+                  </df>
+                  <in>main.c</in>
+                  <in>main.h</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="Program">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="Write_Protection">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+              </df>
+              <df name="FSMC">
+                <df name="NAND">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="NOR">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="NOR_CodeExecute">
+                  <df name="binary">
+                    <in>main.c</in>
+                    <in>stm32f10x_conf.h</in>
+                    <in>stm32f10x_it.c</in>
+                    <in>stm32f10x_it.h</in>
+                    <in>system_stm32f10x.c</in>
+                  </df>
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="OneNAND">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="SRAM">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="SRAM_DataMemory">
+                  <df name="EWARM">
+                    <in>startup_stm32f10x_hd.s</in>
+                    <in>startup_stm32f10x_hd_vl.s</in>
+                    <in>startup_stm32f10x_xl.s</in>
+                  </df>
+                  <df name="HiTOP">
+                    <in>cstart_thumb2.asm</in>
+                  </df>
+                  <df name="MDK-ARM">
+                    <in>startup_stm32f10x_hd.s</in>
+                    <in>startup_stm32f10x_hd_vl.s</in>
+                    <in>startup_stm32f10x_xl.s</in>
+                  </df>
+                  <df name="RIDE">
+                    <in>startup_stm32f10x_hd.s</in>
+                    <in>startup_stm32f10x_hd_vl.s</in>
+                    <in>startup_stm32f10x_xl.s</in>
+                  </df>
+                  <df name="TrueSTUDIO">
+                    <in>startup_stm32f10x_hd.s</in>
+                    <in>startup_stm32f10x_hd_vl.s</in>
+                    <in>startup_stm32f10x_xl.s</in>
+                  </df>
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+              </df>
+              <df name="GPIO">
+                <df name="IOToggle">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="JTAG_Remap">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+              </df>
+              <df name="I2C">
+                <df name="EEPROM">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="I2C_TSENSOR">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="IOExpander">
+                  <in>main.c</in>
+                  <in>main.h</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+              </df>
+              <df name="I2S">
+                <df name="Interrupt">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="SPI_I2S_Switch">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+              </df>
+              <df name="IWDG">
+                <df name="IWDG_Reset">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+              </df>
+              <df name="Lib_DEBUG">
+                <df name="RunTime_Check">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_ip_dbg.c</in>
+                  <in>stm32f10x_ip_dbg.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+              </df>
+              <df name="NVIC">
+                <df name="DMA_WFIMode">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="IRQ_Mask">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="IRQ_Priority">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="VectorTable_Relocation">
+                  <df name="linker">
+                    <df name="EWARM">
+                    </df>
+                    <df name="HiTOP">
+                      <df name="STM32100B-EVAL">
+                      </df>
+                      <df name="STM32100E-EVAL">
+                      </df>
+                      <df name="STM3210B-EVAL">
+                      </df>
+                      <df name="STM3210C-EVAL">
+                      </df>
+                      <df name="STM3210E-EVAL">
+                      </df>
+                      <df name="STM3210X-XL">
+                      </df>
+                      <in>setstack.asm</in>
+                    </df>
+                    <df name="RIDE">
+                    </df>
+                    <df name="TrueSTUDIO">
+                    </df>
+                  </df>
+                  <in>main.c</in>
+                  <in>main.h</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+              </df>
+              <df name="PWR">
+                <df name="PVD">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="STANDBY">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="STOP">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+              </df>
+              <df name="RCC">
+                <df name="RCC_ClockConfig">
+                  <in>main.c</in>
+                  <in>main.h</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+              </df>
+              <df name="RTC">
+                <df name="Calendar">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="LSI_Calib">
+                  <in>main.c</in>
+                  <in>main.h</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+              </df>
+              <df name="SDIO">
+                <df name="uSDCard">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+              </df>
+              <df name="SPI">
+                <df name="CRC">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="DMA">
+                  <in>main.c</in>
+                  <in>platform_config.h</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="FullDuplex_SoftNSS">
+                  <in>main.c</in>
+                  <in>platform_config.h</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="Simplex_Interrupt">
+                  <in>main.c</in>
+                  <in>platform_config.h</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="SPI_FLASH">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+              </df>
+              <df name="SysTick">
+                <df name="TimeBase">
+                  <in>main.c</in>
+                  <in>main.h</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+              </df>
+              <df name="TIM">
+                <df name="6Steps">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="7PWM_Output">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="Cascade_Synchro">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="ComplementarySignals">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="DMA">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="DMABurst">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="ExtTrigger_Synchro">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="InputCapture">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="OCActive">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="OCInactive">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="OCToggle">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="OnePulse">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="Parallel_Synchro">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="PWM_Input">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="PWM_Output">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="TIM10_PWMOutput">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="TIM15_ComplementarySignals">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="TIM1_Synchro">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="TIM9_OCToggle">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="TimeBase">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+              </df>
+              <df name="USART">
+                <df name="DMA_Interrupt">
+                  <in>main.c</in>
+                  <in>platform_config.h</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="DMA_Polling">
+                  <in>main.c</in>
+                  <in>platform_config.h</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="HalfDuplex">
+                  <in>main.c</in>
+                  <in>platform_config.h</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="HyperTerminal_HwFlowControl">
+                  <in>main.c</in>
+                  <in>platform_config.h</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="HyperTerminal_Interrupt">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="Interrupt">
+                  <in>main.c</in>
+                  <in>platform_config.h</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="IrDA">
+                  <df name="Receive">
+                    <in>main.c</in>
+                    <in>platform_config.h</in>
+                    <in>stm32f10x_conf.h</in>
+                    <in>stm32f10x_it.c</in>
+                    <in>stm32f10x_it.h</in>
+                    <in>system_stm32f10x.c</in>
+                  </df>
+                  <df name="Transmit">
+                    <in>main.c</in>
+                    <in>platform_config.h</in>
+                    <in>stm32f10x_conf.h</in>
+                    <in>stm32f10x_it.c</in>
+                    <in>stm32f10x_it.h</in>
+                    <in>system_stm32f10x.c</in>
+                  </df>
+                </df>
+                <df name="MultiProcessor">
+                  <in>main.c</in>
+                  <in>platform_config.h</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="Polling">
+                  <in>main.c</in>
+                  <in>platform_config.h</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="Printf">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="Smartcard">
+                  <in>main.c</in>
+                  <in>platform_config.h</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+                <df name="Synchronous">
+                  <in>main.c</in>
+                  <in>platform_config.h</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+              </df>
+              <df name="WWDG">
+                <df name="WWDG_Reset">
+                  <in>main.c</in>
+                  <in>stm32f10x_conf.h</in>
+                  <in>stm32f10x_it.c</in>
+                  <in>stm32f10x_it.h</in>
+                  <in>system_stm32f10x.c</in>
+                </df>
+              </df>
+            </df>
+            <df name="STM32F10x_StdPeriph_Template">
+              <df name="EWARM">
+              </df>
+              <df name="HiTOP">
+                <df name="STM32100B-EVAL">
+                  <df name="Settings">
+                  </df>
+                  <in>cstart_thumb2.asm</in>
+                </df>
+                <df name="STM32100E-EVAL">
+                  <df name="Settings">
+                  </df>
+                  <in>cstart_thumb2.asm</in>
+                  <in>setstack.asm</in>
+                </df>
+                <df name="STM3210B-EVAL">
+                  <df name="Settings">
+                  </df>
+                  <in>cstart_thumb2.asm</in>
+                </df>
+                <df name="STM3210C-EVAL">
+                  <df name="Settings">
+                  </df>
+                  <in>cstart_thumb2.asm</in>
+                </df>
+                <df name="STM3210E-EVAL">
+                  <df name="Settings">
+                  </df>
+                  <in>cstart_thumb2.asm</in>
+                  <in>setstack.asm</in>
+                </df>
+                <df name="STM3210E-EVAL_XL">
+                  <df name="Settings">
+                  </df>
+                  <in>cstart_thumb2.asm</in>
+                  <in>setstack.asm</in>
+                </df>
+              </df>
+              <df name="MDK-ARM">
+              </df>
+              <df name="RIDE">
+              </df>
+              <df name="TrueSTUDIO">
+                <df name="STM32100B-EVAL">
+                  <df name=".settings">
+                  </df>
+                </df>
+                <df name="STM32100E-EVAL">
+                  <df name=".settings">
+                  </df>
+                </df>
+                <df name="STM3210B-EVAL">
+                  <df name=".settings">
+                  </df>
+                </df>
+                <df name="STM3210C-EVAL">
+                  <df name=".settings">
+                  </df>
+                </df>
+                <df name="STM3210E-EVAL">
+                  <df name=".settings">
+                  </df>
+                </df>
+                <df name="STM3210E-EVAL_XL">
+                  <df name=".settings">
+                  </df>
+                </df>
+              </df>
+              <in>main.c</in>
+              <in>stm32f10x_conf.h</in>
+              <in>stm32f10x_it.c</in>
+              <in>stm32f10x_it.h</in>
+              <in>system_stm32f10x.c</in>
+            </df>
+          </df>
+          <df name="Utilities">
+            <df name="STM32_EVAL">
+              <df name="Common">
+                <in>fonts.c</in>
+                <in>fonts.h</in>
+                <in>stm32_eval_i2c_ee.c</in>
+                <in>stm32_eval_i2c_ee.h</in>
+                <in>stm32_eval_i2c_tsensor.c</in>
+                <in>stm32_eval_i2c_tsensor.h</in>
+                <in>stm32_eval_sdio_sd.c</in>
+                <in>stm32_eval_sdio_sd.h</in>
+                <in>stm32_eval_spi_flash.c</in>
+                <in>stm32_eval_spi_flash.h</in>
+                <in>stm32_eval_spi_sd.c</in>
+                <in>stm32_eval_spi_sd.h</in>
+              </df>
+              <df name="STM32100B_EVAL">
+                <in>stm32100b_eval.c</in>
+                <in>stm32100b_eval.h</in>
+                <in>stm32100b_eval_cec.c</in>
+                <in>stm32100b_eval_cec.h</in>
+                <in>stm32100b_eval_lcd.c</in>
+                <in>stm32100b_eval_lcd.h</in>
+              </df>
+              <df name="STM32100E_EVAL">
+                <in>stm32100e_eval.c</in>
+                <in>stm32100e_eval.h</in>
+                <in>stm32100e_eval_cec.c</in>
+                <in>stm32100e_eval_cec.h</in>
+                <in>stm32100e_eval_fsmc_onenand.c</in>
+                <in>stm32100e_eval_fsmc_onenand.h</in>
+                <in>stm32100e_eval_fsmc_sram.c</in>
+                <in>stm32100e_eval_fsmc_sram.h</in>
+                <in>stm32100e_eval_ioe.c</in>
+                <in>stm32100e_eval_ioe.h</in>
+                <in>stm32100e_eval_lcd.c</in>
+                <in>stm32100e_eval_lcd.h</in>
+              </df>
+              <df name="STM3210B_EVAL">
+                <in>stm3210b_eval.c</in>
+                <in>stm3210b_eval.h</in>
+                <in>stm3210b_eval_lcd.c</in>
+                <in>stm3210b_eval_lcd.h</in>
+              </df>
+              <df name="STM3210C_EVAL">
+                <in>stm3210c_eval.c</in>
+                <in>stm3210c_eval.h</in>
+                <in>stm3210c_eval_ioe.c</in>
+                <in>stm3210c_eval_ioe.h</in>
+                <in>stm3210c_eval_lcd.c</in>
+                <in>stm3210c_eval_lcd.h</in>
+              </df>
+              <df name="STM3210E_EVAL">
+                <in>stm3210e_eval.c</in>
+                <in>stm3210e_eval.h</in>
+                <in>stm3210e_eval_fsmc_nand.c</in>
+                <in>stm3210e_eval_fsmc_nand.h</in>
+                <in>stm3210e_eval_fsmc_nor.c</in>
+                <in>stm3210e_eval_fsmc_nor.h</in>
+                <in>stm3210e_eval_fsmc_sram.c</in>
+                <in>stm3210e_eval_fsmc_sram.h</in>
+                <in>stm3210e_eval_lcd.c</in>
+                <in>stm3210e_eval_lcd.h</in>
+              </df>
+              <df name="STM32L152_EVAL">
+                <in>stm32l152_eval.c</in>
+                <in>stm32l152_eval.h</in>
+                <in>stm32l152_eval_glass_lcd.c</in>
+                <in>stm32l152_eval_glass_lcd.h</in>
+                <in>stm32l152_eval_i2c_ee.c</in>
+                <in>stm32l152_eval_i2c_ee.h</in>
+                <in>stm32l152_eval_lcd.c</in>
+                <in>stm32l152_eval_lcd.h</in>
+              </df>
+              <in>stm32_eval.c</in>
+              <in>stm32_eval.h</in>
+            </df>
+          </df>
+        </df>
+      </df>
+      <df name="tools">
+      </df>
+      <in>main.c</in>
+    </df>
+  </logicalFolder>
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="Default" type="0">
+      <toolsSet>
+        <developmentServer>localhost</developmentServer>
+        <platform>2</platform>
+      </toolsSet>
+      <compile>
+        <compiledirpicklist>
+          <compiledirpicklistitem>.</compiledirpicklistitem>
+          <compiledirpicklistitem>${AUTO_FOLDER}</compiledirpicklistitem>
+        </compiledirpicklist>
+        <compiledir>${AUTO_FOLDER}</compiledir>
+        <compilecommandpicklist>
+          <compilecommandpicklistitem>${MAKE} ${ITEM_NAME}.o</compilecommandpicklistitem>
+          <compilecommandpicklistitem>${AUTO_COMPILE}</compilecommandpicklistitem>
+        </compilecommandpicklist>
+        <compilecommand>${AUTO_COMPILE}</compilecommand>
+      </compile>
+      <dbx_gdbdebugger version="1">
+        <gdb_pathmaps>
+        </gdb_pathmaps>
+        <gdb_interceptlist>
+          <gdbinterceptoptions gdb_all="false" gdb_unhandled="true" gdb_unexpected="true"/>
+        </gdb_interceptlist>
+        <gdb_options>
+          <DebugOptions>
+          </DebugOptions>
+        </gdb_options>
+        <gdb_buildfirst gdb_buildfirst_overriden="false" gdb_buildfirst_old="false"/>
+      </dbx_gdbdebugger>
+      <nativedebugger version="1">
+        <engine>gdb</engine>
+      </nativedebugger>
+      <runprofile version="9">
+        <runcommandpicklist>
+          <runcommandpicklistitem>"${OUTPUT_PATH}"</runcommandpicklistitem>
+        </runcommandpicklist>
+        <runcommand>"${OUTPUT_PATH}"</runcommand>
+        <rundir>.</rundir>
+        <buildfirst>false</buildfirst>
+        <terminal-type>0</terminal-type>
+        <remove-instrumentation>0</remove-instrumentation>
+        <environment>
+        </environment>
+      </runprofile>
+    </conf>
+  </confs>
+</configurationDescriptor>

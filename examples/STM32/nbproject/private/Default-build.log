@@ -1,0 +1,29 @@
+[1;35mBuilding:     [1;32mstm32test [0m
+[1;37m-------------------------------- Begin ---------------------------[0m
+[1;35mCompiling C:[0m [1;36m src/main.c [0m
+[1;35mCompiling C:[0m [1;36m src/stm32f10x_it.c [0m
+[1;35mCompiling C:[0m [1;36m thirdparty/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/STM32F10x_StdPeriph_Driver/src/stm32f10x_gpio.c [0m
+[1;35mCompiling C:[0m [1;36m thirdparty/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/STM32F10x_StdPeriph_Driver/src/stm32f10x_pwr.c [0m
+[1;35mCompiling C:[0m [1;36m thirdparty/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/STM32F10x_StdPeriph_Driver/src/stm32f10x_rcc.c [0m
+[1;35mCompiling C:[0m [1;36m thirdparty/STM32F10x_StdPeriph_Lib_V3.5.0/Project/STM32F10x_StdPeriph_Template/system_stm32f10x.c [0m
+[1;35mCompiling C:[0m [1;36m src/startup_Cortex_M3.c [0m
+
+[1;35mLinking:[0m
+             [1;36m output/stm32test [0m
+
+[1;35mCreating Extended Listing/Disassembly:[0m 
+             [1;36m output/stm32test.lss [0m
+
+[1;35mCreating Symbol Table:[0m 
+             [1;36m output/stm32test.sym [0m
+
+[1;35mCreating Hex file:[0m 
+             [1;36m output/stm32test.hex [0m
+
+[1;35mSize after build:[0m
+   text	   data	    bss	    dec	    hex	filename
+   2232	   1064	   1536	   4832	   12e0	output/stm32test
+
+[1;32mErrors: none [0m
+
+[1;37m-------------------------------- End -----------------------------[0m
