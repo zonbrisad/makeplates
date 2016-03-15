@@ -58,7 +58,6 @@ LIB += -lgcc
 LIB += -lg
 LIB += -lc
 LIB += -lrdimon
-LIB += -lkalle
 
 # Object files directory
 #     To put object files in current directory, use a dot (.), do NOT make
