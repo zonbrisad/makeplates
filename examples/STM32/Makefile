@@ -22,17 +22,32 @@ LICENCE = GPLv2
 TARGET = stm32test
 
 DRIVERS=thirdparty/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/STM32F10x_StdPeriph_Driver/src
+DRIVERS_USB=thirdparty/STM32_USB-FS-Device_Lib_V4.0.0/Libraries/STM32_USB-FS-Device_Driver/src
 
 # List C source files here. (C dependencies are automatically generated.)
 SRC = src/main.c                   \
       src/stm32f10x_it.c           \
+      src/system_stm32f10x.c       \
       src/startup_Cortex_M3.c      \
       src/printf.c                 \
+      src/usb_desc.c               \
+      src/usb_endp.c               \
+      src/usb_istr.c               \
+      src/usb_prop.c               \
+      src/usb_pwr.c                \
+      src/hw_config.c              \
       $(DRIVERS)/stm32f10x_usart.c \
       $(DRIVERS)/stm32f10x_gpio.c  \
       $(DRIVERS)/stm32f10x_pwr.c   \
       $(DRIVERS)/stm32f10x_rcc.c   \
-      thirdparty/STM32F10x_StdPeriph_Lib_V3.5.0/Project/STM32F10x_StdPeriph_Template/system_stm32f10x.c \
+      $(DRIVERS_USB)/usb_core.c    \
+      $(DRIVERS_USB)/usb_init.c    \
+      $(DRIVERS_USB)/usb_int.c     \
+      $(DRIVERS_USB)/usb_mem.c     \
+      $(DRIVERS_USB)/usb_regs.c    \
+      $(DRIVERS_USB)/usb_sil.c 
+#      thirdparty/STM32F10x_StdPeriph_Lib_V3.5.0/Project/STM32F10x_StdPeriph_Template/system_stm32f10x.c  \
+
 			
       
 # List C++ source files here. (C dependencies are automatically generated.)
@@ -46,9 +61,10 @@ CPPSRC =
 
 # Include directories  -------------------------------------------------------
 INCLUDE = src \
-          thirdparty/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/STM32F10x_StdPeriph_Driver/inc \
+          thirdparty/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/STM32F10x_StdPeriph_Driver/inc       \
           thirdparty/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/CMSIS/CM3/DeviceSupport/ST/STM32F10x \
-          thirdparty/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/CMSIS/CM3/CoreSupport
+          thirdparty/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/CMSIS/CM3/CoreSupport                \
+          thirdparty/STM32_USB-FS-Device_Lib_V4.0.0/Libraries/STM32_USB-FS-Device_Driver/inc 
 # MCU
 MCU = cortex-m3
 
@@ -58,7 +74,6 @@ LIB += -lgcc
 LIB += -lg
 LIB += -lc
 LIB += -lrdimon
-LIB += -lkalle
 
 # Object files directory
 #     To put object files in current directory, use a dot (.), do NOT make
@@ -80,6 +95,7 @@ CSTANDARD = -std=gnu99
 CDEFS = -DSTM32F103C8  \
         -DSTM32F10X_MD \
         -DUSE_STDPERIPH_DRIVER \
+
 
 
 # Place -D or -U options here for ASM sources
@@ -362,7 +378,7 @@ CPP_FILTER = $(C_FILTER)
 
 LD_ERROR1="s/undefined reference/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
 LD_ERROR2="s/No such file or directory/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
-LD_FILTER = | sed -ru -e $(LD_ERROR1) -e $(LD_ERROR2)
+LD_FILTER = | sed -ru -e $(LD_ERROR1) -e $(LD_ERROR2) 
 	
 #
 # Build rules	
