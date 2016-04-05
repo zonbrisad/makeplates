@@ -159,10 +159,13 @@ LDFLAGS += $(patsubst %,-L%,$(INCLUDE))
 
 # Linux options -------------------------------------------------------------
 ifeq ($(TARGET_PLATFORM), linux)
+
+# Target filename
 TRGFILE=$(OUTDIR)/$(TARGET)
 
 # Toolchain base directory
 TCHAIN_BASE=/usr/bin
+
 # Toolchain prefix 
 TCHAIN_PREFIX=
 
@@ -195,7 +198,7 @@ endif
 
 ifeq ($(TARGET_PLATFORM), avr)
 # MCU name
-MCU = atmega2560
+MCU = atmega328
 
 # Processor frequency.
 # Some common values:
@@ -217,6 +220,8 @@ CPPDEFS += -DF_CPU=$(F_CPU)UL
 TCHAIN_BASE=/usr/bin
 # Toolchain prefix 
 TCHAIN_PREFIX=avr-
+
+TRGFILE=$(OUTDIR)/$(TARGET).elf
 
 # Library Options ------------------------------------------------------------
 # Minimalistic printf version
@@ -360,9 +365,12 @@ F_NOTE="s/note:/$$(printf "$(C_NOTE)")&$$(printf "$(E_END)")/i"
 FF_ERROR="s/^.*error:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
 FF_WARNING="s/^.*warning:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
 FF_NOTE="s/^.*note:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
-
+F_WARNING1="s/defined but not used/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
+F_WARNING2="s/unused variable/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
+F_WARNING3="s/may be used uninitialized in this function/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 C_FILTER   = | sed -ru -e $(F_ERROR)  -e $(F_WARNING)  -e $(F_NOTE) \
-                       -e $(FF_ERROR) -e $(FF_WARNING) -e $(FF_NOTE)
+                       -e $(FF_ERROR) -e $(FF_WARNING) -e $(FF_NOTE) \
+                       -e $(F_WARNING1) -e $(F_WARNING2) -e $(F_WARNING3) 
 CPP_FILTER = $(C_FILTER)
 
 LD_ERROR1="s/undefined reference/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
@@ -691,7 +699,7 @@ check: ## Check if tools and libraries are present
 	@$(MPTOOL) ce python3
 	@$(MPTOOL) ce $(CPPCHECK)
 	@for f in $(LIB); do               \
-		${MPTOOL} cl ${CC} $${f};        \
+		${MPTOOL} cl ${CC} $${f};      \
 	done                               \
 	
 
@@ -739,14 +747,12 @@ ccheck: ## Static code analysis using cppcheck(errors only)
 acheck: ## Static code analysis using cppcheck(all warnings)
 	@$(CPPCHECK) --inline-suppr --enable=all $(SRC) 
 
-#
-# Version control handling
-#============================================================================
 
 #
 # Avrdude settings 
 # ----------------------------------------------------------
-
+.PHONY: program
+	
 # Programming hardware
 # Type: avrdude -c ?
 # to get a full listing.
@@ -779,10 +785,19 @@ AVRDUDE_FLAGS += $(AVRDUDE_VERBOSE)
 AVRDUDE_FLAGS += $(AVRDUDE_ERASE_COUNTER)
 
 
-# Program the device.  
+
+
+# Program the device.
 program: $(TARGET).hex $(TARGET).eep
 	$(AVRDUDE) $(AVRDUDE_FLAGS) $(AVRDUDE_WRITE_FLASH) $(AVRDUDE_WRITE_EEPROM)
- 
+
+#
+# AVR simulator
+#============================================================================
+.PHONY: simul
+
+simul:  ## Run AVR simulator 
+	simulavr -d $(MCU) --file $(TRGFILE) -W 0x20,- -R 0x22,- -T exit
 	
 # Listing of phony targets.
 .PHONY : all clean gccversion build begin finished end elf lss sym archive edit help backup list-src list-flags newproj run install

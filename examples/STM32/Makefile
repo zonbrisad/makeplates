@@ -199,10 +199,13 @@ LDFLAGS += -g
 
 # Linux options -------------------------------------------------------------
 ifeq ($(TARGET_PLATFORM), linux)
+
+# Target filename
 TRGFILE=$(OUTDIR)/$(TARGET)
 
 # Toolchain base directory
 TCHAIN_BASE=/usr/bin
+
 # Toolchain prefix 
 TCHAIN_PREFIX=
 
@@ -371,14 +374,17 @@ F_NOTE="s/note:/$$(printf "$(C_NOTE)")&$$(printf "$(E_END)")/i"
 FF_ERROR="s/^.*error:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
 FF_WARNING="s/^.*warning:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
 FF_NOTE="s/^.*note:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
-
+F_WARNING1="s/defined but not used/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
+F_WARNING2="s/unused variable/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
+F_WARNING3="s/may be used uninitialized in this function/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 C_FILTER   = | sed -ru -e $(F_ERROR)  -e $(F_WARNING)  -e $(F_NOTE) \
-                       -e $(FF_ERROR) -e $(FF_WARNING) -e $(FF_NOTE)
+                       -e $(FF_ERROR) -e $(FF_WARNING) -e $(FF_NOTE) \
+                       -e $(F_WARNING1) -e $(F_WARNING2) -e $(F_WARNING3) 
 CPP_FILTER = $(C_FILTER)
 
 LD_ERROR1="s/undefined reference/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
 LD_ERROR2="s/No such file or directory/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
-LD_FILTER = | sed -ru -e $(LD_ERROR1) -e $(LD_ERROR2) 
+LD_FILTER = | sed -ru -e $(LD_ERROR1) -e $(LD_ERROR2)
 	
 #
 # Build rules	
@@ -670,7 +676,7 @@ check: ## Check if tools and libraries are present
 	@$(MPTOOL) ce python3
 	@$(MPTOOL) ce $(CPPCHECK)
 	@for f in $(LIB); do               \
-		${MPTOOL} cl ${CC} $${f};        \
+		${MPTOOL} cl ${CC} $${f};      \
 	done                               \
 	
 
@@ -718,9 +724,6 @@ ccheck: ## Static code analysis using cppcheck(errors only)
 acheck: ## Static code analysis using cppcheck(all warnings)
 	@$(CPPCHECK) --inline-suppr --enable=all $(SRC) 
 
-#
-# Version control handling
-#============================================================================
 
 # 
 # OpenOCD handling
