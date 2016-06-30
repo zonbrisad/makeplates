@@ -45,7 +45,7 @@ def addHeader(file, fileName, brief, date, author, licence):
 
 def addSection(file, desc):
     line = '-' * (71 - len(desc))
-    file.write("/* " + desc + " " + line + "*/\n\n")
+    file.write("// " + desc + " " + line + "\n\n")
     
 def addSection2(file, desc):
     file.write(                \
@@ -67,7 +67,7 @@ def addSentinelEnd(file):
 def addCppSentinel(file):
     file.write(              \
     "#ifdef __cplusplus\n"   \
-    "extern \"C\"\n"         \
+    "extern \"C\" {\n"       \
     "#endif\n\n")
      
 def addCppSentinelEnd(file): 

@@ -2,8 +2,9 @@
 #---------------------------------------------------------------------
 #
 #  [Description]
-#    Makeplate help tool.
-#  
+#    Makeplate help tool. This file is not part of the template itself
+#    and should be erased when creating a new project based on this
+#    template.
 #
 #  [Author] 
 #    Peter Malmberg <peter.malmberg@gmail.com>
@@ -50,7 +51,9 @@ toolsDistribute() {
 }
 
 tdist() { ## Distribute tools to example projects
-  toolsDistribute tools/*.py
+  toolsDistribute tools/ctemplate.py
+	toolsDistribute tools/bin2array.py
+  toolsDistribute tools/mkptools	
 }
 
 

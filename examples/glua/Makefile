@@ -56,24 +56,24 @@ SRC = src/main.c \
 			src/lua-5.2.3/src/lcode.c \
 			src/lua-5.2.3/src/liolib.c \
 			src/lua-5.2.3/src/ldblib.c \
-			src/SWILL-0.3/Source/SWILL/encoding.c \
-			src/SWILL-0.3/Source/SWILL/handlers.c \
-			src/SWILL-0.3/Source/SWILL/io.c \
-			src/SWILL-0.3/Source/SWILL/log.c \
-			src/SWILL-0.3/Source/SWILL/mime.c \
-			src/SWILL-0.3/Source/SWILL/parse.c \
-			src/SWILL-0.3/Source/SWILL/security.c \
-			src/SWILL-0.3/Source/SWILL/sock.c \
-			src/SWILL-0.3/Source/SWILL/ssl.c \
-			src/SWILL-0.3/Source/SWILL/web.c \
-			src/SWILL-0.3/Source/Objects/base.c \
-			src/SWILL-0.3/Source/Objects/file.c \
-			src/SWILL-0.3/Source/Objects/fio.c \
-			src/SWILL-0.3/Source/Objects/hash.c \
-			src/SWILL-0.3/Source/Objects/list.c \
-			src/SWILL-0.3/Source/Objects/memory.c \
-			src/SWILL-0.3/Source/Objects/string.c \
-			src/SWILL-0.3/Source/Objects/void.c 
+#			src/SWILL-0.3/Source/SWILL/encoding.c \
+#			src/SWILL-0.3/Source/SWILL/handlers.c \
+#			src/SWILL-0.3/Source/SWILL/io.c \
+#			src/SWILL-0.3/Source/SWILL/log.c \
+#			src/SWILL-0.3/Source/SWILL/mime.c \
+#			src/SWILL-0.3/Source/SWILL/parse.c \
+#			src/SWILL-0.3/Source/SWILL/security.c \
+#			src/SWILL-0.3/Source/SWILL/sock.c \
+#			src/SWILL-0.3/Source/SWILL/ssl.c \
+#			src/SWILL-0.3/Source/SWILL/web.c \
+#			src/SWILL-0.3/Source/Objects/base.c \
+#			src/SWILL-0.3/Source/Objects/file.c \
+#			src/SWILL-0.3/Source/Objects/fio.c \
+#			src/SWILL-0.3/Source/Objects/hash.c \
+#			src/SWILL-0.3/Source/Objects/list.c \
+#			src/SWILL-0.3/Source/Objects/memory.c \
+#			src/SWILL-0.3/Source/Objects/string.c \
+#			src/SWILL-0.3/Source/Objects/void.c 
 
 
 # List C++ source files here. (C dependencies are automatically generated.)
@@ -118,13 +118,14 @@ OPT = 2
 # [ gnu99 gnu11 c++98 c++03 c++11 c++14 ] 
 CSTANDARD = -std=gnu99
 
-CDEFS = -DHAVE_CONFIG_H \
-        -DLUA_USE_MKSTEMP 
+# C Macro definitions
+CDEFS = HAVE_CONFIG_H   \
+        LUA_USE_MKSTEMP 
 
-# Place -D or -U options here for ASM sources
+# ASM  Macro definitions
 ADEFS = 
 
-# Place -D or -U options here for C++ sources
+# C++ Macro definitions
 CPPDEFS = 
 
 # Debug information 
@@ -146,7 +147,7 @@ DEBUG=0
 #  -Wa,...:      tell GCC to pass this to the assembler.
 #    -adhlns...: create assembler listing
 CFLAGS = -g$(DEBUG)
-CFLAGS += $(CDEFS)
+CFLAGS += $(patsubst %,-D%,$(CDEFS))
 CFLAGS += -O$(OPT)
 CFLAGS += -funsigned-char
 #CFLAGS += -funsigned-bitfields
@@ -176,7 +177,7 @@ CFLAGS += $(shell pkg-config --cflags gthread-2.0)
 #  -Wa,...:      tell GCC to pass this to the assembler.
 #    -adhlns...: create assembler listing
 CPPFLAGS = -g$(DEBUG)
-CPPFLAGS += $(CPPDEFS)
+CPPFLAGS += $(patsubst %,-D%,$(CPPDEFS))
 CPPFLAGS += -O$(OPT)
 CPPFLAGS += -funsigned-char
 CPPFLAGS += -funsigned-bitfields
@@ -206,7 +207,8 @@ CPPFLAGS += $(shell pkg-config --cflags gthread-2.0)
 #             files -- see avr-libc docs [FIXME: not yet described there]
 #  -listing-cont-lines: Sets the maximum number of continuation lines of hex 
 #       dump that will be displayed for a given single line of source input.
-ASFLAGS = $(ADEFS) -Wa,-adhlns=$(<:%.S=$(OBJDIR)/%.lst),-gstabs,--listing-cont-lines=100
+ASFLAGS =  $(patsubst %,-D%,$(ASDEFS))
+ASFLAGS += -Wa,-adhlns=$(<:%.S=$(OBJDIR)/%.lst),-gstabs,--listing-cont-lines=100
 
 # Linker Options ------------------------------------------------------------
 #  -Wl,...:     tell GCC to pass this to linker.
@@ -221,8 +223,31 @@ LDFLAGS += -g
 #============================================================================
 
 # Linux options -------------------------------------------------------------
+ifeq ($(TARGET_PLATFORM), linux)
 
+# Target filename
+TRGFILE=$(OUTDIR)/$(TARGET)
+
+# Toolchain base directory
+TCHAIN_BASE=/usr/bin
+
+# Toolchain prefix 
+TCHAIN_PREFIX=
+
+endif
 # Windows options -----------------------------------------------------------
+ifeq ($(TARGET_PLATFORM), win32)
+
+# Target filename
+TRGFILE=$(OUTDIR)/$(TARGET).exe
+
+# Toolchain base directory
+TCHAIN_BASE=/usr/bin
+
+# Toolchain prefix 
+TCHAIN_PREFIX=
+
+endif
 
 #
 # Tool settings
@@ -241,14 +266,8 @@ MOC       = moc
 QMAKE     = qmake
 CTEMPLATE = python3 tools/ctemplate.py
 BIN2ARRAY = python3 tools/bin2array.py
-PROJECT   = tools/project.sh
+MPTOOL    = tools/mkptools
 CPPCHECK  = cppcheck
-
-# Toolchain base directory
-TCHAIN_BASE=/usr/bin
-
-# Toolchain prefix (i.e arm-elf- -> arm-elf-gcc.exe)
-TCHAIN_PREFIX=
 
 TCHAIN = $(TCHAIN_BASE)/$(TCHAIN_PREFIX)
 
@@ -258,6 +277,7 @@ OBJDUMP   = ${TCHAIN}objdump
 SIZE      = ${TCHAIN}size
 AR        = ${TCHAIN}ar rcs
 NM        = ${TCHAIN}nm
+AS        = ${TCHAIN}as
 
 #
 # Message/Filter settings
@@ -281,57 +301,73 @@ E_BR_MAGENTA   = \033[1;35m
 E_BR_CYAN      = \033[1;36m
 E_WHITE        = \033[1;37m
 E_END          = \033[0m
-E_ON_BLACK     = \033[40
-E_ON_RED       = \033[41
-E_ON_GREEN     = \033[42
-E_ON_YELLOW    = \033[43
-E_ON_BLUE      = \033[44
-E_ON_MAGENTA   = \033[45
-E_ON_CYAN      = \033[46
-E_ON_WHITE     = \033[1;47
+E_ON_BLACK     = \033[40m
+E_ON_RED       = \033[41m
+E_ON_GREEN     = \033[42m
+E_ON_YELLOW    = \033[43m
+E_ON_BLUE      = \033[44m
+E_ON_MAGENTA   = \033[45m
+E_ON_CYAN      = \033[46m
+E_ON_WHITE     = \033[47m
 
 C_OK=$(E_BR_GREEN)
 C_ERROR=$(E_BR_RED)
 C_WARNING=$(E_BR_YELLOW)
 C_FILE=$(E_BR_CYAN)
 C_NOTE=$(E_BR_GREEN)
+C_MSG=$(E_BR_GREEN)
+C_ACTION=$(E_BR_MAGENTA)
 
 # Messages ------------------------------------------------------------------
 MSG_LINE             = "$(E_WHITE)------------------------------------------------------------------$(E_END)"
 MSG_BEGIN            = "${E_WHITE}-------------------------------- Begin ---------------------------${E_END}"
 MSG_END              = "${E_WHITE}-------------------------------- End -----------------------------${E_END}"
 MSG_ERRORS_NONE      = "${C_OK}Errors: none ${E_END}"
-MSG_LINKING          = "${E_BR_MAGENTA}Linking:${E_END}"
-MSG_COMPILING        = "${E_BR_MAGENTA}Compiling C:${E_END}"
-MSG_COMPILING_CPP    = "${E_BR_MAGENTA}Compiling C++:${E_END}"
-MSG_ASSEMBLING       = "${E_BR_MAGENTA}Assembling:${E_END}"
-MSG_CLEANING         = "$(C_OK)Cleaning project:$(E_END)"
-MSG_EXTENDED_LISTING = "${E_BR_MAGENTA}Creating Extended Listing/Disassembly:$(E_END)"
-MSG_SYMBOL_TABLE     = "${E_BR_MAGENTA}Creating Symbol Table:$(E_END)"
-MSG_HEX_FILE         = "${E_BR_MAGENTA}Creating Hex file:$(E_END)"
+MSG_LINKING          = "${C_ACTION}Linking:${E_END}"
+MSG_COMPILING        = "${C_ACTION}Compiling C:${E_END}"
+MSG_COMPILING_CPP    = "${C_ACTION}Compiling C++:${E_END}"
+MSG_ASSEMBLING       = "${C_ACTION}Assembling:${E_END}"
+MSG_CLEANING         = "$(C_ACTION)Cleaning project:$(E_END)"
+MSG_EXTENDED_LISTING = "${C_ACTION}Creating Extended Listing/Disassembly:$(E_END)"
+MSG_SYMBOL_TABLE     = "${C_ACTION}Creating Symbol Table:$(E_END)"
+MSG_HEX_FILE         = "${C_ACTION}Creating Hex file:$(E_END)"
 MSG_FORMATERROR      = "${C_ERROR}Can not handle output-format${E_END}"
-MSG_ASMFROMC         = "${E_BR_MAGENTA}Creating asm-File from C-Source:$(E_END)"
-MSG_SIZE_BEFORE      = "${E_BR_MAGENTA}Size before:${E_END}"
-MSG_SIZE_AFTER       = "${E_BR_MAGENTA}Size after build:${E_END}"
-MSG_LOAD_FILE        = "${E_BR_MAGENTA}Creating load file:${E_END}"
-MSG_ARCHIVING        = "${E_BR_MAGENTA}Creating tar archive:${E_END}"
-MSG_CREATING_LIBRARY = "${E_BR_MAGENTA}Creating library:${E_END}"
-MSG_FLASH            = "${E_BR_MAGENTA}Creating load file for Flash:${E_END}"
-MSG_EEPROM           = "${E_BR_MAGENTA}Creating load file for EEPROM:${E_END}"
-MSG_COFF             = "${E_BR_MAGENTA}Converting to AVR COFF:${E_END}"
-MSG_EXTENDED_COFF    = "${E_BR_MAGENTA}Converting to AVR Extended COFF:${E_END}"
+MSG_ASMFROMC         = "${C_ACTION}Creating asm-File from C-Source:$(E_END)"
+MSG_SIZE_BEFORE      = "${C_ACTION}Size before:${E_END}"
+MSG_SIZE_AFTER       = "${C_ACTION}Size after build:${E_END}"
+MSG_LOAD_FILE        = "${C_ACTION}Creating load file:${E_END}"
+MSG_ARCHIVING        = "${C_ACTION}Creating tar archive:${E_END}"
+MSG_CREATING_LIBRARY = "${C_ACTION}Creating library:${E_END}"
+MSG_FLASH            = "${C_ACTION}Creating load file for Flash:${E_END}"
+MSG_EEPROM           = "${C_ACTION}Creating load file for EEPROM:${E_END}"
+MSG_COFF             = "${C_ACTION}Converting to AVR COFF:${E_END}"
+MSG_EXTENDED_COFF    = "${C_ACTION}Converting to AVR Extended COFF:${E_END}"
 MSG_BACKUP           = "${E_BR_GREEN}Making incremental backup of project:${E_END}"
+MSG_SRC              = "${C_MSG}Source files $(E_GREEN)-----------------------------------------------------${E_END}"
+MSG_FLAGS            = "${C_MSG}Compiler Flags $(E_GREEN)---------------------------------------------------${E_END}"
+MSG_LINKER           = "${C_MSG}Linker Flags $(E_GREEN)-----------------------------------------------------${E_END}"
+MSG_PROJECT          = "${C_MSG}Project info $(E_GREEN)-----------------------------------------------------${E_END}"
+MSG_INCLUDES         = "${C_MSG}Include directories $(E_GREEN)----------------------------------------------${E_END}"
+MSG_DEFS             = "${C_MSG}Macro definitions $(E_GREEN)------------------------------------------------${E_END}"
+
 
 # Compiler output colorizer filter ------------------------------------------
+
+F_INF="s/In function/$$(printf "$(E_BR_GREEN)")&$$(printf "$(E_END)")/i"
+FF_INF="s/^.*In function/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
 F_ERROR="s/error:/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
 F_WARNING="s/warning:/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_NOTE="s/note:/$$(printf "$(C_NOTE)")&$$(printf "$(E_END)")/i"
 FF_ERROR="s/^.*error:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
 FF_WARNING="s/^.*warning:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
 FF_NOTE="s/^.*note:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
-
+F_WARNING1="s/defined but not used/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
+F_WARNING2="s/unused variable/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
+F_WARNING3="s/may be used uninitialized in this function/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 C_FILTER   = | sed -ru -e $(F_ERROR)  -e $(F_WARNING)  -e $(F_NOTE) \
-                       -e $(FF_ERROR) -e $(FF_WARNING) -e $(FF_NOTE)
+                       -e $(FF_ERROR) -e $(FF_WARNING) -e $(FF_NOTE) \
+                       -e $(F_WARNING1) -e $(F_WARNING2) -e $(F_WARNING3) \
+											 -e $(F_INF) -e $(FF_INF)
 CPP_FILTER = $(C_FILTER)
 
 LD_ERROR1="s/undefined reference/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
@@ -371,9 +407,9 @@ nocolor:
 nc: nocolor all   ## Build with no color on compiler output
 
 
-build: elf lss sym
+build: elf lss sym size
 
-elf: $(OUTDIR)/$(TARGET)
+elf: $(TRGFILE)
 lss: $(OUTDIR)/$(TARGET).lss
 sym: $(OUTDIR)/$(TARGET).sym
 hex: $(OUTDIR)/$(TARGET).hex
@@ -400,28 +436,28 @@ gccversion :  ## Display compiler version
 # Link target
 #.SECONDARY : $(TARGET)
 .PRECIOUS : $(OBJS)
-$(OUTDIR)/$(TARGET): $(OBJS) $(OUTDIR)
+$(TRGFILE): $(OBJS) $(OUTDIR)
 	@echo 
-	@echo -e $(MSG_LINKING)"\n             $(E_BR_CYAN)" $@ "$(E_END)"
+	@echo -e $(MSG_LINKING)"\n             $(C_FILE)" $@ "$(E_END)"
 	@$(CC) $(ALL_CFLAGS) $(OBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)
 	
 # Create extended listing file/disassambly from ELF output file.
 # using objdump testing: option -C
-%.lss:	$(OUTDIR)/$(TARGET)
+%.lss:	$(TRGFILE)
 	@echo
-	@echo -e $(MSG_EXTENDED_LISTING) "\n             $(E_BR_CYAN)" $@ "$(E_END)"
+	@echo -e $(MSG_EXTENDED_LISTING) "\n             $(C_FILE)" $@ "$(E_END)"
 	@$(OBJDUMP) -h -S -C -r $< > $@
 	
 # Create a symbol table from ELF output file.
-%.sym: $(OUTDIR)/$(TARGET)
+%.sym: $(TRGFILE)
 	@echo
-	@echo -e $(MSG_SYMBOL_TABLE) "\n             $(E_BR_CYAN)" $@ "$(E_END)"
+	@echo -e $(MSG_SYMBOL_TABLE) "\n             $(C_FILE)" $@ "$(E_END)"
 	@$(NM) -n $< > $@
 
 # Create hex file from ELF output file.
-%.hex: $(OUTDIR)/$(TARGET)
+%.hex: $(TRGFILE)
 	@echo
-	@echo -e $(MSG_HEX_FILE) "\n             $(E_BR_CYAN)" $@ "$(E_END)"
+	@echo -e $(MSG_HEX_FILE) "\n             $(C_FILE)" $@ "$(E_END)"
 	@$(OBJCOPY) -O ihex $< $@
 	
 # Compile: create object files from C source files.
@@ -453,10 +489,10 @@ $(OBJDIR)/%.s : %.cpp
 $(OUTDIR):
 	@$(MKDIR) $@
 
-size: 
+size: $(TRGFILE)
 	@echo
 	@echo -e $(MSG_SIZE_AFTER)
-	@$(SIZE) $(OUTDIR)/$(TARGET)
+	@$(SIZE) $(TRGFILE)
 	
 #
 # Various utility rules	
@@ -548,7 +584,7 @@ backup: ## Make an incremental backup
 				--exclude=".svn"       \
 				--exclude="*~"         \
 				--exclude="*.old"      \
-				--exclude="*.tmp"      \			
+				--exclude="*.tmp"      \	
 				--link-dest=$(CURDIR)/$(BACKUP_DIR)/backup_1 \
 				.                      \
 				$(BACKUP_DIR)/backup_0 
@@ -595,34 +631,73 @@ help: ## This help information
 	@echo -e $(MSG_LINE)
 
 list-src: ## List all source files
-	@echo -e "$(E_BR_CYAN)#----------------- Source files$(E_END)"
+	@echo -e $(MSG_SRC)
 	@export IFS=" "
 	@for f in $(SRC); do      \
 	  echo $${f} ;            \
 	done                      \
 	
 list-flags: ## List compiler flags
-	@echo -e "$(E_BR_CYAN)#----------------- Compiler Flags$(E_END)"
+	@echo -e $(MSG_FLAGS)
 	@export IFS=" "
 	@for f in $(CFLAGS); do   \
 	  echo $${f} ;            \
 	done                      \
 
-list-ldflags: ## List compiler flags
-	@echo -e "$(E_BR_CYAN)#----------------- Linker Flags$(E_END)"
+list-ldflags: ## List linker flags
+	@echo -e $(MSG_LINKER)
 	@export IFS=" "
 	@for f in $(LDFLAGS); do   \
 	  echo $${f} ;             \
 	done                       \
 
-
+check: ## Check if tools and libraries are present 
+	@$(MPTOOL) ce $(CC)
+	@$(MPTOOL) ce $(OBJCOPY)
+	@$(MPTOOL) ce $(OBJDUMP)
+	@$(MPTOOL) ce $(SIZE)
+	@$(MPTOOL) ce $(AR)
+	@$(MPTOOL) ce $(NM)
+	@$(MPTOOL) ce $(AS)
+	@$(MPTOOL) ce $(QMAKE)
+	@$(MPTOOL) ce $(MOC)
+	@$(MPTOOL) ce python3
+	@$(MPTOOL) ce $(CPPCHECK)
+	@for f in $(LIB); do               \
+		${MPTOOL} cl ${CC} $${f};      \
+	done                               \
+	
 list-info: 
+	@echo -e $(MSG_PROJECT)
 	@echo "Target:   $(TARGET)"
 	@echo "Platform: $(TARGET_PLATFORM)"
 	@echo "Licence:  $(LICENCE)"
 	@echo "Outdir:   $(OUTDIR)"
-	 
-info: list-info list-flags list-ldflags list-src ## Print information about project
+
+list-includes: 
+	@echo -e $(MSG_INCLUDES)
+	@export IFS=" "
+	@for f in $(INCLUDE); do   \
+	  echo $${f} ;             \
+	done        
+
+list-defs: 
+	@echo -e $(MSG_DEFS)
+	@export IFS=" "
+	@for f in $(CDEFS); do     \
+	  echo $${f} ;             \
+	done        
+
+	@for f in $(CPPDEFS); do   \
+	  echo $${f} ;             \
+	done        
+
+	@for f in $(ASDEFS); do    \
+	  echo $${f} ;             \
+	done        
+
+
+info: list-info list-includes list-defs list-flags list-ldflags list-src ## Print information about project
 	
 #
 # Personal settings
@@ -658,10 +733,6 @@ ccheck: ## Static code analysis using cppcheck(errors only)
 
 acheck: ## Static code analysis using cppcheck(all warnings)
 	@$(CPPCHECK) --inline-suppr --enable=all $(SRC) 
-
-#
-# Version control handling
-#============================================================================
 
 
 

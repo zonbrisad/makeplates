@@ -348,15 +348,22 @@ MSG_PROJECT          = "${C_MSG}Project info $(E_GREEN)-------------------------
 
 
 # Compiler output colorizer filter ------------------------------------------
+
+F_INF="s/In function/$$(printf "$(E_BR_GREEN)")&$$(printf "$(E_END)")/i"
+FF_INF="s/^.*In function/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
 F_ERROR="s/error:/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
 F_WARNING="s/warning:/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_NOTE="s/note:/$$(printf "$(C_NOTE)")&$$(printf "$(E_END)")/i"
 FF_ERROR="s/^.*error:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
 FF_WARNING="s/^.*warning:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
 FF_NOTE="s/^.*note:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
-
+F_WARNING1="s/defined but not used/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
+F_WARNING2="s/unused variable/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
+F_WARNING3="s/may be used uninitialized in this function/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 C_FILTER   = | sed -ru -e $(F_ERROR)  -e $(F_WARNING)  -e $(F_NOTE) \
-                       -e $(FF_ERROR) -e $(FF_WARNING) -e $(FF_NOTE)
+                       -e $(FF_ERROR) -e $(FF_WARNING) -e $(FF_NOTE) \
+                       -e $(F_WARNING1) -e $(F_WARNING2) -e $(F_WARNING3) \
+											 -e $(F_INF) -e $(FF_INF)
 CPP_FILTER = $(C_FILTER)
 
 LD_ERROR1="s/undefined reference/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
@@ -427,26 +434,26 @@ gccversion :  ## Display compiler version
 .PRECIOUS : $(OBJS)
 $(TRGFILE): $(OBJS) $(OUTDIR)
 	@echo 
-	@echo -e $(MSG_LINKING)"\n             $(E_BR_CYAN)" $@ "$(E_END)"
+	@echo -e $(MSG_LINKING)"\n             $(C_FILE)" $@ "$(E_END)"
 	@$(CC) $(ALL_CFLAGS) $(OBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)
 	
 # Create extended listing file/disassambly from ELF output file.
 # using objdump testing: option -C
 %.lss:	$(TRGFILE)
 	@echo
-	@echo -e $(MSG_EXTENDED_LISTING) "\n             $(E_BR_CYAN)" $@ "$(E_END)"
+	@echo -e $(MSG_EXTENDED_LISTING) "\n             $(C_FILE)" $@ "$(E_END)"
 	@$(OBJDUMP) -h -S -C -r $< > $@
 	
 # Create a symbol table from ELF output file.
 %.sym: $(TRGFILE)
 	@echo
-	@echo -e $(MSG_SYMBOL_TABLE) "\n             $(E_BR_CYAN)" $@ "$(E_END)"
+	@echo -e $(MSG_SYMBOL_TABLE) "\n             $(C_FILE)" $@ "$(E_END)"
 	@$(NM) -n $< > $@
 
 # Create hex file from ELF output file.
 %.hex: $(TRGFILE)
 	@echo
-	@echo -e $(MSG_HEX_FILE) "\n             $(E_BR_CYAN)" $@ "$(E_END)"
+	@echo -e $(MSG_HEX_FILE) "\n             $(C_FILE)" $@ "$(E_END)"
 	@$(OBJCOPY) -O ihex $< $@
 	
 # Compile: create object files from C source files.
@@ -653,7 +660,7 @@ check: ## Check if tools and libraries are present
 	@$(MPTOOL) ce python3
 	@$(MPTOOL) ce $(CPPCHECK)
 	@for f in $(LIB); do               \
-		${MPTOOL} cl ${CC} $${f};        \
+		${MPTOOL} cl ${CC} $${f};      \
 	done                               \
 	
 

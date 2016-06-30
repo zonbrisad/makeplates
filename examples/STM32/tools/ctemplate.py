@@ -13,7 +13,7 @@
 # History
 #
 # Todo 
-#   - C++ support
+#
 
 import logging
 import argparse
@@ -32,9 +32,9 @@ def addHeader(file, fileName, brief, date, author, licence):
     file.write( 
     "/**\n"
     " *---------------------------------------------------------------------------\n"
-    " * @file    "+fileName+"\n"
     " * @brief   "+brief+"\n"
     " *\n"
+    " * @file    "+fileName+"\n"
     " * @author  "+author+"\n"
     " * @date    "+date+"\n"
     " * @licence "+licence+"\n"
@@ -44,6 +44,10 @@ def addHeader(file, fileName, brief, date, author, licence):
  
 
 def addSection(file, desc):
+    line = '-' * (71 - len(desc))
+    file.write("// " + desc + " " + line + "\n\n")
+    
+def addSection2(file, desc):
     file.write(                \
     "/**\n"                    \
     " * "+desc+"\n"            \
@@ -52,15 +56,27 @@ def addSection(file, desc):
     
 
 def addSentinelBegin(file, sentinel):
-    file.write(                \
+    file.write(                     \
     "#ifndef "+sentinel+"_H\n"      \
-    "#define "+sentinel+"_H\n\n\n") 
+    "#define "+sentinel+"_H\n\n") 
 
     
 def addSentinelEnd(file):
-    file.write("#endif\n")
+    file.write("#endif\n\n")
 
-def newModule(dir, licence, author):
+def addCppSentinel(file):
+    file.write(              \
+    "#ifdef __cplusplus\n"   \
+    "extern \"C\" {\n"       \
+    "#endif\n\n")
+     
+def addCppSentinelEnd(file): 
+    file.write(                        \
+    "#ifdef __cplusplus\n"             \
+    "} //end brace for extern \"C\"\n" \
+    "#endif\n")
+    
+def newModule(dir, author, licence):
     print("Creating new C module")
     fName = input("Enter module name(no extention:>")
     brief = input("Enter brief description:> ")
@@ -83,19 +99,25 @@ def newModule(dir, licence, author):
         return
 
     addHeader(fileC, fileNameC, brief, date, author, licence)
+
+    addSection(fileC, "Includes")
     
     fileC.write("#include \""+fileNameH+"\"\n\n");
     
-    addSection(fileC, "Macro declarations")
-    addSection(fileC, "Variable declarations")
-    addSection(fileC, "Prototype declarations")
+    addSection(fileC, "Macros")
+    addSection(fileC, "Variables")
+    addSection(fileC, "Prototypes")
     addSection(fileC, "Code")    
     
     addHeader(fileH, fileNameH, brief, date, author, licence)
     addSentinelBegin(fileH, fName.upper())
-    addSection(fileH, "Macro declarations")
-    addSection(fileH, "Variable declarations")
-    addSection(fileH, "Function declarations")
+    addCppSentinel(fileH)
+    addSection(fileC, "Includes")
+    addSection(fileH, "Macros")
+    addSection(fileH, "Typedefs")
+    addSection(fileH, "Variables")
+    addSection(fileH, "Functions")
+    addCppSentinelEnd(fileH)
     addSentinelEnd(fileH)
     fileC.close()
     fileH.close()

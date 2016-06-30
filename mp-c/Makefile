@@ -36,7 +36,7 @@ INCLUDE = inc \
           src 
 
 # Libraries to link
-LIB = -lm 
+LIB   = -lm 
 #LIB += $(shell pkg-config --libs glib-2.0)
 #LIB += $(shell pkg-config --libs gthread-2.0)
 #LIB += $(shell pkg-config --libs ncurses)
@@ -59,13 +59,13 @@ OPT = 2
 # [ gnu99 gnu11 c++98 c++03 c++11 c++14 ] 
 CSTANDARD = -std=gnu99
 
-# Place -D or -U options here for C sources
+# C Macro definitions
 CDEFS = 
 
-# Place -D or -U options here for ASM sources
+# ASM  Macro definitions
 ADEFS = 
 
-# Place -D or -U options here for C++ sources
+# C++ Macro definitions
 CPPDEFS = 
 
 # Debug information 
@@ -87,7 +87,7 @@ DEBUG=0
 #  -Wa,...:      tell GCC to pass this to the assembler.
 #    -adhlns...: create assembler listing
 CFLAGS = -g$(DEBUG)
-CFLAGS += $(CDEFS)
+CFLAGS += $(patsubst %,-D%,$(CDEFS))
 CFLAGS += -O$(OPT)
 CFLAGS += -funsigned-char
 #CFLAGS += -funsigned-bitfields
@@ -117,7 +117,7 @@ CFLAGS += $(CSTANDARD)
 #  -Wa,...:      tell GCC to pass this to the assembler.
 #    -adhlns...: create assembler listing
 CPPFLAGS = -g$(DEBUG)
-CPPFLAGS += $(CPPDEFS)
+CPPFLAGS += $(patsubst %,-D%,$(CPPDEFS))
 CPPFLAGS += -O$(OPT)
 CPPFLAGS += -funsigned-char
 CPPFLAGS += -funsigned-bitfields
@@ -147,7 +147,8 @@ CPPFLAGS += $(patsubst %,-I%,$(INCLUDE))
 #             files -- see avr-libc docs [FIXME: not yet described there]
 #  -listing-cont-lines: Sets the maximum number of continuation lines of hex 
 #       dump that will be displayed for a given single line of source input.
-ASFLAGS = $(ADEFS) -Wa,-adhlns=$(<:%.S=$(OBJDIR)/%.lst),-gstabs,--listing-cont-lines=100
+ASFLAGS =  $(patsubst %,-D%,$(ASDEFS))
+ASFLAGS += -Wa,-adhlns=$(<:%.S=$(OBJDIR)/%.lst),-gstabs,--listing-cont-lines=100
 
 # Linker Options ------------------------------------------------------------
 #  -Wl,...:     tell GCC to pass this to linker.
@@ -286,9 +287,14 @@ MSG_SRC              = "${C_MSG}Source files $(E_GREEN)-------------------------
 MSG_FLAGS            = "${C_MSG}Compiler Flags $(E_GREEN)---------------------------------------------------${E_END}"
 MSG_LINKER           = "${C_MSG}Linker Flags $(E_GREEN)-----------------------------------------------------${E_END}"
 MSG_PROJECT          = "${C_MSG}Project info $(E_GREEN)-----------------------------------------------------${E_END}"
+MSG_INCLUDES         = "${C_MSG}Include directories $(E_GREEN)----------------------------------------------${E_END}"
+MSG_DEFS             = "${C_MSG}Macro definitions $(E_GREEN)------------------------------------------------${E_END}"
 
 
 # Compiler output colorizer filter ------------------------------------------
+
+F_INF="s/In function/$$(printf "$(E_BR_GREEN)")&$$(printf "$(E_END)")/i"
+FF_INF="s/^.*In function/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
 F_ERROR="s/error:/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
 F_WARNING="s/warning:/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_NOTE="s/note:/$$(printf "$(C_NOTE)")&$$(printf "$(E_END)")/i"
@@ -300,7 +306,8 @@ F_WARNING2="s/unused variable/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_WARNING3="s/may be used uninitialized in this function/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 C_FILTER   = | sed -ru -e $(F_ERROR)  -e $(F_WARNING)  -e $(F_NOTE) \
                        -e $(FF_ERROR) -e $(FF_WARNING) -e $(FF_NOTE) \
-                       -e $(F_WARNING1) -e $(F_WARNING2) -e $(F_WARNING3) 
+                       -e $(F_WARNING1) -e $(F_WARNING2) -e $(F_WARNING3) \
+											 -e $(F_INF) -e $(FF_INF)
 CPP_FILTER = $(C_FILTER)
 
 LD_ERROR1="s/undefined reference/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
@@ -371,26 +378,26 @@ gccversion :  ## Display compiler version
 .PRECIOUS : $(OBJS)
 $(TRGFILE): $(OBJS) $(OUTDIR)
 	@echo 
-	@echo -e $(MSG_LINKING)"\n             $(E_BR_CYAN)" $@ "$(E_END)"
+	@echo -e $(MSG_LINKING)"\n             $(C_FILE)" $@ "$(E_END)"
 	@$(CC) $(ALL_CFLAGS) $(OBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)
 	
 # Create extended listing file/disassambly from ELF output file.
 # using objdump testing: option -C
 %.lss:	$(TRGFILE)
 	@echo
-	@echo -e $(MSG_EXTENDED_LISTING) "\n             $(E_BR_CYAN)" $@ "$(E_END)"
+	@echo -e $(MSG_EXTENDED_LISTING) "\n             $(C_FILE)" $@ "$(E_END)"
 	@$(OBJDUMP) -h -S -C -r $< > $@
 	
 # Create a symbol table from ELF output file.
 %.sym: $(TRGFILE)
 	@echo
-	@echo -e $(MSG_SYMBOL_TABLE) "\n             $(E_BR_CYAN)" $@ "$(E_END)"
+	@echo -e $(MSG_SYMBOL_TABLE) "\n             $(C_FILE)" $@ "$(E_END)"
 	@$(NM) -n $< > $@
 
 # Create hex file from ELF output file.
 %.hex: $(TRGFILE)
 	@echo
-	@echo -e $(MSG_HEX_FILE) "\n             $(E_BR_CYAN)" $@ "$(E_END)"
+	@echo -e $(MSG_HEX_FILE) "\n             $(C_FILE)" $@ "$(E_END)"
 	@$(OBJCOPY) -O ihex $< $@
 	
 # Compile: create object files from C source files.
@@ -600,15 +607,37 @@ check: ## Check if tools and libraries are present
 		${MPTOOL} cl ${CC} $${f};      \
 	done                               \
 	
-
 list-info: 
 	@echo -e $(MSG_PROJECT)
 	@echo "Target:   $(TARGET)"
 	@echo "Platform: $(TARGET_PLATFORM)"
 	@echo "Licence:  $(LICENCE)"
 	@echo "Outdir:   $(OUTDIR)"
-	 
-info: list-info list-flags list-ldflags list-src ## Print information about project
+
+list-includes: 
+	@echo -e $(MSG_INCLUDES)
+	@export IFS=" "
+	@for f in $(INCLUDE); do   \
+	  echo $${f} ;             \
+	done        
+
+list-defs: 
+	@echo -e $(MSG_DEFS)
+	@export IFS=" "
+	@for f in $(CDEFS); do     \
+	  echo $${f} ;             \
+	done        
+
+	@for f in $(CPPDEFS); do   \
+	  echo $${f} ;             \
+	done        
+
+	@for f in $(ASDEFS); do    \
+	  echo $${f} ;             \
+	done        
+
+
+info: list-info list-includes list-defs list-flags list-ldflags list-src ## Print information about project
 	
 #
 # Personal settings
