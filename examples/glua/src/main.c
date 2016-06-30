@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <signal.h>
+#include <unistd.h>
 #include <glib-2.0/glib.h>
 
 #include "lua.h"
@@ -61,18 +62,18 @@ static GOptionEntry entries[] = {
  */
  
 void testPage(FILE *f) {
-  swill_printf(f, "Kalle");
+//  swill_printf(f, "Kalle");
 }
 
 void webTest() {
   printf("Starting webserver");
-  swill_init(8080);
-  swill_handle("testPage", testPage, NULL);
+//  swill_init(8080);
+//  swill_handle("testPage", testPage, NULL);
 //  swill_handle("mandelpage.html", mandelpage,m);
 
   while (1) {
     sleep(1);
-    swill_serve();
+//    swill_serve();
   }
 }
 
@@ -116,8 +117,7 @@ int main(int argc, char *argv[]) {
 	lua_State *L = luaL_newstate();
 	luaL_openlibs(L);
 	luaL_dofile(L, "test.lua");
-	//luaL_close(L);
-	 
-	
+	lua_close(L);
+	 	
 	safeExit();
 }

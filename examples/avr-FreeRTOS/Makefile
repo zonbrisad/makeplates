@@ -166,6 +166,59 @@ CPPFLAGS += $(patsubst %,-I%,$(INCLUDE))
 #       dump that will be displayed for a given single line of source input.
 ASFLAGS = $(ADEFS) -Wa,-adhlns=$(<:%.S=$(OBJDIR)/%.lst),-gstabs,--listing-cont-lines=100
 
+<<<<<<< HEAD:examples/avr-FreeRTOS/Makefile
+=======
+# Linker Options ------------------------------------------------------------
+#  -Wl,...:     tell GCC to pass this to linker.
+#    -Map:      create map file
+#    --cref:    add cross reference to  map file
+LDFLAGS = -Wl,-Map=$(OUTDIR)/$(TARGET).map,--cref
+LDFLAGS += $(EXTMEMOPTS)
+LDFLAGS += $(patsubst %,-L%,$(INCLUDE))
+
+#
+# Platform specific options
+#============================================================================
+
+# Linux options -------------------------------------------------------------
+ifeq ($(TARGET_PLATFORM), linux)
+
+# Target filename
+TRGFILE=$(OUTDIR)/$(TARGET)
+
+# Toolchain base directory
+TCHAIN_BASE=/usr/bin
+
+# Toolchain prefix 
+TCHAIN_PREFIX=
+
+endif
+# Windows options -----------------------------------------------------------
+ifeq ($(TARGET_PLATFORM), win32)
+
+# Target filename
+TRGFILE=$(OUTDIR)/$(TARGET).exe
+
+# Toolchain base directory
+TCHAIN_BASE=/usr/bin
+
+# Toolchain prefix 
+TCHAIN_PREFIX=
+
+endif
+# ARM Cortex options --------------------------------------------------------
+
+ifeq ($(TARGET_PLATFORM), arm)
+
+CFLAGS += -mcpu=$(MCU)
+CFLAGS += -mthumb
+#CFLAGS += -mfpu=fpv4-sp-d16 
+#CFLAGS += -mfloat-abi=hard 
+
+LDSCRIPT = stm32_flash.ld
+#LDSCRIPT = arm-gcc-link.ld
+LDFLAGS += -T$(LDSCRIPT) -mthumb -mcpu=$(MCU) -nostdlib 
+>>>>>>> 0b0411e726916f6f580389db0cace1cd82513846:examples/avr/Makefile
 
 #---------------- Library Options ----------------
 # Minimalistic printf version
@@ -342,9 +395,16 @@ F_NOTE="s/note:/$$(printf "$(C_NOTE)")&$$(printf "$(E_END)")/i"
 FF_ERROR="s/^.*error:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
 FF_WARNING="s/^.*warning:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
 FF_NOTE="s/^.*note:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
-
+F_WARNING1="s/defined but not used/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
+F_WARNING2="s/unused variable/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
+F_WARNING3="s/may be used uninitialized in this function/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 C_FILTER   = | sed -ru -e $(F_ERROR)  -e $(F_WARNING)  -e $(F_NOTE) \
+<<<<<<< HEAD:examples/avr-FreeRTOS/Makefile
                      -e $(FF_ERROR) -e $(FF_WARNING) -e $(FF_NOTE)
+=======
+                       -e $(FF_ERROR) -e $(FF_WARNING) -e $(FF_NOTE) \
+                       -e $(F_WARNING1) -e $(F_WARNING2) -e $(F_WARNING3) 
+>>>>>>> 0b0411e726916f6f580389db0cace1cd82513846:examples/avr/Makefile
 CPP_FILTER = $(C_FILTER)
 
 LD_ERROR1="s/undefined reference/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
@@ -750,6 +810,25 @@ list-ldflags: ## List compiler flags
 	  echo $${f} ;             \
 	done                       \
 
+<<<<<<< HEAD:examples/avr-FreeRTOS/Makefile
+=======
+check: ## Check if tools and libraries are present 
+	@$(MPTOOL) ce $(CC)
+	@$(MPTOOL) ce $(OBJCOPY)
+	@$(MPTOOL) ce $(OBJDUMP)
+	@$(MPTOOL) ce $(SIZE)
+	@$(MPTOOL) ce $(AR)
+	@$(MPTOOL) ce $(NM)
+	@$(MPTOOL) ce $(AS)
+	@$(MPTOOL) ce $(QMAKE)
+	@$(MPTOOL) ce $(MOC)
+	@$(MPTOOL) ce python3
+	@$(MPTOOL) ce $(CPPCHECK)
+	@for f in $(LIB); do               \
+		${MPTOOL} cl ${CC} $${f};      \
+	done                               \
+	
+>>>>>>> 0b0411e726916f6f580389db0cace1cd82513846:examples/avr/Makefile
 
 list-info: 
 	@echo "Target: $(TARGET)"
@@ -793,10 +872,13 @@ ccheck: ## Static code analysis using cppcheck(errors only)
 acheck: ## Static code analysis using cppcheck(all warnings)
 	@$(CPPCHECK) --inline-suppr --enable=all $(SRC) 
 
-#
-# Version control handling
-#============================================================================
 
+<<<<<<< HEAD:examples/avr-FreeRTOS/Makefile
+=======
+#
+# Avrdude settings 
+#============================================================================
+>>>>>>> 0b0411e726916f6f580389db0cace1cd82513846:examples/avr/Makefile
 
 
 	
