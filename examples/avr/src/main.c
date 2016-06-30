@@ -1,5 +1,6 @@
 
 #include <stdio.h>
+#include <avr/interrupt.h>
 #include <util/delay.h>
 
 
@@ -8,7 +9,6 @@
 
 /* This port correponds to the "-R 0x22,-" command line option. */
 #define special_input_port  (*((volatile char *)0x22))
-
 
 static int uart_putchar(char c, FILE *stream);
 
@@ -19,26 +19,29 @@ static int uart_putchar(char c, FILE *stream) {
 	return 0;
 }
 
+volatile int timer2_ticks;
 
-/*
- *  *  Poll the specified string out the debug port.
- *  */
-void debug_puts(const char *str)
-{
-	  const char *c;
-	
-	  for ( c=str ; *c ; c++ )
-		    special_output_port = *c;
+/* Every ~ms */
+ISR(TIMER2_COMPA_vect) {
+	   timer2_ticks++;
 }
 
-
-int main() {
-
+int main(void) {
+	volatile int tmp;
 	stdout = &mystdout;
-//	debug_puts("Test\n");
+	
+	timer2_ticks = 0;
+	/* Set up our timers and enable interrupts */
+	TCNT2 = 0;    /* Timer 1 by CLK/64 */
+	OCR2A = 115;   /* ~1ms */
+	TIMSK2 = _BV(OCIE2A);
+	TCCR2B |= (1 << CS11) | (1 << CS10) ; 
+	sei();
+	
 	printf("Bashplate AVR example\n");
 	while (1) {
-		special_output_port = 'K';
+		tmp = timer2_ticks;
+		printf("Timer counter %d\n", tmp);
 		_delay_ms(200);
 	}
 

@@ -1,6 +1,6 @@
 /**
  * -----------------------------------------------------------------
- * @file  def.h
+ * @file  Def.h
  * 
  * @brief 
  *
@@ -14,11 +14,13 @@
 #ifndef DEF_H_
 #define	DEF_H_
 
-/**
- * Uncomment to enable debugmode
- *
- */
+//
+// Uncomment to enable debugmode
+// 
 //#define DDEBUG
+
+
+#define UNUSED_PARAM(p)		(void)p
 
 
 /**
@@ -70,10 +72,8 @@
 #define TRUE            1
 #endif
 
-/**
- * Special character definitions.
- * -----------------------------------------------------------------
- */
+// Special character definitions --------------------------------------------
+
 #define NUL             0
 #define SOH             1
 #define STX             2
@@ -110,7 +110,7 @@
 
 /**
  * Unix Signal definitions.
- * -----------------------------------------------------------------
+ * --------------------------------------------------------------------------
  */
 
 
@@ -146,12 +146,11 @@
 
 /**
  * ANSI escape code
- * -----------------------------------------------------------------
+ * --------------------------------------------------------------------------
  */
 
-/**
- * Color macro's
- */
+// Color macro's ------------------------------------------------------------
+
 #define E_OK            "\033[0;32m"
 #define E_WARN          "\033[33;01m"
 #define E_ERROR         "\033[31;01m"
@@ -186,9 +185,8 @@
 
 #define E_WONR "\33[1;47\033[1;31m"
 
-/**
- * Movement macro's
- */
+// Movement macro's ---------------------------------------------------------
+
 #define E_CUR_RETURN  "\033[;0F"      // cursor return
 #define E_CUR_UP      "\033[;0A"      // cursor up
 #define E_CUR_DOWN    "\033[;0B"      // cursor down
@@ -221,7 +219,7 @@
 
 /**
  * Some Debugging macros's
- * -----------------------------------------------------------------
+ * --------------------------------------------------------------------------
  */
 
 #define FILEX (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
@@ -234,7 +232,7 @@
 #define DEBUGPRINT(_fmt, ...)
 #endif
 
-#define UNUSED_PARAM(p)		(void)p
+
 
 
 
