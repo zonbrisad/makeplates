@@ -226,7 +226,6 @@ DEBUG = dwarf-2
 
 CDEFS   += F_CPU=$(F_CPU)UL
 ADEFS   += F_CPU=$(F_CPU)UL
-CPPDEFS += F_CPU=$(F_CPU)UL
 
 # Toolchain base directory
 TCHAIN_BASE=/usr/bin
@@ -491,25 +490,21 @@ gccversion :  ## Display compiler version
 	@echo -e $(MSG_SYMBOL_TABLE) "\n             $(C_FILE)" $@ "$(E_END)"
 	@$(NM) -n $< > $@
 
+# Create hex file from ELF output file.
+%.hex: %.elf
+	@echo
+	@echo -e $(MSG_HEX_FILE) "\n             $(C_FILE)" $@ "$(E_END)"
+	@$(OBJCOPY) -O $(FORMAT) -R .eeprom -R .fuse -R .lock -R .signature $< $@
 
 coff: $(TARGET).elf
 	@echo
 	@echo -e $(MSG_COFF)"\n  " "$(E_BR_CYAN)" $(TARGET).cof "$(E_END)"
 	$(COFFCONVERT) -O coff-avr $< $(TARGET).cof
 
-
 extcoff: $(TARGET).elf
 	@echo
 	@echo -e $(MSG_EXTENDED_COFF)"\n  " "$(E_BR_CYAN)" $(TARGET).cof "$(E_END)"
 	@$(COFFCONVERT) -O coff-ext-avr $< $(TARGET).cof
-
-
-
-# Create final output files (.hex, .eep) from ELF output file.
-%.hex: %.elf
-	@echo
-	@echo -e $(MSG_FLASH)"\n  " "$(E_BR_CYAN)" $@ "$(E_END)"
-	@$(OBJCOPY) -O $(FORMAT) -R .eeprom -R .fuse -R .lock -R .signature $< $@
 
 %.eep: %.elf
 	@echo
@@ -728,6 +723,9 @@ list-info:
 	@echo "Platform: $(TARGET_PLATFORM)"
 	@echo "Licence:  $(LICENCE)"
 	@echo "Outdir:   $(OUTDIR)"
+	@echo "MCU:      $(MCU)"
+	@echo "F_CPU:    $(F_CPU)"
+	
 
 list-includes: 
 	@echo -e $(MSG_INCLUDES)
@@ -752,7 +750,9 @@ list-defs:
 	done        
 
 
-info: list-info list-includes list-defs list-flags list-ldflags list-src ## Print information about project
+info: list-info list-includes list-defs list-flags list-ldflags  ## Print information about project
+
+files: list-src ## List source files
 	
 #
 # Personal settings
