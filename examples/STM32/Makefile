@@ -87,21 +87,26 @@ OUTDIR = output
 #     0 = turn off optimization. s = optimize for size.
 OPT = s
 
+
+
 # Compiler flag to set the C Standard level.
 # [ gnu99 gnu11 c++98 c++03 c++11 c++14 ] 
 CSTANDARD = -std=gnu99
 
-# Place -D or -U options here for C sources
-CDEFS = -DSTM32F103C8  \
-        -DSTM32F10X_MD \
-        -DUSE_STDPERIPH_DRIVER \
+# C Macro definitions
+CDEFS = STM32F103C8  \
+        STM32F10X_MD \
+        USE_STDPERIPH_DRIVER \
 
-
+<<<<<<< HEAD
 
 # Place -D or -U options here for ASM sources
+=======
+# ASM  Macro definitions
+>>>>>>> 0844b056bed6e7009073b24369858df323002f8b
 ADEFS = 
 
-# Place -D or -U options here for C++ sources
+# C++ Macro definitions
 CPPDEFS = 
 
 # Debug information 
@@ -123,7 +128,7 @@ DEBUG=0
 #  -Wa,...:      tell GCC to pass this to the assembler.
 #    -adhlns...: create assembler listing
 CFLAGS = -g$(DEBUG)
-CFLAGS += $(CDEFS)
+CFLAGS += $(patsubst %,-D%,$(CDEFS))
 CFLAGS += -O$(OPT)
 CFLAGS += -funsigned-char
 #CFLAGS += -funsigned-bitfields
@@ -153,7 +158,7 @@ CFLAGS += $(CSTANDARD)
 #  -Wa,...:      tell GCC to pass this to the assembler.
 #    -adhlns...: create assembler listing
 CPPFLAGS = -g$(DEBUG)
-CPPFLAGS += $(CPPDEFS)
+CPPFLAGS += $(patsubst %,-D%,$(CPPDEFS))
 CPPFLAGS += -O$(OPT)
 CPPFLAGS += -funsigned-char
 CPPFLAGS += -funsigned-bitfields
@@ -183,7 +188,8 @@ CPPFLAGS += $(patsubst %,-I%,$(INCLUDE))
 #             files -- see avr-libc docs [FIXME: not yet described there]
 #  -listing-cont-lines: Sets the maximum number of continuation lines of hex 
 #       dump that will be displayed for a given single line of source input.
-ASFLAGS = $(ADEFS) -Wa,-adhlns=$(<:%.S=$(OBJDIR)/%.lst),-gstabs,--listing-cont-lines=100
+ASFLAGS =  $(patsubst %,-D%,$(ASDEFS))
+ASFLAGS += -Wa,-adhlns=$(<:%.S=$(OBJDIR)/%.lst),-gstabs,--listing-cont-lines=100
 
 # Linker Options ------------------------------------------------------------
 #  -Wl,...:     tell GCC to pass this to linker.
@@ -191,6 +197,7 @@ ASFLAGS = $(ADEFS) -Wa,-adhlns=$(<:%.S=$(OBJDIR)/%.lst),-gstabs,--listing-cont-l
 #    --cref:    add cross reference to  map file
 LDFLAGS = -Wl,-Map=$(OUTDIR)/$(TARGET).map,--cref
 LDFLAGS += $(EXTMEMOPTS)
+LDFLAGS += $(patsubst %,-L%,$(INCLUDE))
 LDFLAGS += -g
 
 #
@@ -211,7 +218,18 @@ TCHAIN_PREFIX=
 
 endif
 # Windows options -----------------------------------------------------------
+ifeq ($(TARGET_PLATFORM), win32)
 
+# Target filename
+TRGFILE=$(OUTDIR)/$(TARGET).exe
+
+# Toolchain base directory
+TCHAIN_BASE=/usr/bin
+
+# Toolchain prefix 
+TCHAIN_PREFIX=
+
+endif
 # ARM Cortex options --------------------------------------------------------
 
 ifeq ($(TARGET_PLATFORM), arm)
@@ -252,11 +270,15 @@ ASFLAGS  += -mmcu=$(MCU)
 # Output format. (can be srec, ihex, binary)
 FORMAT = ihex
 
-CDEFS   += -DF_CPU=$(F_CPU)UL
-ADEFS   += -DF_CPU=$(F_CPU)UL
-CPPDEFS += -DF_CPU=$(F_CPU)UL
+# Debugging format.
+#     Native formats for AVR-GCC's -g are dwarf-2 [default] or stabs.
+#     AVR Studio 4.10 requires dwarf-2.
+#     AVR [Extended] COFF format requires stabs, plus an avr-objcopy run.
+DEBUG = dwarf-2
 
-LDFLAGS += $(PRINTF_LIB) $(SCANF_LIB) $(MATH_LIB)
+CDEFS   += F_CPU=$(F_CPU)UL
+ADEFS   += F_CPU=$(F_CPU)UL
+CPPDEFS += F_CPU=$(F_CPU)UL
 
 # Toolchain base directory
 TCHAIN_BASE=/usr/bin
@@ -264,6 +286,39 @@ TCHAIN_BASE=/usr/bin
 TCHAIN_PREFIX=avr-
 
 TRGFILE=$(OUTDIR)/$(TARGET).elf
+
+# Library Options ------------------------------------------------------------
+# Minimalistic printf version
+PRINTF_LIB_MIN = -Wl,-u,vfprintf -lprintf_min
+
+# Floating point printf version (requires MATH_LIB = -lm below)
+PRINTF_LIB_FLOAT = -Wl,-u,vfprintf -lprintf_flt
+
+# If this is left blank, then it will use the Standard printf version.
+PRINTF_LIB = 
+#PRINTF_LIB = $(PRINTF_LIB_MIN)
+#PRINTF_LIB = $(PRINTF_LIB_FLOAT)
+
+# Minimalistic scanf version
+SCANF_LIB_MIN = -Wl,-u,vfscanf -lscanf_min
+
+# Floating point + %[ scanf version (requires MATH_LIB = -lm below)
+SCANF_LIB_FLOAT = -Wl,-u,vfscanf -lscanf_flt
+
+# If this is left blank, then it will use the Standard scanf version.
+SCANF_LIB = 
+#SCANF_LIB = $(SCANF_LIB_MIN)
+#SCANF_LIB = $(SCANF_LIB_FLOAT)
+
+MATH_LIB = -lm
+
+# List any extra directories to look for libraries here.
+#     Each directory must be seperated by a space.
+#     Use forward slashes for directory separators.
+#     For a directory that has spaces, enclose it in quotes.
+EXTRALIBDIRS = 
+
+LDFLAGS += $(PRINTF_LIB) $(SCANF_LIB) $(MATH_LIB)
 
 endif
 
@@ -365,6 +420,8 @@ MSG_SRC              = "${C_MSG}Source files $(E_GREEN)-------------------------
 MSG_FLAGS            = "${C_MSG}Compiler Flags $(E_GREEN)---------------------------------------------------${E_END}"
 MSG_LINKER           = "${C_MSG}Linker Flags $(E_GREEN)-----------------------------------------------------${E_END}"
 MSG_PROJECT          = "${C_MSG}Project info $(E_GREEN)-----------------------------------------------------${E_END}"
+MSG_INCLUDES         = "${C_MSG}Include directories $(E_GREEN)----------------------------------------------${E_END}"
+MSG_DEFS             = "${C_MSG}Macro definitions $(E_GREEN)------------------------------------------------${E_END}"
 
 
 # Compiler output colorizer filter ------------------------------------------
@@ -687,15 +744,42 @@ check: ## Check if tools and libraries are present
 		${MPTOOL} cl ${CC} $${f};      \
 	done                               \
 	
-
 list-info: 
 	@echo -e $(MSG_PROJECT)
 	@echo "Target:   $(TARGET)"
 	@echo "Platform: $(TARGET_PLATFORM)"
 	@echo "Licence:  $(LICENCE)"
 	@echo "Outdir:   $(OUTDIR)"
-	 
-info: list-info list-flags list-ldflags list-src ## Print information about project
+	@echo "MCU:      $(MCU)"
+	@echo "F_CPU:    $(F_CPU)"
+	
+
+list-includes: 
+	@echo -e $(MSG_INCLUDES)
+	@export IFS=" "
+	@for f in $(INCLUDE); do   \
+	  echo $${f} ;             \
+	done        
+
+list-defs: 
+	@echo -e $(MSG_DEFS)
+	@export IFS=" "
+	@for f in $(CDEFS); do     \
+	  echo $${f} ;             \
+	done        
+
+	@for f in $(CPPDEFS); do   \
+	  echo $${f} ;             \
+	done        
+
+	@for f in $(ASDEFS); do    \
+	  echo $${f} ;             \
+	done        
+
+
+info: list-info list-includes list-defs list-flags list-ldflags  ## Print information about project
+
+files: list-src ## List source files
 	
 #
 # Personal settings
@@ -732,6 +816,10 @@ ccheck: ## Static code analysis using cppcheck(errors only)
 acheck: ## Static code analysis using cppcheck(all warnings)
 	@$(CPPCHECK) --inline-suppr --enable=all $(SRC) 
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 0844b056bed6e7009073b24369858df323002f8b
 
 # 
 # OpenOCD handling

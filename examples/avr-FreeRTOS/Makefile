@@ -75,17 +75,12 @@ OUTDIR = output
 OPT = s
 
 
-# Debugging format.
-#     Native formats for AVR-GCC's -g are dwarf-2 [default] or stabs.
-#     AVR Studio 4.10 requires dwarf-2.
-#     AVR [Extended] COFF format requires stabs, plus an avr-objcopy run.
-DEBUG = dwarf-2
-
 
 # Compiler flag to set the C Standard level.
 # [ gnu99 gnu11 c++98 c++03 c++11 c++14 ] 
 CSTANDARD = -std=gnu99
 
+<<<<<<< HEAD:examples/avr-FreeRTOS/Makefile
 # Place -D or -U options here for C sources
 CDEFS = -DF_CPU=$(F_CPU)UL
 
@@ -98,6 +93,16 @@ ADEFS = -DF_CPU=$(F_CPU)
 CPPDEFS = -DF_CPU=$(F_CPU)UL
 #CPPDEFS += -D__STDC_LIMIT_MACROS
 #CPPDEFS += -D__STDC_CONSTANT_MACROS
+=======
+# C Macro definitions
+CDEFS = 
+
+# ASM  Macro definitions
+ADEFS = 
+
+# C++ Macro definitions
+CPPDEFS = 
+>>>>>>> 0844b056bed6e7009073b24369858df323002f8b:examples/avr/Makefile
 
 
 
@@ -109,7 +114,7 @@ CPPDEFS = -DF_CPU=$(F_CPU)UL
 #  -Wa,...:      tell GCC to pass this to the assembler.
 #    -adhlns...: create assembler listing
 CFLAGS = -g$(DEBUG)
-CFLAGS += $(CDEFS)
+CFLAGS += $(patsubst %,-D%,$(CDEFS))
 CFLAGS += -O$(OPT)
 CFLAGS += -funsigned-char
 CFLAGS += -funsigned-bitfields
@@ -136,7 +141,7 @@ CFLAGS += $(CSTANDARD)
 #  -Wa,...:      tell GCC to pass this to the assembler.
 #    -adhlns...: create assembler listing
 CPPFLAGS = -g$(DEBUG)
-CPPFLAGS += $(CPPDEFS)
+CPPFLAGS += $(patsubst %,-D%,$(CPPDEFS))
 CPPFLAGS += -O$(OPT)
 CPPFLAGS += -funsigned-char
 CPPFLAGS += -funsigned-bitfields
@@ -164,7 +169,8 @@ CPPFLAGS += $(patsubst %,-I%,$(INCLUDE))
 #             files -- see avr-libc docs [FIXME: not yet described there]
 #  -listing-cont-lines: Sets the maximum number of continuation lines of hex 
 #       dump that will be displayed for a given single line of source input.
-ASFLAGS = $(ADEFS) -Wa,-adhlns=$(<:%.S=$(OBJDIR)/%.lst),-gstabs,--listing-cont-lines=100
+ASFLAGS =  $(patsubst %,-D%,$(ASDEFS))
+ASFLAGS += -Wa,-adhlns=$(<:%.S=$(OBJDIR)/%.lst),-gstabs,--listing-cont-lines=100
 
 <<<<<<< HEAD:examples/avr-FreeRTOS/Makefile
 =======
@@ -220,7 +226,54 @@ LDSCRIPT = stm32_flash.ld
 LDFLAGS += -T$(LDSCRIPT) -mthumb -mcpu=$(MCU) -nostdlib 
 >>>>>>> 0b0411e726916f6f580389db0cace1cd82513846:examples/avr/Makefile
 
+<<<<<<< HEAD:examples/avr-FreeRTOS/Makefile
 #---------------- Library Options ----------------
+=======
+# Toolchain base directory
+TCHAIN_BASE=/usr/bin
+# Toolchain prefix 
+TCHAIN_PREFIX=arm-none-eabi-
+
+TRGFILE=$(OUTDIR)/$(TARGET).elf
+
+endif
+
+# Atmel AVR options ---------------------------------------------------------
+
+ifeq ($(TARGET_PLATFORM), avr)
+# MCU name
+MCU = atmega2560
+
+# Processor frequency.
+# Some common values:
+#  1000000  1843200  2000000 3686400 4000000 7372800 8000000 11059200 14745600
+F_CPU = 8000000
+
+CFLAGS   += -mmcu=$(MCU)
+CPPFLAGS += -mmcu=$(MCU)
+ASFLAGS  += -mmcu=$(MCU)
+
+# Output format. (can be srec, ihex, binary)
+FORMAT = ihex
+
+# Debugging format.
+#     Native formats for AVR-GCC's -g are dwarf-2 [default] or stabs.
+#     AVR Studio 4.10 requires dwarf-2.
+#     AVR [Extended] COFF format requires stabs, plus an avr-objcopy run.
+DEBUG = dwarf-2
+
+CDEFS   += F_CPU=$(F_CPU)UL
+ADEFS   += F_CPU=$(F_CPU)UL
+
+# Toolchain base directory
+TCHAIN_BASE=/usr/bin
+# Toolchain prefix 
+TCHAIN_PREFIX=avr-
+
+TRGFILE=$(OUTDIR)/$(TARGET).elf
+
+# Library Options ------------------------------------------------------------
+>>>>>>> 0844b056bed6e7009073b24369858df323002f8b:examples/avr/Makefile
 # Minimalistic printf version
 PRINTF_LIB_MIN = -Wl,-u,vfprintf -lprintf_min
 
@@ -372,6 +425,15 @@ MSG_EEPROM           = "${E_BR_MAGENTA}Creating load file for EEPROM:${E_END}"
 MSG_COFF             = "${E_BR_MAGENTA}Converting to AVR COFF:${E_END}"
 MSG_EXTENDED_COFF    = "${E_BR_MAGENTA}Converting to AVR Extended COFF:${E_END}"
 MSG_BACKUP           = "${E_BR_GREEN}Making incremental backup of project:${E_END}"
+<<<<<<< HEAD:examples/avr-FreeRTOS/Makefile
+=======
+MSG_SRC              = "${C_MSG}Source files $(E_GREEN)-----------------------------------------------------${E_END}"
+MSG_FLAGS            = "${C_MSG}Compiler Flags $(E_GREEN)---------------------------------------------------${E_END}"
+MSG_LINKER           = "${C_MSG}Linker Flags $(E_GREEN)-----------------------------------------------------${E_END}"
+MSG_PROJECT          = "${C_MSG}Project info $(E_GREEN)-----------------------------------------------------${E_END}"
+MSG_INCLUDES         = "${C_MSG}Include directories $(E_GREEN)----------------------------------------------${E_END}"
+MSG_DEFS             = "${C_MSG}Macro definitions $(E_GREEN)------------------------------------------------${E_END}"
+>>>>>>> 0844b056bed6e7009073b24369858df323002f8b:examples/avr/Makefile
 
 #while read x ; do echo $x ; done \
 #| sed -e "s/.*error:.*/\x1b[1;36m&\x1b[0m/" \
@@ -383,12 +445,19 @@ MSG_BACKUP           = "${E_BR_GREEN}Making incremental backup of project:${E_EN
 #-e "s/warning:/\x1b[1;35m&\x1b[1;36m/" \
 #-e "s/note:/\x1b[1;30m&\x1b[0m/"
 
+<<<<<<< HEAD:examples/avr-FreeRTOS/Makefile
 
 #https://github.com/renatosilva/colormake/blob/master/colormake.sh
 #http://stackoverflow.com/questions/1032237/highlight-and-filter-gcc-compiler-messages
 #https://github.com/renatosilva/colormake
 
 # Compiler output colorizer filter
+=======
+# Compiler output colorizer filter ------------------------------------------
+
+F_INF="s/In function/$$(printf "$(E_BR_GREEN)")&$$(printf "$(E_END)")/i"
+FF_INF="s/^.*In function/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
+>>>>>>> 0844b056bed6e7009073b24369858df323002f8b:examples/avr/Makefile
 F_ERROR="s/error:/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
 F_WARNING="s/warning:/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_NOTE="s/note:/$$(printf "$(C_NOTE)")&$$(printf "$(E_END)")/i"
@@ -403,8 +472,13 @@ C_FILTER   = | sed -ru -e $(F_ERROR)  -e $(F_WARNING)  -e $(F_NOTE) \
                      -e $(FF_ERROR) -e $(FF_WARNING) -e $(FF_NOTE)
 =======
                        -e $(FF_ERROR) -e $(FF_WARNING) -e $(FF_NOTE) \
+<<<<<<< HEAD:examples/avr-FreeRTOS/Makefile
                        -e $(F_WARNING1) -e $(F_WARNING2) -e $(F_WARNING3) 
 >>>>>>> 0b0411e726916f6f580389db0cace1cd82513846:examples/avr/Makefile
+=======
+                       -e $(F_WARNING1) -e $(F_WARNING2) -e $(F_WARNING3) \
+											 -e $(F_INF) -e $(FF_INF)
+>>>>>>> 0844b056bed6e7009073b24369858df323002f8b:examples/avr/Makefile
 CPP_FILTER = $(C_FILTER)
 
 LD_ERROR1="s/undefined reference/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
@@ -492,7 +566,11 @@ OBJS = $(SRC:%.c=$(OBJDIR)/%.o) $(CPPSRC:%.cpp=$(OBJDIR)/%.o) $(ASRC:%.S=$(OBJDI
 LST = $(SRC:%.c=$(OBJDIR)/%.lst) $(CPPSRC:%.cpp=$(OBJDIR)/%.lst) $(ASRC:%.S=$(OBJDIR)/%.lst) 
 
 # Default target.
+<<<<<<< HEAD:examples/avr-FreeRTOS/Makefile
 all: begin sizebefore build sizeafter end
+=======
+all:	begin build finished end
+>>>>>>> 0844b056bed6e7009073b24369858df323002f8b:examples/avr/Makefile
 
 # Remove colorfilter
 nocolor:
@@ -547,6 +625,32 @@ sizeafter:
 gccversion :  ## Display compiler version
 	@$(CC) --version
 
+# Link target
+.SECONDARY : $(TARGET).elf
+.PRECIOUS : $(OBJS)
+%.elf: $(OBJS) $(OUTDIR)
+	@echo 
+	@echo -e $(MSG_LINKING)"\n             $(C_FILE)" $@ "$(E_END)"
+	@$(CC) $(ALL_CFLAGS) $(OBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)
+	
+# Create extended listing file/disassambly from ELF output file.
+# using objdump testing: option -C
+%.lss:	$(TRGFILE)
+	@echo
+	@echo -e $(MSG_EXTENDED_LISTING) "\n             $(C_FILE)" $@ "$(E_END)"
+	@$(OBJDUMP) -h -S -z $< > $@
+	
+# Create a symbol table from ELF output file.
+%.sym: $(TRGFILE)
+	@echo
+	@echo -e $(MSG_SYMBOL_TABLE) "\n             $(C_FILE)" $@ "$(E_END)"
+	@$(NM) -n $< > $@
+
+# Create hex file from ELF output file.
+%.hex: %.elf
+	@echo
+	@echo -e $(MSG_HEX_FILE) "\n             $(C_FILE)" $@ "$(E_END)"
+	@$(OBJCOPY) -O $(FORMAT) -R .eeprom -R .fuse -R .lock -R .signature $< $@
 
 
 # Program the device.  
@@ -599,19 +703,10 @@ coff: $(TARGET).elf
 	@echo -e $(MSG_COFF)"\n  " "$(E_BR_CYAN)" $(TARGET).cof "$(E_END)"
 	$(COFFCONVERT) -O coff-avr $< $(TARGET).cof
 
-
 extcoff: $(TARGET).elf
 	@echo
 	@echo -e $(MSG_EXTENDED_COFF)"\n  " "$(E_BR_CYAN)" $(TARGET).cof "$(E_END)"
 	@$(COFFCONVERT) -O coff-ext-avr $< $(TARGET).cof
-
-
-
-# Create final output files (.hex, .eep) from ELF output file.
-%.hex: %.elf
-	@echo
-	@echo -e $(MSG_FLASH)"\n  " "$(E_BR_CYAN)" $@ "$(E_END)"
-	@$(OBJCOPY) -O $(FORMAT) -R .eeprom -R .fuse -R .lock -R .signature $< $@
 
 %.eep: %.elf
 	@echo
@@ -619,6 +714,7 @@ extcoff: $(TARGET).elf
 	@$(OBJCOPY) -j .eeprom --set-section-flags=.eeprom="alloc,load" \
 	--change-section-lma .eeprom=0 --no-change-warnings -O $(FORMAT) $< $@ || exit 0
 
+<<<<<<< HEAD:examples/avr-FreeRTOS/Makefile
 # Create extended listing file/disassambly from ELF output file.
 # using objdump testing: option -C
 %.lss: %.elf
@@ -631,14 +727,9 @@ extcoff: $(TARGET).elf
 	@echo
 	@echo -e $(MSG_SYMBOL_TABLE) "\n             $(E_BR_CYAN)" $@ "$(E_END)"
 	@$(NM) -n $< > $@
+=======
+>>>>>>> 0844b056bed6e7009073b24369858df323002f8b:examples/avr/Makefile
 
-
-# Link: create ELF output file from object files.
-.SECONDARY : $(TARGET).elf
-.PRECIOUS : $(OBJS)
-%.elf: $(OBJS) $(OUTDIR)
-	@echo -e $(MSG_LINKING)"\n  " "$(E_BR_CYAN)" $@ "$(E_END)"
-	@$(CC) $(ALL_CFLAGS) $(OBJS) --output $@ $(LDFLAGS) $(LIB)
 
 
 # Compile: create object files from C source files.
@@ -828,6 +919,7 @@ check: ## Check if tools and libraries are present
 		${MPTOOL} cl ${CC} $${f};      \
 	done                               \
 	
+<<<<<<< HEAD:examples/avr-FreeRTOS/Makefile
 >>>>>>> 0b0411e726916f6f580389db0cace1cd82513846:examples/avr/Makefile
 
 list-info: 
@@ -836,6 +928,44 @@ list-info:
 	
  
 info: list-info list-flags list-ldflags list-src ## Print information about project
+=======
+list-info: 
+	@echo -e $(MSG_PROJECT)
+	@echo "Target:   $(TARGET)"
+	@echo "Platform: $(TARGET_PLATFORM)"
+	@echo "Licence:  $(LICENCE)"
+	@echo "Outdir:   $(OUTDIR)"
+	@echo "MCU:      $(MCU)"
+	@echo "F_CPU:    $(F_CPU)"
+	
+
+list-includes: 
+	@echo -e $(MSG_INCLUDES)
+	@export IFS=" "
+	@for f in $(INCLUDE); do   \
+	  echo $${f} ;             \
+	done        
+
+list-defs: 
+	@echo -e $(MSG_DEFS)
+	@export IFS=" "
+	@for f in $(CDEFS); do     \
+	  echo $${f} ;             \
+	done        
+
+	@for f in $(CPPDEFS); do   \
+	  echo $${f} ;             \
+	done        
+
+	@for f in $(ASDEFS); do    \
+	  echo $${f} ;             \
+	done        
+
+
+info: list-info list-includes list-defs list-flags list-ldflags  ## Print information about project
+
+files: list-src ## List source files
+>>>>>>> 0844b056bed6e7009073b24369858df323002f8b:examples/avr/Makefile
 	
 #
 # Personal settings

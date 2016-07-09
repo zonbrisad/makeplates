@@ -320,8 +320,8 @@ C_ACTION=$(E_BR_MAGENTA)
 
 # Messages ------------------------------------------------------------------
 MSG_LINE             = "$(E_WHITE)------------------------------------------------------------------$(E_END)"
-MSG_BEGIN            = "${E_WHITE}-------------------------------- Begin ---------------------------${E_END}"
-MSG_END              = "${E_WHITE}-------------------------------- End -----------------------------${E_END}"
+MSG_BEGIN            = "${E_WHITE}===== Begin ${E_GRAY}------------------------------------------------------------${E_END}"
+MSG_END              = "${E_WHITE}===== End${E_GRAY} --------------------------------------------------------------${E_END}"
 MSG_ERRORS_NONE      = "${C_OK}Errors: none ${E_END}"
 MSG_LINKING          = "${C_ACTION}Linking:${E_END}"
 MSG_COMPILING        = "${C_ACTION}Compiling C:${E_END}"
@@ -425,8 +425,9 @@ eep: $(OUTDIR)/$(TARGET).eep
 
 # Eye candy.
 begin:
-	@echo -e "$(E_BR_MAGENTA)Building:     $(E_BR_GREEN)$(TARGET) $(E_END)"
 	@echo -e $(MSG_BEGIN)
+	@echo -e "$(E_BR_MAGENTA)Building:     $(E_BR_GREEN)$(TARGET) $(E_END)"
+
  
 end:
 	@echo
@@ -434,7 +435,7 @@ end:
 	
 finished:
 	@echo
-	@echo -e $(MSG_ERRORS_NONE)
+#	@echo -e $(MSG_ERRORS_NONE)
 
 # Display compiler version information.
 gccversion :  ## Display compiler version
@@ -708,7 +709,9 @@ list-defs:
 	done        
 
 
-info: list-info list-includes list-defs list-flags list-ldflags list-src ## Print information about project
+info: list-info list-includes list-defs list-flags list-ldflags  ## Print information about project
+
+files: list-src ## List source files
 	
 #
 # Personal settings
