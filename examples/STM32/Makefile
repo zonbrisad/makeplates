@@ -22,17 +22,32 @@ LICENCE = GPLv2
 TARGET = stm32test
 
 DRIVERS=thirdparty/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/STM32F10x_StdPeriph_Driver/src
+DRIVERS_USB=thirdparty/STM32_USB-FS-Device_Lib_V4.0.0/Libraries/STM32_USB-FS-Device_Driver/src
 
 # List C source files here. (C dependencies are automatically generated.)
 SRC = src/main.c                   \
       src/stm32f10x_it.c           \
+      src/system_stm32f10x.c       \
       src/startup_Cortex_M3.c      \
       src/printf.c                 \
+      src/usb_desc.c               \
+      src/usb_endp.c               \
+      src/usb_istr.c               \
+      src/usb_prop.c               \
+      src/usb_pwr.c                \
+      src/hw_config.c              \
       $(DRIVERS)/stm32f10x_usart.c \
       $(DRIVERS)/stm32f10x_gpio.c  \
       $(DRIVERS)/stm32f10x_pwr.c   \
       $(DRIVERS)/stm32f10x_rcc.c   \
-      thirdparty/STM32F10x_StdPeriph_Lib_V3.5.0/Project/STM32F10x_StdPeriph_Template/system_stm32f10x.c \
+      $(DRIVERS_USB)/usb_core.c    \
+      $(DRIVERS_USB)/usb_init.c    \
+      $(DRIVERS_USB)/usb_int.c     \
+      $(DRIVERS_USB)/usb_mem.c     \
+      $(DRIVERS_USB)/usb_regs.c    \
+      $(DRIVERS_USB)/usb_sil.c 
+#      thirdparty/STM32F10x_StdPeriph_Lib_V3.5.0/Project/STM32F10x_StdPeriph_Template/system_stm32f10x.c  \
+
 			
       
 # List C++ source files here. (C dependencies are automatically generated.)
@@ -46,9 +61,10 @@ CPPSRC =
 
 # Include directories  -------------------------------------------------------
 INCLUDE = src \
-          thirdparty/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/STM32F10x_StdPeriph_Driver/inc \
+          thirdparty/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/STM32F10x_StdPeriph_Driver/inc       \
           thirdparty/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/CMSIS/CM3/DeviceSupport/ST/STM32F10x \
-          thirdparty/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/CMSIS/CM3/CoreSupport
+          thirdparty/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/CMSIS/CM3/CoreSupport                \
+          thirdparty/STM32_USB-FS-Device_Lib_V4.0.0/Libraries/STM32_USB-FS-Device_Driver/inc 
 # MCU
 MCU = cortex-m3
 
@@ -82,7 +98,12 @@ CDEFS = STM32F103C8  \
         STM32F10X_MD \
         USE_STDPERIPH_DRIVER \
 
+<<<<<<< HEAD
+
+# Place -D or -U options here for ASM sources
+=======
 # ASM  Macro definitions
+>>>>>>> 0844b056bed6e7009073b24369858df323002f8b
 ADEFS = 
 
 # C++ Macro definitions
@@ -418,8 +439,12 @@ F_WARNING2="s/unused variable/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_WARNING3="s/may be used uninitialized in this function/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 C_FILTER   = | sed -ru -e $(F_ERROR)  -e $(F_WARNING)  -e $(F_NOTE) \
                        -e $(FF_ERROR) -e $(FF_WARNING) -e $(FF_NOTE) \
+<<<<<<< HEAD
+                       -e $(F_WARNING1) -e $(F_WARNING2) -e $(F_WARNING3) 
+=======
                        -e $(F_WARNING1) -e $(F_WARNING2) -e $(F_WARNING3) \
 											 -e $(F_INF) -e $(FF_INF)
+>>>>>>> 0b0411e726916f6f580389db0cace1cd82513846
 CPP_FILTER = $(C_FILTER)
 
 LD_ERROR1="s/undefined reference/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
@@ -791,7 +816,10 @@ ccheck: ## Static code analysis using cppcheck(errors only)
 acheck: ## Static code analysis using cppcheck(all warnings)
 	@$(CPPCHECK) --inline-suppr --enable=all $(SRC) 
 
+<<<<<<< HEAD
+=======
 
+>>>>>>> 0844b056bed6e7009073b24369858df323002f8b
 
 # 
 # OpenOCD handling

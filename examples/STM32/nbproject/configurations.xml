@@ -3,12 +3,33 @@
   <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
     <df root="." name="0">
       <df name="src">
+        <in>hw_config.c</in>
         <in>main.c</in>
         <in>printf.c</in>
         <in>startup_Cortex_M3.c</in>
         <in>stm32f10x_it.c</in>
+        <in>system_stm32f10x.c</in>
+        <in>usb_desc.c</in>
+        <in>usb_endp.c</in>
+        <in>usb_istr.c</in>
+        <in>usb_prop.c</in>
+        <in>usb_pwr.c</in>
       </df>
       <df name="thirdparty">
+        <df name="STM32_USB-FS-Device_Lib_V4.0.0">
+          <df name="Libraries">
+            <df name="STM32_USB-FS-Device_Driver">
+              <df name="src">
+                <in>usb_core.c</in>
+                <in>usb_init.c</in>
+                <in>usb_int.c</in>
+                <in>usb_mem.c</in>
+                <in>usb_regs.c</in>
+                <in>usb_sil.c</in>
+              </df>
+            </df>
+          </df>
+        </df>
         <df name="STM32F10x_StdPeriph_Lib_V3.5.0">
           <df name="Libraries">
             <df name="STM32F10x_StdPeriph_Driver">
@@ -49,7 +70,7 @@
         <rebuildPropChanged>false</rebuildPropChanged>
       </toolsSet>
       <flagsDictionary>
-        <element flagsID="0" commonFlags="-g -Os -funsigned-char -std=gnu99"/>
+        <element flagsID="0" commonFlags="-Os -funsigned-char -std=gnu99"/>
       </flagsDictionary>
       <codeAssistance>
       </codeAssistance>
@@ -66,6 +87,7 @@
               <pElem>thirdparty/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/STM32F10x_StdPeriph_Driver/inc</pElem>
               <pElem>thirdparty/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/CMSIS/CM3/DeviceSupport/ST/STM32F10x</pElem>
               <pElem>thirdparty/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/CMSIS/CM3/CoreSupport</pElem>
+              <pElem>thirdparty/STM32_USB-FS-Device_Lib_V4.0.0/Libraries/STM32_USB-FS-Device_Driver/inc</pElem>
             </incDir>
             <preprocessorList>
               <Elem>STM32F103C8</Elem>
@@ -79,17 +101,47 @@
           <preBuildCommand></preBuildCommand>
         </preBuild>
       </makefileType>
+      <item path="src/hw_config.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+        </cTool>
+      </item>
       <item path="src/main.c" ex="false" tool="0" flavor2="3">
         <cTool flags="0">
         </cTool>
       </item>
-      <item path="src/printf.c" ex="false" tool="0" flavor2="0">
+      <item path="src/printf.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+        </cTool>
       </item>
       <item path="src/startup_Cortex_M3.c" ex="false" tool="0" flavor2="3">
         <cTool flags="0">
         </cTool>
       </item>
       <item path="src/stm32f10x_it.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+        </cTool>
+      </item>
+      <item path="src/system_stm32f10x.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+        </cTool>
+      </item>
+      <item path="src/usb_desc.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+        </cTool>
+      </item>
+      <item path="src/usb_endp.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+        </cTool>
+      </item>
+      <item path="src/usb_istr.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+        </cTool>
+      </item>
+      <item path="src/usb_prop.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+        </cTool>
+      </item>
+      <item path="src/usb_pwr.c" ex="false" tool="0" flavor2="3">
         <cTool flags="0">
         </cTool>
       </item>
@@ -122,6 +174,48 @@
         </cTool>
       </item>
       <item path="thirdparty/STM32F10x_StdPeriph_Lib_V3.5.0/Project/STM32F10x_StdPeriph_Template/system_stm32f10x.c"
+            ex="false"
+            tool="0"
+            flavor2="3">
+        <cTool flags="0">
+        </cTool>
+      </item>
+      <item path="thirdparty/STM32_USB-FS-Device_Lib_V4.0.0/Libraries/STM32_USB-FS-Device_Driver/src/usb_core.c"
+            ex="false"
+            tool="0"
+            flavor2="3">
+        <cTool flags="0">
+        </cTool>
+      </item>
+      <item path="thirdparty/STM32_USB-FS-Device_Lib_V4.0.0/Libraries/STM32_USB-FS-Device_Driver/src/usb_init.c"
+            ex="false"
+            tool="0"
+            flavor2="3">
+        <cTool flags="0">
+        </cTool>
+      </item>
+      <item path="thirdparty/STM32_USB-FS-Device_Lib_V4.0.0/Libraries/STM32_USB-FS-Device_Driver/src/usb_int.c"
+            ex="false"
+            tool="0"
+            flavor2="3">
+        <cTool flags="0">
+        </cTool>
+      </item>
+      <item path="thirdparty/STM32_USB-FS-Device_Lib_V4.0.0/Libraries/STM32_USB-FS-Device_Driver/src/usb_mem.c"
+            ex="false"
+            tool="0"
+            flavor2="3">
+        <cTool flags="0">
+        </cTool>
+      </item>
+      <item path="thirdparty/STM32_USB-FS-Device_Lib_V4.0.0/Libraries/STM32_USB-FS-Device_Driver/src/usb_regs.c"
+            ex="false"
+            tool="0"
+            flavor2="3">
+        <cTool flags="0">
+        </cTool>
+      </item>
+      <item path="thirdparty/STM32_USB-FS-Device_Lib_V4.0.0/Libraries/STM32_USB-FS-Device_Driver/src/usb_sil.c"
             ex="false"
             tool="0"
             flavor2="3">
