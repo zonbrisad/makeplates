@@ -498,17 +498,17 @@ gccversion :  ## Display compiler version
 
 coff: $(TARGET).elf
 	@echo
-	@echo -e $(MSG_COFF)"\n  " "$(E_BR_CYAN)" $(TARGET).cof "$(E_END)"
+	@echo -e $(MSG_COFF)"\n             $(E_BR_CYAN)" $(TARGET).cof "$(E_END)"
 	$(COFFCONVERT) -O coff-avr $< $(TARGET).cof
 
 extcoff: $(TARGET).elf
 	@echo
-	@echo -e $(MSG_EXTENDED_COFF)"\n  " "$(E_BR_CYAN)" $(TARGET).cof "$(E_END)"
+	@echo -e $(MSG_EXTENDED_COFF)"\n             $(E_BR_CYAN)" $(TARGET).cof "$(E_END)"
 	@$(COFFCONVERT) -O coff-ext-avr $< $(TARGET).cof
 
 %.eep: %.elf
 	@echo
-	@echo -e $(MSG_EEPROM)"\n  " "$(E_BR_CYAN)" $@ "$(E_END)"
+	@echo -e $(MSG_EEPROM)"\n             $(E_BR_CYAN)" $@ "$(E_END)"
 	@$(OBJCOPY) -j .eeprom --set-section-flags=.eeprom="alloc,load" \
 	--change-section-lma .eeprom=0 --no-change-warnings -O $(FORMAT) $< $@ || exit 0
 
