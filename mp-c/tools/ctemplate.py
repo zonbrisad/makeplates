@@ -112,7 +112,7 @@ def newModule(dir, author, licence):
     addHeader(fileH, fileNameH, brief, date, author, licence)
     addSentinelBegin(fileH, fName.upper())
     addCppSentinel(fileH)
-    addSection(fileC, "Includes")
+    addSection(fileH, "Includes")
     addSection(fileH, "Macros")
     addSection(fileH, "Typedefs")
     addSection(fileH, "Variables")

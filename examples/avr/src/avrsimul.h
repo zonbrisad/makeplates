@@ -30,7 +30,7 @@ extern "C" {
 // Functions --------------------------------------------------------------
 
 	
-static int simul_putchar(char c, FILE *stream);
+int simul_putchar(char c, FILE *stream);
 	
 	
 #ifdef __cplusplus

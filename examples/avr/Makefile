@@ -22,7 +22,8 @@ LICENCE = GPLv2
 TARGET = avrtest
 
 # List C source files here. (C dependencies are automatically generated.)
-SRC = src/main.c 
+SRC = src/main.c \
+      src/avrsimul.c
 
 # List C++ source files here. (C dependencies are automatically generated.)
 CPPSRC = 
@@ -32,8 +33,7 @@ CPPSRC =
 ASRC =
 
 # Include directories
-INCLUDE = inc \
-          src 
+INCLUDE =  src 
 
 LIB  = 
 
@@ -49,14 +49,12 @@ OUTDIR = output
 #     0 = turn off optimization. s = optimize for size.
 OPT = s
 
-
-
 # Compiler flag to set the C Standard level.
 # [ gnu99 gnu11 c++98 c++03 c++11 c++14 ] 
 CSTANDARD = -std=gnu99
 
 # C Macro definitions
-CDEFS = 
+CDEFS = ARDUINO 
 
 # ASM  Macro definitions
 ADEFS = 
@@ -137,7 +135,7 @@ CPPFLAGS += $(patsubst %,-I%,$(INCLUDE))
 #             files -- see avr-libc docs [FIXME: not yet described there]
 #  -listing-cont-lines: Sets the maximum number of continuation lines of hex 
 #       dump that will be displayed for a given single line of source input.
-ASFLAGS =  $(patsubst %,-D%,$(ASDEFS))
+ASFLAGS =  $(patsubst %,-D%,$(ADEFS))
 ASFLAGS += -Wa,-adhlns=$(<:%.S=$(OBJDIR)/%.lst),-gstabs,--listing-cont-lines=100
 
 # Linker Options ------------------------------------------------------------
@@ -204,12 +202,12 @@ endif
 
 ifeq ($(TARGET_PLATFORM), avr)
 # MCU name
-MCU = atmega2560
+MCU = atmega328
 
 # Processor frequency.
 # Some common values:
 #  1000000  1843200  2000000 3686400 4000000 7372800 8000000 11059200 14745600
-F_CPU = 8000000
+F_CPU = 16000000
 
 CFLAGS   += -mmcu=$(MCU)
 CPPFLAGS += -mmcu=$(MCU)
@@ -439,8 +437,9 @@ eep: $(OUTDIR)/$(TARGET).eep
 
 # Eye candy.
 begin:
-	@echo -e "$(E_BR_MAGENTA)Building:     $(E_BR_GREEN)$(TARGET) $(E_END)"
 	@echo -e $(MSG_BEGIN)
+	@echo -e "$(E_BR_MAGENTA)Building:     $(E_BR_GREEN)$(TARGET) $(E_END)"
+
  
 end:
 	@echo
@@ -448,7 +447,7 @@ end:
 	
 finished:
 	@echo
-	@echo -e $(MSG_ERRORS_NONE)
+#	@echo -e $(MSG_ERRORS_NONE)
 
 
 # Display size of file.
@@ -793,8 +792,10 @@ acheck: ## Static code analysis using cppcheck(all warnings)
 
 #
 # Avrdude settings 
-#============================================================================
-
+# ----------------------------------------------------------
+.PHONY: program
+	
+AVRDUDE = avrdude	
 # Programming hardware
 # Type: avrdude -c ?
 # to get a full listing.
@@ -803,8 +804,10 @@ AVRDUDE_PROGRAMMER = stk500v2
  
 # com1 = serial port. Use lpt1 to connect to parallel port.
 AVRDUDE_PORT = com1    # programmer connected to serial device
+
+AVRDUDE_BITRATE = 57600 
  
-AVRDUDE_WRITE_FLASH = -U flash:w:$(TARGET).hex
+AVRDUDE_WRITE_FLASH = -U flash:w:$(OUTDIR)/$(TARGET).hex:i
 #AVRDUDE_WRITE_EEPROM = -U eeprom:w:$(TARGET).eep
   
 # Uncomment the following if you want avrdude's erase cycle counter.
@@ -819,18 +822,25 @@ AVRDUDE_WRITE_FLASH = -U flash:w:$(TARGET).hex
 # Increase verbosity level.  Please use this when submitting bug
 # reports about avrdude. See <http://savannah.nongnu.org/projects/avrdude>
 # to submit bug reports.
-#AVRDUDE_VERBOSE = -v -v
+AVRDUDE_VERBOSE = -v -v
  
-AVRDUDE_FLAGS = -p $(MCU) -P $(AVRDUDE_PORT) -c $(AVRDUDE_PROGRAMMER)
+AVRDUDE_FLAGS = -p $(MCU) -P $(AVRDUDE_PORT) -c $(AVRDUDE_PROGRAMMER) -b ${AVRDUDE_BITRATE} -D
 AVRDUDE_FLAGS += $(AVRDUDE_NO_VERIFY)
 AVRDUDE_FLAGS += $(AVRDUDE_VERBOSE)
 AVRDUDE_FLAGS += $(AVRDUDE_ERASE_COUNTER)
 
 
-# Program the device.  
-program: $(TARGET).hex $(TARGET).eep
-	$(AVRDUDE) $(AVRDUDE_FLAGS) $(AVRDUDE_WRITE_FLASH) $(AVRDUDE_WRITE_EEPROM)
+# Program the device.
+program: $(TARGET).hex # $(TARGET).eep
+	$(AVRDUDE) $(AVRDUDE_FLAGS) $(AVRDUDE_WRITE_FLASH) # $(AVRDUDE_WRITE_EEPROM)
  
+#
+# AVR simulator
+#============================================================================
+.PHONY: simul
+
+simul:  ## Run AVR simulator 
+	simulavr -d $(MCU) -F $(F_CPU) --file $(TRGFILE) -W 0x20,- -R 0x22,- -T exit --irqstatistic
 	
 # Listing of phony targets.
 .PHONY : all clean gccversion build begin finished end elf lss sym archive edit help backup list-src list-flags newproj run install

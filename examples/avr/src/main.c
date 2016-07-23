@@ -3,31 +3,25 @@
 #include <avr/interrupt.h>
 #include <util/delay.h>
 
+#include "def.h"
+#include "avrsimul.h"
 
-/* This port correponds to the "-W 0x20,-" command line option. */
-#define special_output_port (*((volatile char *)0x20))
-
-/* This port correponds to the "-R 0x22,-" command line option. */
-#define special_input_port  (*((volatile char *)0x22))
-
-static int uart_putchar(char c, FILE *stream);
-
-static FILE mystdout = FDEV_SETUP_STREAM(uart_putchar, NULL, _FDEV_SETUP_WRITE);
-
-static int uart_putchar(char c, FILE *stream) {
-	special_output_port = c;
-	return 0;
-}
+// Variables --------------------------------------------------------------
+static FILE mystdout = FDEV_SETUP_STREAM(simul_putchar, NULL, _FDEV_SETUP_WRITE);
 
 volatile int timer2_ticks;
+
+// Prototypes -------------------------------------------------------------
+void hw_init(void);
+
+// Code -------------------------------------------------------------------
 
 /* Every ~ms */
 ISR(TIMER2_COMPA_vect) {
 	   timer2_ticks++;
 }
 
-int main(void) {
-	volatile int tmp;
+void hw_init(void) {
 	stdout = &mystdout;
 	
 	timer2_ticks = 0;
@@ -37,8 +31,14 @@ int main(void) {
 	TIMSK2 = _BV(OCIE2A);
 	TCCR2B |= (1 << CS11) | (1 << CS10) ; 
 	sei();
+}
+
+int main(void) {
+	volatile int tmp;
 	
-	printf("Bashplate AVR example\n");
+	hw_init();
+	
+	printf("Makeplate AVR example\n");
 	while (1) {
 		tmp = timer2_ticks;
 		printf("Timer counter %d\n", tmp);
