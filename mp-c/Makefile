@@ -147,7 +147,7 @@ CPPFLAGS += $(patsubst %,-I%,$(INCLUDE))
 #             files -- see avr-libc docs [FIXME: not yet described there]
 #  -listing-cont-lines: Sets the maximum number of continuation lines of hex 
 #       dump that will be displayed for a given single line of source input.
-ASFLAGS =  $(patsubst %,-D%,$(ADEFS))
+ASFLAGS =  $(patsubst %,-D%,$(ASDEFS))
 ASFLAGS += -Wa,-adhlns=$(<:%.S=$(OBJDIR)/%.lst),-gstabs,--listing-cont-lines=100
 
 # Linker Options ------------------------------------------------------------
@@ -208,6 +208,7 @@ CTEMPLATE = python3 tools/ctemplate.py
 BIN2ARRAY = python3 tools/bin2array.py
 MPTOOL    = tools/mkptools
 CPPCHECK  = cppcheck
+INSTALL   = install
 
 TCHAIN = $(TCHAIN_BASE)/$(TCHAIN_PREFIX)
 
@@ -548,9 +549,29 @@ newfile:  ## Create a new C file
 	
 newproj:  ## Create a new project
 	@${PROJECT} newproj
-	
-install: ## Install program
-	@${COPY} output/${TARGET} /usr/local/bin
+
+# Install options -----------------------------------------------------------
+
+# Install directory
+INSTALL_DIR      = ~/bin
+
+# Owner of binary
+INSTALL_OWNER    = $${USER}
+
+# Group owner of binary
+# #INSTALL_GROUP    = $${USER}
+INSTALL_GROUP    = users
+
+# Install options
+INSTALL_OPTIONS =  --owner ${INSTALL_OWNER}
+INSTALL_OPTIONS += --group ${INSTALL_GROUP}
+INSTALL_OPTIONS += -D
+INSTALL_OPTIONS += --preserve-timestamps
+INSTALL_OPTIONS += --verbose
+
+install: $(TRGFILE) ## Install program
+	@echo ${INSTALL_OPTIONS} 
+	${INSTALL} ${INSTALL_OPTIONS} $(TRGFILE) ${INSTALL_DIR}
 
 #
 # Help information
@@ -604,6 +625,7 @@ check: ## Check if tools and libraries are present
 	@$(MPTOOL) ce $(MOC)
 	@$(MPTOOL) ce python3
 	@$(MPTOOL) ce $(CPPCHECK)
+	@$(MPTOOL) ce $(INSTALL)
 	@for f in $(LIB); do               \
 		${MPTOOL} cl ${CC} $${f};      \
 	done                               \
