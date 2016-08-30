@@ -98,12 +98,8 @@ CDEFS = STM32F103C8  \
         STM32F10X_MD \
         USE_STDPERIPH_DRIVER \
 
-<<<<<<< HEAD
 
-# Place -D or -U options here for ASM sources
-=======
 # ASM  Macro definitions
->>>>>>> 0844b056bed6e7009073b24369858df323002f8b
 ADEFS = 
 
 # C++ Macro definitions
@@ -439,12 +435,8 @@ F_WARNING2="s/unused variable/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_WARNING3="s/may be used uninitialized in this function/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 C_FILTER   = | sed -ru -e $(F_ERROR)  -e $(F_WARNING)  -e $(F_NOTE) \
                        -e $(FF_ERROR) -e $(FF_WARNING) -e $(FF_NOTE) \
-<<<<<<< HEAD
-                       -e $(F_WARNING1) -e $(F_WARNING2) -e $(F_WARNING3) 
-=======
                        -e $(F_WARNING1) -e $(F_WARNING2) -e $(F_WARNING3) \
 											 -e $(F_INF) -e $(FF_INF)
->>>>>>> 0b0411e726916f6f580389db0cace1cd82513846
 CPP_FILTER = $(C_FILTER)
 
 LD_ERROR1="s/undefined reference/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
@@ -816,10 +808,7 @@ ccheck: ## Static code analysis using cppcheck(errors only)
 acheck: ## Static code analysis using cppcheck(all warnings)
 	@$(CPPCHECK) --inline-suppr --enable=all $(SRC) 
 
-<<<<<<< HEAD
-=======
 
->>>>>>> 0844b056bed6e7009073b24369858df323002f8b
 
 # 
 # OpenOCD handling
