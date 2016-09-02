@@ -17,7 +17,9 @@
 #include <unistd.h>
 #include <glib-2.0/glib.h>
 
+#include "def.h"
 #include "lua.h"
+#include "lualib.h"
 #include "lauxlib.h"
 
 #include "gp_log.h"
@@ -85,6 +87,7 @@ void safeExit() {
 int main(int argc, char *argv[]) {
 	GError *error = NULL;
 	GOptionContext *context;
+	lua_State *L;
 	
 	// init log system
 	gp_log_init("glua.log");                 
@@ -111,12 +114,16 @@ int main(int argc, char *argv[]) {
   if (opt_webtest) {
     webTest();
   }
-	
+
 	printf("Ett litet testprogram.\n");
 	
-	lua_State *L = luaL_newstate();
+
+	L = luaL_newstate();
 	luaL_openlibs(L);
-	luaL_dofile(L, "test.lua");
+	(void) luaL_dofile(L, "test.lua");
+	
+	UNUSED_PARAM(L);
+	 
 	lua_close(L);
 	 	
 	safeExit();

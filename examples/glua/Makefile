@@ -116,7 +116,7 @@ OPT = 2
 
 # Compiler flag to set the C Standard level.
 # [ gnu99 gnu11 c++98 c++03 c++11 c++14 ] 
-CSTANDARD = -std=gnu99
+CSTANDARD = gnu99
 
 # C Macro definitions
 CDEFS = HAVE_CONFIG_H   \
@@ -162,7 +162,7 @@ CFLAGS += -Wunreachable-code
 #CFLAGS += -Wsign-compare
 #CFLAGS += -Wa,-adhlns=$(<:%.c=$(OBJDIR)/%.lst)
 CFLAGS += $(patsubst %,-I%,$(INCLUDE))
-CFLAGS += $(CSTANDARD)
+CFLAGS += -std=$(CSTANDARD)
 CFLAGS += $(shell pkg-config --cflags glib-2.0)
 CFLAGS += $(shell pkg-config --cflags gthread-2.0)
 #CFLAGS += $(shell pkg-config --cflags lua5.1)
@@ -207,7 +207,7 @@ CPPFLAGS += $(shell pkg-config --cflags gthread-2.0)
 #             files -- see avr-libc docs [FIXME: not yet described there]
 #  -listing-cont-lines: Sets the maximum number of continuation lines of hex 
 #       dump that will be displayed for a given single line of source input.
-ASFLAGS =  $(patsubst %,-D%,$(ASDEFS))
+ASFLAGS =  $(patsubst %,-D%,$(ADEFS))
 ASFLAGS += -Wa,-adhlns=$(<:%.S=$(OBJDIR)/%.lst),-gstabs,--listing-cont-lines=100
 
 # Linker Options ------------------------------------------------------------
@@ -350,8 +350,10 @@ MSG_LINKER           = "${C_MSG}Linker Flags $(E_GREEN)-------------------------
 MSG_PROJECT          = "${C_MSG}Project info $(E_GREEN)-----------------------------------------------------${E_END}"
 MSG_INCLUDES         = "${C_MSG}Include directories $(E_GREEN)----------------------------------------------${E_END}"
 MSG_DEFS             = "${C_MSG}Macro definitions $(E_GREEN)------------------------------------------------${E_END}"
-
-
+MSG_INSTALL_INFO     = "${C_MSG}Install settings $(E_GREEN)-------------------------------------------------${E_END}"
+MSG_INSTALLING       = "${C_ACTION}Installing:   ${E_END}"
+MSG_BUILDING         = "$(C_ACTION)Building:     "
+	
 # Compiler output colorizer filter ------------------------------------------
 
 F_INF="s/In function/$$(printf "$(E_BR_GREEN)")&$$(printf "$(E_END)")/i"
@@ -420,8 +422,7 @@ eep: $(OUTDIR)/$(TARGET).eep
 # Eye candy.
 begin:
 	@echo -e $(MSG_BEGIN)
-	@echo -e "$(E_BR_MAGENTA)Building:     $(E_BR_GREEN)$(TARGET) $(E_END)"
-
+	@echo -e ${MSG_BUILDING}"$(E_BR_GREEN)$(TARGET) $(E_END)"
  
 end:
 	@echo
@@ -627,11 +628,11 @@ INSTALL_OPTIONS =  --owner ${INSTALL_OWNER}
 INSTALL_OPTIONS += --group ${INSTALL_GROUP}
 INSTALL_OPTIONS += -D
 INSTALL_OPTIONS += --preserve-timestamps
-INSTALL_OPTIONS += --verbose
+#INSTALL_OPTIONS += --verbose
 
 install: $(TRGFILE) ## Install program
-	@echo ${INSTALL_OPTIONS} 
-	${INSTALL} ${INSTALL_OPTIONS} $(TRGFILE) ${INSTALL_DIR}
+	@echo -e $(MSG_INSTALLING) "$(E_BR_GREEN)$(TARGET) $(E_END)"
+	@${INSTALL} ${INSTALL_OPTIONS} $(TRGFILE) ${INSTALL_DIR}
 
 #
 # Help information
@@ -692,14 +693,15 @@ check: ## Check if tools and libraries are present
 	
 list-info: 
 	@echo -e $(MSG_PROJECT)
-	@echo "Target:   $(TARGET)"
-	@echo "Platform: $(TARGET_PLATFORM)"
-	@echo "Licence:  $(LICENCE)"
-	@echo "Outdir:   $(OUTDIR)"
-	@echo "MCU:      $(MCU)"
-	@echo "F_CPU:    $(F_CPU)"
-	
+	@echo "Target:     $(TARGET)"
+	@echo "Platform:   $(TARGET_PLATFORM)"
+	@echo "Licence:    $(LICENCE)"
+	@echo "Outdir:     $(OUTDIR)"
+	@echo "C standard: $(CSTANDARD)"
+	@echo "MCU:        $(MCU)"
+	@echo "F_CPU:      $(F_CPU)"
 
+	
 list-includes: 
 	@echo -e $(MSG_INCLUDES)
 	@export IFS=" "
@@ -723,7 +725,16 @@ list-defs:
 	done        
 
 
-info: list-info list-includes list-defs list-flags list-ldflags  ## Print information about project
+list-installinfo:
+	@echo -e $(MSG_INSTALL_INFO)
+	@echo "Install dir:   $(INSTALL_DIR)"
+	@echo "Install user:  $(INSTALL_USER)"
+	@echo "Install group: $(INSTALL_GROUP)"
+
+
+
+
+info: list-info list-includes list-defs list-flags list-ldflags list-installinfo ## Print information about project
 
 files: list-src ## List source files
 	
