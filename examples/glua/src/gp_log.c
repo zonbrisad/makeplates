@@ -4,7 +4,7 @@
 #include <glib-2.0/glib.h>
 #include <glib/gstdio.h>
 
-#include "Def.h"
+#include "def.h"
 #include "gp_log.h"
 
 
