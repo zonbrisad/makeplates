@@ -21,7 +21,7 @@
 #include <glib-2.0/glib/gstdio.h>
 
 #include "gp_log.h"
-#include "Def.h"
+#include "def.h"
 
 /**
  * Defines

@@ -37,6 +37,18 @@ ASRC =
 INCLUDE = inc \
           src 
 
+X = ncurses lua5.1
+#Y = $(patsubst %,ls%,$(X))
+X:
+#	echo ${Y}
+	@export IFS=" "
+	@for f in $(X); do             \
+	  l=$(pkg-config --libs $${f}); \
+	  echo $${f} ;                  \
+	done                           \
+
+
+
 # Libraries to link
 LIB  = -lm 
 LIB += $(shell pkg-config --libs glib-2.0)

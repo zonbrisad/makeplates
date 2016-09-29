@@ -60,7 +60,7 @@ OPT = 2
 CSTANDARD = -std=gnu99
 
 # C Macro definitions
-CDEFS = 
+CDEFS = DEBUG
 
 # ASM  Macro definitions
 ADEFS = 
