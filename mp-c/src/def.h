@@ -206,10 +206,10 @@
 // Filename without path
 //#define FILEX (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 #define WHERESTR  E_GREEN"DBG "E_WHITE"%4d"E_BR_CYAN" %-25s"E_END": "
-#define WHEREARG  __LINE__, __FUNCTION__
+#define WHEREARG  __LINE__, __FUNCTION__ 
 #define DEBUGPRINT2(...)       fprintf(stderr, __VA_ARGS__)
 #ifdef DEBUG
-#define DEBUGPRINT(_fmt, ...)  DEBUGPRINT2(WHERESTR _fmt, WHEREARG, __VA_ARGS__)
+#define DEBUGPRINT(_fmt, ...)  DEBUGPRINT2(WHERESTR _fmt, WHEREARG, ##__VA_ARGS__)
 #else
 #define DEBUGPRINT(_fmt, ...)
 #endif

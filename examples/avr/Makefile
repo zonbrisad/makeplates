@@ -51,7 +51,7 @@ OPT = s
 
 # Compiler flag to set the C Standard level.
 # [ gnu99 gnu11 c++98 c++03 c++11 c++14 ] 
-CSTANDARD = -std=gnu99
+CSTANDARD = gnu99
 
 # C Macro definitions
 CDEFS = ARDUINO 
@@ -96,7 +96,7 @@ CFLAGS += -Wunreachable-code
 #CFLAGS += -Wsign-compare
 #CFLAGS += -Wa,-adhlns=$(<:%.c=$(OBJDIR)/%.lst)
 CFLAGS += $(patsubst %,-I%,$(INCLUDE))
-CFLAGS += $(CSTANDARD)
+CFLAGS += -std=$(CSTANDARD)
 
 
 # Compiler Options C++ ------------------------------------------------------
@@ -287,6 +287,7 @@ CTEMPLATE = python3 tools/ctemplate.py
 BIN2ARRAY = python3 tools/bin2array.py
 MPTOOL    = tools/mkptools
 CPPCHECK  = cppcheck
+INSTALL   = install
 
 TCHAIN = $(TCHAIN_BASE)/$(TCHAIN_PREFIX)
 
@@ -368,8 +369,10 @@ MSG_LINKER           = "${C_MSG}Linker Flags $(E_GREEN)-------------------------
 MSG_PROJECT          = "${C_MSG}Project info $(E_GREEN)-----------------------------------------------------${E_END}"
 MSG_INCLUDES         = "${C_MSG}Include directories $(E_GREEN)----------------------------------------------${E_END}"
 MSG_DEFS             = "${C_MSG}Macro definitions $(E_GREEN)------------------------------------------------${E_END}"
-
-
+MSG_INSTALL_INFO     = "${C_MSG}Install settings $(E_GREEN)-------------------------------------------------${E_END}"
+MSG_INSTALLING       = "${C_ACTION}Installing:   ${E_END}"
+MSG_BUILDING         = "$(C_ACTION)Building:     "
+	
 # Compiler output colorizer filter ------------------------------------------
 
 F_INF="s/In function/$$(printf "$(E_BR_GREEN)")&$$(printf "$(E_END)")/i"
@@ -657,9 +660,29 @@ newfile:  ## Create a new C file
 	
 newproj:  ## Create a new project
 	@${PROJECT} newproj
-	
-install: ## Install program
-	@${COPY} output/${TARGET} /usr/local/bin
+
+# Install options -----------------------------------------------------------
+
+# Install directory
+INSTALL_DIR      = ~/bin
+
+# Owner of binary
+INSTALL_OWNER    = $${USER}
+
+# Group owner of binary
+# #INSTALL_GROUP    = $${USER}
+INSTALL_GROUP    = users
+
+# Install options
+INSTALL_OPTIONS =  --owner ${INSTALL_OWNER}
+INSTALL_OPTIONS += --group ${INSTALL_GROUP}
+INSTALL_OPTIONS += -D
+INSTALL_OPTIONS += --preserve-timestamps
+#INSTALL_OPTIONS += --verbose
+
+install: $(TRGFILE) ## Install program
+	@echo -e $(MSG_INSTALLING) "$(E_BR_GREEN)$(TARGET) $(E_END)"
+	@${INSTALL} ${INSTALL_OPTIONS} $(TRGFILE) ${INSTALL_DIR}
 
 #
 # Help information
@@ -713,19 +736,21 @@ check: ## Check if tools and libraries are present
 	@$(MPTOOL) ce $(MOC)
 	@$(MPTOOL) ce python3
 	@$(MPTOOL) ce $(CPPCHECK)
+	@$(MPTOOL) ce $(INSTALL)
 	@for f in $(LIB); do               \
 		${MPTOOL} cl ${CC} $${f};      \
 	done                               \
 	
 list-info: 
 	@echo -e $(MSG_PROJECT)
-	@echo "Target:   $(TARGET)"
-	@echo "Platform: $(TARGET_PLATFORM)"
-	@echo "Licence:  $(LICENCE)"
-	@echo "Outdir:   $(OUTDIR)"
-	@echo "MCU:      $(MCU)"
-	@echo "F_CPU:    $(F_CPU)"
-	
+	@echo "Target:     $(TARGET)"
+	@echo "Platform:   $(TARGET_PLATFORM)"
+	@echo "Licence:    $(LICENCE)"
+	@echo "Outdir:     $(OUTDIR)"
+	@echo "C standard: $(CSTANDARD)"
+	@echo "MCU:        $(MCU)"
+	@echo "F_CPU:      $(F_CPU)"
+
 
 list-includes: 
 	@echo -e $(MSG_INCLUDES)
@@ -750,7 +775,16 @@ list-defs:
 	done        
 
 
-info: list-info list-includes list-defs list-flags list-ldflags  ## Print information about project
+list-installinfo:
+	@echo -e $(MSG_INSTALL_INFO)
+	@echo "Install dir:   $(INSTALL_DIR)"
+	@echo "Install user:  $(INSTALL_USER)"
+	@echo "Install group: $(INSTALL_GROUP)"
+
+
+
+
+info: list-info list-includes list-defs list-flags list-ldflags list-installinfo ## Print information about project
 
 files: list-src ## List source files
 	
