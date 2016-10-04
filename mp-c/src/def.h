@@ -52,13 +52,25 @@
 #define MAXSLONG        2147483647
 #endif
 
-#ifndef FALSE
-#define FALSE           0
+#ifndef	FALSE
+#define	FALSE	(0)
 #endif
 
-#ifndef TRUE
-#define TRUE            1
+#ifndef	TRUE
+#define	TRUE	(!FALSE)
 #endif
+
+#undef	MAX
+#define MAX(a, b)  (((a) > (b)) ? (a) : (b))
+
+#undef	MIN
+#define MIN(a, b)  (((a) < (b)) ? (a) : (b))
+
+#undef	ABS
+#define ABS(a)	   (((a) < 0) ? -(a) : (a))
+
+#undef	CLAMP
+#define CLAMP(x, low, high)  (((x) > (high)) ? (high) : (((x) < (low)) ? (low) : (x)))
 
 #ifndef NULL
 #define NULL			(void)0
@@ -210,9 +222,14 @@
 #define DEBUGPRINT2(...)       fprintf(stderr, __VA_ARGS__)
 #ifdef DEBUG
 #define DEBUGPRINT(_fmt, ...)  DEBUGPRINT2(WHERESTR _fmt, WHEREARG, ##__VA_ARGS__)
+#define DEBUG_DO(f) f
 #else
+#define DEBUG_DO(f) 
 #define DEBUGPRINT(_fmt, ...)
 #endif
+
+
+
 
 
 // Misc ---------------------------------------------------------------------
