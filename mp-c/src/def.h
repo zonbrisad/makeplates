@@ -214,6 +214,9 @@
 #define DEBUGPRINT(_fmt, ...)
 #endif
 
+#define INFOSTR  E_BR_BLUE"INF "E_WHITE"%4d"E_BR_CYAN" %-25s"E_END": "
+#define INFOPRINT(_fmt, ...) DEBUGPRINT2(INFOSTR _fmt, WHEREARG, ##__VA_ARGS__)
+
 
 // Misc ---------------------------------------------------------------------
 
