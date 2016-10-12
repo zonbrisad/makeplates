@@ -22,8 +22,7 @@ int main(int argc, char *argv[]) {
 	printf("Var i = %2x\n", i);
 	BIT_CLEAR(i,4);
 	printf("Var i = %2x\n", i);
-	
-	
+		
 	return 0;
 
 }

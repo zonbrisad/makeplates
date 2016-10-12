@@ -78,11 +78,11 @@
 
 // Bit manipulation ---------------------------------------------------------
 
-#define BIT_IS_SET(v, bit)  ((v) & (bit))
-#define BIT_NOT_SET(v, bit) !(BIT_IS_SET(v, bit))
+#define BIT_IS_SET(v, bit)   ((v) & (bit))
+#define BIT_IS_CLEAR(v, bit) !(BIT_IS_SET(v, bit))
 
-#define BIT_SET(v, bit)     ((v) |= (bit))
-#define BIT_CLEAR(v, bit)   ((v) &= ~(bit))
+#define BIT_SET(v, bit)      ((v) |= (bit))
+#define BIT_CLEAR(v, bit)    ((v) &= ~(bit))
 
 // Special character definitions --------------------------------------------
 

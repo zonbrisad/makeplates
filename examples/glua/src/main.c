@@ -23,7 +23,7 @@
 #include "lauxlib.h"
 
 #include "gp_log.h"
-#include "swill/swill.h"
+//#include "swill/swill.h"
 
 /**
  * Defines
@@ -67,17 +67,6 @@ void testPage(FILE *f) {
 //  swill_printf(f, "Kalle");
 }
 
-void webTest() {
-  printf("Starting webserver");
-//  swill_init(8080);
-//  swill_handle("testPage", testPage, NULL);
-//  swill_handle("mandelpage.html", mandelpage,m);
-
-  while (1) {
-    sleep(1);
-//    swill_serve();
-  }
-}
 
 void safeExit() {
   gp_log_close();
@@ -88,6 +77,7 @@ int main(int argc, char *argv[]) {
 	GError *error = NULL;
 	GOptionContext *context;
 	lua_State *L;
+	int kalle;
 	
 	// init log system
 	gp_log_init("glua.log");                 
@@ -111,10 +101,6 @@ int main(int argc, char *argv[]) {
 	  gp_log_set_verbose(TRUE);  
 	}
 	
-  if (opt_webtest) {
-    webTest();
-  }
-
 	printf("Ett litet testprogram.\n");
 	
 
