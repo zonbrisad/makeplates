@@ -52,13 +52,25 @@
 #define MAXSLONG        2147483647
 #endif
 
-#ifndef FALSE
-#define FALSE           0
+#ifndef	FALSE
+#define	FALSE	(0)
 #endif
 
-#ifndef TRUE
-#define TRUE            1
+#ifndef	TRUE
+#define	TRUE	(!FALSE)
 #endif
+
+#undef	MAX
+#define MAX(a, b)  (((a) > (b)) ? (a) : (b))
+
+#undef	MIN
+#define MIN(a, b)  (((a) < (b)) ? (a) : (b))
+
+#undef	ABS
+#define ABS(a)	   (((a) < 0) ? -(a) : (a))
+
+#undef	CLAMP
+#define CLAMP(x, low, high)  (((x) > (high)) ? (high) : (((x) < (low)) ? (low) : (x)))
 
 #ifndef NULL
 #define NULL			(void)0
@@ -203,12 +215,11 @@
 
 // Debugging ----------------------------------------------------------------
 
-// Filename without path
-//#define FILEX (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
-#define WHERESTR  E_GREEN"DBG "E_WHITE"%4d"E_BR_CYAN" %-25s"E_END": "
-#define WHEREARG  __LINE__, __FUNCTION__
+#define FILEX (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
+#define WHERESTR  "[ %s, %d]: "
+#define WHEREARG  FILEX, __LINE__
 #define DEBUGPRINT2(...)       fprintf(stderr, __VA_ARGS__)
-#ifdef DEBUG
+#ifdef DDEBUG
 #define DEBUGPRINT(_fmt, ...)  DEBUGPRINT2(WHERESTR _fmt, WHEREARG, __VA_ARGS__)
 #else
 #define DEBUGPRINT(_fmt, ...)
