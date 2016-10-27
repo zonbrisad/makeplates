@@ -22,7 +22,8 @@ LICENCE = GPLv2
 TARGET = makeplate
 
 # List C source files here. (C dependencies are automatically generated.)
-SRC = src/main.c 
+SRC = src/main.c \
+      Unity/src/unity.c
 
 # List C++ source files here. (C dependencies are automatically generated.)
 CPPSRC = 
@@ -33,7 +34,8 @@ ASRC =
 
 # Include directories
 INCLUDE = inc \
-          src 
+          src \
+					Unity/src
 
 # Libraries to link
 LIB   = -lm 
