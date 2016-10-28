@@ -44,7 +44,7 @@ PKGLIB = glib-2.0 gthread-2.0
 
 # Libraries to link
 LIB = -lm 
-#LIB += $(shell pkg-config --libs glib-2.0)
+LIB += $(shell pkg-config --libs glib-2.0)
 #LIB += $(shell pkg-config --libs gthread-2.0)
 #LIB += $(shell pkg-config --libs ncurses)
 #LIB += $(shell pkg-config --libs lua5.1)
@@ -351,18 +351,19 @@ OBJS = $(SRC:%.c=$(OBJDIR)/%.o) $(CPPSRC:%.cpp=$(OBJDIR)/%.o) $(ASRC:%.S=$(OBJDI
 LST = $(SRC:%.c=$(OBJDIR)/%.lst) $(CPPSRC:%.cpp=$(OBJDIR)/%.lst) $(ASRC:%.S=$(OBJDIR)/%.lst) 
 
 # Default target.
-all:	vars begin build finished end
+all:	 begin build finished end
 
-vars:  # Generate some variables
-	@export IFS=" "
-	@export L="" 
-	@for f in $(PKGLIB); do                      \
-	  export L=$${L}$$(pkg-config --libs $${f}); \
-		$(eval LIB:=LIB ${f});                     \
-	done;                                        \
+#vars:  # Generate some variables
+#	@export IFS=" "
+#	@export L="" 
+#	@for f in $(PKGLIB); do                      \
+#	  export L=$${L}$$(pkg-config --libs $${f}); \
+#		$(eval LIB:=LIB ${f});                     \
+#	done;                                        \
+#	echo $${L}  
+#	@echo ${LIB}
 
-	echo $${L}  
-	@echo ${LIB}
+
 
 
 # Remove colorfilter

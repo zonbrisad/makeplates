@@ -21,6 +21,8 @@
 
 // Macros -----------------------------------------------------------------
 
+#define PROGNAME "makeplate"
+
 // Variables --------------------------------------------------------------
 
 // Prototypes -------------------------------------------------------------
@@ -29,7 +31,12 @@
 
 
 void sigInt(int sig) {
+	printf("\nExiting program\n");
 	exit(0);
+}
+
+void sigHup(int sig) {
+	printf("Sighup\n");
 }
 
 
@@ -37,6 +44,7 @@ int main(int argc, char *argv[]) {
 	int i;
 	
 	signal(SIGINT, sigInt);
+	signal(SIGHUP, sigHup);
 	
 	printf("Makeplate c example.\n");
 
@@ -56,7 +64,11 @@ int main(int argc, char *argv[]) {
 	printf("Var i = %2x\n", i);
 	BIT_CLEAR(i,4);
 	printf("Var i = %2x\n", i);
-		
+
+	
+	while(1) {
+	}
+	
 	return 0;
 
 }
