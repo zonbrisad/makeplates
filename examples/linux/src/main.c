@@ -12,8 +12,10 @@
 
 // Includes ---------------------------------------------------------------
 
+
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/types.h>
 #include <unistd.h>
 #include <signal.h>
 
@@ -23,7 +25,7 @@
 // Macros -----------------------------------------------------------------
 
 #define PROGNAME "makeplate"
-
+#define LOCKFILE PROGNAME ".PID"
 // Variables --------------------------------------------------------------
 
 // Prototypes -------------------------------------------------------------
@@ -42,8 +44,33 @@ void sigHup(int sig) {
 }
 
 
+void removePidFile(char *pidFile) {
+}
+
+/**
+ * http://www.man7.org/tlpi/code/online/dist/filelock/create_pid_file.c.html
+ */
+void createPidFile(char *pidFile) {
+	pid_t pid;
+	int fd;
+	
+	pid = getpid();
+	
+	DEBUGPRINT("PID=%d\n", pid);
+}
+
+// find path to self
+char *getPathToSelf(void) {
+	static char buf[128];
+	int size;
+	
+	size = readlink("/proc/self/exe", buf, 128);
+	buf[size] = '\0';
+	return buf;
+}
+
+
 int main(int argc, char *argv[]) {
-	int i;
 	struct arg_lit  *list    = arg_lit0("lL",NULL,                      "list files");
 	struct arg_lit  *recurse = arg_lit0("R",NULL,                       "recurse through subdirectories");
 	struct arg_int  *repeat  = arg_int0("k","scalar",NULL,              "define scalar value k (default is 3)");
@@ -52,70 +79,67 @@ int main(int argc, char *argv[]) {
 	struct arg_lit  *verbose = arg_lit0("v","verbose,debug",            "verbose messages");
 	struct arg_lit  *help    = arg_lit0(NULL,"help",                    "print this help and exit");
 	struct arg_lit  *version = arg_lit0(NULL,"version",                 "print version information and exit");
-	struct arg_file *infiles = arg_filen(NULL,NULL,NULL,1,argc+2,       "input file(s)");
+//	struct arg_file *infiles = arg_filen(NULL,NULL,NULL,1,argc+2,       "input file(s)");
 	struct arg_end  *end     = arg_end(20);
-	void* argtable[] = {list,recurse,repeat,defines,outfile,verbose,help,version,infiles,end};
+	void* argtable[] = {list,recurse,repeat,defines,outfile,verbose,help,version,end};
+	
 	const char* progname = "myprog";
 	int nerrors;
 	int exitcode=0;
 	
-	 /* verify the argtable[] entries were allocated sucessfully */
-	if (arg_nullcheck(argtable) != 0)
-		{
-			/* NULL entries were detected, some allocations must have failed */
-			printf("%s: insufficient memory\n",progname);
-			exitcode=1;
-			goto exit;
-		}
+	/* verify the argtable[] entries were allocated sucessfully */
+	if (arg_nullcheck(argtable) != 0) {
+		/* NULL entries were detected, some allocations must have failed */
+		printf("%s: insufficient memory\n",progname);
+		exitcode=1;
+		goto exit;
+	}
 	
 	/* set any command line default values prior to parsing */
-	repeat->ival[0]=3;
-	outfile->filename[0]="-";
+//	repeat->ival[0]=3;
+//	outfile->filename[0]="-";
 	
 	/* Parse the command line as defined by argtable[] */
 	nerrors = arg_parse(argc,argv,argtable);
 	
 	/* special case: '--help' takes precedence over error reporting */
-	if (help->count > 0)
-		{
-			printf("Usage: %s", progname);
-			arg_print_syntax(stdout,argtable,"\n");
-			        printf("This program demonstrates the use of the argtable2 library\n");
-			printf("for parsing command line arguments. Argtable accepts integers\n");
-			printf("in decimal (123), hexadecimal (0xff), octal (0o123) and binary\n");
-			printf("(0b101101) formats. Suffixes KB, MB and GB are also accepted.\n");
-			arg_print_glossary(stdout,argtable,"  %-25s %s\n");
-			exitcode=0;
-			goto exit;
-		}
+	if (help->count > 0) {
+		printf("Usage: %s", progname);
+		arg_print_syntax(stdout,argtable,"\n");
+		printf("This program demonstrates the use of the argtable2 library\n");
+		printf("for parsing command line arguments. Argtable accepts integers\n");
+		printf("in decimal (123), hexadecimal (0xff), octal (0o123) and binary\n");
+		printf("(0b101101) formats. Suffixes KB, MB and GB are also accepted.\n");
+		arg_print_glossary(stdout,argtable,"  %-25s %s\n");
+		exitcode=0;
+		goto exit;
+	}
 	
 	/* special case: '--version' takes precedence error reporting */
-	if (version->count > 0)
-		{
-			printf("'%s' example program for the \"argtable\" command line argument parser.\n",progname);
-			printf("September 2003, Stewart Heitmann\n");
-			exitcode=0;
-			goto exit;
-		}
+	if (version->count > 0) {
+		printf("'%s' example program for the \"argtable\" command line argument parser.\n",progname);
+		
+		exitcode=0;
+		goto exit;
+	}
 	
 	/* If the parser returned any errors then display them and exit */
-	    if (nerrors > 0)
-		{
-			        /* Display the error details contained in the arg_end struct.*/
-			arg_print_errors(stdout,end,progname);
-			printf("Try '%s --help' for more information.\n",progname);
-			exitcode=1;
-			goto exit;
-		}
+	if (nerrors > 0) {
+		/* Display the error details contained in the arg_end struct.*/
+		arg_print_errors(stdout,end,progname);
+		printf("Try '%s --help' for more information.\n",progname);
+		exitcode=1;
+		goto exit;
+	}
 	
 	/* special case: uname with no command line options induces brief help */
-	    if (argc==1)
+/*	    if (argc==1)
 		{
 			printf("Try '%s --help' for more information.\n",progname);
 			exitcode=0;
 			goto exit;
 		}
-	
+	*/
 	/* normal case: take the command line options at face value */
 /*	exitcode = mymain(list->count, recurse->count, repeat->ival[0],
 												                      defines->sval, defines->count,
@@ -128,12 +152,16 @@ int main(int argc, char *argv[]) {
 	
 	printf("\nMakeplate linux C example.\n\n\n");
 
-	
+	createPidFile(LOCKFILE);
+
 	
 
+	printf("Path to binary: %s\n", getPathToSelf());
+	
+	/*	
 	while(1) {
 	}
-	
+	 */
 exit:
 	return 0;
 }
