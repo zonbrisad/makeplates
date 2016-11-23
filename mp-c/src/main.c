@@ -56,8 +56,6 @@ int main(int argc, char *argv[]) {
 	
 	ERRORPRINT("Error printout\n");
 	
-	
-
 	DEBUG_DO(printf("Debug do\n"));
 	
 	
