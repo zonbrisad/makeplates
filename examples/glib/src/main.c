@@ -354,7 +354,8 @@ void pipeTest(void) {
 	g_io_add_watch(chn,G_IO_IN | G_IO_HUP | G_IO_ERR,(GIOFunc)pipe_callback,NULL);
 	mLoop1 = g_main_loop_new(NULL, FALSE);
 
-
+}
+ */
 static gboolean gio_in (GIOChannel *gio, GIOCondition condition, gpointer data) {
 	GIOStatus ret;
 	GError *err = NULL;
@@ -379,7 +380,7 @@ static gboolean gio_in (GIOChannel *gio, GIOCondition condition, gpointer data) 
 	g_free (msg);
 	return TRUE;
 }
-*/
+
 void pipeTest() {
 	GIOChannel *channel, *channel2;
 	pid_t childPid;

@@ -45,7 +45,7 @@ PKGLIB = glib-2.0 gthread-2.0
 # Libraries to link
 LIB = -lm 
 LIB += $(shell pkg-config --libs glib-2.0)
-#LIB += $(shell pkg-config --libs gthread-2.0)
+LIB += $(shell pkg-config --libs gthread-2.0)
 #LIB += $(shell pkg-config --libs ncurses)
 #LIB += $(shell pkg-config --libs lua5.1)
 #LIB += $(shell pkg-config --libs sqlite3)
