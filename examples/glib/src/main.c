@@ -17,6 +17,8 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <sys/stat.h>
+#include <sys/types.h>
+#include <sys/socket.h>
 #include <glib-2.0/glib.h>
 #include <glib-2.0/glib/gstdio.h>
 
@@ -56,6 +58,7 @@ static gboolean opt_info       = FALSE;
 static gboolean opt_daemonTest = FALSE;
 static gboolean opt_queueTest  = FALSE;
 static gboolean opt_pipeTest   = FALSE;
+static gboolean opt_domainTest = FALSE;
 
 static GOptionEntry entries[] = {
   { "verbose",  'v', 0, G_OPTION_ARG_NONE, &opt_verbose,    "Be verbose output",    NULL },
@@ -68,6 +71,7 @@ static GOptionEntry entries[] = {
 	{ "daemon",   'd', 0, G_OPTION_ARG_NONE, &opt_daemonTest, "Daemon test",          NULL },
 	{ "queue",     0,  0, G_OPTION_ARG_NONE, &opt_queueTest,  "Queue test",           NULL },
 	{ "pipe",      0,  0, G_OPTION_ARG_NONE, &opt_pipeTest,   "Pipe test",            NULL },
+	{ "domain",    0,  0, G_OPTION_ARG_NONE, &opt_domainTest, "Domain socket test",   NULL },
   { NULL }
 };
 
@@ -146,6 +150,8 @@ void appInfo() {
 }
 
 void safeExit() {
+	DEBUGPRINT("End\n");
+
 	g_message("Shuting down...");
   gp_log_close();
   
@@ -353,9 +359,9 @@ void pipeTest(void) {
 	
 	g_io_add_watch(chn,G_IO_IN | G_IO_HUP | G_IO_ERR,(GIOFunc)pipe_callback,NULL);
 	mLoop1 = g_main_loop_new(NULL, FALSE);
-
 }
  */
+
 static gboolean gio_in (GIOChannel *gio, GIOCondition condition, gpointer data) {
 	GIOStatus ret;
 	GError *err = NULL;
@@ -374,7 +380,8 @@ static gboolean gio_in (GIOChannel *gio, GIOCondition condition, gpointer data) 
 	}
 
 	if ((condition & G_IO_HUP) && (len==0)) {
-		 g_main_loop_quit(mLoop1);
+		DEBUGPRINT("Ending pipe test\n");
+		g_main_loop_quit(mLoop1);
 	}
 	
 	g_free (msg);
@@ -403,24 +410,84 @@ void pipeTest() {
 	g_main_loop_run(mLoop1);
 }
 
+#include <sys/un.h>
+
+static gboolean socket_in(GIOChannel *gio, GIOCondition condition, gpointer data) {
+	GIOStatus ret;
+	GError *err = NULL;
+	gchar *msg;
+	gsize len=0;
+	char buf[32];
+	
+	DEBUGPRINT("Socket connected to\n");
+	
+//	printf("Cond: %x\n",condition);
+	if (condition & G_IO_IN) {
+		ret = g_io_channel_read_chars (gio, buf, 4, &len, &err);
+		
+		if (ret == G_IO_STATUS_ERROR)
+			g_error ("Error reading: %s\n", err->message);
+		printf ("Read %u bytes: %s\n", len, msg);
+	}
+
+	//g_free (msg);
+	return TRUE;
+}
+
+#define SOCKNAME "socket_dirtest"
+
+void domainTest(void) {
+	int fd;
+	struct sockaddr_un addr;
+	GIOChannel *channel;
+	
+	mLoop1 = g_main_loop_new(NULL, FALSE);
+
+	// create socket
+	fd = socket(AF_UNIX, SOCK_STREAM, 0);
+
+	memset(&addr, 0, sizeof(addr));
+	addr.sun_family = AF_UNIX;
+	strncpy(addr.sun_path, SOCKNAME, sizeof(addr.sun_path)-1);
+	
+	
+	// if domain socket exists connect to it
+	if (g_file_test(SOCKNAME, G_FILE_TEST_EXISTS)) {
+		DEBUGPRINT("Connecting to domain socket.\n");
+		connect(fd, (struct sockaddr_un*)&addr, sizeof(addr)); 
+		exit(0);
+	}
+	
+	
+	bind(fd, (struct sockaddr*)&addr, sizeof(addr));
+
+	channel = g_io_channel_unix_new(fd);
+	if ( !g_io_add_watch(channel, G_IO_IN, socket_in, NULL) ) {
+		g_error ("Cannot add watch on GIOChannel!\n");
+	}
+	
+	g_main_loop_run(mLoop1);
+}
+
+
 int main(int argc, char *argv[]) {
 	GError *error = NULL;
 	GOptionContext *context;
 	
   atexit(safeExit);
-  
+
 	// init log system
 	gp_log_init(APP_LOGFILE);
   
   // Get some application/host data
   appInfo();
-  
+/*
   if (isAppRunning()) {
     printf("Application is already running\n");
     exit(0);
     g_critical("Application is already running");
   }
-  
+  */
   // parse command line arguments
   context = g_option_context_new (APP_DESCRIPTION);
   g_option_context_add_main_entries (context, entries, NULL);
@@ -455,7 +522,7 @@ int main(int argc, char *argv[]) {
 		exit(0);
 	}
   
-	// thread test
+	// info test
 	if (opt_info) { 
 		infoTest();
 		exit(0);
@@ -470,14 +537,21 @@ int main(int argc, char *argv[]) {
 	// queue test
 	if (opt_queueTest) {
 	  queueTest();
-		safeExit();
+		exit(0);
 	}
 
 	// pipe test
-	if (opt_pipeTest) {
+	 if (opt_pipeTest) {
 	  pipeTest();
-		safeExit();
+		exit(0);
 	}
+	
+	// domain socket test 
+	if (opt_domainTest) {
+	  domainTest();
+		exit(0);
+	}
+	
 
 	return 0;
 }

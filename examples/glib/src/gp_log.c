@@ -69,7 +69,6 @@ void gp_log_set_log_mask(int mask) {
 }
 
 
-
 void gp_log_init(char *logfile) {
 	GStatBuf st;
 	

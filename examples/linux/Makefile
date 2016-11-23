@@ -1,7 +1,7 @@
 # Hey Emacs, this is a -*- makefile -*-
 #----------------------------------------------------------------------------
 # 
-# Makeplate glib example program
+# Makeplate example project
 #
 # author: Peter Malmberg <peter.malmberg@gmail.com>
 #
@@ -19,12 +19,24 @@ TARGET_PLATFORM = linux
 LICENCE = GPLv2
 
 # Target file name (without extension).
-TARGET = glibtest
+TARGET = ltest
 
 # List C source files here. (C dependencies are automatically generated.)
-SRC = src/main.c \
-      src/gp_log.c
+SRC = src/main.c                       \
+      src/argtable2-13/src/argtable2.c \
+      src/argtable2-13/src/arg_end.c   \
+      src/argtable2-13/src/arg_lit.c   \
+      src/argtable2-13/src/arg_str.c   \
+      src/argtable2-13/src/arg_file.c  \
+      src/argtable2-13/src/arg_rem.c   \
+      src/argtable2-13/src/getopt1.c   \
+      src/argtable2-13/src/arg_dbl.c   \
+			src/argtable2-13/src/arg_int.c   \
+      src/argtable2-13/src/arg_rex.c   \
+			src/argtable2-13/src/arg_date.c  \
+#
 
+# getopt.c
 
 # List C++ source files here. (C dependencies are automatically generated.)
 CPPSRC = 
@@ -34,18 +46,13 @@ CPPSRC =
 ASRC =
 
 # Include directories
-INCLUDE = inc \
-          src 
-
-
-# Libraries that are 
-PKGLIB = glib-2.0 gthread-2.0
-
+INCLUDE = src \
+					src/argtable2-13/src 
 
 # Libraries to link
-LIB = -lm 
-LIB += $(shell pkg-config --libs glib-2.0)
-LIB += $(shell pkg-config --libs gthread-2.0)
+LIB   = -lm 
+#LIB += $(shell pkg-config --libs glib-2.0)
+#LIB += $(shell pkg-config --libs gthread-2.0)
 #LIB += $(shell pkg-config --libs ncurses)
 #LIB += $(shell pkg-config --libs lua5.1)
 #LIB += $(shell pkg-config --libs sqlite3)
@@ -67,7 +74,14 @@ OPT = 2
 CSTANDARD = gnu99
 
 # C Macro definitions
-CDEFS = DEBUG
+CDEFS = DEBUGPRINT     \
+        WARNINGPRINT   \
+        ERRORPRINT     \
+				INFOPRINT      \
+				HAVE_STDLIB_H  \
+				HAVE_STRINGS_H \
+				STDC_HEADERS   \
+				HAVE_UNISTD_H  \
 
 # ASM  Macro definitions
 ADEFS = 
@@ -101,7 +115,7 @@ CFLAGS += -funsigned-char
 #CFLAGS += -fpack-struct
 #CFLAGS += -fshort-enums
 CFLAGS += -Wall
-#CFLAGS += -Wstrict-prototypes
+CFLAGS += -Wstrict-prototypes
 #CFLAGS += -mshort-calls
 #CFLAGS += -fno-unit-at-a-time
 #CFLAGS += -Wundef
@@ -110,8 +124,8 @@ CFLAGS += -Wunreachable-code
 #CFLAGS += -Wa,-adhlns=$(<:%.c=$(OBJDIR)/%.lst)
 CFLAGS += $(patsubst %,-I%,$(INCLUDE))
 CFLAGS += -std=$(CSTANDARD)
-CFLAGS += $(shell pkg-config --cflags glib-2.0)
-CFLAGS += $(shell pkg-config --cflags gthread-2.0)
+#CFLAGS += $(shell pkg-config --cflags glib-2.0)
+#CFLAGS += $(shell pkg-config --cflags gthread-2.0)
 #CFLAGS += $(shell pkg-config --cflags lua5.1)
 #CFLAGS += $(shell pkg-config --cflags sqlite3)
 
@@ -268,8 +282,8 @@ C_ACTION=$(E_BR_MAGENTA)
 
 # Messages ------------------------------------------------------------------
 MSG_LINE             = "$(E_WHITE)------------------------------------------------------------------$(E_END)"
-MSG_BEGIN            = "${E_WHITE}===== Begin ${E_GRAY}------------------------------------------------------------${E_END}"
-MSG_END              = "${E_WHITE}===== End${E_GRAY} --------------------------------------------------------------${E_END}"
+MSG_BEGIN            = "${E_WHITE}-------------------------------- Begin ---------------------------${E_END}"
+MSG_END              = "${E_WHITE}-------------------------------- End -----------------------------${E_END}"
 MSG_ERRORS_NONE      = "${C_OK}Errors: none ${E_END}"
 MSG_LINKING          = "${C_ACTION}Linking:${E_END}"
 MSG_COMPILING        = "${C_ACTION}Compiling C:${E_END}"
@@ -351,20 +365,7 @@ OBJS = $(SRC:%.c=$(OBJDIR)/%.o) $(CPPSRC:%.cpp=$(OBJDIR)/%.o) $(ASRC:%.S=$(OBJDI
 LST = $(SRC:%.c=$(OBJDIR)/%.lst) $(CPPSRC:%.cpp=$(OBJDIR)/%.lst) $(ASRC:%.S=$(OBJDIR)/%.lst) 
 
 # Default target.
-all:	 begin build finished end
-
-#vars:  # Generate some variables
-#	@export IFS=" "
-#	@export L="" 
-#	@for f in $(PKGLIB); do                      \
-#	  export L=$${L}$$(pkg-config --libs $${f}); \
-#		$(eval LIB:=LIB ${f});                     \
-#	done;                                        \
-#	echo $${L}  
-#	@echo ${LIB}
-
-
-
+all:	begin build finished end
 
 # Remove colorfilter
 nocolor:
@@ -710,7 +711,7 @@ files: list-src ## List source files
 #============================================================================
 
 # Only for default settings. Change value in settings.mk
-AUTHOR=Peter Malmberg <peter.malmberg@gmail.com>
+AUTHOR=Your Name <your.name@yourdomain.org>
 EDITOR=jed
 US:=$$USER
 #PERSONAL=personal_$${USER}.mk

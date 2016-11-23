@@ -62,7 +62,10 @@ OPT = 2
 CSTANDARD = gnu99
 
 # C Macro definitions
-CDEFS = DEBUG
+CDEFS = DEBUGPRINT   \
+        WARNINGPRINT \
+        ERRORPRINT   \
+				INFOPRINT   
 
 # ASM  Macro definitions
 ADEFS = 
