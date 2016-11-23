@@ -46,11 +46,17 @@ int main(int argc, char *argv[]) {
 	signal(SIGINT, sigInt);
 	signal(SIGHUP, sigHup);
 	
-	printf("Makeplate c example.\n");
+	printf("\nMakeplate linux C example.\n\n\n");
 
 	INFOPRINT("Information printout\n");
 	
 	DEBUGPRINT("Debug printout\n");
+	
+	WARNINGPRINT("Warning printout\n");
+	
+	ERRORPRINT("Error printout\n");
+	
+	
 
 	DEBUG_DO(printf("Debug do\n"));
 	
@@ -66,9 +72,9 @@ int main(int argc, char *argv[]) {
 	printf("Var i = %2x\n", i);
 
 	
+	printf("Use CTRL-C to stop program\n");
 	while(1) {
 	}
 	
 	return 0;
-
 }

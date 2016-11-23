@@ -10,9 +10,11 @@
  * -----------------------------------------------------------------
  */
 
+// Includes ---------------------------------------------------------------
+
+
 #ifndef DEF_H_
 #define	DEF_H_
-
 
 // Type min/max -------------------------------------------------------------
  
@@ -225,26 +227,53 @@
 
 // Filename without path
 //#define FILEX (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
-#define WHERESTR  E_GREEN"DBG "E_WHITE"%4d"E_BR_CYAN" %-25s"E_END": "
+
 #define WHEREARG  __LINE__, __FUNCTION__ 
 #define DEBUGPRINT2(...)       fprintf(stderr, __VA_ARGS__)
-#ifdef DEBUG
-#define DEBUGPRINT(_fmt, ...)  DEBUGPRINT2(WHERESTR _fmt, WHEREARG, ##__VA_ARGS__)
+
+#ifdef DEBUGPRINT
+#undef DEBUGPRINT
+#define DEBUGSTR  E_BR_GREEN"DBG  "E_WHITE"%4d"E_BR_CYAN" %-25s"E_END": "
+#define DEBUGPRINT(_fmt, ...)  DEBUGPRINT2(DEBUGSTR _fmt, WHEREARG, ##__VA_ARGS__)
 #define DEBUG_DO(f) f
 #else
 #define DEBUG_DO(f) 
 #define DEBUGPRINT(_fmt, ...)
 #endif
 
-#define INFOSTR  E_BR_BLUE"INF "E_WHITE"%4d"E_BR_CYAN" %-25s"E_END": "
-#define INFOPRINT(_fmt, ...) DEBUGPRINT2(INFOSTR _fmt, WHEREARG, ##__VA_ARGS__)
+#ifdef ERRORPRINT
+#undef ERRORPRINT
+#define ERRORSTR  E_BR_RED"ERR  "E_WHITE"%4d"E_BR_CYAN" %-25s"E_END": "
+#define ERRORPRINT(_fmt, ...)  DEBUGPRINT2(ERRORSTR _fmt, WHEREARG, ##__VA_ARGS__)
+#define ERROR_DO(f) f
+#else
+#define ERRORPRINT(_fmt, ...)
+#define ERROR_DO(f)
+#endif
 
+#ifdef WARNINGPRINT
+#undef WARNINGPRINT
+#define WARNINGSTR  E_BR_YELLOW"WARN "E_WHITE"%4d"E_BR_CYAN" %-25s"E_END": "
+#define WARNINGPRINT(_fmt, ...)  DEBUGPRINT2(WARNINGSTR _fmt, WHEREARG, ##__VA_ARGS__)
+#define WARNING_DO(f) f
+#else
+#define WARNINGPRINT(_fmt, ...)
+#define WARNING_DO(f)
+#endif
+
+#ifdef INFOPRINT
+#undef INFOPRINT
+#define INFOSTR  E_BR_BLUE"INFO "E_WHITE"%4d"E_BR_CYAN" %-25s"E_END": "
+#define INFOPRINT(_fmt, ...) DEBUGPRINT2(INFOSTR _fmt, WHEREARG, ##__VA_ARGS__)
+#else
+#define INFOPRINT(_fmt, ...) 
+#endif
 
 
 // Misc ---------------------------------------------------------------------
 
 #define UNUSED_PARAM(p)		(void)p
-
+#define UNUSED(p)         UNUSED_PARAM(p)
 
 #endif	/* DEF_H */
 
