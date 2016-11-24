@@ -58,12 +58,33 @@ void removePidFile(char *pidFile) {
  * http://www.man7.org/tlpi/code/online/dist/filelock/create_pid_file.c.html
  */
 void createPidFile(char *pidFile) {
-	pid_t pid;
-	int fd;
+	pid_t pid, fPid;
+	int x;
+	FILE *file;
+	char buf[32];
+	
 	
 	pid = getpid();
 	
 	DEBUGPRINT("PID=%d\n", pid);
+	
+	file = fopen(pidFile, "w+");
+	
+	if ( file == NULL ) {
+		ERRORPRINT("Failed to open pidFile: %s\n", pidFile);
+	} else {
+		fscanf(file, "%d", &x);
+		DEBUGPRINT("x=%d\n", x);
+		fPid = x;
+		DEBUGPRINT("Old pid file: %d\n", fPid);
+		rewind(file);
+		fprintf(file, "%d\n", pid);
+	}
+
+	DEBUGPRINT("Process pid  %4d %2d\n",  pid,  kill(pid,0));
+	DEBUGPRINT("Process fPid %4d %2d\n", fPid,  kill(fPid,0));
+	
+	fclose(file);
 }
 
 // find path to self
@@ -160,7 +181,6 @@ int main(int argc, char *argv[]) {
 	printf("\nMakeplate linux C example.\n\n\n");
 
 	createPidFile(LOCKFILE);
-
 	
 
 	printf("Path to binary: %s\n", getPathToSelf());
