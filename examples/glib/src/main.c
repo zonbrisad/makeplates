@@ -10,6 +10,8 @@
  *---------------------------------------------------------------------------
  */
 
+// Includes ---------------------------------------------------------------
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
@@ -25,20 +27,15 @@
 #include "gp_log.h"
 #include "def.h"
 
-/**
- * Defines
- *---------------------------------------------------------------------------
- */
+// Defines ----------------------------------------------------------------
+
 #define APP_NAME        "glibtest"
 #define APP_VERSION     "0.1"
 #define APP_DESCRIPTION "- a general purpose log program"
 #define APP_LOGFILE     "glib.log"
 #define APP_PIDFILE     "/tmp/glibtest.pid"
 
-/**
- * Variables
- *---------------------------------------------------------------------------
- */
+// Variables --------------------------------------------------------------
 
 pid_t  appPid;
 pid_t  appPid2;
@@ -82,10 +79,7 @@ GMainLoop   *mLoop1;
 GMainLoop   *mLoop2;
 GAsyncQueue *queue1;
 
-/**
- * Code
- *---------------------------------------------------------------------------
- */
+// Code -------------------------------------------------------------------
 
 void writePidFile() {
   FILE *f;

@@ -12,7 +12,6 @@
 
 // Includes ---------------------------------------------------------------
 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
@@ -22,13 +21,21 @@
 #include "def.h"
 #include "argtable2.h"
 
-// Macros -----------------------------------------------------------------
+// Defines ----------------------------------------------------------------
 
+#define APP_NAME        "glibtest"
+#define APP_VERSION     "0.1"
+#define APP_DESCRIPTION "- a general purpose log program"
+#define APP_LOGFILE     "glib.log"
+#define APP_PIDFILE     "/tmp/glibtest.pid"
 #define PROGNAME "makeplate"
 #define LOCKFILE PROGNAME ".PID"
+
 // Variables --------------------------------------------------------------
 
 // Prototypes -------------------------------------------------------------
+
+// Variables --------------------------------------------------------------
 
 // Code -------------------------------------------------------------------
 
