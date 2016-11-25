@@ -180,6 +180,9 @@ int main(int argc, char *argv[]) {
 	
 	printf("\nMakeplate linux C example.\n\n\n");
 
+	DEBUGPRINT_COND(1,"Sant\n");
+	DEBUGPRINT_COND(0,"Falskt\n");
+	
 	createPidFile(LOCKFILE);
 	
 

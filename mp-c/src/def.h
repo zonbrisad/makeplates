@@ -12,6 +12,11 @@
 
 // Includes ---------------------------------------------------------------
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+
 
 #ifndef DEF_H_
 #define	DEF_H_
@@ -235,19 +240,23 @@
 #undef DEBUGPRINT
 #define DEBUGSTR  E_BR_GREEN"DBG  "E_WHITE"%4d"E_BR_CYAN" %-25s"E_END": "
 #define DEBUGPRINT(_fmt, ...)  DEBUGPRINT2(DEBUGSTR _fmt, WHEREARG, ##__VA_ARGS__)
+#define DEBUGPRINT_COND(cond, _fmt, ...) if (cond) DEBUGPRINT2(DEBUGSTR _fmt, WHEREARG, ##__VA_ARGS__)
 #define DEBUG_DO(f) f
 #else
-#define DEBUG_DO(f) 
 #define DEBUGPRINT(_fmt, ...)
+#define DEBUGPRINT_COND(cond, _fmt, ...) 
+#define DEBUG_DO(f)
 #endif
 
 #ifdef ERRORPRINT
 #undef ERRORPRINT
 #define ERRORSTR  E_BR_RED"ERR  "E_WHITE"%4d"E_BR_CYAN" %-25s"E_END": "
 #define ERRORPRINT(_fmt, ...)  DEBUGPRINT2(ERRORSTR _fmt, WHEREARG, ##__VA_ARGS__)
+#define ERRORPRINT_COND(cond, _fmt, ...)  if (cond) DEBUGPRINT2(ERRORSTR _fmt, WHEREARG, ##__VA_ARGS__)
 #define ERROR_DO(f) f
 #else
 #define ERRORPRINT(_fmt, ...)
+#define ERRORPRINT_COND(cond, _fmt, ...) 
 #define ERROR_DO(f)
 #endif
 
@@ -255,9 +264,11 @@
 #undef WARNINGPRINT
 #define WARNINGSTR  E_BR_YELLOW"WARN "E_WHITE"%4d"E_BR_CYAN" %-25s"E_END": "
 #define WARNINGPRINT(_fmt, ...)  DEBUGPRINT2(WARNINGSTR _fmt, WHEREARG, ##__VA_ARGS__)
+#define WARNINGPRINT_COND(cond, _fmt, ...) if (cond) DEBUGPRINT2(WARNINGSTR _fmt, WHEREARG, ##__VA_ARGS__)
 #define WARNING_DO(f) f
 #else
 #define WARNINGPRINT(_fmt, ...)
+#define WARNINGPRINT_COND(cond, _fmt, ...)
 #define WARNING_DO(f)
 #endif
 
@@ -265,9 +276,11 @@
 #undef INFOPRINT
 #define INFOSTR  E_BR_BLUE"INFO "E_WHITE"%4d"E_BR_CYAN" %-25s"E_END": "
 #define INFOPRINT(_fmt, ...) DEBUGPRINT2(INFOSTR _fmt, WHEREARG, ##__VA_ARGS__)
+#define INFOPRINT_COND(cond, _fmt, ...) if (cond) DEBUGPRINT2(INFOSTR _fmt, WHEREARG, ##__VA_ARGS__)
 #define INFO_DO(f) f
 #else
 #define INFOPRINT(_fmt, ...)
+#define INFOPRINT_COND(cond, _fmt, ...)
 #define INFO_DO(f) 
 #endif
 
