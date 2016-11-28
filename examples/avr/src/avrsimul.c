@@ -28,4 +28,6 @@ int simul_putchar(char c, FILE *stream) {
 	return 0;
 }
 
-
+int simul_getchar(void) {
+	return special_input_port;
+}

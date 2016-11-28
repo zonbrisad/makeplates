@@ -32,6 +32,8 @@ extern "C" {
 	
 int simul_putchar(char c, FILE *stream);
 	
+int simul_getchar(void);
+	
 	
 #ifdef __cplusplus
 } //end brace for extern "C"

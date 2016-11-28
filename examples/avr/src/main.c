@@ -1,10 +1,28 @@
+/**
+ *---------------------------------------------------------------------------
+ * @brief   Makeplates main example file.
+ *
+ * @file    main.c
+ * @author  Peter Malmberg <peter.malmberg@gmail.com>
+ * @date    2016-10-24
+ * @licence GPLv2
+ *
+ *---------------------------------------------------------------------------
+ */
 
+// Includes ---------------------------------------------------------------
+// 
 #include <stdio.h>
 #include <avr/interrupt.h>
 #include <util/delay.h>
 
 #include "def.h"
 #include "avrsimul.h"
+
+// Macros -----------------------------------------------------------------
+
+#define PROGNAME "makeplate"
+
 
 // Variables --------------------------------------------------------------
 static FILE mystdout = FDEV_SETUP_STREAM(simul_putchar, NULL, _FDEV_SETUP_WRITE);
@@ -42,6 +60,7 @@ int main(void) {
 	while (1) {
 		tmp = timer2_ticks;
 		printf("Timer counter %d\n", tmp);
+//		printf("Input char %c\n", simul_getchar());
 		_delay_ms(200);
 	}
 
