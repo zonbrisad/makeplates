@@ -41,6 +41,7 @@ static void resetfn(struct arg_lit *parent)
 
 static int scanfn(struct arg_lit *parent, const char *argval)
     {
+    UNUSED_PARAM(argval);
     int errorcode = 0;
     if (parent->count < parent->hdr.maxcount )
         parent->count++;
@@ -62,6 +63,8 @@ static void errorfn(struct arg_lit *parent, FILE *fp, int errorcode, const char 
     const char *shortopts = parent->hdr.shortopts;
     const char *longopts  = parent->hdr.longopts;
     const char *datatype  = parent->hdr.datatype;
+
+    UNUSED_PARAM(argval);
 
     switch(errorcode)
         {

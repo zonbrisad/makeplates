@@ -25,6 +25,11 @@ USA.
 #include <time.h>       /* struct tm */
 #include <sys/types.h>
 
+#ifndef UNUSED_PARAM
+#define UNUSED_PARAM(p)   (void)p
+#endif
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif

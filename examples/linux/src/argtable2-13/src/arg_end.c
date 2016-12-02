@@ -41,6 +41,7 @@ static void errorfn(void *parent, FILE *fp, int error, const char *argval, const
     progname = progname ? progname : "";
     argval = argval ? argval : "";
 
+    UNUSED_PARAM(parent);
     fprintf(fp,"%s: ",progname);
     switch(error)
         {
