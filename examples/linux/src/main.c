@@ -17,6 +17,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <signal.h>
+#include <string.h>
+#include <errno.h>
 
 #include "def.h"
 #include "argtable2.h"
@@ -29,7 +31,7 @@
 #define APP_LOGFILE     "glib.log"
 #define APP_PIDFILE     "/tmp/glibtest.pid"
 #define PROGNAME "makeplate"
-#define LOCKFILE PROGNAME ".PID"
+#define LOCKFILE "test/" PROGNAME ".PID"
 
 // Variables --------------------------------------------------------------
 
@@ -38,6 +40,21 @@
 // Variables --------------------------------------------------------------
 
 // Code -------------------------------------------------------------------
+
+
+// http://stackoverflow.com/questions/27989858/converting-enum-error-code-to-string
+typedef struct {
+	int errorCode;
+	char errorString[32];
+} errorString;
+
+char *errString(errorString *es, int errorCode) {
+	int i;
+	i = 0;
+	while(es[i].errorCode != -0xFFFFFF) {
+		i++;
+	}
+}
 
 
 void sigInt(int sig) {
@@ -50,41 +67,56 @@ void sigHup(int sig) {
 	INFOPRINT("Sighup\n");
 }
 
-
 void removePidFile(char *pidFile) {
+	remove(pidFile);
 }
 
 /**
  * http://www.man7.org/tlpi/code/online/dist/filelock/create_pid_file.c.html
  */
-void createPidFile(char *pidFile) {
+int createPidFile(char *pidFile) {
 	pid_t pid, fPid;
-	int x;
+	int  e;
 	FILE *file;
-	char buf[32];
+
+	DEBUGPRINT("Creating PID file. (%s)\n", pidFile);
 	
+	// get pid of this process
+	pid = getpid();   	        	
 	
-	pid = getpid();
+	DEBUGPRINT("This process PID=%d\n", pid);
 	
-	DEBUGPRINT("PID=%d\n", pid);
-	
-	file = fopen(pidFile, "w+");
-	
-	if ( file == NULL ) {
-		ERRORPRINT("Failed to open pidFile: %s\n", pidFile);
+	// open pid file and read PID 
+	file = fopen(pidFile, "a+");
+	if ( file == NULL ) {        
+		ERRORPRINT("Failed to open pidfile (%s) [%s]\n", pidFile, strerror(errno));
+		return -1;
 	} else {
-		fscanf(file, "%d", &x);
-		DEBUGPRINT("x=%d\n", x);
-		fPid = x;
-		DEBUGPRINT("Old pid file: %d\n", fPid);
+		
+		e = fscanf(file, "%d", &fPid);
+		
+		// if pid file exist check if process is running
+		if (e > 0) {
+			
+		}
+		
+		if (e == -1) {
+			goto writePid;
+		} else {
+			WARNINGPRINT("Found PID file %d\n", fPid);
+		}
+
+		// check if process is running
+		e = kill(fPid, 0);
+				
+		// write new pid to file
+writePid:
 		rewind(file);
 		fprintf(file, "%d\n", pid);
+closePid:
+		fclose(file);
 	}
 
-	DEBUGPRINT("Process pid  %4d %2d\n",  pid,  kill(pid,0));
-	DEBUGPRINT("Process fPid %4d %2d\n", fPid,  kill(fPid,0));
-	
-	fclose(file);
 }
 
 // find path to self
@@ -193,5 +225,6 @@ int main(int argc, char *argv[]) {
 	}
 	 */
 exit:
+//	removePidFile(LOCKFILE);
 	return 0;
 }

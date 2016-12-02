@@ -85,29 +85,39 @@ DEBUG=0
 #============================================================================
 
 # Compiler Options C --------------------------------------------------------
-#  -g*:          generate debugging information
-#  -O*:          optimization level
-#  -f...:        tuning, see GCC manual
-#  -Wall...:     warning level
-#  -Wa,...:      tell GCC to pass this to the assembler.
-#    -adhlns...: create assembler listing
-CFLAGS = -g$(DEBUG)
-CFLAGS += $(patsubst %,-D%,$(CDEFS))
-CFLAGS += -O$(OPT)
+CFLAGS = -g$(DEBUG)                            # Debugging information
+CFLAGS += -O$(OPT)                             # Optimisation level
+CFLAGS += -std=$(CSTANDARD)                    # C standard
+CFLAGS += $(patsubst %,-I%,$(INCLUDE))         # Include directories 
+CFLAGS += $(patsubst %,-D%,$(CDEFS))           # Macro definitions
+CFLAGS += -Wa,-adhlns=$(<:%.c=$(OBJDIR)/%.lst) # Generate assembler listing
+
+# Compiler Tuning C ---------------------------------------------------------
 CFLAGS += -funsigned-char
 #CFLAGS += -funsigned-bitfields
 #CFLAGS += -fpack-struct
 #CFLAGS += -fshort-enums
-CFLAGS += -Wall
-CFLAGS += -Wstrict-prototypes
-#CFLAGS += -mshort-calls
 #CFLAGS += -fno-unit-at-a-time
-#CFLAGS += -Wundef
-CFLAGS += -Wunreachable-code
+#CFLAGS += -mshort-calls
+
+# Compiler Warnings C -------------------------------------------------------
+CFLAGS += -Wall                  # Standard warnings
+CFLAGS += -Wextra                # Some extra warnings
+CFLAGS += -Wmissing-braces 
+CFLAGS += -Wmissing-declarations # Warn if global function is not declared
+CFLAGS += -Wmissing-prototypes   # if a function is missing its prototype
+CFLAGS += -Wstrict-prototypes    # non correct prototypes i.e. void fun() => void fun(void) 
+CFLAGS += -Wredundant-decls      # Warn if something is declared more than ones
+CFLAGS += -Wunreachable-code     # if code is not used
+CFLAGS += -Wshadow               # if local variable has same name as global
+CFLAGS += -Wformat=2             # check printf and scanf for problems
+#CFLAGS += -Wno-format-nonliteral # 
+CFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void pointer
 #CFLAGS += -Wsign-compare
-#CFLAGS += -Wa,-adhlns=$(<:%.c=$(OBJDIR)/%.lst)
-CFLAGS += $(patsubst %,-I%,$(INCLUDE))
-CFLAGS += -std=$(CSTANDARD)
+#CFLAGS += -Wundef
+#CFLAGS += -Werror               # All warnings will be treated as errors
+
+# Library compiler flags C --------------------------------------------------
 #CFLAGS += $(shell pkg-config --cflags glib-2.0)
 #CFLAGS += $(shell pkg-config --cflags gthread-2.0)
 #CFLAGS += $(shell pkg-config --cflags lua5.1)
@@ -115,32 +125,44 @@ CFLAGS += -std=$(CSTANDARD)
 
 
 # Compiler Options C++ ------------------------------------------------------
-#  -g*:          generate debugging information
-#  -O*:          optimization level
-#  -f...:        tuning, see GCC manual and avr-libc documentation
-#  -Wall...:     warning level
-#  -Wa,...:      tell GCC to pass this to the assembler.
-#    -adhlns...: create assembler listing
-CPPFLAGS = -g$(DEBUG)
-CPPFLAGS += $(patsubst %,-D%,$(CPPDEFS))
-CPPFLAGS += -O$(OPT)
+CPPFLAGS = -g$(DEBUG)                              # Debugging information
+CPPFLAGS += -O$(OPT)                               # Optimisation level
+CPPFLAGS += -std=$(CSTANDARD)                      # C standard
+CPPFLAGS += $(patsubst %,-I%,$(INCLUDE))           # Include directories 
+CPPFLAGS += $(patsubst %,-D%,$(CPPDEFS))           # Macro definitions
+CPPFLAGS += -Wa,-adhlns=$(<:%.cpp=$(OBJDIR)/%.lst) # Generate assembler listing
+
+# Compiler Tuning C++ -------------------------------------------------------
 CPPFLAGS += -funsigned-char
 CPPFLAGS += -funsigned-bitfields
 CPPFLAGS += -fpack-struct
 CPPFLAGS += -fshort-enums
 CPPFLAGS += -fno-exceptions
-CPPFLAGS += -Wall
-CPPFLAGS += -Wundef
 #CPPFLAGS += -mshort-calls
 #CPPFLAGS += -fno-unit-at-a-time
-#CPPFLAGS += -Wstrict-prototypes
-#CPPFLAGS += -Wunreachable-code
+
+# Compiler Warnings C++ -----------------------------------------------------
+CPPFLAGS += -Wall                  # Standard warnings
+CPPFLAGS += -Wextra                # Some extra warnings
+CPPFLAGS += -Wmissing-braces 
+CPPFLAGS += -Wmissing-declarations # Warn if global function is not declared
+CPPFLAGS += -Wmissing-prototypes   # if a function is missing its prototype
+CPPFLAGS += -Wstrict-prototypes    # non correct prototypes i.e. void fun() => void fun(void) 
+CPPFLAGS += -Wredundant-decls      # Warn if something is declared more than ones
+CPPFLAGS += -Wunreachable-code     # if code is not used
+CPPFLAGS += -Wshadow               # if local variable has same name as global
+CPPFLAGS += -Wformat=2             # check printf and scanf for problems
+#CPPFLAGS += -Wno-format-nonliteral # 
+CPPFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void pointer
 #CPPFLAGS += -Wsign-compare
-CPPFLAGS += -Wa,-adhlns=$(<:%.cpp=$(OBJDIR)/%.lst)
-CPPFLAGS += $(patsubst %,-I%,$(INCLUDE))
-#CPPFLAGS += $(CSTANDARD)
+#CPPFLAGS += -Wundef
+#CPPFLAGS += -Werror              # All warnings will be treated as errors
+
+# Library compiler flags C++ ------------------------------------------------
 #CPPFLAGS += $(shell pkg-config --cflags glib-2.0)
 #CPPFLAGS += $(shell pkg-config --cflags gthread-2.0)
+#CPPFLAGS += $(shell pkg-config --cflags lua5.1)
+#CPPFLAGS += $(shell pkg-config --cflags sqlite3)
 
 
 # Assembler Options ---------------------------------------------------------
