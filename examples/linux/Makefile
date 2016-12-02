@@ -31,9 +31,9 @@ SRC = src/main.c                       \
       src/argtable2-13/src/arg_rem.c   \
       src/argtable2-13/src/getopt1.c   \
       src/argtable2-13/src/arg_dbl.c   \
-			src/argtable2-13/src/arg_int.c   \
+      src/argtable2-13/src/arg_int.c   \
       src/argtable2-13/src/arg_rex.c   \
-			src/argtable2-13/src/arg_date.c  \
+      src/argtable2-13/src/arg_date.c  \
 #
 
 # getopt.c
@@ -77,11 +77,11 @@ CSTANDARD = gnu99
 CDEFS = DEBUGPRINT     \
         WARNINGPRINT   \
         ERRORPRINT     \
-				INFOPRINT      \
-				HAVE_STDLIB_H  \
-				HAVE_STRINGS_H \
-				STDC_HEADERS   \
-				HAVE_UNISTD_H  \
+        INFOPRINT      \
+        HAVE_STDLIB_H  \
+        HAVE_STRINGS_H \
+        STDC_HEADERS   \
+        HAVE_UNISTD_H  \
 
 # ASM  Macro definitions
 ADEFS = 
@@ -359,9 +359,9 @@ F_BRACKET="s/\[-W.*\]/$$(printf "$(E_GREEN)")&$$(printf "$(E_END)")/g"
 C_FILTER   = | sed -ru -e $(F_FATAL_ERROR) -e $(F_ERROR) -e $(FF_ERROR)     \
                        -e $(F_WARNING) -e $(FF_WARNING)                     \
                        -e $(F_WARNING1) -e $(F_WARNING2) -e $(F_WARNING3)   \
-											 -e $(F_WARNING4) -e $(F_WARNING5)                    \
-											 -e $(F_NOTE) -e $(FF_NOTE)                           \
-											 -e $(F_INF) -e $(FF_INF) -e $(F_BRACKET)
+                       -e $(F_WARNING4) -e $(F_WARNING5)                    \
+                       -e $(F_NOTE) -e $(FF_NOTE)                           \
+                       -e $(F_INF) -e $(FF_INF) -e $(F_BRACKET)
 CPP_FILTER = $(C_FILTER)
 
 LD_ERROR1="s/undefined reference/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
@@ -383,6 +383,7 @@ ALL_ASFLAGS  =  -I. -x assembler-with-cpp $(ASFLAGS)
 
 # Define all object files.
 OBJS = $(SRC:%.c=$(OBJDIR)/%.o) $(CPPSRC:%.cpp=$(OBJDIR)/%.o) $(ASRC:%.S=$(OBJDIR)/%.o)
+#OBJS = $(SRC:%.c=$(OBJDIR)/%.o) 
 
 # Define all listing files.
 LST = $(SRC:%.c=$(OBJDIR)/%.lst) $(CPPSRC:%.cpp=$(OBJDIR)/%.lst) $(ASRC:%.S=$(OBJDIR)/%.lst) 

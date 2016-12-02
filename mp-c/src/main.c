@@ -14,12 +14,15 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/types.h>
 #include <unistd.h>
 #include <signal.h>
+#include <string.h>
+#include <errno.h>
 
 #include "def.h"
 
-// Macros -----------------------------------------------------------------
+// Defines ----------------------------------------------------------------
 
 #define PROGNAME "makeplate"
 
