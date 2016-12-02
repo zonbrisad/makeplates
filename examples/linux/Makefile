@@ -78,6 +78,7 @@ CDEFS = DEBUGPRINT     \
         WARNINGPRINT   \
         ERRORPRINT     \
         INFOPRINT      \
+				HAVE_CONFIG_H  \
         HAVE_STDLIB_H  \
         HAVE_STRINGS_H \
         STDC_HEADERS   \
