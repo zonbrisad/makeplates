@@ -26,22 +26,30 @@
 // Variables --------------------------------------------------------------
 
 // Prototypes -------------------------------------------------------------
+void sigInt(int sig);
+void sigHup(int sig);
 
 // Code -------------------------------------------------------------------
 
 
 void sigInt(int sig) {
+	UNUSED(sig);
+	
 	printf("\nExiting program\n");
 	exit(0);
 }
 
 void sigHup(int sig) {
+	UNUSED(sig);
 	printf("Sighup\n");
 }
 
 
 int main(int argc, char *argv[]) {
 	int i;
+	
+	UNUSED(argc);
+	UNUSED(argv);
 	
 	signal(SIGINT, sigInt);
 	signal(SIGHUP, sigHup);
