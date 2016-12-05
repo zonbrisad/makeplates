@@ -34,9 +34,7 @@ SRC = src/main.c                       \
       src/argtable2-13/src/arg_int.c   \
       src/argtable2-13/src/arg_rex.c   \
       src/argtable2-13/src/arg_date.c  \
-#
 
-# getopt.c
 
 # List C++ source files here. (C dependencies are automatically generated.)
 CPPSRC = 
@@ -78,7 +76,7 @@ CDEFS = DEBUGPRINT     \
         WARNINGPRINT   \
         ERRORPRINT     \
         INFOPRINT      \
-				HAVE_CONFIG_H  \
+        HAVE_CONFIG_H  \
         HAVE_STDLIB_H  \
         HAVE_STRINGS_H \
         STDC_HEADERS   \
@@ -90,12 +88,12 @@ ADEFS =
 # C++ Macro definitions
 CPPDEFS = 
 
-# Debug information 
-# 0=no debug information 
-# 1=minimal debug information
-#  = normal debug information 
-# 3=maximal debug information
-DEBUG=0
+# Debug information --------------------------------------------------------- 
+# 0 = no debug information 
+# 1 = minimal debug information
+# 2 = normal debug information 
+# 3 = maximal debug information
+DEBUG=2
 
 #
 # Compiler and Linker options
@@ -263,6 +261,7 @@ SIZE      = ${TCHAIN}size
 AR        = ${TCHAIN}ar rcs
 NM        = ${TCHAIN}nm
 AS        = ${TCHAIN}as
+GDB       = ${TCHAIN}gdb
 
 #
 # Message/Filter settings
@@ -489,6 +488,14 @@ size: $(TRGFILE)
 	@echo
 	@echo -e $(MSG_SIZE_AFTER)
 	@$(SIZE) $(TRGFILE)
+
+
+# 
+# Debug rules
+#============================================================================
+debug: ## Debug program
+	@$(GDB) $(TRGFILE) 
+
 	
 #
 # Various utility rules	

@@ -73,11 +73,11 @@ ADEFS =
 # C++ Macro definitions
 CPPDEFS = 
 
-# Debug information 
-# 0=no debug information 
-# 1=minimal debug information
-#  = normal debug information 
-# 3=maximal debug information
+# Debug information --------------------------------------------------------- 
+# 0 = no debug information 
+# 1 = minimal debug information
+# 2 = normal debug information 
+# 3 = maximal debug information
 DEBUG=0
 
 #
@@ -246,6 +246,7 @@ SIZE      = ${TCHAIN}size
 AR        = ${TCHAIN}ar rcs
 NM        = ${TCHAIN}nm
 AS        = ${TCHAIN}as
+GDB       = ${TCHAIN}gdb
 
 #
 # Message/Filter settings
@@ -471,6 +472,14 @@ size: $(TRGFILE)
 	@echo
 	@echo -e $(MSG_SIZE_AFTER)
 	@$(SIZE) $(TRGFILE)
+
+
+# 
+# Debug rules
+#============================================================================
+debug: ## Debug program
+	@$(GDB) $(TRGFILE) 
+
 	
 #
 # Various utility rules	
