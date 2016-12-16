@@ -383,8 +383,11 @@ ALL_CPPFLAGS =  -I. -x c++ $(CPPFLAGS) $(GENDEPFLAGS)
 ALL_ASFLAGS  =  -I. -x assembler-with-cpp $(ASFLAGS)
 
 # Define all object files.
-OBJS = $(SRC:%.c=$(OBJDIR)/%.o) $(CPPSRC:%.cpp=$(OBJDIR)/%.o) $(ASRC:%.S=$(OBJDIR)/%.o)
+#OBJS = $(SRC:%.c=$(OBJDIR)/%.o) $(CPPSRC:%.cpp=$(OBJDIR)/%.o) $(ASRC:%.S=$(OBJDIR)/%.o)
 #OBJS = $(SRC:%.c=$(OBJDIR)/%.o) 
+BUILDDIR=build
+OBJS = $(patsubst src/%.c, $(BUILDDIR)/%.o, $(SRC))
+
 
 # Define all listing files.
 LST = $(SRC:%.c=$(OBJDIR)/%.lst) $(CPPSRC:%.cpp=$(OBJDIR)/%.lst) $(ASRC:%.S=$(OBJDIR)/%.lst) 
@@ -458,6 +461,8 @@ $(TRGFILE): $(OBJS) $(OUTDIR)
 	
 # Compile: create object files from C source files.
 $(OBJDIR)/%.o : %.c
+$(OBJS): $(BUILDDIR)/%.o : src/%.c
+	@mkdir -p $(@D)  
 	@echo -e $(MSG_COMPILING) "$(C_FILE)" $< "$(E_END)"
 	@$(CC) -c $(ALL_CFLAGS) $< -o $@ 2>&1  $(C_FILTER)
 
