@@ -116,7 +116,7 @@ def newModule(dir, author, licence):
     addSection(fileH, "Macros")
     addSection(fileH, "Typedefs")
     addSection(fileH, "Variables")
-    addSection(fileH, "Functions")
+    addSection(fileH, "Prototypes")
     addCppSentinelEnd(fileH)
     addSentinelEnd(fileH)
     fileC.close()
