@@ -56,6 +56,7 @@ SRC = src/main.c \
 			src/lua-5.2.3/src/lcode.c \
 			src/lua-5.2.3/src/liolib.c \
 			src/lua-5.2.3/src/ldblib.c \
+			src/luaConf.c \
 
 # List C++ source files here. (C dependencies are automatically generated.)
 CPPSRC = 
