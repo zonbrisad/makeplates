@@ -102,7 +102,8 @@ int main(int argc, char *argv[]) {
 	}
 	
 	printf("Ett litet testprogram.\n");
-	
+
+	LC_Test();
 
 	L = luaL_newstate();
 	luaL_openlibs(L);

@@ -1,7 +1,7 @@
 # Hey Emacs, this is a -*- makefile -*-
 #----------------------------------------------------------------------------
 # 
-# Makeplate example project
+# Makeplate simple project
 #
 # author: Peter Malmberg <peter.malmberg@gmail.com>
 #
@@ -11,31 +11,17 @@
 # >make help 
 #----------------------------------------------------------------------------
 
-# Target platform
-# linux win32 avr arm osx
-TARGET_PLATFORM = linux
-
-# Project Licence (GPL, GPLv2, MIT, BSD, Apache, etc.) 
-LICENCE = GPLv2
-
 # Target file name (without extension).
 TARGET = makeplate
 
 # List C source files here. (C dependencies are automatically generated.)
 SRC = src/main.c 
-#      Unity/src/unity.c
 
 # List C++ source files here. (C dependencies are automatically generated.)
 CPPSRC = 
 
-# List Assembler source files here.
-#     Make them always end in a capital .S.  
-ASRC =
-
 # Include directories
-INCLUDE = inc \
-          src \
-#					Unity/src
+INCLUDE = src 
 
 # Libraries to link
 LIB   = -lm 
@@ -62,23 +48,19 @@ OPT = 2
 CSTANDARD = gnu99
 
 # C Macro definitions
-CDEFS = DEBUGPRINT   \
-        WARNINGPRINT \
-        ERRORPRINT   \
-        INFOPRINT   
-
-# ASM  Macro definitions
-ADEFS = 
+CDEFS = 
 
 # C++ Macro definitions
 CPPDEFS = 
 
-# Debug information --------------------------------------------------------- 
-# 0 = no debug information 
-# 1 = minimal debug information
-# 2 = normal debug information 
-# 3 = maximal debug information
+# Debug information 
+# 0=no debug information 
+# 1=minimal debug information
+# 2=normal debug information 
+# 3=maximal debug information
 DEBUG=0
+
+
 
 #
 # Compiler and Linker options
@@ -165,32 +147,12 @@ CPPFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void 
 #CPPFLAGS += $(shell pkg-config --cflags sqlite3)
 
 
-# Assembler Options ---------------------------------------------------------
-#  -Wa,...:   tell GCC to pass this to the assembler.
-#  -adhlns:   create listing
-#  -gstabs:   have the assembler create line number information; note that
-#             for use in COFF files, additional information about filenames
-#             and function names needs to be present in the assembler source
-#             files -- see avr-libc docs [FIXME: not yet described there]
-#  -listing-cont-lines: Sets the maximum number of continuation lines of hex 
-#       dump that will be displayed for a given single line of source input.
-ASFLAGS =  $(patsubst %,-D%,$(ADEFS))
-ASFLAGS += -Wa,-adhlns=$(<:%.S=$(OBJDIR)/%.lst),-gstabs,--listing-cont-lines=100
-
-# Linker Options ------------------------------------------------------------
-#  -Wl,...:     tell GCC to pass this to linker.
-#    -Map:      create map file
-#    --cref:    add cross reference to  map file
-LDFLAGS = -Wl,-Map=$(OUTDIR)/$(TARGET).map,--cref
-LDFLAGS += $(EXTMEMOPTS)
-LDFLAGS += -g
-
 #
 # Platform specific options
 #============================================================================
 
 # Linux options -------------------------------------------------------------
-ifeq ($(TARGET_PLATFORM), linux)
+#ifeq ($(TARGET_PLATFORM), linux)
 
 # Target filename
 TRGFILE=$(OUTDIR)/$(TARGET)
@@ -201,20 +163,7 @@ TCHAIN_BASE=/usr/bin
 # Toolchain prefix 
 TCHAIN_PREFIX=
 
-endif
-# Windows options -----------------------------------------------------------
-ifeq ($(TARGET_PLATFORM), win32)
-
-# Target filename
-TRGFILE=$(OUTDIR)/$(TARGET).exe
-
-# Toolchain base directory
-TCHAIN_BASE=/usr/bin
-
-# Toolchain prefix 
-TCHAIN_PREFIX=
-
-endif
+#endif
 
 #
 # Tool settings
@@ -231,9 +180,9 @@ MKDIR     = mkdir -p
 SED       = sed
 MOC       = moc
 QMAKE     = qmake
-CTEMPLATE = python3 tools/ctemplate.py
-BIN2ARRAY = python3 tools/bin2array.py
-MPTOOL    = tools/mkptools
+#CTEMPLATE = python3 tools/ctemplate.py
+#BIN2ARRAY = python3 tools/bin2array.py
+#MPTOOL    = tools/mkptools
 CPPCHECK  = cppcheck
 INSTALL   = install
 
@@ -246,7 +195,6 @@ SIZE      = ${TCHAIN}size
 AR        = ${TCHAIN}ar rcs
 NM        = ${TCHAIN}nm
 AS        = ${TCHAIN}as
-GDB       = ${TCHAIN}gdb
 
 #
 # Message/Filter settings
@@ -472,14 +420,6 @@ size: $(TRGFILE)
 	@echo
 	@echo -e $(MSG_SIZE_AFTER)
 	@$(SIZE) $(TRGFILE)
-
-
-# 
-# Debug rules
-#============================================================================
-debug: ## Debug program
-	@$(GDB) $(TRGFILE) 
-
 	
 #
 # Various utility rules	
@@ -503,97 +443,14 @@ clean:  ## Remove all build files
 	@find . -name *~ -delete
 
 
-archive: ## Make a tar archive of the source code
-	@echo
-	@echo -e $(MSG_ARCHIVING)
-	@$(eval DT=$(shell date +"%Y%m%d-%H%M%S"))
-	@$(MKDIR) archive
-	@tar -cvzf archive/$(TARGET)_${DT}.tar.gz *  \
-		--exclude='archive'  \
-		--exclude='backup'   \
-		--exclude='output'   \
-		--exclude='*.a'      \
-		--exclude='*.o'      \
-		--exclude='*.ko'     \
-		--exclude='*.obj'    \
-		--exclude='*.a'      \
-		--exclude='*.la'     \
-		--exclude='*.lo'     \
-		--exclude='*.slo'    \
-		--exclude='*.lib'    \
-		--exclude='*.so'     \
-		--exclude='*.so*'    \
-		--exclude='.dep'     \
-		--exclude='.svn'     \
-		--exclude='.git'     \
-		--exclude='*.elf'    \
-		--exclude='*.hex'    \
-		--exclude='*.bin'    \
-		--exclude='*.exe'    \
-		--exclude='*.sym'    \
-		--exclude='*.lss'    \
-		--exclude='*.map'    \
-		--exclude='*.app'    \
-		--exclude='*.i*86'   \
-		--exclude='*.x86_64' \
-		--exclude='*~'       \
-		--exclude="*.old"    \
-		--exclude="*.tmp"    \
-
-# Backup directory
-BACKUP_DIR=backup
-
-# Nr of backups
-BACKUPS=100
-
-backup: ## Make an incremental backup
-	@echo
-	@echo -e $(MSG_BACKUP)
-	@$(MKDIR) $(BACKUP_DIR)
-  # remove oldest backup
-	@$(RM) -rf $(BACKUP_DIR)/backup_$(BACKUPS) 
-  # rotate backups 
-	@for ((x=$(BACKUPS);x>0;x--)); do                 \
-	  bdir=$(BACKUP_DIR)/backup_`expr $${x} - 1` ;    \
-	  # check if directory exist before renameing  it \
-	  if [ -d $${bdir} ]; then                        \
-	    mv -f $${bdir}  $(BACKUP_DIR)/backup_$${x} ;  \
-	  fi ;                                            \
-	done 
-	@rsync --archive             \
-	      --delete               \
-				--relative             \
-				--exclude="backup"     \
-				--exclude="archive"    \
-				--exclude="output"     \
-				--exclude="*.o"        \
-				--exclude=".git"       \
-				--exclude=".svn"       \
-				--exclude="*~"         \
-				--exclude="*.old"      \
-				--exclude="*.tmp"      \	
-				--link-dest=$(CURDIR)/$(BACKUP_DIR)/backup_1 \
-				.                      \
-				$(BACKUP_DIR)/backup_0 
-
-
-edit:   ## Open source and makefile in editor
-	@$(EDITOR) Makefile $(SRC)
-
 run:    ## Run application
 	@output/$(TARGET)
 
-debug:  ## Debug application
 
 
 # Include the dependency files.
 -include $(shell mkdir .dep 2>/dev/null) $(wildcard .dep/*)
 
-newfile:  ## Create a new C file
-	@${CTEMPLATE} --newc --dir src --author "$(AUTHOR)" --licence "$(LICENCE)"
-	
-newproj:  ## Create a new project
-	@${PROJECT} newproj
 
 # Install options -----------------------------------------------------------
 
@@ -684,7 +541,6 @@ list-info:
 	@echo "C standard: $(CSTANDARD)"
 	@echo "MCU:        $(MCU)"
 	@echo "F_CPU:      $(F_CPU)"
-
 	
 list-includes: 
 	@echo -e $(MSG_INCLUDES)
@@ -716,48 +572,10 @@ list-installinfo:
 	@echo "Install group: $(INSTALL_GROUP)"
 
 
-
-
 info: list-info list-includes list-defs list-flags list-ldflags list-installinfo ## Print information about project
 
 files: list-src ## List source files
 	
-#
-# Personal settings
-#============================================================================
-
-# Only for default settings. Change value in settings.mk
-AUTHOR=Your Name <your.name@yourdomain.org>
-EDITOR=jed
-US:=$$USER
-#PERSONAL=personal_$${USER}.mk
-PERSONAL=personal.mk
-
-# Include some external settings
-# If file does not exist it will be generated.
-include  ${PERSONAL}
-
-$(PERSONAL):	# Create a settings file
-	@echo "#" > ${PERSONAL}
-	@echo "# This file is for personal settings only." >> ${PERSONAL}
-	@echo "#" >> ${PERSONAL}
-	@echo "EDITOR=${EDITOR}" >> ${PERSONAL}
-	@echo "AUTHOR=${AUTHOR}" >> ${PERSONAL}
-
-
-
-#
-# CppCheck static code analysis
-#============================================================================
-.PHONY: ccheck acheck
-
-ccheck: ## Static code analysis using cppcheck(errors only)
-	@$(CPPCHECK) --inline-suppr $(SRC) 
-
-acheck: ## Static code analysis using cppcheck(all warnings)
-	@$(CPPCHECK) --inline-suppr --enable=all $(SRC) 
-
-
 
 	
 # Listing of phony targets.

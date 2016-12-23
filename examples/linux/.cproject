@@ -55,4 +55,5 @@
 			<resource resourceType="PROJECT" workspacePath="/linux"/>
 		</configuration>
 	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
 </cproject>
