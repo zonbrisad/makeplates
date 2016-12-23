@@ -386,6 +386,8 @@ ALL_ASFLAGS  =  -I. -x assembler-with-cpp $(ASFLAGS)
 OBJS = $(SRC:%.c=$(OBJDIR)/%.o) $(CPPSRC:%.cpp=$(OBJDIR)/%.o) $(ASRC:%.S=$(OBJDIR)/%.o)
 #OBJS = $(SRC:%.c=$(OBJDIR)/%.o) 
 
+#OBJS= $(patsubst
+
 # Define all listing files.
 LST = $(SRC:%.c=$(OBJDIR)/%.lst) $(CPPSRC:%.cpp=$(OBJDIR)/%.lst) $(ASRC:%.S=$(OBJDIR)/%.lst) 
 
