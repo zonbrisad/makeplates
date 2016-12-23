@@ -1,7 +1,7 @@
 # Hey Emacs, this is a -*- makefile -*-
 #----------------------------------------------------------------------------
 # 
-# Makeplate glib lua example project
+# Makeplate simple project
 #
 # author: Peter Malmberg <peter.malmberg@gmail.com>
 #
@@ -11,69 +11,22 @@
 # >make help 
 #----------------------------------------------------------------------------
 
-# Target platform
-# linux win32 avr arm osx
-TARGET_PLATFORM = linux
-
-# Project Licence (GPL, GPLv2, MIT, BSD, Apache, etc.) 
-LICENCE = GPLv2
-
 # Target file name (without extension).
-TARGET = glua
+TARGET = makeplate
 
 # List C source files here. (C dependencies are automatically generated.)
-SRC = src/main.c \
-      src/gp_log.c \
-      src/lua-5.2.3/src/lstrlib.c \
-			src/lua-5.2.3/src/lvm.c \
-			src/lua-5.2.3/src/lzio.c \
-			src/lua-5.2.3/src/lfunc.c \
-			src/lua-5.2.3/src/ldo.c \
-			src/lua-5.2.3/src/lgc.c \
-			src/lua-5.2.3/src/lbitlib.c \
-			src/lua-5.2.3/src/ldump.c \
-			src/lua-5.2.3/src/lctype.c \
-			src/lua-5.2.3/src/lauxlib.c \
-			src/lua-5.2.3/src/lundump.c \
-			src/lua-5.2.3/src/lmem.c \
-			src/lua-5.2.3/src/ltm.c \
-			src/lua-5.2.3/src/ldebug.c \
-			src/lua-5.2.3/src/lmathlib.c \
-			src/lua-5.2.3/src/ltablib.c \
-			src/lua-5.2.3/src/lapi.c \
-			src/lua-5.2.3/src/loadlib.c \
-			src/lua-5.2.3/src/llex.c \
-			src/lua-5.2.3/src/lstring.c \
-			src/lua-5.2.3/src/lbaselib.c \
-			src/lua-5.2.3/src/lobject.c \
-			src/lua-5.2.3/src/loslib.c \
-			src/lua-5.2.3/src/lstate.c \
-			src/lua-5.2.3/src/lparser.c \
-			src/lua-5.2.3/src/ltable.c \
-			src/lua-5.2.3/src/lopcodes.c \
-			src/lua-5.2.3/src/linit.c \
-			src/lua-5.2.3/src/lcorolib.c \
-			src/lua-5.2.3/src/lcode.c \
-			src/lua-5.2.3/src/liolib.c \
-			src/lua-5.2.3/src/ldblib.c \
-			src/luaConf.c \
+SRC = src/main.c 
 
 # List C++ source files here. (C dependencies are automatically generated.)
 CPPSRC = 
 
-# List Assembler source files here.
-#     Make them always end in a capital .S.  
-ASRC =
-
 # Include directories
-INCLUDE = inc \
-          src \
-					src/lua-5.2.3/src 
+INCLUDE = src 
 
 # Libraries to link
-LIB  = -lm 
-LIB += $(shell pkg-config --libs glib-2.0)
-LIB += $(shell pkg-config --libs gthread-2.0)
+LIB   = -lm 
+#LIB += $(shell pkg-config --libs glib-2.0)
+#LIB += $(shell pkg-config --libs gthread-2.0)
 #LIB += $(shell pkg-config --libs ncurses)
 #LIB += $(shell pkg-config --libs lua5.1)
 #LIB += $(shell pkg-config --libs sqlite3)
@@ -95,11 +48,7 @@ OPT = 2
 CSTANDARD = gnu99
 
 # C Macro definitions
-CDEFS = HAVE_CONFIG_H   \
-        LUA_USE_MKSTEMP 
-
-# ASM  Macro definitions
-ADEFS = 
+CDEFS = 
 
 # C++ Macro definitions
 CPPDEFS = 
@@ -107,99 +56,103 @@ CPPDEFS =
 # Debug information 
 # 0=no debug information 
 # 1=minimal debug information
-#  = normal debug information 
+# 2=normal debug information 
 # 3=maximal debug information
-DEBUG=3
+DEBUG=0
+
+
 
 #
 # Compiler and Linker options
 #============================================================================
 
 # Compiler Options C --------------------------------------------------------
-#  -g*:          generate debugging information
-#  -O*:          optimization level
-#  -f...:        tuning, see GCC manual
-#  -Wall...:     warning level
-#  -Wa,...:      tell GCC to pass this to the assembler.
-#    -adhlns...: create assembler listing
-CFLAGS = -g$(DEBUG)
-CFLAGS += $(patsubst %,-D%,$(CDEFS))
-CFLAGS += -O$(OPT)
+CFLAGS = -g$(DEBUG)                            # Debugging information
+CFLAGS += -O$(OPT)                             # Optimisation level
+CFLAGS += -std=$(CSTANDARD)                    # C standard
+CFLAGS += $(patsubst %,-I%,$(INCLUDE))         # Include directories 
+CFLAGS += $(patsubst %,-D%,$(CDEFS))           # Macro definitions
+CFLAGS += -Wa,-adhlns=$(<:%.c=$(OBJDIR)/%.lst) # Generate assembler listing
+
+# Compiler Tuning C ---------------------------------------------------------
 CFLAGS += -funsigned-char
 #CFLAGS += -funsigned-bitfields
 #CFLAGS += -fpack-struct
 #CFLAGS += -fshort-enums
-CFLAGS += -Wall
-#CFLAGS += -Wstrict-prototypes
-#CFLAGS += -mshort-calls
 #CFLAGS += -fno-unit-at-a-time
-#CFLAGS += -Wundef
-CFLAGS += -Wunreachable-code
+#CFLAGS += -mshort-calls
+
+# Compiler Warnings C -------------------------------------------------------
+CFLAGS += -Wall                  # Standard warnings
+CFLAGS += -Wextra                # Some extra warnings
+CFLAGS += -Wmissing-braces 
+CFLAGS += -Wmissing-declarations # Warn if global function is not declared
+CFLAGS += -Wmissing-prototypes   # if a function is missing its prototype
+CFLAGS += -Wstrict-prototypes    # non correct prototypes i.e. void fun() => void fun(void) 
+CFLAGS += -Wredundant-decls      # Warn if something is declared more than ones
+CFLAGS += -Wunreachable-code     # if code is not used
+CFLAGS += -Wshadow               # if local variable has same name as global
+CFLAGS += -Wformat=2             # check printf and scanf for problems
+#CFLAGS += -Wno-format-nonliteral # 
+CFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void pointer
 #CFLAGS += -Wsign-compare
-#CFLAGS += -Wa,-adhlns=$(<:%.c=$(OBJDIR)/%.lst)
-CFLAGS += $(patsubst %,-I%,$(INCLUDE))
-CFLAGS += -std=$(CSTANDARD)
-CFLAGS += $(shell pkg-config --cflags glib-2.0)
-CFLAGS += $(shell pkg-config --cflags gthread-2.0)
+#CFLAGS += -Wundef
+#CFLAGS += -Werror               # All warnings will be treated as errors
+
+# Library compiler flags C --------------------------------------------------
+#CFLAGS += $(shell pkg-config --cflags glib-2.0)
+#CFLAGS += $(shell pkg-config --cflags gthread-2.0)
 #CFLAGS += $(shell pkg-config --cflags lua5.1)
 #CFLAGS += $(shell pkg-config --cflags sqlite3)
 
 
 # Compiler Options C++ ------------------------------------------------------
-#  -g*:          generate debugging information
-#  -O*:          optimization level
-#  -f...:        tuning, see GCC manual and avr-libc documentation
-#  -Wall...:     warning level
-#  -Wa,...:      tell GCC to pass this to the assembler.
-#    -adhlns...: create assembler listing
-CPPFLAGS = -g$(DEBUG)
-CPPFLAGS += $(patsubst %,-D%,$(CPPDEFS))
-CPPFLAGS += -O$(OPT)
+CPPFLAGS = -g$(DEBUG)                              # Debugging information
+CPPFLAGS += -O$(OPT)                               # Optimisation level
+CPPFLAGS += -std=$(CSTANDARD)                      # C standard
+CPPFLAGS += $(patsubst %,-I%,$(INCLUDE))           # Include directories 
+CPPFLAGS += $(patsubst %,-D%,$(CPPDEFS))           # Macro definitions
+CPPFLAGS += -Wa,-adhlns=$(<:%.cpp=$(OBJDIR)/%.lst) # Generate assembler listing
+
+# Compiler Tuning C++ -------------------------------------------------------
 CPPFLAGS += -funsigned-char
 CPPFLAGS += -funsigned-bitfields
 CPPFLAGS += -fpack-struct
 CPPFLAGS += -fshort-enums
 CPPFLAGS += -fno-exceptions
-CPPFLAGS += -Wall
-CPPFLAGS += -Wundef
 #CPPFLAGS += -mshort-calls
 #CPPFLAGS += -fno-unit-at-a-time
-#CPPFLAGS += -Wstrict-prototypes
-#CPPFLAGS += -Wunreachable-code
+
+# Compiler Warnings C++ -----------------------------------------------------
+CPPFLAGS += -Wall                  # Standard warnings
+CPPFLAGS += -Wextra                # Some extra warnings
+CPPFLAGS += -Wmissing-braces 
+CPPFLAGS += -Wmissing-declarations # Warn if global function is not declared
+CPPFLAGS += -Wmissing-prototypes   # if a function is missing its prototype
+CPPFLAGS += -Wstrict-prototypes    # non correct prototypes i.e. void fun() => void fun(void) 
+CPPFLAGS += -Wredundant-decls      # Warn if something is declared more than ones
+CPPFLAGS += -Wunreachable-code     # if code is not used
+CPPFLAGS += -Wshadow               # if local variable has same name as global
+CPPFLAGS += -Wformat=2             # check printf and scanf for problems
+#CPPFLAGS += -Wno-format-nonliteral # 
+CPPFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void pointer
 #CPPFLAGS += -Wsign-compare
-CPPFLAGS += -Wa,-adhlns=$(<:%.cpp=$(OBJDIR)/%.lst)
-CPPFLAGS += $(patsubst %,-I%,$(INCLUDE))
-#CPPFLAGS += $(CSTANDARD)
-CPPFLAGS += $(shell pkg-config --cflags glib-2.0)
-CPPFLAGS += $(shell pkg-config --cflags gthread-2.0)
+#CPPFLAGS += -Wundef
+#CPPFLAGS += -Werror              # All warnings will be treated as errors
 
+# Library compiler flags C++ ------------------------------------------------
+#CPPFLAGS += $(shell pkg-config --cflags glib-2.0)
+#CPPFLAGS += $(shell pkg-config --cflags gthread-2.0)
+#CPPFLAGS += $(shell pkg-config --cflags lua5.1)
+#CPPFLAGS += $(shell pkg-config --cflags sqlite3)
 
-# Assembler Options ---------------------------------------------------------
-#  -Wa,...:   tell GCC to pass this to the assembler.
-#  -adhlns:   create listing
-#  -gstabs:   have the assembler create line number information; note that
-#             for use in COFF files, additional information about filenames
-#             and function names needs to be present in the assembler source
-#             files -- see avr-libc docs [FIXME: not yet described there]
-#  -listing-cont-lines: Sets the maximum number of continuation lines of hex 
-#       dump that will be displayed for a given single line of source input.
-ASFLAGS =  $(patsubst %,-D%,$(ADEFS))
-ASFLAGS += -Wa,-adhlns=$(<:%.S=$(OBJDIR)/%.lst),-gstabs,--listing-cont-lines=100
-
-# Linker Options ------------------------------------------------------------
-#  -Wl,...:     tell GCC to pass this to linker.
-#    -Map:      create map file
-#    --cref:    add cross reference to  map file
-LDFLAGS = -Wl,-Map=$(OUTDIR)/$(TARGET).map,--cref
-LDFLAGS += $(EXTMEMOPTS)
-LDFLAGS += -g
 
 #
 # Platform specific options
 #============================================================================
 
 # Linux options -------------------------------------------------------------
-ifeq ($(TARGET_PLATFORM), linux)
+#ifeq ($(TARGET_PLATFORM), linux)
 
 # Target filename
 TRGFILE=$(OUTDIR)/$(TARGET)
@@ -210,20 +163,7 @@ TCHAIN_BASE=/usr/bin
 # Toolchain prefix 
 TCHAIN_PREFIX=
 
-endif
-# Windows options -----------------------------------------------------------
-ifeq ($(TARGET_PLATFORM), win32)
-
-# Target filename
-TRGFILE=$(OUTDIR)/$(TARGET).exe
-
-# Toolchain base directory
-TCHAIN_BASE=/usr/bin
-
-# Toolchain prefix 
-TCHAIN_PREFIX=
-
-endif
+#endif
 
 #
 # Tool settings
@@ -240,9 +180,9 @@ MKDIR     = mkdir -p
 SED       = sed
 MOC       = moc
 QMAKE     = qmake
-CTEMPLATE = python3 tools/ctemplate.py
-BIN2ARRAY = python3 tools/bin2array.py
-MPTOOL    = tools/mkptools
+#CTEMPLATE = python3 tools/ctemplate.py
+#BIN2ARRAY = python3 tools/bin2array.py
+#MPTOOL    = tools/mkptools
 CPPCHECK  = cppcheck
 INSTALL   = install
 
@@ -297,8 +237,8 @@ C_ACTION=$(E_BR_MAGENTA)
 
 # Messages ------------------------------------------------------------------
 MSG_LINE             = "$(E_WHITE)------------------------------------------------------------------$(E_END)"
-MSG_BEGIN            = "${E_WHITE}===== Begin ${E_GRAY}------------------------------------------------------------${E_END}"
-MSG_END              = "${E_WHITE}===== End${E_GRAY} --------------------------------------------------------------${E_END}"
+MSG_BEGIN            = "${E_WHITE}-------------------------------- Begin ---------------------------${E_END}"
+MSG_END              = "${E_WHITE}-------------------------------- End -----------------------------${E_END}"
 MSG_ERRORS_NONE      = "${C_OK}Errors: none ${E_END}"
 MSG_LINKING          = "${C_ACTION}Linking:${E_END}"
 MSG_COMPILING        = "${C_ACTION}Compiling C:${E_END}"
@@ -346,14 +286,15 @@ F_WARNING2="s/unused variable/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_WARNING3="s/may be used uninitialized in this function/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_WARNING4="s/implicit declaration of function/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_WARNING5="s/value computed is not used/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
+F_BRACKET="s/\[-W.*\]/$$(printf "$(E_GREEN)")&$$(printf "$(E_END)")/g"
 #XX="s/\[[^][]*\]/$$(printf "$(E_BR_BLUE)")&$$(printf "$(E_END)")/i"
 #YY="s/\'[^][]*\'/$$(printf "$(E_BR_GREEN)")&$$(printf "$(E_END)")/i"
 C_FILTER   = | sed -ru -e $(F_FATAL_ERROR) -e $(F_ERROR) -e $(FF_ERROR)     \
                        -e $(F_WARNING) -e $(FF_WARNING)                     \
                        -e $(F_WARNING1) -e $(F_WARNING2) -e $(F_WARNING3)   \
-											 -e $(F_WARNING4) -e $(F_WARNING5)                    \
-											 -e $(F_NOTE) -e $(FF_NOTE)                           \
-											 -e $(F_INF) -e $(FF_INF)
+                       -e $(F_WARNING4) -e $(F_WARNING5)                    \
+                       -e $(F_NOTE) -e $(FF_NOTE)                           \
+                       -e $(F_INF) -e $(FF_INF) -e $(F_BRACKET)
 CPP_FILTER = $(C_FILTER)
 
 LD_ERROR1="s/undefined reference/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
@@ -502,97 +443,14 @@ clean:  ## Remove all build files
 	@find . -name *~ -delete
 
 
-archive: ## Make a tar archive of the source code
-	@echo
-	@echo -e $(MSG_ARCHIVING)
-	@$(eval DT=$(shell date +"%Y%m%d-%H%M%S"))
-	@$(MKDIR) archive
-	@tar -cvzf archive/$(TARGET)_${DT}.tar.gz *  \
-		--exclude='archive'  \
-		--exclude='backup'   \
-		--exclude='output'   \
-		--exclude='*.a'      \
-		--exclude='*.o'      \
-		--exclude='*.ko'     \
-		--exclude='*.obj'    \
-		--exclude='*.a'      \
-		--exclude='*.la'     \
-		--exclude='*.lo'     \
-		--exclude='*.slo'    \
-		--exclude='*.lib'    \
-		--exclude='*.so'     \
-		--exclude='*.so*'    \
-		--exclude='.dep'     \
-		--exclude='.svn'     \
-		--exclude='.git'     \
-		--exclude='*.elf'    \
-		--exclude='*.hex'    \
-		--exclude='*.bin'    \
-		--exclude='*.exe'    \
-		--exclude='*.sym'    \
-		--exclude='*.lss'    \
-		--exclude='*.map'    \
-		--exclude='*.app'    \
-		--exclude='*.i*86'   \
-		--exclude='*.x86_64' \
-		--exclude='*~'       \
-		--exclude="*.old"    \
-		--exclude="*.tmp"    \
-
-# Backup directory
-BACKUP_DIR=backup
-
-# Nr of backups
-BACKUPS=100
-
-backup: ## Make an incremental backup
-	@echo
-	@echo -e $(MSG_BACKUP)
-	@$(MKDIR) $(BACKUP_DIR)
-  # remove oldest backup
-	@$(RM) -rf $(BACKUP_DIR)/backup_$(BACKUPS) 
-  # rotate backups 
-	@for ((x=$(BACKUPS);x>0;x--)); do                 \
-	  bdir=$(BACKUP_DIR)/backup_`expr $${x} - 1` ;    \
-	  # check if directory exist before renameing  it \
-	  if [ -d $${bdir} ]; then                        \
-	    mv -f $${bdir}  $(BACKUP_DIR)/backup_$${x} ;  \
-	  fi ;                                            \
-	done 
-	@rsync --archive             \
-	      --delete               \
-				--relative             \
-				--exclude="backup"     \
-				--exclude="archive"    \
-				--exclude="output"     \
-				--exclude="*.o"        \
-				--exclude=".git"       \
-				--exclude=".svn"       \
-				--exclude="*~"         \
-				--exclude="*.old"      \
-				--exclude="*.tmp"      \	
-				--link-dest=$(CURDIR)/$(BACKUP_DIR)/backup_1 \
-				.                      \
-				$(BACKUP_DIR)/backup_0 
-
-
-edit:   ## Open source and makefile in editor
-	@$(EDITOR) Makefile $(SRC)
-
 run:    ## Run application
 	@output/$(TARGET)
 
-debug:  ## Debug application
 
 
 # Include the dependency files.
 -include $(shell mkdir .dep 2>/dev/null) $(wildcard .dep/*)
 
-newfile:  ## Create a new C file
-	@${CTEMPLATE} --newc --dir src --author "$(AUTHOR)" --licence "$(LICENCE)"
-	
-newproj:  ## Create a new project
-	@${PROJECT} newproj
 
 # Install options -----------------------------------------------------------
 
@@ -683,7 +541,6 @@ list-info:
 	@echo "C standard: $(CSTANDARD)"
 	@echo "MCU:        $(MCU)"
 	@echo "F_CPU:      $(F_CPU)"
-
 	
 list-includes: 
 	@echo -e $(MSG_INCLUDES)
@@ -715,48 +572,10 @@ list-installinfo:
 	@echo "Install group: $(INSTALL_GROUP)"
 
 
-
-
 info: list-info list-includes list-defs list-flags list-ldflags list-installinfo ## Print information about project
 
 files: list-src ## List source files
 	
-#
-# Personal settings
-#============================================================================
-
-# Only for default settings. Change value in settings.mk
-AUTHOR=Peter Malmberg <peter.malmberg@gmail.com>
-EDITOR=jed
-US:=$$USER
-#PERSONAL=personal_$${USER}.mk
-PERSONAL=personal.mk
-
-# Include some external settings
-# If file does not exist it will be generated.
-include  ${PERSONAL}
-
-$(PERSONAL):	# Create a settings file
-	@echo "#" > ${PERSONAL}
-	@echo "# This file is for personal settings only." >> ${PERSONAL}
-	@echo "#" >> ${PERSONAL}
-	@echo "EDITOR=${EDITOR}" >> ${PERSONAL}
-	@echo "AUTHOR=${AUTHOR}" >> ${PERSONAL}
-
-
-
-#
-# CppCheck static code analysis
-#============================================================================
-.PHONY: ccheck acheck
-
-ccheck: ## Static code analysis using cppcheck(errors only)
-	@$(CPPCHECK) --inline-suppr $(SRC) 
-
-acheck: ## Static code analysis using cppcheck(all warnings)
-	@$(CPPCHECK) --inline-suppr --enable=all $(SRC) 
-
-
 
 	
 # Listing of phony targets.

@@ -10,13 +10,13 @@ print("------------------------------------------------------------")
 IntParam1=42
 
 -- A integer parameter with wrong type of value
-IntParmInvalid1="not a integer parameter"
+IntParamInvalid1="not a integer parameter"
 
 -- A integer parameter with value below range
-IntParmInvalid2=-10
+IntParamInvalid2=-10
 
 -- A integer parameter with value above range
-IntParmInvalid3=110
+IntParamInvalid3=110
 
 
 -- Double tests
@@ -26,13 +26,13 @@ IntParmInvalid3=110
 DblParam1=4.2
 
 -- A double parameter with wrong type of value
-DblParmInvalid1="not a double parameter"
+DblParamInvalid1="not a double parameter"
 
 -- A double parameter with value below range
-DblParmInvalid2=-10.1
+DblParamInvalid2=-10.1
 
 -- A double parameter with value above range
-DblParmInvalid3=110.2
+DblParamInvalid3=110.2
 
 
 -- String tests
