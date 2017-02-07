@@ -25,6 +25,7 @@ extern "C" {
 #define LCT_DBL  double
 #define LCT_STR  char*
 
+
 #define LC_IS_MISSING(param)  (param->err==LC_ERR_MISSING)
 #define LC_IS_REQUIRED(param) (param->flags & LC_FLAG_REQUIRED)
 
@@ -34,6 +35,9 @@ extern "C" {
 #define LC_INT(name, desc, flags, def, min, max)  LC_TYPE_INTEGER, name, desc, flags, LC_ERR_VALID, .data.intParam = {0, def, min, max}
 #define LC_DBL(name, desc, flags, def, min, max)  LC_TYPE_DOUBLE,  name, desc, flags, LC_ERR_VALID, .data.dblParam = {0, def, min, max}
 #define LC_STR(name, desc, flags, def)  LC_TYPE_STRING,  name, desc, flags, LC_ERR_VALID, .data.strParam = {NULL, NULL}
+
+#define LC_INT_LIST(name, desc, flags, def, min, max)  LC_TYPE_INTEGER_LIST, name, desc, flags, LC_ERR_VALID, .data.intParam = {0, def, min, max}
+#define LC_DBL_LIST(name, desc, flags, def, min, max)  LC_TYPE_DOUBLE_LIST,  name, desc, flags, LC_ERR_VALID, .data.dblParam = {0, def, min, max}
 #define LC_LAST()  LC_TYPE_LAST
 
 
@@ -71,6 +75,7 @@ typedef struct {
   LCT_INT default_val; // default value
   LCT_INT min;         // min value of parameter
   LCT_INT max;         // max value of parameter
+  uint32_t length;     // Size of list
   LCT_INT list[];      // list of valid values of parameter
 } LUACONF_DATA_INTEGER;
 
@@ -79,6 +84,7 @@ typedef struct {
   LCT_DBL default_val; // default value
   LCT_DBL min;         // min value of parameter
   LCT_DBL max;         // max value of parameter
+  uint32_t length;     // Size of list
   LCT_DBL list[];      // list of valid values of parameter
 } LUACONF_DATA_DOUBLE;
 

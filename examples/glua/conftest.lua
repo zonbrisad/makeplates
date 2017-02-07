@@ -10,7 +10,7 @@ print("------------------------------------------------------------")
 IntParam1=42
 
 -- A integer parameter with wrong type of value
-IntParamInvalid1="not a integer parameter"
+IntParamInvalid1="not a integer value"
 
 -- A integer parameter with value below range
 IntParamInvalid2=-10
@@ -26,7 +26,7 @@ IntParamInvalid3=110
 DblParam1=4.2
 
 -- A double parameter with wrong type of value
-DblParamInvalid1="not a double parameter"
+DblParamInvalid1="not a double value"
 
 -- A double parameter with value below range
 DblParamInvalid2=-10.1
@@ -61,5 +61,5 @@ DblList={ -80.4, -1.3, 0.0, 1.45, 5.4, 42.3, 141,94 }
 -- -----------------------------------------------------------------
 
 
--- The following is a test of paramter that is missing
+-- The following is a test of paramter that is missing ( do not uncomment )
 --MissingParam=20

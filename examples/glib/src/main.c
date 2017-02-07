@@ -163,7 +163,9 @@ void errorTest() {
 	g_debug("This is a debug message\n");
   g_warning("This is a warning\n");
   g_error("This is an error\n");
-  g_critical("This is critical\n");
+  g_info("This is information\n");
+	g_critical("This is critical\n");
+	
 }
 
 void sig_ctrl_c(int sig) {
