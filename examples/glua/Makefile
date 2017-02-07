@@ -68,7 +68,7 @@ ASRC =
 # Include directories
 INCLUDE = inc \
           src \
-					src/lua-5.2.3/src 
+          src/lua-5.2.3/src 
 
 # Libraries to link
 LIB  = -lm 
@@ -88,7 +88,7 @@ OUTDIR = output
 
 # Optimization level, can be [0, 1, 2, 3, s]. 
 #     0 = turn off optimization. s = optimize for size.
-OPT = 2
+OPT = 0
 
 # Compiler flag to set the C Standard level.
 # [ gnu99 gnu11 c++98 c++03 c++11 c++14 ] 

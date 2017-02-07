@@ -47,11 +47,13 @@ typedef struct {
 } int2str;
 
 int2str type2string[] = {
-  {LC_TYPE_INTEGER, "Integer"},
-  {LC_TYPE_DOUBLE,  "Double"},
-  {LC_TYPE_STRING,  "String"},
-  {LC_TYPE_BOOLEAN, "Boolean"},
-  {LC_TYPE_LAST,    NULL}
+  {LC_TYPE_INTEGER,      "Integer"},
+  {LC_TYPE_DOUBLE,       "Double"},
+  {LC_TYPE_STRING,       "String"},
+  {LC_TYPE_BOOLEAN,      "Boolean"},
+  {LC_TYPE_INTEGER_LIST, "Integer List"},
+  {LC_TYPE_DOUBLE_LIST,  "Double List"},
+  {LC_TYPE_LAST,         NULL}
 };
 
 int2str error2string[] = {
@@ -75,6 +77,9 @@ luaConf confTest[] = {
   {LC_STR("StrParam1",        "Correct String parameter",        0, "")},
   {LC_STR("StrParamInvalid1", "Invalid String parameter",        0, "")},
   {LC_DBL("MissingParam",     "Missing parameter",               0, 0, 0, 0)},
+  {LC_INT_LIST("IntList",     "Integer List parameter",          0, 0, 0 ,0)},
+  {LC_DBL_LIST("DblList",     "Double List parameter",           0, 0, 0 ,0)},
+
 
   {LC_LAST()},
 };
@@ -166,42 +171,77 @@ void LC_validate(luaConf *param) {
 
 void LC_read(luaConf *conf, char *confFile) {
   lua_State *L;
-  int i;
+  int i, j, l;
   int isnum;
   const char *s;
   
   L = luaL_newstate();
   luaL_openlibs(L);
 
-  lua_dofile(L, confFile);
+	
+  luaL_dofile(L, confFile);
+
+
   isnum = 1;
   i=0;
   while (conf[i].type != LC_TYPE_LAST) {
     //DEBUGPRINT("i=%d name=%s\n", i, conf[i].name);
     lua_getglobal(L, conf[i].name);
+
     if (!lua_isnil(L, -1)) {
-      switch (conf[i].type) {
-        case LC_TYPE_INTEGER: conf[i].data.intParam.val = (LCT_INT) lua_tonumberx(L, -1, &isnum); break;
-        case LC_TYPE_DOUBLE:  conf[i].data.dblParam.val = (LCT_DBL) lua_tonumberx(L, -1, &isnum); break;
-        case LC_TYPE_STRING:
-          if (lua_isstring(L, -1)) {
-            s=lua_tostring(L, -1);
-            conf[i].data.strParam.val = malloc( strlen(s)+10 );
-            strcpy(conf[i].data.strParam.val,s);
-            DEBUGPRINT("String = %s\n", conf[i].data.strParam.val);
 
-          } else {
-            isnum = 0;
+
+    switch (conf[i].type) {
+      case LC_TYPE_INTEGER:
+    	conf[i].data.intParam.val = (LCT_INT) lua_tonumberx(L, -1, &isnum);
+    	 if (!isnum) {
+    		 conf[i].err = LC_ERR_INVALID;
+    	  }
+    	break;
+      case LC_TYPE_DOUBLE:
+    	conf[i].data.dblParam.val = (LCT_DBL) lua_tonumberx(L, -1, &isnum);
+    	 if (!isnum) {
+    	   	conf[i].err = LC_ERR_INVALID;
+    	 }
+    	break;
+      case LC_TYPE_STRING:
+        s=lua_tostring(L, -1);
+        if (s == NULL) {
+        	conf[i].err = LC_ERR_INVALID;
+        	break;
+        }
+        printf("String: %s\n",s);
+        conf[i].data.strParam.val = malloc(  strlen(s)+10 );
+        conf[i].data.strParam.val[0] = '\0';
+        strcpy(conf[i].data.strParam.val,s);
+        break;
+      case LC_TYPE_INTEGER_LIST:
+    	  printf("List length %d\n", lua_rawlen(L, -1));
+    	  l = lua_rawlen(L, -1);
+    	  //conf[i].data.intParam.list = malloc( sizeof(char) * l);
+    	  for (j=1;j<=l; j++) {
+    		  lua_rawgeti(L, -1, j);
+    		  printf("Int List %d\n", (LCT_INT) lua_tonumberx(L, -1, &isnum));
+    		  //conf[i].data.intParam.list[j-1] = (LCT_INT) lua_tonumberx(L, -1, &isnum);
+    		  lua_pop(L,1);
+    	  }
+    	break;
+      case LC_TYPE_DOUBLE_LIST:
+          printf("List length %d\n", lua_rawlen(L, -1));
+          l = lua_rawlen(L, -1);
+              //conf[i].data.intParam.list = malloc( sizeof(char) * l);
+          for (j=1;j<=l; j++) {
+            lua_rawgeti(L, -1, j);
+            printf("Dbl List %f\n", (LCT_DBL) lua_tonumberx(L, -1, &isnum));
+            //conf[i].data.intParam.list[j-1] = (LCT_INT) lua_tonumberx(L, -1, &isnum);
+            lua_pop(L,1);
           }
-          break;
-          default: break;
-      }
-		
-      if (!isnum) {
-        conf[i].err = LC_ERR_INVALID;
-      }
+    	break;
+      default: break;
+    }
 
-      LC_validate(&conf[i]);
+    LC_validate(&conf[i]);
+
 
     } else {
       conf[i].err = LC_ERR_MISSING;
@@ -223,6 +263,7 @@ void LC_Test(void) {
   LC_read(confTest, "conftest.lua");
 	
   exit(0);
+
 }
 
 

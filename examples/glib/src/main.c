@@ -62,13 +62,13 @@ static GOptionEntry entries[] = {
   { "version",  'b', 0, G_OPTION_ARG_NONE, &opt_version,    "Output version info",  NULL },
   { "quiet",    'q', 0, G_OPTION_ARG_NONE, &opt_quiet,      "No output to console", NULL },
   { "daemon",    0,  0, G_OPTION_ARG_NONE, &opt_daemon,     "Start as daemon",      NULL },
-	{ "error",     0,  0, G_OPTION_ARG_NONE, &opt_errorTest,  "Error test",           NULL },
+  { "error",     0,  0, G_OPTION_ARG_NONE, &opt_errorTest,  "Error test",           NULL },
   { "thread",    0,  0, G_OPTION_ARG_NONE, &opt_threadTest, "Thread test",          NULL },	
   { "info",     'i', 0, G_OPTION_ARG_NONE, &opt_info,       "Show info",            NULL },
-	{ "daemon",   'd', 0, G_OPTION_ARG_NONE, &opt_daemonTest, "Daemon test",          NULL },
-	{ "queue",     0,  0, G_OPTION_ARG_NONE, &opt_queueTest,  "Queue test",           NULL },
-	{ "pipe",      0,  0, G_OPTION_ARG_NONE, &opt_pipeTest,   "Pipe test",            NULL },
-	{ "domain",    0,  0, G_OPTION_ARG_NONE, &opt_domainTest, "Domain socket test",   NULL },
+  { "daemon",   'd', 0, G_OPTION_ARG_NONE, &opt_daemonTest, "Daemon test",          NULL },
+  { "queue",     0,  0, G_OPTION_ARG_NONE, &opt_queueTest,  "Queue test",           NULL },
+  { "pipe",      0,  0, G_OPTION_ARG_NONE, &opt_pipeTest,   "Pipe test",            NULL },
+  { "domain",    0,  0, G_OPTION_ARG_NONE, &opt_domainTest, "Domain socket test",   NULL },
   { NULL }
 };
 
@@ -163,7 +163,9 @@ void errorTest() {
 	g_debug("This is a debug message\n");
   g_warning("This is a warning\n");
   g_error("This is an error\n");
-  g_critical("This is critical\n");
+  g_info("This is information\n");
+	g_critical("This is critical\n");
+	
 }
 
 void sig_ctrl_c(int sig) {
@@ -412,17 +414,24 @@ static gboolean socket_in(GIOChannel *gio, GIOCondition condition, gpointer data
 	gchar *msg;
 	gsize len=0;
 	char buf[32];
+	static int x;
 	
-	DEBUGPRINT("Socket connected to\n");
-	
+	DEBUGPRINT("Socket data in. cond %x\n", condition);
 //	printf("Cond: %x\n",condition);
 	if (condition & G_IO_IN) {
+		DEBUGPRINT("\n");
 		ret = g_io_channel_read_chars (gio, buf, 4, &len, &err);
 		
 		if (ret == G_IO_STATUS_ERROR)
 			g_error ("Error reading: %s\n", err->message);
 		printf ("Read %u bytes: %s\n", len, msg);
 	}
+
+	if ((condition & G_IO_HUP) && (len==0)) {
+			DEBUGPRINT("Ending pipe test\n");
+			//g_main_loop_quit(mLoop1);
+			return FALSE; // remove the event source
+		}
 
 	//g_free (msg);
 	return TRUE;
@@ -431,9 +440,10 @@ static gboolean socket_in(GIOChannel *gio, GIOCondition condition, gpointer data
 #define SOCKNAME "socket_dirtest"
 
 void domainTest(void) {
-	int fd;
+	int fd, cl, err;
 	struct sockaddr_un addr;
-	GIOChannel *channel;
+	GIOChannel *channel, *channel2;
+	char *kalle="Kalle";
 	
 	mLoop1 = g_main_loop_new(NULL, FALSE);
 
@@ -448,18 +458,39 @@ void domainTest(void) {
 	// if domain socket exists connect to it
 	if (g_file_test(SOCKNAME, G_FILE_TEST_EXISTS)) {
 		DEBUGPRINT("Connecting to domain socket.\n");
-		connect(fd, (struct sockaddr_un*)&addr, sizeof(addr)); 
+		err = connect(fd, (struct sockaddr_un*)&addr, sizeof(addr));
+		write(fd, kalle, 5);
+		close(fd);
 		exit(0);
 	}
 	
 	
 	bind(fd, (struct sockaddr*)&addr, sizeof(addr));
 
-	channel = g_io_channel_unix_new(fd);
-	if ( !g_io_add_watch(channel, G_IO_IN, socket_in, NULL) ) {
+	if (listen(fd, 5) == -1) {
+	    perror("listen error");
+	    exit(-1);
+	  }
+
+
+/*
+
+	if ((cl = accept(fd, NULL, NULL)) == -1) {
+	    DEBUGPRINT("Incomming socket accepted\n");
+	}
+
+	channel = g_io_channel_unix_new(cl);
+	if ( !g_io_add_watch(channel, G_IO_IN | G_IO_HUP, socket_in, NULL) ) {
 		g_error ("Cannot add watch on GIOChannel!\n");
 	}
 	
+*/
+	channel2 = g_io_channel_unix_new(fd);
+	if ( !g_io_add_watch(channel2, G_IO_IN | G_IO_HUP, socket_in, NULL) ) {
+			g_error ("Cannot add watch on GIOChannel!\n");
+		}
+
+
 	g_main_loop_run(mLoop1);
 }
 
