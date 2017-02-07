@@ -1,6 +1,5 @@
 /**
- *---------------------------------------------------------------------------
- * @brief   A simple lua configuration file library.
+ *--------------------------------------------------------------------------- * @brief   A simple lua configuration file library.
  *
  * @file    luaConf.h
  * @author  Your Name <your.name@yourdomain.org>
@@ -18,7 +17,8 @@ extern "C" {
 #endif
 
 // Includes ---------------------------------------------------------------
-
+#include <stdint.h>
+	
 // Macros -----------------------------------------------------------------
 
 #define LCT_INT  int
@@ -105,11 +105,20 @@ typedef struct {
 
 // Variables --------------------------------------------------------------
 
-char *trueList[]  = { "on",  "yes", "true",  "1", NULL };
-char *falseList[] = { "off", "no",  "false", "0", NULL };
+//char *trueListx[]  = { "on",  "yes", "true",  "1", NULL };
+//char *falseListx[] = { "off", "no",  "false", "0", NULL };
 
 // Functions --------------------------------------------------------------
 
+	
+	
+	
+	
+	
+	
+void LC_Test(void);
+	
+	
 #ifdef __cplusplus
 } //end brace for extern "C"
 #endif

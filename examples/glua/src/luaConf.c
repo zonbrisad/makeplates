@@ -1,3 +1,4 @@
+
 /**
  *---------------------------------------------------------------------------
  * @brief   A simple lua configuration file library.
@@ -22,6 +23,8 @@
 #include "lauxlib.h"
 
 #include "luaConf.h"
+
+#include "def.h"
 
 /* 
  * - flag for variable must be present
@@ -64,12 +67,13 @@ luaConf confTest[] = {
   {LC_INT("IntParamInvalid1", "Integer parameter value invalid", 0, 0, 0, 0)},
   {LC_INT("IntParamInvalid2", "Integer parameter value to low",  0, 0, 0, 100)},
   {LC_INT("IntParamInvalid3", "Integer parameter value to high", 0, 0, 0, 100)},
+  {LC_INT("IntParamInvalid4", "Integer parameter value to high", 0, 0, 0, 100)},
   {LC_DBL("DblParam1",        "Correct Double parameter",        0, 0, 0, 0)},
   {LC_DBL("DblParamInvalid1", "Double parameter value invalid",  0, 0, 0, 0)},
   {LC_DBL("DblParamInvalid2", "Double parameter value to low",   0, 0, 1, 100)},
   {LC_DBL("DblParamInvalid3", "Double parameter value to high",  0, 0, 1, 100)},
   {LC_STR("StrParam1",        "Correct String parameter",        0, "")},
-  {LC_STR("StrParamIvalid1",  "Invalid String parameter",        0, "")},
+  {LC_STR("StrParamInvalid1", "Invalid String parameter",        0, "")},
   {LC_DBL("MissingParam",     "Missing parameter",               0, 0, 0, 0)},
 
   {LC_LAST()},
@@ -164,52 +168,61 @@ void LC_read(luaConf *conf, char *confFile) {
   lua_State *L;
   int i;
   int isnum;
-  char *s;
+  const char *s;
   
   L = luaL_newstate();
   luaL_openlibs(L);
-	
-  luaL_dofile(L, confFile);
+
+  lua_dofile(L, confFile);
   isnum = 1;
   i=0;
   while (conf[i].type != LC_TYPE_LAST) {
+    //DEBUGPRINT("i=%d name=%s\n", i, conf[i].name);
     lua_getglobal(L, conf[i].name);
-    switch (conf[i].type) {
-      case LC_TYPE_INTEGER: conf[i].data.intParam.val = (LCT_INT) lua_tonumberx(L, -1, &isnum); break;
-      case LC_TYPE_DOUBLE:  conf[i].data.dblParam.val = (LCT_DBL) lua_tonumberx(L, -1, &isnum); break;
-      case LC_TYPE_STRING:
-        s=lua_tostring(L, -1);
-        //conf[i].data.strParam.val = malloc(  strlen(s)+10 );
-        //strcpy(conf[i].data.strParam.val,s);
-        break;
-        default: break;
+    if (!lua_isnil(L, -1)) {
+      switch (conf[i].type) {
+        case LC_TYPE_INTEGER: conf[i].data.intParam.val = (LCT_INT) lua_tonumberx(L, -1, &isnum); break;
+        case LC_TYPE_DOUBLE:  conf[i].data.dblParam.val = (LCT_DBL) lua_tonumberx(L, -1, &isnum); break;
+        case LC_TYPE_STRING:
+          if (lua_isstring(L, -1)) {
+            s=lua_tostring(L, -1);
+            conf[i].data.strParam.val = malloc( strlen(s)+10 );
+            strcpy(conf[i].data.strParam.val,s);
+            DEBUGPRINT("String = %s\n", conf[i].data.strParam.val);
+
+          } else {
+            isnum = 0;
+          }
+          break;
+          default: break;
+      }
+		
+      if (!isnum) {
+        conf[i].err = LC_ERR_INVALID;
+      }
+
+      LC_validate(&conf[i]);
+
+    } else {
+      conf[i].err = LC_ERR_MISSING;
     }
-
-    if (!isnum) {
-    	conf[i].err = LC_ERR_INVALID;
-    }
-
-    LC_validate(&conf[i]);
-
-    printf("%-20s %-10s %-10s %-10s\n", conf[i].name, val2string(&conf[i]), LC_TYPE2STR(conf[i].type), LC_ERROR2STR(conf[i].err));
-
-    i++;
+      printf("%-20s %-10s %-10s %-10s\n", conf[i].name, val2string(&conf[i]), LC_TYPE2STR(conf[i].type), LC_ERROR2STR(conf[i].err));
+      i++;
   }
-		 
+
   lua_close(L);
 }
 
 
 void LC_Test(void) {
-	printParams(confTest);
 
-	LC_File(confTest);
+  printParams(confTest);
 
-	LC_read(confTest, "conftest.lua");
+  LC_File(confTest);
 
-
-	exit(0);
-
+  LC_read(confTest, "conftest.lua");
+	
+  exit(0);
 }
 
 

@@ -1,3 +1,7 @@
+--[
+
+
+--]
 
 print("This is a simple test configuration file for luaconf")
 print("------------------------------------------------------------")
@@ -17,6 +21,9 @@ IntParamInvalid2=-10
 
 -- A integer parameter with value above range
 IntParamInvalid3=110
+
+-- A integer parameter with floating point value
+IntParamInvalid4=12.123
 
 
 -- Double tests
@@ -39,7 +46,7 @@ DblParamInvalid3=110.2
 -- -----------------------------------------------------------------
 
 -- A correct string parameter
-StrParam1="Liftaren"
+StrParam1="Liftaren AAA"
 
 StrParamInvalid1=4.2
 

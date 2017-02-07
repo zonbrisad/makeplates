@@ -25,6 +25,8 @@
 #include "gp_log.h"
 //#include "swill/swill.h"
 
+#include "luaConf.h"
+
 /**
  * Defines
  *---------------------------------------------------------------------------
@@ -77,7 +79,7 @@ int main(int argc, char *argv[]) {
 	GError *error = NULL;
 	GOptionContext *context;
 	lua_State *L;
-	int kalle;
+	//int kalle;
 	
 	// init log system
 	gp_log_init("glua.log");                 
