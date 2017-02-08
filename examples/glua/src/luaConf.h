@@ -32,13 +32,22 @@ extern "C" {
 #define LC_TYPE2STR(type) int2string(type2string, type)
 #define LC_ERROR2STR(err) int2string(error2string, err)
 
-#define LC_INT(name, desc, flags, def, min, max)  LC_TYPE_INTEGER, name, desc, flags, LC_ERR_VALID, .data.intParam = {0, def, min, max}
-#define LC_DBL(name, desc, flags, def, min, max)  LC_TYPE_DOUBLE,  name, desc, flags, LC_ERR_VALID, .data.dblParam = {0, def, min, max}
-#define LC_STR(name, desc, flags, def)  LC_TYPE_STRING,  name, desc, flags, LC_ERR_VALID, .data.strParam = {NULL, NULL}
+#define LC_INT(name, desc, flags, def, min, max)  { LC_TYPE_INTEGER, name, desc, flags, LC_ERR_VALID, .data.intParam = {0, def, min, max} }
+#define LC_DBL(name, desc, flags, def, min, max)  { LC_TYPE_DOUBLE,  name, desc, flags, LC_ERR_VALID, .data.dblParam = {0, def, min, max} }
+#define LC_STR(name, desc, flags, def)            { LC_TYPE_STRING,  name, desc, flags, LC_ERR_VALID, .data.strParam = {NULL, NULL}       }
 
-#define LC_INT_LIST(name, desc, flags, def, min, max)  LC_TYPE_INTEGER_LIST, name, desc, flags, LC_ERR_VALID, .data.intParam = {0, def, min, max}
-#define LC_DBL_LIST(name, desc, flags, def, min, max)  LC_TYPE_DOUBLE_LIST,  name, desc, flags, LC_ERR_VALID, .data.dblParam = {0, def, min, max}
+#define LCT_BOOLEAN(name, desc, flags, def)       { LC_TYPE_BOOLEAN, name, desc, flags, LC_ERR_VALID, .data.strParam = {NULL, NULL}       }
+
+
+#define LC_INT_LIST(name, desc, flags, def, min, max)  { LC_TYPE_INTEGER_LIST, name, desc, flags, LC_ERR_VALID, .data.intParam = {0, def, min, max} }
+#define LC_DBL_LIST(name, desc, flags, def, min, max)  { LC_TYPE_DOUBLE_LIST,  name, desc, flags, LC_ERR_VALID, .data.dblParam = {0, def, min, max} }
+
 #define LC_LAST()  LC_TYPE_LAST
+
+#define LCT_COMMENT(cmt)  LC_TYPE_COMMENT, cmt
+
+#define LCT_INTEGER_CONST(name, val) { LC_TYPE_INTEGER_CONST, name, NULL, 0, LC_ERR_VALID, .data.intParam={val, 0, 0, 0} }
+#define LCT_DOUBLE_CONST(name, val)  { LC_TYPE_DOUBLE_CONST,  name, NULL, 0, LC_ERR_VALID, .data.dblParam={val, 0, 0, 0} }
 
 
 // Typedefs ---------------------------------------------------------------
@@ -65,6 +74,10 @@ typedef enum {
   LC_TYPE_STRING_LIST,
   LC_TYPE_BOOLEAN_LIST,
 
+  LC_TYPE_INTEGER_CONST,
+  LC_TYPE_DOUBLE_CONST,
+  LC_TYPE_STRING_CONST,
+
   LC_TYPE_CUSTOM,
   LC_TYPE_COMMENT,
   LC_TYPE_LAST,
@@ -75,8 +88,9 @@ typedef struct {
   LCT_INT default_val; // default value
   LCT_INT min;         // min value of parameter
   LCT_INT max;         // max value of parameter
+  LCT_INT *validList;  // list of valid values
   uint32_t length;     // Size of list
-  LCT_INT list[];      // list of valid values of parameter
+  LCT_INT *list;       // list of valid values of parameter
 } LUACONF_DATA_INTEGER;
 
 typedef struct {
@@ -84,6 +98,7 @@ typedef struct {
   LCT_DBL default_val; // default value
   LCT_DBL min;         // min value of parameter
   LCT_DBL max;         // max value of parameter
+  LCT_DBL *validList;  // list of valid values
   uint32_t length;     // Size of list
   LCT_DBL list[];      // list of valid values of parameter
 } LUACONF_DATA_DOUBLE;
@@ -91,7 +106,7 @@ typedef struct {
 typedef struct {
   LCT_STR val;         // parameter value
   LCT_STR default_val; // default value
-  LCT_STR list[];      // list of valid values of parameter
+  LCT_STR *list;       // list of valid values of parameter
 } LUACONF_DATA_STRING;
 
 typedef struct {
@@ -111,8 +126,9 @@ typedef struct {
 
 // Variables --------------------------------------------------------------
 
-char *trueList[]  = { "on",  "yes", "true",  "1", NULL };
-char *falseList[] = { "off", "no",  "false", "0", NULL };
+char *trueList[]  = { "ON", "On", "on", "YES", "Yes","yes", "TRUE", "True", "true",  "1", NULL };
+char *falseList[] = { "OFF", "Off", "off", "NO", "No", "no",  "FALSE", "False", "false", "0", NULL };
+
 
 // Functions --------------------------------------------------------------
 

@@ -9,6 +9,11 @@ print("------------------------------------------------------------")
 -- A correct integer parameter
 IntParam1=42
 
+-- A correct integer parameter
+IntParam2=2*IntParam1
+
+IntParam3=IntConst
+
 -- A integer parameter with wrong type of value
 IntParamInvalid1="not a integer value"
 
@@ -25,6 +30,11 @@ IntParamInvalid3=110
 -- A correct double parameter
 DblParam1=4.2
 
+-- A correct double parameter
+DblParam2=3*DblParam1
+
+DblParam3=DblConst
+
 -- A double parameter with wrong type of value
 DblParamInvalid1="not a double value"
 
@@ -39,18 +49,28 @@ DblParamInvalid3=110.2
 -- -----------------------------------------------------------------
 
 -- A correct string parameter
-StrParam1="Liftaren"
+StrParam1="Liftarens"
+
+-- A correct string parameter
+StrParam2=StrParam1.." guide till galaxen "..IntParam1
 
 StrParamInvalid1=4.2
 
+
+-- Boolean tests
+-- -----------------------------------------------------------------
+
+BoolParamTrue="All true "..YES.." "..Yes.." "..yes.." "..TRUE.." "..True.." "..ON.." "..On.." "..on
+BoolParamFalse="All false "..NO.." "..No.." "..no.." "..FALSE.." "..False.." "..OFF.." "..Of.." "..off
 
 -- List tests
 -- -----------------------------------------------------------------
 
 IntList={ -255, -30, 0, 1, 2, 3, 4, 10, 42, 120, 4096, 12000 }
 
-DblList={ -80.4, -1.3, 0.0, 1.45, 5.4, 42.3, 141,94 }
+DblList={ -80.4, -1.3, 0.0, 1.45, 5.4, 42.3, 141.94 }
 
+InvalidList=44
 
 -- Boolean tests
 -- -----------------------------------------------------------------
