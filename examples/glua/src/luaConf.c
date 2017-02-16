@@ -79,8 +79,6 @@ luaConf confTest[] = {
   {LC_DBL("MissingParam",     "Missing parameter",               0, 0, 0, 0)},
   {LC_INT_LIST("IntList",     "Integer List parameter",          0, 0, 0 ,0)},
   {LC_DBL_LIST("DblList",     "Double List parameter",           0, 0, 0 ,0)},
-
-
   {LC_LAST()},
 };
 
