@@ -22,9 +22,12 @@ LICENCE = GPLv2
 TARGET = glua
 
 # List C source files here. (C dependencies are automatically generated.)
-SRC = src/main.c \
-      src/gp_log.c \
-      src/lua-5.2.3/src/lstrlib.c \
+PSRC = src/main.c \
+       src/gp_log.c \
+       src/luaConf.c \
+ 
+SRC =   $(PSRC)    
+SRC +=		src/lua-5.2.3/src/lstrlib.c \
 			src/lua-5.2.3/src/lvm.c \
 			src/lua-5.2.3/src/lzio.c \
 			src/lua-5.2.3/src/lfunc.c \
@@ -56,7 +59,9 @@ SRC = src/main.c \
 			src/lua-5.2.3/src/lcode.c \
 			src/lua-5.2.3/src/liolib.c \
 			src/lua-5.2.3/src/ldblib.c \
-			src/luaConf.c \
+
+ALLSRC = $(SRC)
+ALLSRC += $(LSRC)			
 
 # List C++ source files here. (C dependencies are automatically generated.)
 CPPSRC = 
@@ -245,6 +250,7 @@ BIN2ARRAY = python3 tools/bin2array.py
 MPTOOL    = tools/mkptools
 CPPCHECK  = cppcheck
 INSTALL   = install
+ASTYLE    = astyle
 
 TCHAIN = $(TCHAIN_BASE)/$(TCHAIN_PREFIX)
 
@@ -756,7 +762,29 @@ ccheck: ## Static code analysis using cppcheck(errors only)
 acheck: ## Static code analysis using cppcheck(all warnings)
 	@$(CPPCHECK) --inline-suppr --enable=all $(SRC) 
 
+#
+# Artistic Style (astyle) Format source to a standard
+#============================================================================
+.PHONY: astyle
 
+AST  = --style=java
+AST += --indent=spaces=4
+AST += --indent-switches
+AST += --indent-cases
+AST += --indent-preproc-cond
+AST += --break-blocks
+AST += --max-instatement-indent=40
+AST += --pad-oper
+#AST += --pad-comma
+AST += --pad-header
+AST += --align-pointer=name
+AST += --align-reference=name 
+AST += --add-brackets 
+AST += --convert-tabs
+#AST += --dry-run
+
+astyle: ## Format source to conform to a standard
+	@$(ASTYLE) $(AST) $(PSRC)
 
 	
 # Listing of phony targets.

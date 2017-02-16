@@ -1,3 +1,7 @@
+--[
+
+
+--]
 
 print("This is a simple test configuration file for luaconf")
 print("------------------------------------------------------------")
@@ -22,6 +26,13 @@ IntParamInvalid2=-10
 
 -- A integer parameter with value above range
 IntParamInvalid3=110
+
+-- A integer parameter with floating point value
+IntParamInvalid4=12.123
+
+IntParam4=42
+
+IntParam5=-32
 
 
 -- Double tests
@@ -49,10 +60,13 @@ DblParamInvalid3=110.2
 -- -----------------------------------------------------------------
 
 -- A correct string parameter
+
 StrParam1="Liftarens"
 
 -- A correct string parameter
 StrParam2=StrParam1.." guide till galaxen "..IntParam1
+
+StrParam3=StrConst
 
 StrParamInvalid1=4.2
 
@@ -60,8 +74,8 @@ StrParamInvalid1=4.2
 -- Boolean tests
 -- -----------------------------------------------------------------
 
-BoolParamTrue="All true "..YES.." "..Yes.." "..yes.." "..TRUE.." "..True.." "..ON.." "..On.." "..on
-BoolParamFalse="All false "..NO.." "..No.." "..no.." "..FALSE.." "..False.." "..OFF.." "..Of.." "..off
+BoolParamTrue="All true  "..YES.." "..Yes.." "..yes.." "..TRUE.." "..True.." "..ON.." "..On.." "..on
+BoolParamFalse="All false "..NO.." "..No.." "..no.." "..FALSE.." "..False.." "..OFF.." "..Off.." "..off
 
 -- List tests
 -- -----------------------------------------------------------------
@@ -74,7 +88,10 @@ InvalidList=44
 
 -- Boolean tests
 -- -----------------------------------------------------------------
---BoolParam=O
+
+BoolParam1=O
+
+BoolParam2=Off
 
 
 -- Other tests

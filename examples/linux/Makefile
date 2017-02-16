@@ -388,6 +388,8 @@ BUILDDIR=build
 OBJS = $(patsubst src/%.c, $(BUILDDIR)/%.o, $(SRC))
 
 
+#OBJS= $(patsubst
+
 # Define all listing files.
 LST = $(SRC:%.c=$(OBJDIR)/%.lst) $(CPPSRC:%.cpp=$(OBJDIR)/%.lst) $(ASRC:%.S=$(OBJDIR)/%.lst) 
 
