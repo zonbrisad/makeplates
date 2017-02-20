@@ -1,5 +1,6 @@
 /**
- *--------------------------------------------------------------------------- @brief   A simple lua configuration file library.
+ *---------------------------------------------------------------------------
+ * @brief   A simple lua configuration file library.
  *
  * @file    luaConf.h
  * @author  Your Name <your.name@yourdomain.org>
@@ -18,30 +19,34 @@ extern "C" {
 
 // Includes ---------------------------------------------------------------
 #include <stdint.h>
+#include <float.h>
 
 // Macros -----------------------------------------------------------------
 
-#define LCT_INT  int
+#define LCT_INT  int32_t
 #define LCT_DBL  double
 #define LCT_STR  char*
 #define LCT_BOOL int
 
+#define LCT_INT_MAX INT32_MAX
+#define LCT_DBL_MAX DBL_MAX
 
-#define LC_IS_MISSING(param)  (param->err==LC_ERR_MISSING)
-#define LC_IS_REQUIRED(param) (param->flags & LC_FLAG_REQUIRED)
+#define LCT_INT_VLIST(name, ...) LCT_INT name[] = {__VA_ARGS__, LCT_INT_MAX}
+#define LCT_DBL_VLIST(name, ...) LCT_DBL name[] = {__VA_ARGS__, LCT_DBL_MAX}
+
 
 #define LC_TYPE2STR(type) int2string(type2string, type)
 #define LC_ERROR2STR(err) int2string(error2string, err)
 
-#define LC_INT(name, desc, flags, def, min, max)  { LC_TYPE_INTEGER, name, desc, flags, LC_ERR_VALID, .data.intParam = {0, def, min, max, NULL} }
-#define LC_INT_PL(name, desc, flags, def, ...)    { LC_TYPE_INTEGER, name, desc, flags, LC_ERR_VALID, .data.intParam = {0, def, 0, 0, {__VA_ARGS__,0xFFFF}}}
+#define LC_INT(name, desc, flags, def, min, max)  { LC_TYPE_INTEGER,    name, desc, flags, LC_ERR_VALID, .data.intParam = {0, def, min, max, NULL} }
+#define LC_INT_PL(name, desc, flags, def, vl)     { LC_TYPE_INTEGER_PL, name, desc, flags, LC_ERR_VALID, .data.intParam = {0, def, 0, 0, vl}}
 
-#define LC_DBL(name, desc, flags, def, min, max)  { LC_TYPE_DOUBLE,  name, desc, flags, LC_ERR_VALID, .data.dblParam = {0, def, min, max, NULL} }
-#define LC_DBL_PL(name, desc, flags, def, ...)    { LC_TYPE_DOUBLE,  name, desc, flags, LC_ERR_VALID, .data.dblParam = {0, def, 0, 0, {__VA_ARGS__,0xFFFF}}}
+#define LC_DBL(name, desc, flags, def, min, max)  { LC_TYPE_DOUBLE,     name, desc, flags, LC_ERR_VALID, .data.dblParam = {0, def, min, max, NULL} }
+#define LC_DBL_PL(name, desc, flags, def, vl)    { LC_TYPE_DOUBLE_PL,  name, desc, flags, LC_ERR_VALID, .data.dblParam = {0, def, 0, 0, vl}}
 
-#define LC_STR(name, desc, flags, def)            { LC_TYPE_STRING,  name, desc, flags, LC_ERR_VALID, .data.strParam = {NULL, NULL}       }
+#define LC_STR(name, desc, flags, def)            { LC_TYPE_STRING,  name, desc, flags, LC_ERR_VALID, .data.strParam = {NULL, NULL} }
 
-#define LCT_BOOLEAN(name, desc, flags, def)       { LC_TYPE_BOOLEAN, name, desc, flags, LC_ERR_VALID, .data.boolParam = {0, def}}
+#define LCT_BOOLEAN(name, desc, flags, def)       { LC_TYPE_BOOLEAN, name, desc, flags, LC_ERR_VALID, .data.boolParam = {0, def} }
 
 #define LC_INT_LIST(name, desc, flags, def, min, max)  { LC_TYPE_INTEGER_LIST, name, desc, flags, LC_ERR_VALID, .data.intParam = {0, def, min, max, NULL} }
 #define LC_DBL_LIST(name, desc, flags, def, min, max)  { LC_TYPE_DOUBLE_LIST,  name, desc, flags, LC_ERR_VALID, .data.dblParam = {0, def, min, max, NULL} }
@@ -55,9 +60,13 @@ extern "C" {
 #define LCT_STRING_CONST(name, val)  { LC_TYPE_STRING_CONST,  name, NULL, 0, LC_ERR_VALID, .data.strParam={val, 0, 0, 0} }
 
 
-#define PARAM_IS_INVALID(p)  (p->err  == LC_ERR_INVALID)
-#define PARAM_IS_VALID(p)    (p->err  == LC_ERR_VALID)
-#define PARAM_IS_COMMENT(p)  (p.type == LC_TYPE_COMMENT)
+#define LC_IS_MISSING(param)     (param->err==LC_ERR_MISSING)
+#define LC_IS_REQUIRED(param)    (param->flags & LC_FLAG_REQUIRED)
+
+#define PARAM_IS_INVALID(param)  (param->err == LC_ERR_INVALID)
+#define PARAM_IS_VALID(param)    (param->err == LC_ERR_VALID)
+#define PARAM_IS_COMMENT(param)  (param.type == LC_TYPE_COMMENT)
+#define IS_PARAM(param)  ((param->type >= LC_TYPE_FIRST) && ((param->type < LC_TYPE_LAST_PARAMETER)))
 
 // Typedefs ---------------------------------------------------------------
 
@@ -73,16 +82,24 @@ typedef enum {
 } LC_ERR;
 
 typedef enum {
-  LC_TYPE_INTEGER,            // Integer parameter
+  LC_TYPE_FIRST   = 0,
+  LC_TYPE_INTEGER = 0,        // Integer parameter
   LC_TYPE_DOUBLE,             // Double parameter
   LC_TYPE_STRING,             // String parameter
   LC_TYPE_BOOLEAN,            // Boolean parameter
+
+  LC_TYPE_INTEGER_PL,         // Integer parameter pick list
+  LC_TYPE_DOUBLE_PL,          // Double parameter pick list
+
+  LC_TYPE_INTEGER_NL,         // Integer parameter name list
+  LC_TYPE_DOUBLE_NL,          // Double parameter name list
 
   LC_TYPE_INTEGER_LIST,
   LC_TYPE_DOUBLE_LIST,
   LC_TYPE_STRING_LIST,
   LC_TYPE_BOOLEAN_LIST,
 
+  LC_TYPE_LAST_PARAMETER,    // indicates last parameter type
 
   LC_TYPE_INTEGER_CONST,
   LC_TYPE_DOUBLE_CONST,
@@ -144,6 +161,11 @@ typedef struct {
   int      type;
   char     *name;
 } int2str;
+
+typedef struct {
+  double   type;
+  char     *name;
+} dbl2str;
 
 
 // Variables --------------------------------------------------------------

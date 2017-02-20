@@ -767,8 +767,10 @@ acheck: ## Static code analysis using cppcheck(all warnings)
 #============================================================================
 .PHONY: astyle
 
+TABSIZE=4
+
 AST  = --style=java
-AST += --indent=spaces=4
+AST += --indent=spaces=$(TABSIZE)
 AST += --indent-switches
 AST += --indent-cases
 #AST += --indent-preproc-cond
@@ -783,10 +785,24 @@ AST += --add-brackets
 AST += --convert-tabs
 #AST += --dry-run
 
-PSRCH = $(PSRC:%.c=%.h) 
+#PSRCH = $(PSRC:%.c=%.h) 
 
 astyle: ## Format source to conform to a standard
 	@$(ASTYLE) $(AST) $(PSRC) $(PSRCH)
+
+#
+# splint static code analysis
+#============================================================================
+.PHONY: splint
+
+SO  = +posixlib
+#SO += +posixstrictlib
+#SO += -warnposix
+#SO += -preproc
+
+splint: ## Static code analysis
+	splint $(SO) -Isrc -Isrc/lua-5.2.3/src  src/main.c
+
 
 	
 # Listing of phony targets.

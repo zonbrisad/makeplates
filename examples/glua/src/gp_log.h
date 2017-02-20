@@ -23,7 +23,7 @@ extern "C" {
 	/**
 	 *  Set verbose mode
 	 */
-	void gp_log_set_verbose(gboolean v);
+	void gp_log_set_verbose(int v);
 
   /**
    * Print log to stdout.

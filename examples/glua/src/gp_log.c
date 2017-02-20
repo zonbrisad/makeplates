@@ -8,10 +8,10 @@
 #include "gp_log.h"
 
 
-gboolean gp_verbose = FALSE;
-gboolean gp_syslog = FALSE;
-gboolean gp_debug = FALSE;
-gboolean gp_noColor = FALSE;
+int gp_verbose = FALSE;
+int gp_syslog = FALSE;
+int gp_debug = FALSE;
+int gp_noColor = FALSE;
 
 int gp_maxSize;
 int gp_logSize;
@@ -28,7 +28,7 @@ static void gp_log_handler(const gchar *log_domain,
                            gpointer user_data );
 
 
-void gp_log_set_verbose(gboolean v) {
+void gp_log_set_verbose(int v) {
     gp_verbose = v;
 }
 
