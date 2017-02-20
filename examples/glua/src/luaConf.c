@@ -94,7 +94,7 @@ char *int2string(int2str *i2s, LC_TYPES type) {
 }
 
 char *intList2string(LCT_INT ints[]) {
-
+  return NULL;
 }
 
 char *val2string(luaConf *param) {
@@ -111,10 +111,12 @@ char *val2string(luaConf *param) {
             sprintf(buf, "%d",    param->data.boolParam.val);
             break;
 
+        case LC_TYPE_INTEGER_PL:
         case LC_TYPE_INTEGER:
             sprintf(buf, "%d",    param->data.intParam.val);
             break;
 
+        case LC_TYPE_DOUBLE_PL:
         case LC_TYPE_DOUBLE:
             sprintf(buf, "%8.2f", param->data.dblParam.val);
             break;
@@ -213,7 +215,7 @@ char *LCT_printProblem(luaConf *param) {
     static char msg[256];
 
     if (!IS_PARAM(param)) {
-        sprintf(msg, "");
+        msg[0] = '\0';
         return msg;
     }
 
@@ -235,7 +237,7 @@ char *LCT_printProblem(luaConf *param) {
             break;
 
         default:
-            sprintf(msg, "");
+            msg[0] = '\0';
             break;
     }
 
@@ -289,9 +291,11 @@ void LC_validate(luaConf *param) {
                     param->err = LC_ERR_OUTOFBOUND;
                 }
             }
+            break;
+        case LC_TYPE_INTEGER_PL:
 
             if (param->data.intParam.validList != NULL) {
-                param->err = LC_ERR_INVALID;
+                param->err = LC_ERR_OUTOFBOUND;
                 i = 0;
 
                 while (param->data.intParam.validList[i] != LCT_INT_MAX) {
@@ -308,14 +312,15 @@ void LC_validate(luaConf *param) {
         case LC_TYPE_DOUBLE:
 
             // check if value is within limits
-            if (param->data.dblParam.min != param->data.dblParam.max) {
+            if (param->data.dblParam.min != param->data.dblParam.max)  {
                 if (!((param->data.dblParam.val >= param->data.dblParam.min) && (param->data.dblParam.val <= param->data.dblParam.max))) {
                     param->err = LC_ERR_OUTOFBOUND;
                 }
             }
-
+            break;
+        case LC_TYPE_DOUBLE_PL:
             if (param->data.dblParam.validList != NULL) {
-                param->err = LC_ERR_INVALID;
+                param->err = LC_ERR_OUTOFBOUND;
                 i = 0;
 
                 while (param->data.dblParam.validList[i] != LCT_DBL_MAX) {

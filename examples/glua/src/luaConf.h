@@ -42,7 +42,7 @@ extern "C" {
 #define LC_INT_PL(name, desc, flags, def, vl)     { LC_TYPE_INTEGER_PL, name, desc, flags, LC_ERR_VALID, .data.intParam = {0, def, 0, 0, vl}}
 
 #define LC_DBL(name, desc, flags, def, min, max)  { LC_TYPE_DOUBLE,     name, desc, flags, LC_ERR_VALID, .data.dblParam = {0, def, min, max, NULL} }
-#define LC_DBL_PL(name, desc, flags, def, vl)    { LC_TYPE_DOUBLE_PL,  name, desc, flags, LC_ERR_VALID, .data.dblParam = {0, def, 0, 0, vl}}
+#define LC_DBL_PL(name, desc, flags, def, vl)     { LC_TYPE_DOUBLE_PL,  name, desc, flags, LC_ERR_VALID, .data.dblParam = {0, def, 0, 0, vl}}
 
 #define LC_STR(name, desc, flags, def)            { LC_TYPE_STRING,  name, desc, flags, LC_ERR_VALID, .data.strParam = {NULL, NULL} }
 
@@ -55,9 +55,9 @@ extern "C" {
 
 #define LCT_COMMENT(cmt)  {LC_TYPE_COMMENT, cmt}
 
-#define LCT_INTEGER_CONST(name, val) { LC_TYPE_INTEGER_CONST, name, NULL, 0, LC_ERR_VALID, .data.intParam={val, 0, 0, 0} }
-#define LCT_DOUBLE_CONST(name, val)  { LC_TYPE_DOUBLE_CONST,  name, NULL, 0, LC_ERR_VALID, .data.dblParam={val, 0, 0, 0} }
-#define LCT_STRING_CONST(name, val)  { LC_TYPE_STRING_CONST,  name, NULL, 0, LC_ERR_VALID, .data.strParam={val, 0, 0, 0} }
+#define LCT_INTEGER_CONST(name, val) { LC_TYPE_INTEGER_CONST, name, NULL, 0, LC_ERR_VALID, .data.intParam={val, 0, 0, 0, NULL} }
+#define LCT_DOUBLE_CONST(name, val)  { LC_TYPE_DOUBLE_CONST,  name, NULL, 0, LC_ERR_VALID, .data.dblParam={val, 0, 0, 0, NULL} }
+#define LCT_STRING_CONST(name, val)  { LC_TYPE_STRING_CONST,  name, NULL, 0, LC_ERR_VALID, .data.strParam={val, "", NULL} }
 
 
 #define LC_IS_MISSING(param)     (param->err==LC_ERR_MISSING)
