@@ -88,6 +88,12 @@ IntList={ -255, -30, 0, 1, 2, 3, 4, 10, 42, 120, 4096, 12000 }
 
 DblList={ -80.4, -1.3, 0.0, 1.45, 5.4, 42.3, 141.94 }
 
+StrList={ "Kalle",
+          "Arne",
+          "Nisse",
+          "Lisa"
+}
+
 InvalidList=44
 
 -- Boolean tests

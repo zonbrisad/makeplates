@@ -44,7 +44,8 @@ extern "C" {
 #define LC_DBL(name, desc, flags, def, min, max)  { LC_TYPE_DOUBLE,     name, desc, flags, LC_ERR_VALID, .data.dblParam = {0, def, min, max, NULL} }
 #define LC_DBL_PL(name, desc, flags, def, vl)     { LC_TYPE_DOUBLE_PL,  name, desc, flags, LC_ERR_VALID, .data.dblParam = {0, def, 0, 0, vl}}
 
-#define LC_STR(name, desc, flags, def)            { LC_TYPE_STRING,  name, desc, flags, LC_ERR_VALID, .data.strParam = {NULL, NULL} }
+#define LC_STR(name, desc, flags, def)            { LC_TYPE_STRING,      name, desc, flags, LC_ERR_VALID, .data.strParam = {NULL, def} }
+#define LC_STR_LIST(name, desc, flags, def)       { LC_TYPE_STRING_LIST, name, desc, flags, LC_ERR_VALID, .data.strParam = {NULL, def} }
 
 #define LCT_BOOLEAN(name, desc, flags, def)       { LC_TYPE_BOOLEAN, name, desc, flags, LC_ERR_VALID, .data.boolParam = {0, def} }
 
@@ -67,6 +68,7 @@ extern "C" {
 #define PARAM_IS_VALID(param)    (param->err == LC_ERR_VALID)
 #define PARAM_IS_COMMENT(param)  (param.type == LC_TYPE_COMMENT)
 #define IS_PARAM(param)  ((param->type >= LC_TYPE_FIRST) && ((param->type < LC_TYPE_LAST_PARAMETER)))
+
 
 // Typedefs ---------------------------------------------------------------
 

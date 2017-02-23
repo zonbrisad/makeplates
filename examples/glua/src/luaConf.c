@@ -94,7 +94,7 @@ char *int2string(int2str *i2s, LC_TYPES type) {
 }
 
 char *intList2string(LCT_INT ints[]) {
-  return NULL;
+    return NULL;
 }
 
 char *val2string(luaConf *param) {
@@ -252,6 +252,8 @@ void printParam(luaConf *param) {
     printf("Val:  %s\n", val2string(param));
 }
 
+
+
 void printParams(luaConf *conf) {
     int i;
     i = 0;
@@ -264,14 +266,78 @@ void printParams(luaConf *conf) {
     }
 }
 
+
+void LC_SetDefult(luaConf *param) {
+    switch (param->type) {
+        case LC_TYPE_INTEGER:
+        case LC_TYPE_INTEGER_PL:
+        case LC_TYPE_INTEGER_NL:
+            param->data.intParam.val = param->data.intParam.default_val;
+            break;
+
+        case LC_TYPE_DOUBLE:
+        case LC_TYPE_DOUBLE_PL:
+        case LC_TYPE_DOUBLE_NL:
+            param->data.dblParam.val = param->data.dblParam.default_val;
+            break;
+
+        case LC_TYPE_STRING:
+            param->data.strParam.val = malloc( strlen(param->data.strParam.default_val + 5) );
+            strcpy(param->data.strParam.val, param->data.strParam.default_val);
+            break;
+
+        case LC_TYPE_BOOLEAN:
+            param->data.boolParam.val = param->data.boolParam.default_val;
+
+        case LC_TYPE_INTEGER_LIST:
+        case LC_TYPE_DOUBLE_LIST:
+        case LC_TYPE_STRING_LIST:
+        case LC_TYPE_BOOLEAN_LIST:
+
+        default:
+            break;
+
+    }
+}
+
+void LC_SetDefults(luaConf *params) {
+    int i;
+    i = 0;
+
+    while (params[i].type != LC_TYPE_LAST) {
+        LC_SetDefult(&params[i]);
+        i++;
+    }
+}
+
+void LC_PrintParam(luaConf *param, FILE *f) {
+
+    if (!IS_PARAM(param)) {
+        return;
+    }
+
+    switch (param->type) {
+        case LC_TYPE_COMMENT:
+            fprintf(f, "%s\n", param->name);
+            break;
+
+        default:
+            fprintf(f, "-- %s\n", param->desc);
+            fprintf(f, "-- [ %s ]\n", LCT_paramLimits(param));
+
+            fprintf(f, "%s = %s\n\n", param->name, val2string(param));
+            break;
+    }
+
+}
+
 void LC_File(luaConf *conf) {
     int i;
 
     i = 0;
 
     while (conf[i].type != LC_TYPE_LAST) {
-        printf("-- %s\n", conf[i].desc);
-        printf("%s = %s\n\n", conf[i].name, val2string(&conf[i]));
+        LC_PrintParam(&conf[i], stdout);
         i++;
     }
 }
@@ -291,7 +357,9 @@ void LC_validate(luaConf *param) {
                     param->err = LC_ERR_OUTOFBOUND;
                 }
             }
+
             break;
+
         case LC_TYPE_INTEGER_PL:
 
             if (param->data.intParam.validList != NULL) {
@@ -317,7 +385,9 @@ void LC_validate(luaConf *param) {
                     param->err = LC_ERR_OUTOFBOUND;
                 }
             }
+
             break;
+
         case LC_TYPE_DOUBLE_PL:
             if (param->data.dblParam.validList != NULL) {
                 param->err = LC_ERR_OUTOFBOUND;
@@ -511,7 +581,7 @@ void LC_read(luaConf *params, char *confFile) {
 
                         // get length of list
                         l = lua_rawlen(L, -1);
-                        params[i].data.dblParam.list = malloc( sizeof(LCT_DBL) * l);
+                        params[i].data.dblParam.list = malloc( sizeof(LCT_STR) * l);
                         params[i].data.dblParam.length = l;
 
                         for (j = 1; j <= l; j++) {
@@ -522,13 +592,57 @@ void LC_read(luaConf *params, char *confFile) {
                         }
 
                         break;
-                    case LC_TYPE_CUSTOM:
-                    	  if (!lua_istable(L, -1)) {
-                    		  params[i].err = LC_ERR_INVALID;
-                    		  break;
-                    	  }
 
-                    	break;
+                    case LC_TYPE_STRING_LIST:
+
+                        // check if value is a table
+                        if (!lua_istable(L, -1)) {
+                            params[i].err = LC_ERR_INVALID;
+                            break;
+                        }
+
+                        // get length of list
+                        l = lua_rawlen(L, -1);
+                        params[i].data.dblParam.list = malloc( sizeof(LCT_STR) * l);
+                        params[i].data.dblParam.length = l;
+
+                        for (j = 1; j <= l; j++) {
+                            lua_rawgeti(L, -1, j);
+                            //printf("Dbl List %f\n", (LCT_DBL) lua_tonumberx(L, -1, &isnum));
+                            //params[i].data.dblParam.list[j - 1] = (LCT_DBL) lua_tonumberx(L, -1, &isnum);
+
+                            lua_tonumberx(L, -1, &isnum);
+
+                            if (isnum) {
+                                params[i].err = LC_ERR_INVALID;
+                                break;
+                            }
+
+                            s = lua_tostring(L, -1);
+
+                            if (s == NULL) {
+                                params[i].err = LC_ERR_INVALID;
+                                break;
+                            }
+
+                            printf("String: %s\n", s);
+                            //params[i].data.strParam.list[j - 1] = malloc(  strlen(s) + 5 );
+                            //params[i].data.strParam.val[0] = '\0';
+                            //strcpy(params[i].data.strParam.val, s);
+
+
+                            lua_pop(L, 1);
+                        }
+
+                        break;
+
+                    case LC_TYPE_CUSTOM:
+                        if (!lua_istable(L, -1)) {
+                            params[i].err = LC_ERR_INVALID;
+                            break;
+                        }
+
+                        break;
 
                     default:
                         break;
@@ -554,42 +668,48 @@ LCT_INT_VLIST(validIntList,  5, 9, 12, 42, 193, 104, -4120);
 
 LCT_DBL_VLIST(validDblList, 5.5, -9.23, 14.94, 42.42, -1401.43, 0);
 
+luaConf custom[] = {
+    LC_INT("CInt1",        "Correct Integer parameter",       0, -42, 0, 0),
+    LC_INT("CInt2",        "Correct Integer parameter",       0, -42, 0, 0),
+    {LC_LAST()},
+};
+
 
 luaConf confTest[] = {
-    LCT_COMMENT("This is a comment"),
-    LC_INT("IntParam1",        "Correct Integer parameter",       0, -42, 0, 0),
-    LC_INT("IntParam2",        "Correct Integer parameter",       0, 0, 0, 0),
-    LC_INT("IntParam3",        "Correct Integer parameter",       0, 0, 0, 0),
-    LC_INT_PL("IntParam4",     "Int parameter pick list valid value", 0, 0,   validIntList),
-    LC_INT_PL("IntParam5",     "Int parameter pick list invalid value", 0, 0, validIntList),
-    LC_INT("IntParamInvalid1", "Integer parameter value invalid", 0, 0, 0, 0),
-    LC_INT("IntParamInvalid2", "Integer parameter value to low",  0, 0, 0, 100),
-    LC_INT("IntParamInvalid3", "Integer parameter value to high", 0, 0, 0, 100),
-    LC_DBL("DblParam1",        "Correct Double parameter",        0, 0, 0, 0),
-    LC_DBL("DblParam2",        "Correct Double parameter",        0, 0, 0, 0),
-    LC_DBL("DblParam3",        "Correct Double parameter",        0, 0, 0, 0),
-    LC_DBL("DblParamInvalid1", "Double parameter value invalid",  0, 0, 0, 0),
-    LC_DBL("DblParamInvalid2", "Double parameter value to low",   0, 0, 1, 100),
-    LC_DBL("DblParamInvalid3", "Double parameter value to high",  0, 0, 1, 100),
-    LC_DBL_PL("DblParam4",     "Double parameter pick list valid values", 0, 0, validDblList),
-    LC_DBL_PL("DblParam5",     "Double parameter pick list valid values", 0, 0, validDblList),
-    LC_STR("StrParam1",        "Correct String parameter",        0, ""),
-    LC_STR("StrParam2",        "Correct String parameter",        0, ""),
-    LC_STR("StrParam3",        "Test of string constant parameter", 0, ""),
-    LC_STR("StrParamInvalid1", "Invalid String parameter",        0, ""),
-    LCT_BOOLEAN("BoolParam1",  "Boolean parameter",               0, 0),
-    LCT_BOOLEAN("BoolParam2",  "Boolean parameter",               0, 0),
-    LC_STR("BoolParamTrue",    "Test of all true parameters",     0, ""),
-    LC_STR("BoolParamFalse",   "Test of all false parameters",    0, ""),
-    LC_DBL("MissingParam",     "Missing parameter",               0, 0, 0, 0),
-    LC_INT_LIST("IntList",     "Integer List parameter",          0, 0, 0 , 0),
-    LC_DBL_LIST("DblList",     "Double List parameter",           0, 0, 0 , 0),
-    LC_INT_LIST("InvalidList", "Invalid Integer List",            0, 0, 0 , 0),
+    LCT_COMMENT("-- This is a comment\n"),
+    LC_INT("IntParam1",        "Correct Integer parameter",             0, 42, 0, 0),
+    LC_INT("IntParam2",        "Correct Integer parameter",             0, 43, 0, 0),
+    LC_INT("IntParam3",        "Correct Integer parameter",             0, 44, 0, 0),
+    LC_INT_PL("IntParam4",     "Int parameter pick list valid value",   0, 45, validIntList),
+    LC_INT_PL("IntParam5",     "Int parameter pick list invalid value", 0, 46, validIntList),
+    LC_INT("IntParamInvalid1", "Integer parameter value invalid",       0, 47, 0, 0),
+    LC_INT("IntParamInvalid2", "Integer parameter value to low",        0, 48, 0, 100),
+    LC_INT("IntParamInvalid3", "Integer parameter value to high",       0, 49, 0, 100),
+    LC_DBL("DblParam1",        "Correct Double parameter",              0, 10.1, 0, 0),
+    LC_DBL("DblParam2",        "Correct Double parameter",              0, 10.2, 0, 0),
+    LC_DBL("DblParam3",        "Correct Double parameter",              0, 10.3, 0, 0),
+    LC_DBL("DblParamInvalid1", "Double parameter value invalid",        0, 10.4, 0, 0),
+    LC_DBL("DblParamInvalid2", "Double parameter value to low",         0, 10.5, 1, 100),
+    LC_DBL("DblParamInvalid3", "Double parameter value to high",        0, 10.6, 1, 100),
+    LC_DBL_PL("DblParam4",     "Double parameter pick list valid values", 0, 10.7, validDblList),
+    LC_DBL_PL("DblParam5",     "Double parameter pick list valid values", 0, 10.8, validDblList),
+    LC_STR("StrParam1",        "Correct String parameter",             0, "Default string"),
+    LC_STR("StrParam2",        "Correct String parameter",             0, "Default string"),
+    LC_STR("StrParam3",        "Test of string constant parameter",    0, "Default string"),
+    LC_STR("StrParamInvalid1", "Invalid String parameter",             0, "Default string"),
+    LCT_BOOLEAN("BoolParam1",  "Boolean parameter",                    0, 1),
+    LCT_BOOLEAN("BoolParam2",  "Boolean parameter",                    0, 1),
+    LC_STR("BoolParamTrue",    "Test of all true parameters",          0, ""),
+    LC_STR("BoolParamFalse",   "Test of all false parameters",         0, ""),
+    LC_DBL("MissingParam",     "Missing parameter",                    0, 0, 0, 0),
+    LC_INT_LIST("IntList",     "Integer List parameter",               0, 0, 0, 0),
+    LC_DBL_LIST("DblList",     "Double List parameter",                0, 0, 0, 0),
+    LC_STR_LIST("StrList",     "String list parameter",    0, NULL),
+    LC_INT_LIST("InvalidList", "Invalid Integer List",                 0, 0, 0, 0),
     LCT_INTEGER_CONST("IntConst", 32),
     LCT_DOUBLE_CONST("DblConst",  32.23),
     LCT_STRING_CONST("StrConst",  "A little string constant"),
     {LC_LAST()},
-
 };
 
 
@@ -611,6 +731,7 @@ void LCT_PrintProblems(luaConf *params) {
 
 void LC_Test(void) {
 
+    LC_SetDefults(confTest);
     LC_File(confTest);
 
     LC_read(confTest, "conftest.lua");
