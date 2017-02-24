@@ -11,11 +11,11 @@
  */
 
 #ifndef DEF_H_
-#define	DEF_H_
+#define DEF_H_
 
 
 // Type min/max -------------------------------------------------------------
- 
+
 #ifndef MAXCHAR
 #define MAXCHAR         255
 #endif
@@ -52,28 +52,28 @@
 #define MAXSLONG        2147483647
 #endif
 
-#ifndef	FALSE
-#define	FALSE	(0)
+#ifndef FALSE
+#define FALSE   (0)
 #endif
 
-#ifndef	TRUE
-#define	TRUE	(!FALSE)
+#ifndef TRUE
+#define TRUE    (!FALSE)
 #endif
 
-#undef	MAX
+#undef  MAX
 #define MAX(a, b)  (((a) > (b)) ? (a) : (b))
 
-#undef	MIN
+#undef  MIN
 #define MIN(a, b)  (((a) < (b)) ? (a) : (b))
 
-#undef	ABS
-#define ABS(a)	   (((a) < 0) ? -(a) : (a))
+#undef  ABS
+#define ABS(a)     (((a) < 0) ? -(a) : (a))
 
-#undef	CLAMP
+#undef  CLAMP
 #define CLAMP(x, low, high)  (((x) > (high)) ? (high) : (((x) < (low)) ? (low) : (x)))
 
 #ifndef NULL
-#define NULL			(void)0
+#define NULL            (void)0
 #endif
 
 // Special character definitions --------------------------------------------
@@ -131,11 +131,11 @@
 #define SIGTERM         15      // Termination (request to terminate)
 #define SIGCHLD         17      // Child process terminated, stopped (or continued*)
 #define SIGCONT         18      // Continue if stopped
-#define SIGSTOP	        19      // Stop executing temporarily
+#define SIGSTOP         19      // Stop executing temporarily
 #define SIGTSTP         20      // Terminal stop signal
-#define SIGTTIN	        21      // Background process attempting to read from tty ("in")
+#define SIGTTIN         21      // Background process attempting to read from tty ("in")
 #define SIGTTOU         22      // Background process attempting to write to tty ("out")
-#define SIGURG	        23      // Urgent data available on socket
+#define SIGURG          23      // Urgent data available on socket
 #define SIGXCPU         24      // CPU time limit exceeded
 #define SIGXFSZ         25      // File size limit exceeded
 #define SIGVTALRM       26      // Signal raised by timer counting virtual time: "virtual timer expired"
@@ -228,7 +228,7 @@
 
 // Misc ---------------------------------------------------------------------
 
-#define UNUSED_PARAM(p)		(void)p
+#define UNUSED_PARAM(p)     (void)p
 
 
 // Atmel AVR specific -------------------------------------------------------
@@ -297,8 +297,8 @@
          +----[PWR]-------------------| USB |--+
          |                            +-----+  |
          |         GND/RST2  [ ][ ]            |
-         |       MOSI2/SCK2  [ ][ ]  A5/SCL[ ] |   C5 
-         |          5V/MISO2 [ ][ ]  A4/SDA[ ] |   C4 
+         |       MOSI2/SCK2  [ ][ ]  A5/SCL[ ] |   C5
+         |          5V/MISO2 [ ][ ]  A4/SDA[ ] |   C4
          |                             AREF[ ] |
          |                              GND[ ] |
          | [ ]N/C                    SCK/13[ ] |   B5
@@ -334,7 +334,7 @@
     C5   | [ ]A5/SCL               D4[ ] |   D4
          | [ ]A6              INT1/D3[ ]~|   D3
          | [ ]A7              INT0/D2[ ] |   D2
-         | [ ]5V                  GND[ ] |     
+         | [ ]5V                  GND[ ] |
     C6   | [ ]RST                 RST[ ] |   C6
          | [ ]GND   5V MOSI GND   TX1[ ] |   D0
          | [ ]Vin   [ ] [ ] [ ]   RX1[ ] |   D1
@@ -350,10 +350,10 @@
          +--------------------------------+
          |  [ ]  [ ]  [ ]  [ ]  [ ]  [ ]  |
          |              FTDI              |
-     D1  | [ ]1/TX                 RAW[ ] |    
-     D0  | [ ]0/RX                 GND[ ] |    
+     D1  | [ ]1/TX                 RAW[ ] |
+     D0  | [ ]0/RX                 GND[ ] |
          | [ ]RST        SCL/A5[ ] RST[ ] |   C6
-         | [ ]GND        SDA/A4[ ] VCC[ ] |    
+         | [ ]GND        SDA/A4[ ] VCC[ ] |
      D2  | [ ]2/INT0    ___         A3[ ] |   C3
      D3  |~[ ]3/INT1   /   \        A2[ ] |   C2
      D4  | [ ]4       /PRO  \       A1[ ] |   C1
@@ -362,8 +362,8 @@
      D7  | [ ]7          A7[ ] MISO/12[ ] |   B4
      B0  | [ ]8          A6[ ] MOSI/11[ ]~|   B3
      B1  |~[ ]9                  SS/10[ ]~|   B2
-         |           [RST-BTN]            |    
-         +--------------------------------+  
+         |           [RST-BTN]            |
+         +--------------------------------+
 
 
 
@@ -390,42 +390,42 @@
          | [ ]A3                     INT4/2[ ]~|   E4
          | [ ]A4                       TX>1[ ]~|   E1
          | [ ]A5                       RX<0[ ]~|   E0
-         | [ ]A6                               |   
+         | [ ]A6                               |
          | [ ]A7                     TX3/14[ ] |   J1
          |                           RX3/15[ ] |   J0
-         | [ ]A8                     TX2/16[ ] |   H1         
+         | [ ]A8                     TX2/16[ ] |   H1
          | [ ]A9                     RX2/17[ ] |   H0
-         | [ ]A10               TX1/INT3/18[ ] |   D3         
+         | [ ]A10               TX1/INT3/18[ ] |   D3
          | [ ]A11               RX1/INT2/19[ ] |   D2
-         | [ ]A12           I2C-SDA/INT1/20[ ] |   D1         
+         | [ ]A12           I2C-SDA/INT1/20[ ] |   D1
          | [ ]A13           I2C-SCL/INT0/21[ ] |   D0
-         | [ ]A14                              |            
+         | [ ]A14                              |
          | [ ]A15                              |   Ports:
-         |                RST SCK MISO         |    22=A0  23=A1   
-         |         ICSP   [ ] [ ] [ ]          |    24=A2  25=A3   
-         |                [ ] [ ] [ ]          |    26=A4  27=A5   
-         |                GND MOSI 5V          |    28=A6  29=A7   
-         | G                                   |    30=C7  31=C6   
-         | N 5 5 4 4 4 4 4 3 3 3 3 3 2 2 2 2 5 |    32=C5  33=C4   
-         | D 2 0 8 6 4 2 0 8 6 4 2 0 8 6 4 2 V |    34=C3  35=C2   
-         |         ~ ~                         |    36=C1  37=C0   
-         | @ # # # # # # # # # # # # # # # # @ |    38=D7  39=G2    
-         | @ # # # # # # # # # # # # # # # # @ |    40=G1  41=G0   
-         |           ~                         |    42=L7  43=L6   
-         | G 5 5 4 4 4 4 4 3 3 3 3 3 2 2 2 2 5 |    44=L5  45=L4   
-         | N 3 1 9 7 5 3 1 9 7 5 3 1 9 7 5 3 V |    46=L3  47=L2   
+         |                RST SCK MISO         |    22=A0  23=A1
+         |         ICSP   [ ] [ ] [ ]          |    24=A2  25=A3
+         |                [ ] [ ] [ ]          |    26=A4  27=A5
+         |                GND MOSI 5V          |    28=A6  29=A7
+         | G                                   |    30=C7  31=C6
+         | N 5 5 4 4 4 4 4 3 3 3 3 3 2 2 2 2 5 |    32=C5  33=C4
+         | D 2 0 8 6 4 2 0 8 6 4 2 0 8 6 4 2 V |    34=C3  35=C2
+         |         ~ ~                         |    36=C1  37=C0
+         | @ # # # # # # # # # # # # # # # # @ |    38=D7  39=G2
+         | @ # # # # # # # # # # # # # # # # @ |    40=G1  41=G0
+         |           ~                         |    42=L7  43=L6
+         | G 5 5 4 4 4 4 4 3 3 3 3 3 2 2 2 2 5 |    44=L5  45=L4
+         | N 3 1 9 7 5 3 1 9 7 5 3 1 9 7 5 3 V |    46=L3  47=L2
          | D                                   |    48=L1  49=L0    SPI:
          |                                     |    50=B3  51=B2     50=MISO 51=MOSI
-         |     2560                ____________/    52=B1  53=B0     52=SCK  53=SS 
-          \_______________________/         
-	         
+         |     2560                ____________/    52=B1  53=B0     52=SCK  53=SS
+          \_______________________/
+
 */
 
 
 // Raspberry PI -------------------------------------------------------------
 
 /*
-  Raspberry Pi B 
+  Raspberry Pi B
   Rev 1
 
                        +-----------+
@@ -445,7 +445,7 @@
                        +-----------+
 
 
-	Raspberry Pi A/B 
+    Raspberry Pi A/B
   Rev 2
 
                        +-----------+
@@ -465,7 +465,7 @@
                        +-----------+
 
 
-	Raspberry Pi B+ 
+    Raspberry Pi B+
 
                        +-----------+
                3.3V    |  [1]  [2] |  5V
@@ -489,10 +489,10 @@
                GPIO 26 | [37] [38] |  GPIO 20
                GND     | [39] [40] |  GPIO 21
                        +-----------+
- 
+
 */
 
 
 
-#endif	/* DEF_H */
+#endif  /* DEF_H */
 

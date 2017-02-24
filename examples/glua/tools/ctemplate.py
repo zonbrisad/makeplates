@@ -76,6 +76,21 @@ def addCppSentinelEnd(file):
     "} //end brace for extern \"C\"\n" \
     "#endif\n")
     
+def addStruct(file, structName):
+    file.write(                        \
+    "typedef struct {\n"               \
+    "}"+structName                     \
+    )    
+
+
+
+
+#def addDatatype(file, dtName, prefix):
+#    file.write(
+#        
+#    )    
+    
+    
 def newModule(dir, author, licence):
     print("Creating new C module")
     fName = input("Enter module name(no extention:>")

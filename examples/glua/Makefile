@@ -763,17 +763,24 @@ acheck: ## Static code analysis using cppcheck(all warnings)
 	@$(CPPCHECK) --inline-suppr --enable=all $(SRC) 
 
 #
-# Artistic Style (astyle) Format source to a standard
+# Artistic Style (astyle) Format source code to a standard
 #============================================================================
 .PHONY: astyle
 
 TABSIZE=4
 
+# Bracket style options
 AST  = --style=java
+
+# Tab options
 AST += --indent=spaces=$(TABSIZE)
+
+# Indentation options
 AST += --indent-switches
 AST += --indent-cases
 #AST += --indent-preproc-cond
+
+# Padding options
 AST += --break-blocks
 AST += --max-instatement-indent=40
 AST += --pad-oper
@@ -781,15 +788,22 @@ AST += --pad-oper
 AST += --pad-header
 AST += --align-pointer=name
 AST += --align-reference=name 
+
+# Formatting options
 AST += --add-brackets 
 AST += --convert-tabs
-#AST += --dry-run
 
-#PSRCH = $(PSRC:%.c=%.h) 
+# Other options
+AST += --lineend=linux
+#AST += --recursive
+#AST += --exclude=
+AST +=--preserve-date
+
+PSRCH = $(PSRC:%.c=%.h) 
 
 astyle: ## Format source to conform to a standard
-	@$(ASTYLE) $(AST) $(PSRC) $(PSRCH)
-
+#	@$(ASTYLE) $(AST) $(PSRC) $(PSRCH)
+	@$(ASTYLE) $(AST) src/*.c src/*.h
 #
 # splint static code analysis
 #============================================================================
