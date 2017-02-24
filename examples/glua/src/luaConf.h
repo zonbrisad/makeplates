@@ -46,7 +46,8 @@ extern "C" {
 #define LC_DBL(name, desc, flags, def, min, max)  { LC_TYPE_DOUBLE,     name, desc, flags, LC_ERR_VALID, .data.dblParam = {0, def, min, max, NULL} }
 #define LC_DBL_PL(name, desc, flags, def, vl)     { LC_TYPE_DOUBLE_PL,  name, desc, flags, LC_ERR_VALID, .data.dblParam = {0, def, 0, 0, vl}}
 
-#define LC_STR(name, desc, flags, def)            { LC_TYPE_STRING,  name, desc, flags, LC_ERR_VALID, .data.strParam = {NULL, NULL} }
+#define LC_STR(name, desc, flags, def)            { LC_TYPE_STRING,      name, desc, flags, LC_ERR_VALID, .data.strParam = {NULL, def} }
+#define LC_STR_LIST(name, desc, flags, def)       { LC_TYPE_STRING_LIST, name, desc, flags, LC_ERR_VALID, .data.strParam = {NULL, def} }
 
 #define LCT_BOOLEAN(name, desc, flags, def)       { LC_TYPE_BOOLEAN, name, desc, flags, LC_ERR_VALID, .data.boolParam = {0, def} }
 
@@ -81,6 +82,7 @@ extern "C" {
 #define LC_ARG_INT() { LC_TYPE_ARG_INTEGER, NULL, NULL, 0, LC_ERR_VALID }
 #define LC_ARG_DBL() { LC_TYPE_ARG_DOUBLE, NULL, NULL, 0, LC_ERR_VALID }
 #define LC_ARG_STR() { LC_TYPE_ARG_STRING, NULL, NULL, 0, LC_ERR_VALID }
+
 
 // Typedefs ---------------------------------------------------------------
 

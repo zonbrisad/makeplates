@@ -258,9 +258,11 @@ void printParam(luaConf *param) {
     printf("Val:  %s\n", val2string(param));
 }
 
-void LC_PrintParam(luaConf *param) {
+
+void LC_PrintParamX(luaConf *param) {
     printf("%-20s %-18s %-10s  %10s [ %s ]\n", param->name, LC_TYPE2STR(param->type), LC_ERROR2STR(param->err), val2string(param), LCT_paramLimits(param));
 }
+
 
 void printParams(luaConf *conf) {
     int i;
@@ -274,14 +276,78 @@ void printParams(luaConf *conf) {
     }
 }
 
+
+void LC_SetDefult(luaConf *param) {
+    switch (param->type) {
+        case LC_TYPE_INTEGER:
+        case LC_TYPE_INTEGER_PL:
+        case LC_TYPE_INTEGER_NL:
+            param->data.intParam.val = param->data.intParam.default_val;
+            break;
+
+        case LC_TYPE_DOUBLE:
+        case LC_TYPE_DOUBLE_PL:
+        case LC_TYPE_DOUBLE_NL:
+            param->data.dblParam.val = param->data.dblParam.default_val;
+            break;
+
+        case LC_TYPE_STRING:
+            param->data.strParam.val = malloc( strlen(param->data.strParam.default_val + 5) );
+            strcpy(param->data.strParam.val, param->data.strParam.default_val);
+            break;
+
+        case LC_TYPE_BOOLEAN:
+            param->data.boolParam.val = param->data.boolParam.default_val;
+
+        case LC_TYPE_INTEGER_LIST:
+        case LC_TYPE_DOUBLE_LIST:
+        case LC_TYPE_STRING_LIST:
+        case LC_TYPE_BOOLEAN_LIST:
+
+        default:
+            break;
+
+    }
+}
+
+void LC_SetDefults(luaConf *params) {
+    int i;
+    i = 0;
+
+    while (params[i].type != LC_TYPE_LAST) {
+        LC_SetDefult(&params[i]);
+        i++;
+    }
+}
+
+void LC_PrintParam(luaConf *param, FILE *f) {
+
+    if (!IS_PARAM(param)) {
+        return;
+    }
+
+    switch (param->type) {
+        case LC_TYPE_COMMENT:
+            fprintf(f, "%s\n", param->name);
+            break;
+
+        default:
+            fprintf(f, "-- %s\n", param->desc);
+            fprintf(f, "-- [ %s ]\n", LCT_paramLimits(param));
+
+            fprintf(f, "%s = %s\n\n", param->name, val2string(param));
+            break;
+    }
+
+}
+
 void LC_File(luaConf *conf) {
     int i;
 
     i = 0;
 
     while (conf[i].type != LC_TYPE_LAST) {
-        printf("-- %s\n", conf[i].desc);
-        printf("%s = %s\n\n", conf[i].name, val2string(&conf[i]));
+        LC_PrintParam(&conf[i], stdout);
         i++;
     }
 }
@@ -531,7 +597,7 @@ void LC_GetValue(LCT *lct, luaConf *param, int stackPos) {
                 lua_gettable(lct->L, -2);          // get key value
                 LC_GetValue(lct, &p[j], -1);
                 lua_pop(lct->L, 1);
-                LC_PrintParam(&p[j]);
+                LC_PrintParamX(&p[j]);
                 j++;
             }
 
@@ -696,6 +762,7 @@ void LC_read(LCT *lct, char *confFile) {
                         }
 
                         // get length of list
+
                         l = lua_rawlen(lct->L, -1);
                         params[i].data.dblParam.list = malloc( sizeof(LCT_DBL) * l);
                         params[i].data.dblParam.length = l;
@@ -708,6 +775,7 @@ void LC_read(LCT *lct, char *confFile) {
                         }
 
                         break;
+
 
                     case LC_TYPE_CUSTOM:
                         LC_GetValue(lct, &params[i], -1);
@@ -742,6 +810,49 @@ void LC_read(LCT *lct, char *confFile) {
 
                         break;
 
+
+                    case LC_TYPE_STRING_LIST:
+
+                        // check if value is a table
+                        if (!lua_istable(lct->L, -1)) {
+                            params[i].err = LC_ERR_INVALID;
+                            break;
+                        }
+
+                        // get length of list
+                        l = lua_rawlen(lct->L, -1);
+                        params[i].data.dblParam.list = malloc( sizeof(LCT_STR) * l);
+                        params[i].data.dblParam.length = l;
+
+                        for (j = 1; j <= l; j++) {
+                            lua_rawgeti(lct->L, -1, j);
+                            //printf("Dbl List %f\n", (LCT_DBL) lua_tonumberx(L, -1, &isnum));
+                            //params[i].data.dblParam.list[j - 1] = (LCT_DBL) lua_tonumberx(L, -1, &isnum);
+
+                            lua_tonumberx(lct->L, -1, &isnum);
+
+                            if (isnum) {
+                                params[i].err = LC_ERR_INVALID;
+                                break;
+                            }
+
+                            s = lua_tostring(lct->L, -1);
+
+                            if (s == NULL) {
+                                params[i].err = LC_ERR_INVALID;
+                                break;
+                            }
+
+                            printf("String: %s\n", s);
+                            //params[i].data.strParam.list[j - 1] = malloc(  strlen(s) + 5 );
+                            //params[i].data.strParam.val[0] = '\0';
+                            //strcpy(params[i].data.strParam.val, s);
+
+
+                            lua_pop(lct->L, 1);
+                        }
+
+                        break;
 
                     default:
                         LC_GetValue(lct, &params[i], -1);
@@ -958,6 +1069,7 @@ luaConf confTest[] = {
     LC_INT_LIST("IntList",     "Integer List parameter",          0, 0, 0, 0),
     LC_DBL_LIST("DblList",     "Double List parameter",           0, 0, 0, 0),
     LC_INT_LIST("InvalidList", "Invalid Integer List",            0, 0, 0, 0),
+	LC_STR_LIST("StrList",     "String list parameter",    0, NULL),
     LC_CUSTOM("TableParam", tableParams),
     LC_CUSTOM_LIST("TableParamList", tableParams),
     LCT_INTEGER_CONST("IntConst", 32),
@@ -967,6 +1079,14 @@ luaConf confTest[] = {
     LCT_FUNCTION("FunIntArg", funIntArg),
     LC_LAST(),
 };
+
+luaConf custom[] = {
+    LC_INT("CInt1",        "Correct Integer parameter",       0, -42, 0, 0),
+    LC_INT("CInt2",        "Correct Integer parameter",       0, -42, 0, 0),
+    {LC_LAST()},
+};
+
+
 
 
 void LCT_PrintProblems(luaConf *params) {
@@ -1004,12 +1124,16 @@ void LC_Test(void) {
     LCT_CallFunction(lct, FunIntArg);
 
 
-    printf("Counter %d\n", __COUNTER__);
-    printf("Counter %d\n", __COUNTER__);
-    printf("Counter %d\n", __COUNTER__);
+
+//    printf("Counter %d\n", __COUNTER__);
+//    printf("Counter %d\n", __COUNTER__);
+//    printf("Counter %d\n", __COUNTER__);
     //L = luaL_newstate();
     //luaL_openlibs(L);
     //LC_File(confTest);
+
+//    LC_SetDefults(confTest);
+//    LC_File(confTest);
 
     //LC_read(L, confTest, "conftest.lua");
 
