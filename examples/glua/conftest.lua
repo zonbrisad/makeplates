@@ -112,11 +112,11 @@ TableParam = { a =  12,
                d=  {9,8,7,6,5,4,3,2,1}
 }
 
-TableParamList = { { a =  1, b = -12.1, c="Table string 1", d=  {9,8,7,6,5,4,3,2,1} }, 
-                   { a =  2, b = -12.2, c="Table string 2", d=  {8,7,6,5,4,3,2,1} }, 
-                   { a =  3, b = -12.3, c="Table string 3", d=  {7,6,5,4,3,2,1} }, 
-                   { a =  4, b = -12.4, c="Table string 4", d=  {6,5,4,3,2,1} }, 
-                   { a =  5, b = -12.5, c="Table string 5", d=  {5,4,3,2,1} }, 
+TableParamList = { { a =  1, b = -12.1, c = "Table string 1", d = {9,8,7,6,5,4,3,2,1} }, 
+                   { a =  2, b = -12.2, c = "Table string 2", d = {8,7,6,5,4,3,2,1} }, 
+                   { a =  3, b = -12.3, c = "Table string 3", d = {7,6,5,4,3,2,1} }, 
+                   { a =  4, b = -12.4, c = "Table string 4", d = {6,5,4,3,2,1} }, 
+                   { a =  5, b = -12.5, c = "Table string 5", d = {5,4,3,2,1} }, 
 }
 
 -- Function tests
@@ -137,16 +137,55 @@ function FunStrArg(val)
   print("String Argument test "..val)
 end
 
-function FunIntListArg(val)
-  print("Integer Argument test "..val)
+function FunMultiArg(ival, dval, sval)
+  print("Int val "..ival.."  Dbl val "..dval.."  Str val "..sval)
 end
 
-function FunDblListArg(val)
-  print("Integer Argument test "..val)
+function FunIntListArg(list)
+  print("Integer array argument test function")
+  for k, v in pairs(list) do
+    print("  "..v)
+  end
 end
 
-function FunReturnTest() 
+function FunDblListArg(list)
+  print("Double Argument test ")
+  for k, v in pairs(list) do
+    print("  "..v)
+  end
+end
+
+function FunTableArg(table)
+  print("Table Argument test ")
+  print(table)
+  for k, v in pairs(table) do
+    print(k.."  "..type(v))
+--    if (type(v)=="table") then
+--      print(k.."  ")
+--      for l, w in pairs(v) do
+--        print("    "..l.."  "..w)
+--      end
+--      
+--    else
+--      print("  "..k.."  "..v)
+--    end
+  end
+end
+
+function FunIntReturn() 
   return -423
+end
+
+function FunDblReturn() 
+  return 23.43
+end
+
+function FunStrReturn() 
+  return "A return string"
+end
+
+function FunGlobalVars()  
+  print("Global variables  integer="..GlobalInt.."  double="..GlobalDbl.."  string="..GlobalStr)
 end
 
 

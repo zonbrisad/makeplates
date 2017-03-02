@@ -25,6 +25,7 @@ TARGET = glua
 PSRC = src/main.c \
        src/gp_log.c \
        src/luaConf.c \
+       src/Unity/unity.c
  
 SRC =   $(PSRC)    
 SRC +=		src/lua-5.2.3/src/lstrlib.c \
@@ -73,7 +74,8 @@ ASRC =
 # Include directories
 INCLUDE = inc \
           src \
-          src/lua-5.2.3/src 
+          src/lua-5.2.3/src \
+          src/Unity
 
 # Libraries to link
 LIB  = -lm 
@@ -398,6 +400,9 @@ nocolor:
 #	
 nc: nocolor all   ## Build with no color on compiler output
 
+
+prof: cflags+=-gp all
+prof: all
 
 build: elf lss sym size
 
