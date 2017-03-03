@@ -112,11 +112,11 @@ TableParam = { a =  12,
                d=  {9,8,7,6,5,4,3,2,1}
 }
 
-TableParamList = { { a =  1, b = -12.1, c="Table string 1", d=  {9,8,7,6,5,4,3,2,1} }, 
-                   { a =  2, b = -12.2, c="Table string 2", d=  {8,7,6,5,4,3,2,1} }, 
-                   { a =  3, b = -12.3, c="Table string 3", d=  {7,6,5,4,3,2,1} }, 
-                   { a =  4, b = -12.4, c="Table string 4", d=  {6,5,4,3,2,1} }, 
-                   { a =  5, b = -12.5, c="Table string 5", d=  {5,4,3,2,1} }, 
+TableParamList = { { a = 1, b = -12.1, c = "Table string 1", d = {9,8,7,6,5,4,3,2,1} }, 
+                   { a = 2, b = -12.2, c = "Table string 2", d = {8,7,6,5,4,3,2,1} }, 
+                   { a = 3, b = -12.3, c = "Table string 3", d = {7,6,5,4,3,2,1} }, 
+                   { a = 4, b = -12.4, c = "Table string 4", d = {6,5,4,3,2,1} }, 
+                   { a = 5, b = -12.5, c = "Table string 5", d = {5,4,3,2,1} }, 
 }
 
 -- Function tests

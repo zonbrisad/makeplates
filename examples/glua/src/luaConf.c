@@ -1069,7 +1069,7 @@ luaConf confTest[] = {
     LC_INT_LIST("IntList",     "Integer List parameter",          0, 0, 0, 0),
     LC_DBL_LIST("DblList",     "Double List parameter",           0, 0, 0, 0),
     LC_INT_LIST("InvalidList", "Invalid Integer List",            0, 0, 0, 0),
-	LC_STR_LIST("StrList",     "String list parameter",    0, NULL),
+    LC_STR_LIST("StrList",     "String list parameter",    0, NULL),
     LC_CUSTOM("TableParam", tableParams),
     LC_CUSTOM_LIST("TableParamList", tableParams),
     LCT_INTEGER_CONST("IntConst", 32),
@@ -1083,7 +1083,7 @@ luaConf confTest[] = {
 luaConf custom[] = {
     LC_INT("CInt1",        "Correct Integer parameter",       0, -42, 0, 0),
     LC_INT("CInt2",        "Correct Integer parameter",       0, -42, 0, 0),
-    {LC_LAST()},
+    LC_LAST(),
 };
 
 

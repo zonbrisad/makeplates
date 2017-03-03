@@ -56,6 +56,7 @@ static gboolean opt_daemonTest = FALSE;
 static gboolean opt_queueTest  = FALSE;
 static gboolean opt_pipeTest   = FALSE;
 static gboolean opt_domainTest = FALSE;
+static gboolean opt_stdinTest  = FALSE;
 
 static GOptionEntry entries[] = {
   { "verbose",  'v', 0, G_OPTION_ARG_NONE, &opt_verbose,    "Be verbose output",    NULL },
@@ -69,6 +70,7 @@ static GOptionEntry entries[] = {
   { "queue",     0,  0, G_OPTION_ARG_NONE, &opt_queueTest,  "Queue test",           NULL },
   { "pipe",      0,  0, G_OPTION_ARG_NONE, &opt_pipeTest,   "Pipe test",            NULL },
   { "domain",    0,  0, G_OPTION_ARG_NONE, &opt_domainTest, "Domain socket test",   NULL },
+	{ "stdin",     0,  0, G_OPTION_ARG_NONE, &opt_stdinTest,  "Listen to Stdin",      NULL },
   { NULL }
 };
 
@@ -495,6 +497,72 @@ void domainTest(void) {
 }
 
 
+void printChar(char ch) {
+	switch (ch) {
+	 case '\n':
+		 printf ("Hex: %3x Char: Nl\n", ch);
+		break;
+	 case '\x1b':
+				 printf ("Hex: %3x Char: Esc\n", ch);
+		break;
+	 default:
+		printf ("Hex: %3x Char: %2c\n", ch, ch);
+		break;
+	}
+}
+
+static gboolean stdin_in (GIOChannel *gio, GIOCondition condition, gpointer data) {
+	GIOStatus ret;
+	GError *err = NULL;
+	gchar *msg;
+	gsize len=0;
+	char buf[32];
+
+	
+//	printf("Cond: %x\n",condition);
+	if (condition & G_IO_IN) {
+		ret = g_io_channel_read_chars (gio, buf, 1, &len, &err);
+
+		if (ret == G_IO_STATUS_ERROR) {
+			g_error ("Error reading: %s\n", err->message);
+		} else {
+			printChar(buf[0]);
+		}
+	}
+
+	if ((condition & G_IO_HUP) && (len==0)) {
+		DEBUGPRINT("Ending stdin test\n");
+		g_main_loop_quit(mLoop1);
+	}
+	
+	g_free (msg);
+	return TRUE;
+}
+
+void stdinTest() {
+	GIOChannel *channel, *channel2;
+	pid_t childPid;
+	
+	printf("Stdin test\n");
+
+	mLoop1 = g_main_loop_new(NULL, FALSE);
+	timer = g_timer_new();
+	g_timer_start(timer);
+	
+//	g_timeout_add_seconds(5, timeout_1, "Pipe timeout");
+
+	channel = g_io_channel_unix_new (STDIN_FILENO);
+	if (!channel)
+		g_error ("Cannot create new GIOChannel!\n");
+	
+	if (!g_io_add_watch (channel, G_IO_IN | G_IO_HUP, stdin_in, NULL))
+		g_error ("Cannot add watch on GIOChannel!\n");
+	
+	g_main_loop_run(mLoop1);
+}
+
+
+
 int main(int argc, char *argv[]) {
 	GError *error = NULL;
 	GOptionContext *context;
@@ -576,7 +644,14 @@ int main(int argc, char *argv[]) {
 	  domainTest();
 		exit(0);
 	}
-	
 
+	// stdin test
+	if (opt_stdinTest) {
+	  stdinTest();
+		exit(0);
+	}
+
+	
+	
 	return 0;
 }
