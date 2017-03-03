@@ -43,7 +43,6 @@ extern "C" {
 #define LCT_INT_VLIST(...) {__VA_ARGS__, LCT_INT_MAX}
 #define LCT_DBL_VLIST(...) {__VA_ARGS__, LCT_DBL_MAX}
 
-
 #define LC_TYPE2STR(type) int2string(type2string, type)
 #define LC_ERROR2STR(err) int2string(error2string, err)
 
@@ -58,8 +57,8 @@ extern "C" {
 #define LC_DBL_LIST(name, desc, flags, def, min, max)  { LC_TYPE_DOUBLE_LIST,  name, desc, flags, LC_ERR_VALID, .data.dblParam = {0, def, min, max, NULL} }
 #define LC_STR_LIST(name, desc, flags, def)            { LC_TYPE_STRING_LIST,  name, desc, flags, LC_ERR_VALID, .data.strParam = {NULL, def} }
 
-#define LC_CUSTOM(name, params)       {LC_TYPE_CUSTOM,      name, NULL, 0, LC_ERR_VALID, .data.customParam = {params}}
-#define LC_CUSTOM_LIST(name, params)  {LC_TYPE_CUSTOM_LIST, name, NULL, 0, LC_ERR_VALID, .data.customParam = {params}}
+#define LC_CUSTOM(name, params)       { LC_TYPE_TABLE,      name, NULL, 0, LC_ERR_VALID, .data.customParam = {params}}
+#define LC_CUSTOM_LIST(name, params)  { LC_TYPE_TABLE_LIST, name, NULL, 0, LC_ERR_VALID, .data.customParam = {params}}
 
 #define LC_LAST()  {LC_TYPE_LAST}
 
@@ -80,11 +79,13 @@ extern "C" {
 #define LCT_FUNCTION(name, params) { LC_TYPE_FUNCTION, name, NULL, 0, LC_ERR_VALID, .data.function={params}}
 
 #define LC_ARG_INT()      { LC_TYPE_ARG_INTEGER,      NULL, NULL, 0, LC_ERR_VALID }
+//#define LC_ARG_INT()     LC_INT(NULL, NULL, 0, 0, 0, 0)
+
 #define LC_ARG_DBL()      { LC_TYPE_ARG_DOUBLE,       NULL, NULL, 0, LC_ERR_VALID }
 #define LC_ARG_STR()      { LC_TYPE_ARG_STRING,       NULL, NULL, 0, LC_ERR_VALID }
 #define LC_ARG_INT_LIST() { LC_TYPE_ARG_INTEGER_LIST, NULL, NULL, 0, LC_ERR_VALID }
 #define LC_ARG_DBL_LIST() { LC_TYPE_ARG_DOUBLE_LIST,  NULL, NULL, 0, LC_ERR_VALID }
-#define LC_ARG_TABLE(tbl) { LC_TYPE_CUSTOM,           NULL, NULL, 0, LC_ERR_VALID, .data.customParam = {tbl}}
+#define LC_ARG_TABLE(tbl) { LC_TYPE_TABLE,           NULL, NULL, 0, LC_ERR_VALID, .data.customParam = {tbl} }
 
 #define LC_RET_INT()      { LC_TYPE_INTEGER,          NULL, NULL, 0, LC_ERR_VALID }
 
@@ -99,9 +100,10 @@ extern "C" {
 
 typedef enum {
     LC_FLAG_REQUIRED = 0x0001,  // This parameter is required
-    LC_FLAG_GLOBAL   = 0x0002,  // This parameter is global variable
+    LC_FLAG_VALIDATE = 0x0002,  // Indicates if parameter should be validated
     LC_FLAG_PUSH     = 0x0004,  // Push global variable from c space to lua space
     LC_FLAG_PULL     = 0x0008,  // Pull global variable  from lua space to c space
+
 } LC_FLAGS;
 
 typedef enum {
@@ -136,8 +138,8 @@ typedef enum {
     LC_TYPE_DOUBLE_CONST,
     LC_TYPE_STRING_CONST,
 
-    LC_TYPE_CUSTOM,
-    LC_TYPE_CUSTOM_LIST,
+    LC_TYPE_TABLE,
+    LC_TYPE_TABLE_LIST,
     LC_TYPE_COMMENT,
 
     LC_TYPE_FUNCTION,
@@ -227,10 +229,10 @@ typedef struct {
 } LUACONF_DATA_ARG_STRING;
 
 typedef struct {
-    LC_TYPES     type;
-    char         name[LCT_NAME_LENGTH];
-    char         *desc;
-    uint16_t     flags;
+    LC_TYPES     type;                     // parameter type
+    char         name[LCT_NAME_LENGTH];    // parameter name
+    char         *desc;                    // parameter description
+    uint16_t     flags;                    // parameter control flags
     LC_ERR       err;
     union {
         LUACONF_DATA_INTEGER     intParam;
@@ -244,7 +246,7 @@ typedef struct {
         LUACONF_DATA_ARG_DOUBLE  dblArg;
         LUACONF_DATA_ARG_STRING  strArg;
     } data;
-    void *valPtr;
+    void *valPtr;						   // pointer to parameter value
 } luaConf;
 
 typedef struct {
@@ -269,6 +271,8 @@ typedef struct {
 
 
 LCT *LCT_New(luaConf *params);
+
+luaConf *LCT_Find(luaConf *params, char *name);
 
 void LCT_CallFunction(LCT *lct, luaConf *param);
 

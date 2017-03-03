@@ -184,8 +184,13 @@ function FunStrReturn()
   return "A return string"
 end
 
-function FunGlobalVars()  
+function FunGlobalVarsToLua()  
   print("Global variables  integer="..GlobalInt.."  double="..GlobalDbl.."  string="..GlobalStr)
+end
+
+function FunGlobalVarsFromLua()
+  GlobalInt = GlobalInt * 2
+  GlobalDbl = GlobalDbl * 2.3
 end
 
 
