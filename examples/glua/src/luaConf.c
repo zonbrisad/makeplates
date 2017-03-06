@@ -25,6 +25,7 @@
 
 #include "def.h"
 
+
 /*
  * - flag for variable must be present
  * - ability to generate a configuration file
@@ -34,6 +35,7 @@
  * - built in constants
  * - value validation
  * - custom datatype
+ * - Add function api feature
  *
  * https://www.lua.org/pil/25.html
  */
@@ -42,6 +44,19 @@
 
 // Variables --------------------------------------------------------------
 
+//char *preScript =
+//      "ON"
+//"On"
+//      "on"
+//      "YES"
+//      "Yes"
+//       "yes"
+//      "TRUE"
+//      "True"
+//      "true"
+//       "OFF"
+//      "Off"
+//       "off" "NO",  "No",  "no",  "FALSE", "False", "false",
 
 char *lct_trueList[]  = { "ON",  "On",  "on",  "YES", "Yes", "yes", "TRUE",  "True",  "true",   NULL };
 char *lct_falseList[] = { "OFF", "Off", "off", "NO",  "No",  "no",  "FALSE", "False", "false",  NULL };
@@ -54,6 +69,7 @@ int2str type2string[] = {
     {LC_TYPE_BOOLEAN,       "Boolean"},
     {LC_TYPE_INTEGER_LIST,  "Integer List"},
     {LC_TYPE_DOUBLE_LIST,   "Double List"},
+    {LC_TYPE_STRING_LIST,   "String List"},
     {LC_TYPE_INTEGER_CONST, "Integer constant"},
     {LC_TYPE_DOUBLE_CONST,  "Double constant"},
     {LC_TYPE_STRING_CONST,  "String constant"},
@@ -62,6 +78,10 @@ int2str type2string[] = {
     {LC_TYPE_DOUBLE_PL,     "Double pick list"},
     {LC_TYPE_DOUBLE_NL,     "Double name list"},
     {LC_TYPE_COMMENT,       "Comment"},
+    {LC_TYPE_TABLE,         "Table"},
+    {LC_TYPE_TABLE_LIST,    "Table list"},
+    {LC_TYPE_FUNCTION,      "Function"},
+    {LC_TYPE_API,           "API"},
     {LC_TYPE_LAST,          NULL}
 };
 
@@ -72,12 +92,54 @@ int2str error2string[] = {
     {LC_ERR_MISSING,    "Missing"},
 };
 
-
 // Prototypes -------------------------------------------------------------
 
 // Code -------------------------------------------------------------------
 
+int LCT_IntListLen(int *list) {
+    int i;
+    i = 0;
 
+    if (list == NULL) {
+        return 0;
+    }
+
+    while (list[i] != LCT_INT_MAX) {
+        i++;
+    }
+
+    return i;
+}
+
+int LCT_DblListLen(double *list) {
+    int i;
+    i = 0;
+
+    if (list == NULL) {
+        return 0;
+    }
+
+    while (list[i] != LCT_DBL_MAX) {
+        i++;
+    }
+
+    return i;
+}
+
+int LCT_ListLen(luaConf *param) {
+    switch (param->type) {
+        case LC_TYPE_INTEGER_LIST:
+            return LCT_IntListLen(param->data.intParam.list);
+            break;
+
+        case LC_TYPE_DOUBLE_LIST:
+        case LC_TYPE_STRING_LIST:
+
+        default:
+            return 0;
+
+    }
+}
 
 char *int2string(int2str *i2s, LC_TYPES type) {
     int i;
@@ -209,7 +271,7 @@ char *LCT_paramLimits(luaConf *param) {
 
         default:
             return NULL;
-            //sprintf(buf, "");
+            break;
     }
 
 
@@ -258,20 +320,29 @@ void printParam(luaConf *param) {
     printf("Val:  %s\n", val2string(param));
 }
 
-
-void LC_PrintParamX(luaConf *param) {
+void LC_PrintParam(luaConf *param) {
+    int i;
     printf("%-20s %-18s %-10s  %10s [ %s ]\n", param->name, LC_TYPE2STR(param->type), LC_ERROR2STR(param->err), val2string(param), LCT_paramLimits(param));
+
+    switch (param->type) {
+        case LC_TYPE_ARG_INTEGER_LIST:
+            for (i = 0; i < LCT_ListLen(param); i++) {
+                printf("K\n");
+            }
+
+        default:
+            break;
+    }
+
 }
 
 
-void printParams(luaConf *conf) {
+void LC_PrintParams(luaConf *conf) {
     int i;
     i = 0;
 
     while (conf[i].type != LC_TYPE_LAST) {
-        printParam(&conf[i]);
-        printf("\n");
-//    printf("%20s %s\n", conf[i].varName, conf[i].desc);
+        LC_PrintParam(&conf[i]);
         i++;
     }
 }
@@ -320,7 +391,7 @@ void LC_SetDefults(luaConf *params) {
     }
 }
 
-void LC_PrintParam(luaConf *param, FILE *f) {
+void LC_PrintParamFile(luaConf *param, FILE *f) {
 
     if (!IS_PARAM(param)) {
         return;
@@ -347,7 +418,7 @@ void LC_File(luaConf *conf) {
     i = 0;
 
     while (conf[i].type != LC_TYPE_LAST) {
-        LC_PrintParam(&conf[i], stdout);
+        LC_PrintParamFile(&conf[i], stdout);
         i++;
     }
 }
@@ -438,11 +509,9 @@ void LCT_Constants(lua_State *L, luaConf *conf) {
 
     while (lct_trueList[i] != NULL) {
         sprintf(buf, "%s=1", lct_trueList[i]);
-        printf("%s\n", buf);
         luaL_dostring(L, buf);
         i++;
     }
-
 
     i = 0;
 
@@ -581,8 +650,8 @@ void LC_GetValue(LCT *lct, luaConf *param, int stackPos) {
 
             break;
 
-        case LC_TYPE_CUSTOM_LIST:
-        case LC_TYPE_CUSTOM:
+        case LC_TYPE_TABLE_LIST:
+        case LC_TYPE_TABLE:
             if (!lua_istable(lct->L, -1)) {
                 param->err = LC_ERR_INVALID;
                 break;
@@ -597,7 +666,7 @@ void LC_GetValue(LCT *lct, luaConf *param, int stackPos) {
                 lua_gettable(lct->L, -2);          // get key value
                 LC_GetValue(lct, &p[j], -1);
                 lua_pop(lct->L, 1);
-                LC_PrintParamX(&p[j]);
+                //LC_PrintParam(&p[j]);
                 j++;
             }
 
@@ -606,6 +675,156 @@ void LC_GetValue(LCT *lct, luaConf *param, int stackPos) {
         default:
             break;
     }
+
+}
+
+void LCT_PullParameter(LCT *lct, luaConf *param) {
+    int isnum;
+    int stackPos = -1;
+    int j, l;
+    const char *s;
+    luaConf *p;
+
+    if (!PARAM_IS_COMMENT(param)) {
+
+        // push identifier onto stack
+        lua_getglobal(lct->L, param->name);
+
+        // check if identifier exists
+        if (lua_isnil(lct->L, -1)) {
+            param->err = LC_ERR_MISSING;
+        } else {
+
+            switch (param->type) {
+                case LC_TYPE_BOOLEAN:
+                    param->data.boolParam.val = (LCT_BOOL) lua_tonumberx(lct->L, stackPos, &isnum);
+
+                    if (!isnum) {
+                        param->err = LC_ERR_INVALID;
+                    }
+
+                    break;
+
+                case LC_TYPE_INTEGER:
+                case LC_TYPE_INTEGER_PL:
+                case LC_TYPE_INTEGER_NL:
+                    *(LCT_INT *) param->valPtr = (LCT_INT) lua_tonumberx(lct->L, stackPos, &isnum);
+
+
+                    if (!isnum) {
+                        param->err = LC_ERR_INVALID;
+                    }
+
+
+                    break;
+
+                case LC_TYPE_DOUBLE:
+                case LC_TYPE_DOUBLE_PL:
+                case LC_TYPE_DOUBLE_NL:
+                    *(LCT_DBL *) param->valPtr = (LCT_DBL) lua_tonumberx(lct->L, stackPos, &isnum);
+
+                    if (!isnum) {
+                        param->err = LC_ERR_INVALID;
+                    }
+
+                    break;
+
+                case LC_TYPE_STRING:
+                    if (!lua_isstring(lct->L, stackPos)) {
+                        param->err = LC_ERR_INVALID;
+                        break;
+                    }
+
+                    lua_tonumberx(lct->L, stackPos, &isnum);
+
+                    if (isnum) {
+                        param->err = LC_ERR_INVALID;
+                        break;
+                    }
+
+                    s = lua_tostring(lct->L, stackPos);
+
+                    if (s == NULL) {
+                        param->err = LC_ERR_INVALID;
+                        break;
+                    }
+
+                    param->data.strParam.val = malloc(  strlen(s) + 10 );
+                    param->data.strParam.val[0] = '\0';
+                    strcpy(param->data.strParam.val, s);
+                    break;
+
+                case LC_TYPE_INTEGER_LIST:
+
+                    // check if value is a table
+                    if (!lua_istable(lct->L, stackPos)) {
+                        param->err = LC_ERR_INVALID;
+                        break;
+                    }
+
+                    // get length of list
+                    l = lua_rawlen(lct->L, -1);
+
+                    param->data.intParam.list = malloc( sizeof(LCT_INT) * l);
+                    param->data.intParam.length = l;
+
+                    for (j = 1; j <= l; j++) {
+                        lua_rawgeti(lct->L, -1, j);
+                        param->data.intParam.list[j - 1] = (LCT_INT) lua_tonumberx(lct->L, stackPos, &isnum);
+                        lua_pop(lct->L, 1);
+                    }
+
+                    break;
+
+                case LC_TYPE_DOUBLE_LIST:
+
+                    // check if value is a table
+                    if (!lua_istable(lct->L, -1)) {
+                        param->err = LC_ERR_INVALID;
+                        break;
+                    }
+
+                    // get length of list
+                    l = lua_rawlen(lct->L, -1);
+                    param->data.dblParam.list = malloc( sizeof(LCT_DBL) * l);
+                    param->data.dblParam.length = l;
+
+                    for (j = 1; j <= l; j++) {
+                        lua_rawgeti(lct->L, -1, j);
+                        param->data.dblParam.list[j - 1] = (LCT_DBL) lua_tonumberx(lct->L, stackPos, &isnum);
+                        lua_pop(lct->L, 1);
+                    }
+
+                    break;
+
+                case LC_TYPE_TABLE_LIST:
+                case LC_TYPE_TABLE:
+                    if (!lua_istable(lct->L, -1)) {
+                        param->err = LC_ERR_INVALID;
+                        break;
+                    }
+
+                    p = param->data.customParam.params;
+                    j = 0;
+
+                    while (p[j].type != LC_TYPE_LAST ) {
+                        lua_pushstring(lct->L, p[j].name); // push the table key name
+                        lua_gettable(lct->L, -2);          // get key value
+                        LC_GetValue(lct, &p[j], -1);
+                        lua_pop(lct->L, 1);
+                        //LC_PrintParam(&p[j]);
+                        j++;
+                    }
+
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    }
+
+    lua_pop(lct->L, 1);
 
 }
 
@@ -648,7 +867,7 @@ void LC_read(LCT *lct, char *confFile) {
     int i, j, l;
     int isnum;
     const char *s;
-    luaConf *p;
+    luaConf *p, *param;
 
     luaConf *params = lct->params;
 
@@ -659,12 +878,11 @@ void LC_read(LCT *lct, char *confFile) {
     isnum = 1;
     i = 0;
 
-    //stackDump(L);
 
     while (params[i].type != LC_TYPE_LAST) {
-        //DEBUGPRINT("i=%d name=%s\n", i, conf[i].name);
+        param = &params[i];
 
-        if (!PARAM_IS_COMMENT(params[i])) {
+        if (!PARAM_IS_COMMENT(param)) {
 
             // push identifier onto stack
             lua_getglobal(lct->L, params[i].name);
@@ -675,113 +893,8 @@ void LC_read(LCT *lct, char *confFile) {
             } else {
 
                 switch (params[i].type) {
-                    case LC_TYPE_BOOLEAN:
-                        params[i].data.boolParam.val = (LCT_BOOL) lua_tonumberx(lct->L, -1, &isnum);
 
-                        if (!isnum) {
-                            params[i].err = LC_ERR_INVALID;
-                        }
-
-                        break;
-
-                    case LC_TYPE_INTEGER:
-                    case LC_TYPE_INTEGER_PL:
-                    case LC_TYPE_INTEGER_NL:
-                        LC_GetValue(lct, &params[i], -1);
-                        break;
-
-                    case LC_TYPE_DOUBLE:
-                    case LC_TYPE_DOUBLE_PL:
-                    case LC_TYPE_DOUBLE_NL:
-                        LC_GetValue(lct, &params[i], -1);
-
-                        break;
-                        params[i].data.dblParam.val = (LCT_DBL) lua_tonumberx(lct->L, -1, &isnum);
-
-                        if (!isnum) {
-                            params[i].err = LC_ERR_INVALID;
-                        }
-
-                        break;
-
-                    case LC_TYPE_STRING:
-                        if (!lua_isstring(lct->L, -1)) {
-                            params[i].err = LC_ERR_INVALID;
-                            break;
-                        }
-
-                        lua_tonumberx(lct->L, -1, &isnum);
-
-                        if (isnum) {
-                            params[i].err = LC_ERR_INVALID;
-                            break;
-                        }
-
-                        s = lua_tostring(lct->L, -1);
-
-                        if (s == NULL) {
-                            params[i].err = LC_ERR_INVALID;
-                            break;
-                        }
-
-                        //printf("String: %s\n",s);
-                        params[i].data.strParam.val = malloc(  strlen(s) + 10 );
-                        params[i].data.strParam.val[0] = '\0';
-                        strcpy(params[i].data.strParam.val, s);
-                        break;
-
-                    case LC_TYPE_INTEGER_LIST:
-
-                        // check if value is a table
-                        if (!lua_istable(lct->L, -1)) {
-                            params[i].err = LC_ERR_INVALID;
-                            break;
-                        }
-
-                        // get length of list
-                        l = lua_rawlen(lct->L, -1);
-
-                        params[i].data.intParam.list = malloc( sizeof(LCT_INT) * l);
-                        params[i].data.intParam.length = l;
-
-                        for (j = 1; j <= l; j++) {
-                            lua_rawgeti(lct->L, -1, j);
-                            //printf("Int List %d\n", (LCT_INT) lua_tonumberx(L, -1, &isnum));
-                            params[i].data.intParam.list[j - 1] = (LCT_INT) lua_tonumberx(lct->L, -1, &isnum);
-                            lua_pop(lct->L, 1);
-                        }
-
-                        break;
-
-                    case LC_TYPE_DOUBLE_LIST:
-
-                        // check if value is a table
-                        if (!lua_istable(lct->L, -1)) {
-                            params[i].err = LC_ERR_INVALID;
-                            break;
-                        }
-
-                        // get length of list
-
-                        l = lua_rawlen(lct->L, -1);
-                        params[i].data.dblParam.list = malloc( sizeof(LCT_DBL) * l);
-                        params[i].data.dblParam.length = l;
-
-                        for (j = 1; j <= l; j++) {
-                            lua_rawgeti(lct->L, -1, j);
-                            //printf("Dbl List %f\n", (LCT_DBL) lua_tonumberx(L, -1, &isnum));
-                            params[i].data.dblParam.list[j - 1] = (LCT_DBL) lua_tonumberx(lct->L, -1, &isnum);
-                            lua_pop(lct->L, 1);
-                        }
-
-                        break;
-
-
-                    case LC_TYPE_CUSTOM:
-                        LC_GetValue(lct, &params[i], -1);
-                        break;
-
-                    case LC_TYPE_CUSTOM_LIST:
+                    case LC_TYPE_TABLE_LIST:
                         if (!lua_istable(lct->L, -1)) {
                             params[i].err = LC_ERR_INVALID;
                             break;
@@ -843,10 +956,7 @@ void LC_read(LCT *lct, char *confFile) {
                                 break;
                             }
 
-                            printf("String: %s\n", s);
-                            //params[i].data.strParam.list[j - 1] = malloc(  strlen(s) + 5 );
-                            //params[i].data.strParam.val[0] = '\0';
-                            //strcpy(params[i].data.strParam.val, s);
+                            //printf("String: %s\n", s);
 
 
                             lua_pop(lct->L, 1);
@@ -866,21 +976,109 @@ void LC_read(LCT *lct, char *confFile) {
             lua_pop(lct->L, 1);
         }
 
-        printf("%-20s %-18s %-10s  %10s [ %s ]\n", params[i].name, LC_TYPE2STR(params[i].type), LC_ERROR2STR(params[i].err), val2string(&params[i]), LCT_paramLimits(&params[i]));
+
         i++;
     }
 
-
-//    lua_getglobal(lct->L, "MyFunction");
-//    lua_call(lct->L, 0, 0);
-//
-//    lua_getglobal(lct->L, "FunIntArg");
-//    lua_pushnumber(lct->L, 23);
-//    lua_call(lct->L, 1, 0);
-
-
-    //lua_close(lct->L);
 }
+
+void LCT_SetValuePtr(luaConf *params, char *name, void *valPtr) {
+    luaConf *param;
+    param = LCT_Find(params, name);
+
+    if (param) {
+        param->valPtr = valPtr;
+    }
+}
+
+void LCT_InitAPI(LCT *lct) {
+    int i;
+    i = 0;
+
+    while (lct->params[i].type != LC_TYPE_LAST) {
+        if (lct->params[i].type == LC_TYPE_API) {
+            printf("Name: %s\n", lct->params[i].name);
+            lua_pushcfunction(lct->L, lct->params[i].data.api.function);
+            lua_setglobal(lct->L, lct->params[i].name);
+        }
+        i++;
+    }
+}
+
+
+
+void LCT_Init(luaConf *params) {
+    int i;
+    i = 0;
+
+    if (params == NULL) {
+        return;
+    }
+
+    while (params[i].type != LC_TYPE_LAST) {
+        i++;
+
+        switch (params[i].type) {
+            case LC_TYPE_INTEGER:
+            case LC_TYPE_INTEGER_PL:
+            case LC_TYPE_INTEGER_NL:
+                params[i].valPtr = &params[i].data.intParam.val;
+                break;
+
+            case LC_TYPE_DOUBLE:
+            case LC_TYPE_DOUBLE_PL:
+            case LC_TYPE_DOUBLE_NL:
+                params[i].valPtr = &params[i].data.dblParam.val;
+                break;
+
+            case LC_TYPE_STRING:
+                params[i].valPtr = params[i].data.strParam.val;
+                break;
+
+            case LC_TYPE_BOOLEAN:
+                params[i].valPtr = &params[i].data.boolParam.val;
+                break;
+
+
+            case LC_TYPE_INTEGER_LIST:
+            case LC_TYPE_DOUBLE_LIST:
+            case LC_TYPE_STRING_LIST:
+            case LC_TYPE_BOOLEAN_LIST:
+            case LC_TYPE_BYTE_LIST:
+
+
+            case LC_TYPE_INTEGER_CONST:
+            case LC_TYPE_DOUBLE_CONST:
+            case LC_TYPE_STRING_CONST:
+
+            case LC_TYPE_TABLE:
+                //LCT_Init(params[i].data.customParam.params);
+                break;
+
+            case LC_TYPE_TABLE_LIST:
+            case LC_TYPE_COMMENT:
+
+            case LC_TYPE_FUNCTION:
+
+            case LC_TYPE_ARG_INTEGER:
+            case LC_TYPE_ARG_DOUBLE:
+            case LC_TYPE_ARG_STRING:
+            case LC_TYPE_ARG_INTEGER_LIST:
+            case LC_TYPE_ARG_DOUBLE_LIST:
+            case LC_TYPE_ARG_STRING_LIST:
+
+            case LC_TYPE_GLOBAL_INTEGER:
+            case LC_TYPE_GLOBAL_DOUBLE:
+            case LC_TYPE_GLOBAL_STRING:
+            case LC_TYPE_GLOBAL_BOOLEAN:
+                break;
+
+            default:
+                break;
+        }
+    }
+}
+
 
 
 LCT *LCT_New(luaConf *params) {
@@ -888,14 +1086,22 @@ LCT *LCT_New(luaConf *params) {
 
     lct = malloc( sizeof(LCT) );
     lct->params = params;
+    LCT_Init(lct->params);
+
+    LCT_InitAPI(lct);
+
     lct->L = luaL_newstate();
     luaL_openlibs(lct->L);
+
+
 
     return lct;
 }
 
 void LCT_Free(LCT *lct) {
     lua_close(lct->L);
+
+    // @todo remove lists, strings etc.
     free(lct);
 }
 
@@ -916,9 +1122,63 @@ void LCT_PushStr(LCT *lct, LCT_STR v) {
     lua_pushstring(lct->L, v);
 }
 
+void LCT_PushIntArray(LCT *lct, LCT_INT v[], int len) {
+    int i;
+    lua_newtable(lct->L);
 
-void LCT_PushParameter(LCT *lct, luaConf *param) {
+    for (i = 0; i < len; i++) {
+        lua_pushinteger(lct->L, v[i]);
+        lua_rawseti(lct->L, -2, i + 1);
+    }
+}
+
+void LCT_PushDblArray(LCT *lct, LCT_DBL v[], int len) {
+    int i;
+    lua_newtable(lct->L);
+
+    for (i = 0; i < len; i++) {
+        lua_pushnumber(lct->L, v[i]);
+        lua_rawseti(lct->L, -2, i + 1);
+    }
+}
+
+
+
+
+//LC_ERR LCT_GetInt(LCT *lct, char *name) {
+//
+//    // push identifier onto stack
+//    lua_getglobal(lct->L, name);
+//
+//    // check if identifier exists
+//    if (lua_isnil(lct->L, -1)) {
+//        return LC_ERR_MISSING;
+//    }
+//
+//}
+
+
+void LCT_PushParameter(LCT *lct, luaConf *param, void *value) {
+    int i = 0;
+    luaConf *params;
+
     switch (param->type) {
+        case LC_TYPE_INTEGER:
+            lua_pushinteger(lct->L, *(LCT_INT *) param->valPtr);
+            break;
+
+        case LC_TYPE_DOUBLE:
+            lua_pushnumber(lct->L, *(LCT_DBL *) param->valPtr);
+            break;
+
+        case LC_TYPE_STRING:
+            lua_pushstring(lct->L, param->valPtr);
+            break;
+
+        case LC_TYPE_BOOLEAN:
+            lua_pushinteger(lct->L, *(LCT_BOOL *) param->valPtr);
+            break;
+
         case LC_TYPE_ARG_INTEGER:
             lua_pushnumber(lct->L, param->data.intArg.val);
             break;
@@ -932,18 +1192,68 @@ void LCT_PushParameter(LCT *lct, luaConf *param) {
             break;
 
         case LC_TYPE_ARG_INTEGER_LIST:
+        case LC_TYPE_INTEGER_LIST:
+            LCT_PushIntArray(lct, param->data.intParam.list, LCT_IntListLen(param->data.intParam.list));
             break;
 
         case LC_TYPE_ARG_DOUBLE_LIST:
+            LCT_PushDblArray(lct, param->data.dblParam.list, LCT_DblListLen(param->data.dblParam.list));
             break;
 
         case LC_TYPE_ARG_STRING_LIST:
             break;
 
+        case LC_TYPE_TABLE:
+            params = param->data.customParam.params;
+
+            if (params == NULL) {
+                return;
+            }
+
+            lua_newtable(lct->L);
+
+            while (params[i].type != LC_TYPE_LAST) {
+                lua_pushstring(lct->L, params[i].name);
+                LCT_PushParameter(lct, &params[i], NULL);
+
+                lua_settable(lct->L, -3);
+                i++;
+            }
+
+            break;
+
         default:
+            lua_pushstring(lct->L, "Blaha");
             break;
     }
+
+    if (param->flags & (LC_FLAG_PUSH | LC_FLAG_PULL)) {
+        lua_setglobal(lct->L, param->name);
+    }
 }
+
+
+void LCT_PushTable(LCT *lct, luaConf *table) {
+    int i;
+    i = 0;
+
+    if (table == NULL) {
+        return;
+    }
+
+    lua_newtable(lct->L);
+
+    while (table[i].type != LC_TYPE_LAST) {
+        lua_pushstring(lct->L, table[i].name);
+        LCT_PushParameter(lct, &table[i], NULL);
+
+        lua_settable(lct->L, -3);
+        i++;
+    }
+
+}
+
+
 
 
 
@@ -963,7 +1273,7 @@ void LCT_CallFunction(LCT *lct, luaConf *param) {
     if (params != NULL) {
 
         while (params[i].type != LC_TYPE_LAST) {
-            LCT_PushParameter(lct, &params[i]);
+            LCT_PushParameter(lct, &params[i], NULL);
             i++;
         }
     }
@@ -972,13 +1282,13 @@ void LCT_CallFunction(LCT *lct, luaConf *param) {
 }
 
 
-luaConf *LCT_FindFunction(LCT *lct, char *name) {
+luaConf *LCT_Find(luaConf *params, char *name) {
     int i;
     i = 0;
 
-    while ( lct->params[i].type != LC_TYPE_LAST ) {
-        if (!strcmp(lct->params[i].name, name)) {
-            return &lct->params[i];
+    while ( params[i].type != LC_TYPE_LAST ) {
+        if (!strcmp(params[i].name, name)) {
+            return &params[i];
         }
 
         i++;
@@ -987,10 +1297,61 @@ luaConf *LCT_FindFunction(LCT *lct, char *name) {
     return NULL;
 }
 
-void LCT_FCallSimple(LCT *lct, char *funcName, ...) {
+
+luaConf *LCT_FindFunction(LCT *lct, char *name) {
+    return LCT_Find(lct->params, name);
+}
+
+int LCT_Params(luaConf *params) {
     int i;
+
+    if (params == NULL) {
+        return 0;
+    }
+
+    i = 0;
+
+    while ( params[i].type != LC_TYPE_LAST ) {
+        i++;
+    }
+
+    return i;
+}
+
+void LCT_PushGlobalVars(LCT *lct) {
+    int i;
+    i = 0;
+
+    while (lct->params[i].type != LC_TYPE_LAST) {
+        if (lct->params[i].flags & LC_FLAG_PUSH) {
+            LCT_PushParameter(lct, &lct->params[i], NULL);
+        }
+
+        i++;
+    }
+}
+
+void LCT_PullGlobalVars(LCT *lct) {
+    int i;
+    i = 0;
+
+    while (lct->params[i].type != LC_TYPE_LAST) {
+        if (lct->params[i].flags & LC_FLAG_PULL) {
+            LCT_PullParameter(lct, &lct->params[i]);
+        }
+
+        i++;
+    }
+}
+
+void LCT_FCallSimple(LCT *lct, char *funcName, ...) {
+    int i, p;
+    int *iPtr;
+    double *dPtr;
     luaConf *func;
     va_list ap;
+    luaConf *params;
+    luaConf *table;
 
     func = LCT_FindFunction(lct, funcName);
 
@@ -998,29 +1359,69 @@ void LCT_FCallSimple(LCT *lct, char *funcName, ...) {
         return;
     }
 
-    i = 0;
-//
-//    while ( func->data.function.params[i].type != LC_TYPE_LAST ) {
-////      switch ( )
-////      LCT_PushParameter(lct, &func->data.function.params[i], )
-//        i++;
-//    }
-
-//    va_start(ap, num_args);
-//
-//    for (i = 0; i < num_args; i++) {
-//        val += va_arg(ap, int);
-//    }
-//
-//    va_end(ap);
+    LCT_PushGlobalVars(lct);
 
     lua_getglobal(lct->L, func->name);
-    lua_call(lct->L, i, 0);
+
+    i = 0;
+
+    p = LCT_Params(func->data.function.params);
+    va_start(ap, p);
+
+    for (i = 0; i < p; i++) {
+        params = func->data.function.params;
+
+        switch (params[i].type) {
+            case LC_TYPE_ARG_INTEGER:
+                LCT_PushInt(lct, va_arg(ap, LCT_INT));
+                break;
+
+            case LC_TYPE_ARG_DOUBLE:
+                LCT_PushDbl(lct, va_arg(ap, LCT_DBL));
+                break;
+
+            case LC_TYPE_ARG_STRING:
+                LCT_PushStr(lct, va_arg(ap, char *));
+                break;
+
+            case LC_TYPE_ARG_INTEGER_LIST:
+                iPtr = va_arg(ap, int *);
+                LCT_PushIntArray(lct, iPtr , LCT_IntListLen(iPtr));
+                break;
+
+            case LC_TYPE_ARG_DOUBLE_LIST:
+                dPtr = va_arg(ap, double *);
+                LCT_PushDblArray(lct, dPtr , LCT_DblListLen(dPtr));
+                break;
+
+            case LC_TYPE_TABLE:
+                table = va_arg(ap, luaConf *);
+                LCT_PushTable(lct, table->data.customParam.params);
+                break;
+
+            default:
+                break;
+        }
+
+    }
+
+    va_end(ap);
+
+    lua_call(lct->L, p, 0);
+    LCT_PullGlobalVars(lct);
 }
 
 
 
+
+
+
 // Test code ---------------------------------------------------------
+
+LCT_INT  globalInt;
+LCT_DBL  globalDbl;
+char     globalStr[64] = "Min globala sträng";
+LCT_BOOL globalBool;
 
 LCT_INT validIntList[] = LCT_INT_VLIST( 5, 9, 12, 42, 193, 104, -4120);
 
@@ -1038,6 +1439,45 @@ luaConf funIntArg[] = {
     LC_ARG_INT(),
     LC_LAST(),
 };
+
+luaConf funDblArg[] = {
+    LC_ARG_DBL(),
+    LC_LAST(),
+};
+
+luaConf funStrArg[] = {
+    LC_ARG_STR(),
+    LC_LAST(),
+};
+
+luaConf funMultiArg[] = {
+    LC_ARG_INT(),
+    LC_ARG_DBL(),
+    LC_ARG_STR(),
+    LC_LAST(),
+};
+
+luaConf funIntListArg[] = {
+    LC_ARG_INT_LIST(),
+    LC_LAST(),
+};
+
+luaConf funDblListArg[] = {
+    LC_ARG_DBL_LIST(),
+    LC_LAST(),
+};
+
+
+luaConf funTableArg[] = {
+    LC_ARG_TABLE(tableParams),
+    LC_LAST(),
+};
+
+
+
+static int cFunction(lua_State *L) {
+  printf("Kalle\n");
+}
 
 luaConf confTest[] = {
     LCT_COMMENT("This is a comment"),
@@ -1066,17 +1506,44 @@ luaConf confTest[] = {
     LC_STR("BoolParamTrue",    "Test of all true parameters",     0, ""),
     LC_STR("BoolParamFalse",   "Test of all false parameters",    0, ""),
     LC_DBL("MissingParam",     "Missing parameter",               0, 0, 0, 0),
+
+    // LCT list parameters
     LC_INT_LIST("IntList",     "Integer List parameter",          0, 0, 0, 0),
     LC_DBL_LIST("DblList",     "Double List parameter",           0, 0, 0, 0),
     LC_INT_LIST("InvalidList", "Invalid Integer List",            0, 0, 0, 0),
-    LC_STR_LIST("StrList",     "String list parameter",    0, NULL),
+
+    LC_STR_LIST("StrList",     "String list parameter",           0, NULL),
+
     LC_CUSTOM("TableParam", tableParams),
     LC_CUSTOM_LIST("TableParamList", tableParams),
+
+    // LCT constants
     LCT_INTEGER_CONST("IntConst", 32),
     LCT_DOUBLE_CONST("DblConst",  32.23),
     LCT_STRING_CONST("StrConst",  "A little string constant"),
-    LCT_FUNCTION("MyFunction", NULL),
-    LCT_FUNCTION("FunIntArg", funIntArg),
+
+    // LCT functions
+    LCT_FUNCTION("MyFunction",    NULL),
+    LCT_FUNCTION("FunIntArg",     funIntArg),
+    LCT_FUNCTION("FunDblArg",     funDblArg),
+    LCT_FUNCTION("FunStrArg",     funStrArg),
+    LCT_FUNCTION("FunMultiArg",   funMultiArg),
+    LCT_FUNCTION("FunIntListArg", funIntListArg),
+    LCT_FUNCTION("FunDblListArg", funDblListArg),
+    LCT_FUNCTION("FunTableArg",   funTableArg),
+    LCT_FUNCTION("FunGlobalVarsToLua",   NULL),
+    LCT_FUNCTION("FunGlobalVarsFromLua", NULL),
+
+    // Global variables
+    LC_GLOBAL_INT("GlobalInt"),
+    LC_GLOBAL_DBL("GlobalDbl"),
+    LC_GLOBAL_STR("GlobalStr"),
+    LC_GLOBAL_BOOLEAN("GlobalBool"),
+
+    // API test
+    LCT_API("cFunction", NULL, cFunction),
+
+    // end
     LC_LAST(),
 };
 
@@ -1085,9 +1552,6 @@ luaConf custom[] = {
     LC_INT("CInt2",        "Correct Integer parameter",       0, -42, 0, 0),
     LC_LAST(),
 };
-
-
-
 
 void LCT_PrintProblems(luaConf *params) {
     int i;
@@ -1106,40 +1570,66 @@ void LCT_PrintProblems(luaConf *params) {
 }
 
 void LC_Test(void) {
-    //lua_State *L;
     LCT *lct;
     luaConf *myFunc;
-    luaConf *FunIntArg;
+    int i;
 
     lct = LCT_New(confTest);
 
     LCT_ReadFile(lct, "conftest.lua");
 
+    LC_PrintParams(confTest);
+
+    // Test of simple function call interface
     LCT_FCallSimple(lct, "MyFunction");
+    LCT_FCallSimple(lct, "FunIntArg", 43);
+    LCT_FCallSimple(lct, "FunDblArg", 43.44);
+    LCT_FCallSimple(lct, "FunStrArg", "Fun String");
+
+    LCT_FCallSimple(lct, "FunIntListArg", validIntList);
+    LCT_FCallSimple(lct, "FunDblListArg", validDblList);
+//   LCT_FCallSimple(lct, "FunTableArg",   funTableArg);
+    LCT_FCallSimple(lct, "FunMultiArg",   44, 45.45, "Fun String");
+
+    LCT_SetValuePtr(lct->params, "GlobalInt", &globalInt);
+    LCT_SetValuePtr(lct->params, "GlobalDbl", &globalDbl);
+    LCT_SetValuePtr(lct->params, "GlobalStr", globalStr);
+    globalInt = 10;
+    LCT_PushGlobalVars(lct);
+    LCT_FCallSimple(lct, "FunGlobalVars");
+    globalInt = 20;
+    LCT_PushGlobalVars(lct);
+    LCT_FCallSimple(lct, "FunGlobalVars");
 
     myFunc = LCT_FindFunction(lct, "MyFunction");
     LCT_CallFunction(lct, myFunc);
 
-    FunIntArg = LCT_FindFunction(lct, "FunIntArg");
-    LCT_CallFunction(lct, FunIntArg);
 
+    for (i = 0; i < 10; i++) {
+        globalInt = i;
+        globalDbl = 2.22 * i;
+        LCT_FCallSimple(lct, "FunGlobalVarsToLua");
+    };
 
+    for (i = 0; i < 10; i++) {
+        globalInt = i;
+        globalDbl = i;
+        LCT_FCallSimple(lct, "FunGlobalVarsFromLua");
+        printf("GlobalDbl=%2.2f  GlobalInt=%2d  i=%2d\n", globalDbl, globalInt, i);
+    };
 
-//    printf("Counter %d\n", __COUNTER__);
-//    printf("Counter %d\n", __COUNTER__);
-//    printf("Counter %d\n", __COUNTER__);
-    //L = luaL_newstate();
-    //luaL_openlibs(L);
-    //LC_File(confTest);
 
 //    LC_SetDefults(confTest);
 //    LC_File(confTest);
 
-    //LC_read(L, confTest, "conftest.lua");
 
     //LCT_PrintProblems(confTest);
 
     exit(0);
+
+}
+
+void LC_UnitTest(void) {
 
 }
 
