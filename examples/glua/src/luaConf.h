@@ -85,7 +85,7 @@ extern "C" {
 #define LC_ARG_STR()      { LC_TYPE_ARG_STRING,       NULL, NULL, 0, LC_ERR_VALID }
 #define LC_ARG_INT_LIST() { LC_TYPE_ARG_INTEGER_LIST, NULL, NULL, 0, LC_ERR_VALID }
 #define LC_ARG_DBL_LIST() { LC_TYPE_ARG_DOUBLE_LIST,  NULL, NULL, 0, LC_ERR_VALID }
-#define LC_ARG_TABLE(tbl) { LC_TYPE_TABLE,           NULL, NULL, 0, LC_ERR_VALID, .data.customParam = {tbl} }
+#define LC_ARG_TABLE(tbl) { LC_TYPE_TABLE,            NULL, NULL, 0, LC_ERR_VALID, .data.customParam = {tbl} }
 
 #define LC_RET_INT()      { LC_TYPE_INTEGER,          NULL, NULL, 0, LC_ERR_VALID }
 
