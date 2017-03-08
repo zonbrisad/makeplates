@@ -1454,8 +1454,9 @@ luaConf funTableArg[] = {
 
 
 
-void *cFunction(luaConf *params) {
-
+int *cFunction(lua_State *L) {
+	printf("My c function\n");
+	return 0;
 }
 
 luaConf confTest[] = {
@@ -1529,7 +1530,6 @@ luaConf custom[] = {
     LC_INT("CInt2",        "Correct Integer parameter",       0, -42, 0, 0),
     LC_LAST(),
 };
-
 
 
 void LCT_PrintProblems(luaConf *params) {

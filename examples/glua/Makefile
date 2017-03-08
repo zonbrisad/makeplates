@@ -118,6 +118,8 @@ CPPDEFS =
 # 3=maximal debug information
 DEBUG=3
 
+
+
 #
 # Compiler and Linker options
 #============================================================================
@@ -151,6 +153,8 @@ CFLAGS += $(shell pkg-config --cflags gthread-2.0)
 #CFLAGS += $(shell pkg-config --cflags lua5.1)
 #CFLAGS += $(shell pkg-config --cflags sqlite3)
 
+# Profiling option
+CFLAGS += -pg
 
 # Compiler Options C++ ------------------------------------------------------
 #  -g*:          generate debugging information
@@ -200,6 +204,8 @@ ASFLAGS += -Wa,-adhlns=$(<:%.S=$(OBJDIR)/%.lst),-gstabs,--listing-cont-lines=100
 LDFLAGS = -Wl,-Map=$(OUTDIR)/$(TARGET).map,--cref
 LDFLAGS += $(EXTMEMOPTS)
 LDFLAGS += -g
+
+LDFLAGS += -pg
 
 #
 # Platform specific options
@@ -401,8 +407,8 @@ nocolor:
 nc: nocolor all   ## Build with no color on compiler output
 
 
-prof: cflags+=-gp all
-prof: all
+#prof: cflags+=-pg all
+#prof: all
 
 build: elf lss sym size
 
@@ -821,6 +827,18 @@ SO  = +posixlib
 
 splint: ## Static code analysis
 	splint $(SO) -Isrc -Isrc/lua-5.2.3/src  src/main.c
+
+
+#
+# GProf profiling tool
+#============================================================================
+.PHONY: prof
+
+PROF = -a
+PROG += -b
+
+prof:  run ## Run code profiling
+	gprof $(PROF) $(TRGFILE) gmon.out 
 
 
 	

@@ -193,6 +193,7 @@ function FunGlobalVarsFromLua()
   GlobalDbl = GlobalDbl * 2.3
 end
 
+cFunction()
 
 -- Other tests
 -- -----------------------------------------------------------------
