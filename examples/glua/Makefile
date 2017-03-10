@@ -24,8 +24,7 @@ TARGET = glua
 # List C source files here. (C dependencies are automatically generated.)
 PSRC = src/main.c \
        src/gp_log.c \
-       src/luaConf.c \
-       src/Unity/unity.c
+       src/luaConf.c 
  
 SRC =   $(PSRC)    
 SRC +=		src/lua-5.2.3/src/lstrlib.c \

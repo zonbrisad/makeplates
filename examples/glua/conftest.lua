@@ -112,11 +112,12 @@ TableParam = { a =  12,
                d=  {9,8,7,6,5,4,3,2,1}
 }
 
-TableParamList = { { a =  1, b = -12.1, c = "Table string 1", d = {9,8,7,6,5,4,3,2,1} }, 
-                   { a =  2, b = -12.2, c = "Table string 2", d = {8,7,6,5,4,3,2,1} }, 
-                   { a =  3, b = -12.3, c = "Table string 3", d = {7,6,5,4,3,2,1} }, 
-                   { a =  4, b = -12.4, c = "Table string 4", d = {6,5,4,3,2,1} }, 
-                   { a =  5, b = -12.5, c = "Table string 5", d = {5,4,3,2,1} }, 
+
+TableParamList = { { a = 1, b = -12.1, c = "Table string 1", d = {9,8,7,6,5,4,3,2,1} }, 
+                   { a = 2, b = -12.2, c = "Table string 2", d = {8,7,6,5,4,3,2,1} }, 
+                   { a = 3, b = -12.3, c = "Table string 3", d = {7,6,5,4,3,2,1} }, 
+                   { a = 4, b = -12.4, c = "Table string 4", d = {6,5,4,3,2,1} }, 
+                   { a = 5, b = -12.5, c = "Table string 5", d = {5,4,3,2,1} }, 
 }
 
 -- Function tests
@@ -142,14 +143,21 @@ function FunMultiArg(ival, dval, sval)
 end
 
 function FunIntListArg(list)
-  print("Integer array argument test function")
+  print("Integer list argument test")
   for k, v in pairs(list) do
     print("  "..v)
   end
 end
 
 function FunDblListArg(list)
-  print("Double Argument test ")
+  print("Double list Argument test ")
+  for k, v in pairs(list) do
+    print("  "..v)
+  end
+end
+
+function FunStrListArg(list)
+  print("String list Argument test ")
   for k, v in pairs(list) do
     print("  "..v)
   end
@@ -159,7 +167,7 @@ function FunTableArg(table)
   print("Table Argument test ")
   print(table)
   for k, v in pairs(table) do
-    print(k.."  "..type(v))
+    print(k.."  "..type(v).."  "..v)
 --    if (type(v)=="table") then
 --      print(k.."  ")
 --      for l, w in pairs(v) do
@@ -193,7 +201,19 @@ function FunGlobalVarsFromLua()
   GlobalDbl = GlobalDbl * 2.3
 end
 
-cFunction()
+
+function TestCFunction()
+  cFunction()
+end
+
+
+function SimpleTest (a) 
+  print("Simple test "..a)
+--  for i,v in ipairs(arg) do
+--    print("Simple test "..v)
+--  end
+end
+
 
 -- Other tests
 -- -----------------------------------------------------------------
@@ -201,3 +221,7 @@ cFunction()
 
 -- The following is a test of paramter that is missing ( do not uncomment )
 --MissingParam=20
+
+--function MissingFunction()  
+--  print("This function is missing")
+--end
