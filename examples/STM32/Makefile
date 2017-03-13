@@ -338,6 +338,7 @@ BIN2ARRAY = python3 tools/bin2array.py
 MPTOOL    = tools/mkptools
 CPPCHECK  = cppcheck
 INSTALL   = install
+ASTYLE    = astyle
 
 TCHAIN = $(TCHAIN_BASE)/$(TCHAIN_PREFIX)
 
@@ -428,6 +429,7 @@ MSG_BUILDING         = "$(C_ACTION)Building:     "
 F_INF="s/In function/$$(printf "$(E_BR_GREEN)")&$$(printf "$(E_END)")/i"
 FF_INF="s/^.*In function/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
 F_ERROR="s/error:/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
+F_FATAL_ERROR="s/fatal error:/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
 F_WARNING="s/warning:/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_NOTE="s/note:/$$(printf "$(C_NOTE)")&$$(printf "$(E_END)")/i"
 FF_ERROR="s/^.*error:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
@@ -436,9 +438,15 @@ FF_NOTE="s/^.*note:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
 F_WARNING1="s/defined but not used/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_WARNING2="s/unused variable/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_WARNING3="s/may be used uninitialized in this function/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
-C_FILTER   = | sed -ru -e $(F_ERROR)  -e $(F_WARNING)  -e $(F_NOTE) \
-                       -e $(FF_ERROR) -e $(FF_WARNING) -e $(FF_NOTE) \
-                       -e $(F_WARNING1) -e $(F_WARNING2) -e $(F_WARNING3) \
+F_WARNING4="s/implicit declaration of function/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
+F_WARNING5="s/value computed is not used/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
+#XX="s/\[[^][]*\]/$$(printf "$(E_BR_BLUE)")&$$(printf "$(E_END)")/i"
+#YY="s/\'[^][]*\'/$$(printf "$(E_BR_GREEN)")&$$(printf "$(E_END)")/i"
+C_FILTER   = | sed -ru -e $(F_FATAL_ERROR) -e $(F_ERROR) -e $(FF_ERROR)     \
+                       -e $(F_WARNING) -e $(FF_WARNING)                     \
+                       -e $(F_WARNING1) -e $(F_WARNING2) -e $(F_WARNING3)   \
+											 -e $(F_WARNING4) -e $(F_WARNING5)                    \
+											 -e $(F_NOTE) -e $(FF_NOTE)                           \
 											 -e $(F_INF) -e $(FF_INF)
 CPP_FILTER = $(C_FILTER)
 
@@ -755,6 +763,7 @@ check: ## Check if tools and libraries are present
 	@$(MPTOOL) ce $(MOC)
 	@$(MPTOOL) ce python3
 	@$(MPTOOL) ce $(CPPCHECK)
+	@$(MPTOOL) ce $(INSTALL)
 	@for f in $(LIB); do               \
 		${MPTOOL} cl ${CC} $${f};      \
 	done                               \
@@ -841,7 +850,48 @@ ccheck: ## Static code analysis using cppcheck(errors only)
 acheck: ## Static code analysis using cppcheck(all warnings)
 	@$(CPPCHECK) --inline-suppr --enable=all $(SRC) 
 
+#
+# Artistic Style (astyle) Format source code to a standard
+#============================================================================
+.PHONY: astyle
 
+TABSIZE=4
+
+# Bracket style options
+AST  = --style=java
+
+# Tab options
+AST += --indent=spaces=$(TABSIZE)
+
+# Indentation options
+AST += --indent-switches
+AST += --indent-cases
+#AST += --indent-preproc-cond
+
+# Padding options
+AST += --break-blocks
+AST += --max-instatement-indent=40
+AST += --pad-oper
+#AST += --pad-comma
+AST += --pad-header
+AST += --align-pointer=name
+AST += --align-reference=name 
+
+# Formatting options
+AST += --add-brackets 
+AST += --convert-tabs
+
+# Other options
+AST += --lineend=linux
+#AST += --recursive
+#AST += --exclude=
+AST +=--preserve-date
+
+PSRCH = $(PSRC:%.c=%.h) 
+
+astyle: ## Format source to conform to a standard
+#	@$(ASTYLE) $(AST) $(PSRC) $(PSRCH)
+	@$(ASTYLE) $(AST) src/*.c src/*.h
 
 # 
 # OpenOCD handling

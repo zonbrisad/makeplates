@@ -406,8 +406,8 @@ void LC_SetDefults(luaConf *params) {
     }
 }
 
-int list = {
-LC_TYPE_INTEGER,
+int list[] = {
+  LC_TYPE_INTEGER,
   LC_TYPE_DOUBLE,
   LC_TYPE_STRING,
   LC_TYPE_BOOLEAN,
@@ -423,8 +423,6 @@ LC_TYPE_INTEGER,
   LC_TYPE_STRING_LIST,
   LC_TYPE_BOOLEAN_LIST,
   LC_TYPE_BYTE_LIST,
-
-
 
   LC_TYPE_TABLE,
   LC_TYPE_TABLE_LIST,
@@ -447,9 +445,9 @@ int LCT_IsParam(int p) {
 
 void LC_PrintParamFile(luaConf *param, FILE *f) {
 
-    if (!IS_PARAM(param)) {
-        return;
-    }
+//    if (!LCT_IsParam(param)) {
+//        return;
+//    }
 
     switch (param->type) {
         case LC_TYPE_COMMENT:
@@ -457,9 +455,10 @@ void LC_PrintParamFile(luaConf *param, FILE *f) {
             break;
 
         default:
+            fprintf(f, "-- \n");
             fprintf(f, "-- %s\n", param->desc);
-            fprintf(f, "-- [ %s ]\n", LCT_paramLimits(param));
-
+            fprintf(f, "-- %s\n", LCT_paramLimits(param));
+            fprintf(f, "-- \n");
             fprintf(f, "%s = %s\n\n", param->name, val2string(param));
             break;
     }
@@ -472,7 +471,9 @@ void LC_File(luaConf *conf) {
     i = 0;
 
     while (conf[i].type != LC_TYPE_LAST) {
-        LC_PrintParamFile(&conf[i], stdout);
+        if (LCT_IsParam(conf[i].type)) {
+          LC_PrintParamFile(&conf[i], stdout);
+        }
         i++;
     }
 }
@@ -751,7 +752,8 @@ void LCT_PullParameter(LCT *lct, luaConf *param) {
 
                     break;
 
-              //  case LC_TYPE_TABLE_LIST:
+                case LC_TYPE_TABLE_LIST:
+                    break;
                 case LC_TYPE_TABLE:
                     if (!lua_istable(lct->L, -1)) {
                         param->err = LC_ERR_INVALID;
