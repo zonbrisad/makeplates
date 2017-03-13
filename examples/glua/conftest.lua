@@ -78,8 +78,13 @@ StrParamInvalid1=4.2
 -- Boolean tests
 -- -----------------------------------------------------------------
 
+BoolParam1=O
+
+BoolParam2=Off
+
 BoolParamTrue="All true  "..YES.." "..Yes.." "..yes.." "..TRUE.." "..True.." "..ON.." "..On.." "..on
 BoolParamFalse="All false "..NO.." "..No.." "..no.." "..FALSE.." "..False.." "..OFF.." "..Off.." "..off
+
 
 -- List tests
 -- -----------------------------------------------------------------
@@ -96,13 +101,6 @@ StrList={ "Kalle",
 
 InvalidList=44
 
-
--- Boolean tests
--- -----------------------------------------------------------------
-
-BoolParam1=O
-
-BoolParam2=Off
 
 -- Table tests
 -- -----------------------------------------------------------------
@@ -124,6 +122,7 @@ TableParamList = { { a = 1, b = -12.1, c = "Table string 1", d = {9,8,7,6,5,4,3,
 -- -----------------------------------------------------------------
 function MyFunction()
   print("My function is working correct")
+  return 321, "Lite text"
 end
 
 function FunIntArg(val)

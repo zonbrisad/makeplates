@@ -3,9 +3,9 @@
  * @brief   A simple lua configuration file library.
  *
  * @file    luaConf.h
- * @author  Your Name <your.name@yourdomain.org>
+ * @author  Peter Malmberg <peter.malmberg@gmail.com>
  * @date    2016-12-21
- * @licence GPLv2
+ * @license LGPLv2
  *
  *---------------------------------------------------------------------------
  */
@@ -45,40 +45,40 @@ extern "C" {
 #define LC_TYPE2STR(type) int2string(type2string, type)
 #define LC_ERROR2STR(err) int2string(error2string, err)
 
-#define LC_INT(name, desc, flags, def, min, max)  { LC_TYPE_INTEGER,    name, desc, flags, LC_ERR_VALID, .data.intParam  = { 0, def, min, max, NULL, 0, NULL} }
-#define LC_INT_PL(name, desc, flags, def, vl)     { LC_TYPE_INTEGER_PL, name, desc, flags, LC_ERR_VALID, .data.intParam  = { 0, def, 0, 0, vl, 0, NULL } }
-#define LC_DBL(name, desc, flags, def, min, max)  { LC_TYPE_DOUBLE,     name, desc, flags, LC_ERR_VALID, .data.dblParam  = { 0, def, min, max, NULL, 0, NULL} }
-#define LC_DBL_PL(name, desc, flags, def, vl)     { LC_TYPE_DOUBLE_PL,  name, desc, flags, LC_ERR_VALID, .data.dblParam  = { 0, def, 0, 0, vl, 0, NULL} }
-#define LC_STR(name, desc, flags, def)            { LC_TYPE_STRING,     name, desc, flags, LC_ERR_VALID, .data.strParam  = { NULL, def, 0, NULL} }
-#define LCT_BOOLEAN(name, desc, flags, def)       { LC_TYPE_BOOLEAN,    name, desc, flags, LC_ERR_VALID, .data.boolParam = { 0, def} }
+#define LC_INT(name, desc, flags, def, min, max)  { LC_TYPE_INTEGER,    name, desc, flags | LC_FLAG_PARAM, LC_ERR_VALID, .data.intParam  = { 0, def, min, max, NULL, 0, NULL} }
+#define LC_INT_PL(name, desc, flags, def, vl)     { LC_TYPE_INTEGER_PL, name, desc, flags | LC_FLAG_PARAM, LC_ERR_VALID, .data.intParam  = { 0, def, 0, 0, vl, 0, NULL } }
+#define LC_DBL(name, desc, flags, def, min, max)  { LC_TYPE_DOUBLE,     name, desc, flags | LC_FLAG_PARAM, LC_ERR_VALID, .data.dblParam  = { 0, def, min, max, NULL, 0, NULL} }
+#define LC_DBL_PL(name, desc, flags, def, vl)     { LC_TYPE_DOUBLE_PL,  name, desc, flags | LC_FLAG_PARAM, LC_ERR_VALID, .data.dblParam  = { 0, def, 0, 0, vl, 0, NULL} }
+#define LC_STR(name, desc, flags, def)            { LC_TYPE_STRING,     name, desc, flags | LC_FLAG_PARAM, LC_ERR_VALID, .data.strParam  = { NULL, def, 0, NULL} }
+#define LCT_BOOLEAN(name, desc, flags, def)       { LC_TYPE_BOOLEAN,    name, desc, flags | LC_FLAG_PARAM, LC_ERR_VALID, .data.boolParam = { 0, def} }
 
-#define LC_INT_LIST(name, desc, flags, def, min, max)  { LC_TYPE_INTEGER_LIST, name, desc, flags, LC_ERR_VALID, .data.intParam = {0, def, min, max, NULL, 0, NULL} }
-#define LC_DBL_LIST(name, desc, flags, def, min, max)  { LC_TYPE_DOUBLE_LIST,  name, desc, flags, LC_ERR_VALID, .data.dblParam = {0, def, min, max, NULL, 0, NULL} }
-#define LC_STR_LIST(name, desc, flags, def)            { LC_TYPE_STRING_LIST,  name, desc, flags, LC_ERR_VALID, .data.strParam = {NULL, def, 0, NULL} }
+#define LC_INT_LIST(name, desc, flags, def, min, max)  { LC_TYPE_INTEGER_LIST, name, desc, flags | LC_FLAG_PARAM, LC_ERR_VALID, .data.intParam = {0, def, min, max, NULL, 0, NULL} }
+#define LC_DBL_LIST(name, desc, flags, def, min, max)  { LC_TYPE_DOUBLE_LIST,  name, desc, flags | LC_FLAG_PARAM, LC_ERR_VALID, .data.dblParam = {0, def, min, max, NULL, 0, NULL} }
+#define LC_STR_LIST(name, desc, flags, def)            { LC_TYPE_STRING_LIST,  name, desc, flags | LC_FLAG_PARAM, LC_ERR_VALID, .data.strParam = {NULL, def, 0, NULL} }
 
-#define LC_TABLE(name, params)       { LC_TYPE_TABLE,      name, NULL, 0, LC_ERR_VALID, .data.tableParam = {params}}
-#define LC_TABLE_LIST(name, params)  { LC_TYPE_TABLE_LIST, name, NULL, 0, LC_ERR_VALID, .data.tableParam = {params}}
+#define LC_TABLE(name, params)       { LC_TYPE_TABLE,      name, NULL, LC_FLAG_PARAM, LC_ERR_VALID, .data.tableParam = {params}}
+#define LC_TABLE_LIST(name, params)  { LC_TYPE_TABLE_LIST, name, NULL, LC_FLAG_PARAM, LC_ERR_VALID, .data.tableParam = {params}}
 
-#define LC_ARG_INT()      { LC_TYPE_INTEGER,      NULL, NULL, LC_FLAG_ARG, LC_ERR_VALID }
-#define LC_ARG_DBL()      { LC_TYPE_DOUBLE,       NULL, NULL, LC_FLAG_ARG, LC_ERR_VALID }
-#define LC_ARG_STR()      { LC_TYPE_STRING,       NULL, NULL, LC_FLAG_ARG, LC_ERR_VALID }
-#define LC_ARG_INT_LIST() { LC_TYPE_INTEGER_LIST, NULL, NULL, LC_FLAG_ARG, LC_ERR_VALID }
-#define LC_ARG_DBL_LIST() { LC_TYPE_DOUBLE_LIST,  NULL, NULL, LC_FLAG_ARG, LC_ERR_VALID }
-#define LC_ARG_STR_LIST() { LC_TYPE_STRING_LIST,  NULL, NULL, LC_FLAG_ARG, LC_ERR_VALID }
-#define LC_ARG_TABLE(tbl) { LC_TYPE_TABLE,        NULL, NULL, LC_FLAG_ARG, LC_ERR_VALID, .data.tableParam = {tbl} }
+#define LC_ARG_INT()      { LC_TYPE_INTEGER,      "", NULL, LC_FLAG_ARG, LC_ERR_VALID }
+#define LC_ARG_DBL()      { LC_TYPE_DOUBLE,       "", NULL, LC_FLAG_ARG, LC_ERR_VALID }
+#define LC_ARG_STR()      { LC_TYPE_STRING,       "", NULL, LC_FLAG_ARG, LC_ERR_VALID }
+#define LC_ARG_INT_LIST() { LC_TYPE_INTEGER_LIST, "", NULL, LC_FLAG_ARG, LC_ERR_VALID }
+#define LC_ARG_DBL_LIST() { LC_TYPE_DOUBLE_LIST,  "", NULL, LC_FLAG_ARG, LC_ERR_VALID }
+#define LC_ARG_STR_LIST() { LC_TYPE_STRING_LIST,  "", NULL, LC_FLAG_ARG, LC_ERR_VALID }
+#define LC_ARG_TABLE(tbl) { LC_TYPE_TABLE,        "", NULL, LC_FLAG_ARG, LC_ERR_VALID, .data.tableParam = {tbl, 0, NULL} }
 
 #define LC_RET_INT()      { LC_TYPE_INTEGER,          NULL, NULL, 0, LC_ERR_VALID }
 
 #define LCT_INTEGER_CONST(name, val) { LC_TYPE_INTEGER_CONST, name, NULL, 0, LC_ERR_VALID, .data.intParam={val, 0, 0, 0, NULL, 0, NULL} }
 #define LCT_DOUBLE_CONST(name, val)  { LC_TYPE_DOUBLE_CONST,  name, NULL, 0, LC_ERR_VALID, .data.dblParam={val, 0, 0, 0, NULL,0, NULL} }
-#define LCT_STRING_CONST(name, val)  { LC_TYPE_STRING_CONST,  name, NULL, 0, LC_ERR_VALID, .data.strParam={val, "", NULL} }
+#define LCT_STRING_CONST(name, val)  { LC_TYPE_STRING_CONST,  name, NULL, 0, LC_ERR_VALID, .data.strParam={val, "", 0, NULL} }
 
 #define LC_GLOBAL_INT(name)     { LC_TYPE_INTEGER, name, NULL, LC_FLAG_PUSH|LC_FLAG_PULL, LC_ERR_VALID, .data.intParam  = {0,0,0,0,0 }    }
 #define LC_GLOBAL_DBL(name)     { LC_TYPE_DOUBLE,  name, NULL, LC_FLAG_PUSH|LC_FLAG_PULL, LC_ERR_VALID, .data.dblParam  = {0,0,0,0,0 }    }
 #define LC_GLOBAL_STR(name)     { LC_TYPE_STRING,  name, NULL, LC_FLAG_PUSH|LC_FLAG_PULL, LC_ERR_VALID, .data.strParam  = {NULL,NULL,0,NULL} }
-#define LC_GLOBAL_BOOLEAN(name) { LC_TYPE_BOOLEAN, name, NULL, LC_FLAG_PUSH|LC_FLAG_PULL, LC_ERR_VALID, .data.boolParam = {0,0,0,0,0 }    }
+#define LC_GLOBAL_BOOLEAN(name) { LC_TYPE_BOOLEAN, name, NULL, LC_FLAG_PUSH|LC_FLAG_PULL, LC_ERR_VALID, .data.boolParam = {0,0} }
 
-#define LCT_FUNCTION(name, params)      { LC_TYPE_FUNCTION, name, NULL, 0, LC_ERR_VALID, .data.function={params}}
+#define LCT_FUNCTION(name, params, returns)      { LC_TYPE_FUNCTION, name, NULL, 0, LC_ERR_VALID, .data.function={params, returns, 0, 0}}
 #define LCT_API(name, params, function) { LC_TYPE_API,      name, NULL, 0, LC_ERR_VALID, .data.api = {params, function} }
 
 #define LCT_COMMENT(cmt)  {LC_TYPE_COMMENT, cmt}
@@ -92,7 +92,7 @@ extern "C" {
 #define PARAM_IS_FUNCTION(param) (param->type == LC_TYPE_FUNCTION)
 #define PARAM_IS_ARG(param)      (param->flags & LC_FLAG_ARG)
 #define PARAM_IS_MISSING(param)  (param->err  == LC_ERR_MISSING)
-#define IS_PARAM(param)          ((param->type >= LC_TYPE_FIRST) && ((param->type < LC_TYPE_LAST_PARAMETER)))
+#define IS_PARAM(param)          (param->flags & LC_FLAG_PARAM)
 
 
 // Typedefs ---------------------------------------------------------------
@@ -103,6 +103,7 @@ typedef enum {
     LC_FLAG_PUSH     = 0x0004,  // Push global variable from c space to lua space
     LC_FLAG_PULL     = 0x0008,  // Pull global variable  from lua space to c space
     LC_FLAG_ARG      = 0x0010,  // Argument flag
+    LC_FLAG_PARAM    = 0x0020,  // Argument flag
 
 } LC_FLAGS;
 
@@ -155,6 +156,9 @@ typedef enum {
     LC_TYPE_LAST,
 } LC_TYPES;
 
+
+typedef struct luaConf luaConf;
+
 typedef struct {
     LCT_INT val;         // parameter value
     LCT_INT default_val; // default value
@@ -188,24 +192,29 @@ typedef struct {
 } LUACONF_DATA_BOOLEAN;
 
 typedef struct {
-    void *params;
+	luaConf *params;
     uint32_t length;
     void *list;
 } LUACONF_DATA_TABLE;
 
-typedef struct {
-    void *params;
-} LUACONF_DATA_FUNCTION;
 
 typedef struct {
-    void *params;
+    luaConf *params;         // call parameters
+    luaConf *returns;        // return values
+    int p;                // nr of parameters
+    int r;                // nr of returns
+} LUACONF_DATA_FUNCTION;
+
+
+typedef struct {
+	luaConf *params;
     int (*function)(lua_State *);
 } LUACONF_DATA_API;
 
 typedef void (*intArgGet)(int *);
 
 
-typedef struct {
+struct luaConf {
     LC_TYPES     type;                     // parameter type
     char         name[LCT_NAME_LENGTH];    // parameter name
     char         *desc;                    // parameter description
@@ -221,7 +230,7 @@ typedef struct {
         LUACONF_DATA_API         api;
     } data;
     void *valPtr;                          // pointer to parameter value
-} luaConf;
+};
 
 typedef struct {
     lua_State *L;
@@ -246,12 +255,23 @@ typedef struct {
 
 LCT *LCT_New(luaConf *params);
 
+void LCT_Init(luaConf *params);
+
 luaConf *LCT_Find(luaConf *params, char *name);
 
 void LCT_CallFunction(LCT *lct, luaConf *param);
 
-void LC_Test(void);
 
+//void *LCT_GetValue(luaConf *param);
+//
+//void *LCT_GetList(luaConf *param, int *len);
+//
+//LCT_INT  LCT_GetInt(luaConf *param);
+//LCT_DBL  LCT_GetDbl(luaConf *param);
+//LCT_STR  LCT_GetStr(luaConf *param);
+//LCT_BOOL LCT_GetBool(luaConf *param);
+
+void LC_Test(void);
 
 #ifdef __cplusplus
 } //end brace for extern "C"
