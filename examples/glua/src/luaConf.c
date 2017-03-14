@@ -497,16 +497,17 @@ void LC_PrintParamFile(luaConf *param, FILE *f) {
             break;
 
         default:
+        	fprintf(f, "--\n");
             fprintf(f, "-- %s\n", param->desc);
             fprintf(f, "-- %s\n", LCT_paramLimits(param));
-
+        	fprintf(f, "--\n");
             fprintf(f, "%s = %s\n\n", param->name, val2string(param));
             break;
     }
 
 }
 
-void LC_File(luaConf *conf) {
+void LCT_File(luaConf *conf) {
     int i;
 
     i = 0;
@@ -1666,7 +1667,7 @@ void LC_Test(void) {
 
 
 
-    //LC_File(confTest);
+    LCT_File(confTest);
 
     //LCT_PrintProblems(confTest);
 

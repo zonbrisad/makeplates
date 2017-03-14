@@ -8,6 +8,15 @@
  * @license LGPLv2
  *
  *---------------------------------------------------------------------------
+ * Features.
+ *
+ * - Integer, Double, Boolean and string parameters
+ * - List parameters
+ * - Table parameters
+ * - Value validation
+ *
+ *
+ *---------------------------------------------------------------------------
  */
 
 #ifndef LUACONF_H
