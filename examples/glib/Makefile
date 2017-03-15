@@ -216,6 +216,7 @@ BIN2ARRAY = python3 tools/bin2array.py
 MPTOOL    = tools/mkptools
 CPPCHECK  = cppcheck
 INSTALL   = install
+ASTYLE    = astyle
 
 TCHAIN = $(TCHAIN_BASE)/$(TCHAIN_PREFIX)
 
@@ -739,6 +740,73 @@ ccheck: ## Static code analysis using cppcheck(errors only)
 
 acheck: ## Static code analysis using cppcheck(all warnings)
 	@$(CPPCHECK) --inline-suppr --enable=all $(SRC) 
+
+#
+# Artistic Style (astyle) Format source code to a standard
+#============================================================================
+.PHONY: astyle
+
+TABSIZE=4
+
+# Bracket style options
+AST  = --style=java
+
+# Tab options
+AST += --indent=spaces=$(TABSIZE)
+
+# Indentation options
+AST += --indent-switches
+AST += --indent-cases
+#AST += --indent-preproc-cond
+
+# Padding options
+AST += --break-blocks
+AST += --max-instatement-indent=40
+AST += --pad-oper
+#AST += --pad-comma
+AST += --pad-header
+AST += --align-pointer=name
+AST += --align-reference=name 
+
+# Formatting options
+AST += --add-brackets 
+AST += --convert-tabs
+
+# Other options
+AST += --lineend=linux
+#AST += --recursive
+#AST += --exclude=
+AST +=--preserve-date
+
+PSRCH = $(PSRC:%.c=%.h) 
+
+astyle: ## Format source to conform to a standard
+#	@$(ASTYLE) $(AST) $(PSRC) $(PSRCH)
+	@$(ASTYLE) $(AST) src/*.c src/*.h
+#
+# splint static code analysis
+#============================================================================
+.PHONY: splint
+
+SO  = +posixlib
+#SO += +posixstrictlib
+#SO += -warnposix
+#SO += -preproc
+
+splint: ## Static code analysis
+	splint $(SO) -Isrc -Isrc/lua-5.2.3/src  src/main.c
+
+
+#
+# GProf profiling tool
+#============================================================================
+.PHONY: prof
+
+PROF = -a
+PROG += -b
+
+prof:  run ## Run code profiling
+	gprof $(PROF) $(TRGFILE) gmon.out 
 
 
 	

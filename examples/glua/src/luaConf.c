@@ -508,7 +508,7 @@ void LC_PrintParamFile(luaConf *param, FILE *f) {
 
 }
 
-void LC_File(luaConf *conf) {
+void LCT_File(luaConf *conf) {
     int i;
 
     i = 0;
@@ -1670,7 +1670,7 @@ void LC_Test(void) {
 
 
 
-    //LC_File(confTest);
+    LCT_File(confTest);
 
     //LCT_PrintProblems(confTest);
 
