@@ -744,8 +744,8 @@ void ttySetup() {
 	 tcgetattr(STDIN_FILENO, &orig_termios);
 	 memcpy(&new_termios, &orig_termios, sizeof(new_termios));
 
-	 //new_termios.c_lflag &= ~(ICANON | ECHO);
-	 cfmakeraw(&new_termios);
+	 new_termios.c_lflag &= ~(ICANON | ECHO);
+	 //cfmakeraw(&new_termios);
 
 	 tcsetattr(STDIN_FILENO, TCSANOW, &new_termios);
 }
