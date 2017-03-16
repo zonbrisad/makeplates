@@ -60,6 +60,7 @@ static gboolean opt_queueTest  = FALSE;
 static gboolean opt_pipeTest   = FALSE;
 static gboolean opt_domainTest = FALSE;
 static gboolean opt_stdinTest  = FALSE;
+static gboolean opt_cliTest    = FALSE;
 
 static GOptionEntry entries[] = {
     { "verbose",  'v', 0, G_OPTION_ARG_NONE, &opt_verbose,    "Be verbose output",    NULL },
@@ -74,6 +75,7 @@ static GOptionEntry entries[] = {
     { "pipe",      0,  0, G_OPTION_ARG_NONE, &opt_pipeTest,   "Pipe test",            NULL },
     { "domain",    0,  0, G_OPTION_ARG_NONE, &opt_domainTest, "Domain socket test",   NULL },
     { "stdin",     0,  0, G_OPTION_ARG_NONE, &opt_stdinTest,  "Listen to Stdin",      NULL },
+    { "cli",       0,  0, G_OPTION_ARG_NONE, &opt_cliTest,    "CLI test",             NULL },
     { NULL }
 };
 
@@ -165,7 +167,7 @@ void safeExit() {
         removePidFile();
     }
 
-    tcsetattr(0, TCSANOW, &orig_termios);
+    //tcsetattr(0, TCSANOW, &orig_termios);
     exit(0);
 }
 
@@ -522,24 +524,6 @@ void domainTest(void) {
 }
 
 
-void printChar(char ch) {
-    switch (ch) {
-        case '\n':
-            printf ("Hex: %3x Char: Nl\n", ch);
-            break;
-
-        case '\x1b':
-            printf ("Hex: %3x Char: Esc\n", ch);
-            break;
-
-        default:
-            printf ("Hex: %3x Char: %2c\n", ch, ch);
-            break;
-    }
-}
-
-
-
 typedef struct {
     int    val;
     char   *name;
@@ -547,29 +531,44 @@ typedef struct {
 
 char cBuf[10];
 int b = 0;
-#define ESC 0x1b
-#define ARROW_UP    0x8041
-#define ARROW_DOWN  0x8042
-#define ARROW_RIGHT 0x8043
-#define ARROW_LEFT  0x8044
+#define ESC          0x1b
+#define ARROW_UP     0x8041
+#define ARROW_DOWN   0x8042
+#define ARROW_RIGHT  0x8043
+#define ARROW_LEFT   0x8044
+#define ARROW_MIDDLE 0x8045
+#define END          0x8046
+#define HOME         0x8048
+#define INSERT       0x8032
+#define DELETE       0x8033
+#define PAGE_UP      0x8035
+#define PAGE_DOWN    0x8036
 
 #define NO_CHAR     0x00
 
-
 c2s charToStr[] = {
-    { 0x1b,        "Escape"      },
-    { ARROW_UP,    "Arrow Up"    },
-    { ARROW_DOWN,  "Arrow Down"  },
-    { ARROW_RIGHT, "Arrow Right" },
-    { ARROW_LEFT,  "Arrow Left"  },
+    { 0x1b,        "Escape"        },
+    { ARROW_UP,    "Arrow Up"      },
+    { ARROW_DOWN,  "Arrow Down"    },
+    { ARROW_RIGHT, "Arrow Right"   },
+    { ARROW_LEFT,  "Arrow Left"    },
+    { ARROW_MIDDLE, "Arrow Middle" },
+    { END,         "End"           },
+    { HOME,        "Home"          },
+    { INSERT,      "Insert"        },
+    { DELETE,      "Delete"        },
+    { PAGE_UP,     "Page Up"       },
+    { PAGE_DOWN,   "Page Down"     },
     { NO_CHAR,     NULL},
 };
 
-char* char2Str(int ch) {
+char *char2Str(int ch) {
     int i;
-static  char buf[4];
+    static char xbuf[4];
     i = 0;
-//    printf("CH %4x\n",ch);
+
+    //printf("CH %4x\n",ch);
+
     while (charToStr[i].val != NO_CHAR) {
         if (ch == charToStr[i].val) {
 
@@ -578,18 +577,16 @@ static  char buf[4];
 
         i++;
     }
-    sprintf(buf, "%c", ch);
-    return buf;
+
+    sprintf(xbuf, "%c", (ch & 0xff));
+    return xbuf;
 }
 
 
 uint16_t getCharX(char ch) {
+    static int xChar;
 
-    if (ch == ESC) {
-      b = 0;
-    }
     cBuf[b] = ch;
-
 
     switch (b) {
         case 0:
@@ -634,6 +631,41 @@ uint16_t getCharX(char ch) {
                     return ARROW_RIGHT;
                     break;
 
+                case 0x45:
+                    b = 0;
+                    return ARROW_MIDDLE;
+                    break;
+
+                case 0x46:
+                    b = 0;
+                    return END;
+                    break;
+
+                case 0x48:
+                    b = 0;
+                    return HOME;
+                    break;
+
+                case 0x32:
+                    b++;
+                    xChar = INSERT;
+                    break;
+
+                case 0x33:
+                    b++;
+                    xChar = DELETE;
+                    break;
+
+                case 0x35:
+                    b++;
+                    xChar = PAGE_UP;
+                    break;
+
+                case 0x36:
+                    b++;
+                    xChar = PAGE_DOWN;
+                    break;
+
                 default:
                     break;
             }
@@ -641,6 +673,13 @@ uint16_t getCharX(char ch) {
             break;
 
         case 3:
+            if (ch == 0x7e) {
+                b = 0;
+                return xChar;
+            } else {
+                b = 0;
+                return ch;
+            }
             break;
 
         case 4:
@@ -661,6 +700,7 @@ uint16_t getCharX(char ch) {
         b++;
         return NO_CHAR;
     }
+
     return NO_CHAR;
 }
 
@@ -680,7 +720,8 @@ static gboolean stdin_in (GIOChannel *gio, GIOCondition condition, gpointer data
         if (ret == G_IO_STATUS_ERROR) {
             g_error ("Error reading: %s\n", err->message);
         } else {
-          printChar(buf[0]);
+
+
           //for (i=0;i<len;i++) {
             ch = getCharX(buf[i]);
 
@@ -704,28 +745,30 @@ static gboolean stdin_in (GIOChannel *gio, GIOCondition condition, gpointer data
     return TRUE;
 }
 
+void ttySetup() {
+	 struct termios new_termios;
+
+	 /* take two copies - one for now, one for later */
+	 tcgetattr(STDIN_FILENO, &orig_termios);
+	 memcpy(&new_termios, &orig_termios, sizeof(new_termios));
+
+	 new_termios.c_lflag &= ~(ICANON | ECHO);
+	 //cfmakeraw(&new_termios);
+
+	 tcsetattr(STDIN_FILENO, TCSANOW, &new_termios);
+}
 
 void stdinTest() {
     GIOChannel *channel, *channel2;
     pid_t childPid;
 
-    struct termios new_termios;
-
     printf("Stdin test\n");
 
-    /* take two copies - one for now, one for later */
-    tcgetattr(STDIN_FILENO, &orig_termios);
-    memcpy(&new_termios, &orig_termios, sizeof(new_termios));
-
-    new_termios.c_lflag &= ~(ICANON | ECHO);
-
-    tcsetattr(STDIN_FILENO, TCSANOW, &new_termios);
+    ttySetup();
 
     mLoop1 = g_main_loop_new(NULL, FALSE);
     timer = g_timer_new();
     g_timer_start(timer);
-
-//  g_timeout_add_seconds(5, timeout_1, "Pipe timeout");
 
     channel = g_io_channel_unix_new (STDIN_FILENO);
 
@@ -738,6 +781,71 @@ void stdinTest() {
     }
 
     g_main_loop_run(mLoop1);
+}
+
+void cli_in(int ch) {
+	//putc('a', STDOUT_FILENO);
+	printf("a");
+}
+
+static gboolean stdin_in_cli (GIOChannel *gio, GIOCondition condition, gpointer data) {
+    GIOStatus ret;
+    GError *err = NULL;
+    gchar *msg;
+    gsize len = 0;
+    char buf[32];
+    int ch;
+
+    if (condition & G_IO_IN) {
+        ret = g_io_channel_read_chars (gio, buf, 1, &len, &err);
+
+        if (ret == G_IO_STATUS_ERROR) {
+            g_error ("Error reading: %s\n", err->message);
+        } else {
+            //printChar(buf[0]);
+
+            ch = getCharX(buf[0]);
+
+            if (ch != NO_CHAR) {
+                //printf("%s\n", char2Str(ch));
+            cli_in(ch);
+            }
+
+
+        }
+    }
+
+    if ((condition & G_IO_HUP) && (len == 0)) {
+        DEBUGPRINT("Ending stdin test\n");
+        g_main_loop_quit(mLoop1);
+    }
+
+    g_free (msg);
+    return TRUE;
+}
+
+void cliTest() {
+	 GIOChannel *channel;
+	 printf("CLI test\n");
+
+	 ttySetup();
+
+	 mLoop1 = g_main_loop_new(NULL, FALSE);
+	    timer = g_timer_new();
+	    g_timer_start(timer);
+
+	    	channel = g_io_channel_unix_new (STDIN_FILENO);
+
+	    if (!channel) {
+	        g_error ("Cannot create new GIOChannel!\n");
+	    }
+
+	    	if (!g_io_add_watch (channel, G_IO_IN | G_IO_HUP, stdin_in_cli, NULL)) {
+	        g_error ("Cannot add watch on GIOChannel!\n");
+	    }
+
+	    g_main_loop_run(mLoop1);
+
 }
 
 
@@ -831,6 +939,11 @@ int main(int argc, char *argv[]) {
         exit(0);
     }
 
+    // stdin test
+      if (opt_cliTest) {
+          cliTest();
+          exit(0);
+      }
 
 
     return 0;
