@@ -146,8 +146,6 @@ CPPFLAGS += -Wall                  # Standard warnings
 CPPFLAGS += -Wextra                # Some extra warnings
 CPPFLAGS += -Wmissing-braces 
 CPPFLAGS += -Wmissing-declarations # Warn if global function is not declared
-CPPFLAGS += -Wmissing-prototypes   # if a function is missing its prototype
-CPPFLAGS += -Wstrict-prototypes    # non correct prototypes i.e. void fun() => void fun(void) 
 CPPFLAGS += -Wredundant-decls      # Warn if something is declared more than ones
 CPPFLAGS += -Wunreachable-code     # if code is not used
 CPPFLAGS += -Wshadow               # if local variable has same name as global
@@ -448,7 +446,7 @@ $(OBJDIR)/%.o : %.c
 $(OBJDIR)/%.o : %.cpp
 	@echo
 	@echo -e $(MSG_COMPILING_CPP) "$(C_FILE)" $< "$(E_END)"
-	@$(CC) -c $(ALL_CPPFLAGS) $< -o $@ 2>&1 | $(CPP_FILTER)
+	@$(CC) -c $(ALL_CPPFLAGS) $< -o $@ 2>&1 $(CPP_FILTER)
 	
 # Assemble: create object files from assembler source files.
 $(OBJDIR)/%.o : %.S

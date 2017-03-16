@@ -24,6 +24,7 @@
 #include <sys/socket.h>
 #include <glib-2.0/glib.h>
 #include <glib-2.0/glib/gstdio.h>
+#include <glib-2.0/gio/gio.h>
 #include <ncurses.h>
 
 #include "gp_log.h"
@@ -471,6 +472,73 @@ void domainTest(void) {
     struct sockaddr_un addr;
     GIOChannel *channel, *channel2;
     char *kalle = "Kalle";
+    GSocket *sock;
+    GError *error;
+    GSocketAddress *sockAddr;
+
+    mLoop1 = g_main_loop_new(NULL, FALSE);
+
+    // create socket address
+    sockAddr = g_unix_socket_address_new (SOCKNAME);
+
+    // create socket
+    sock = g_socket_new(G_SOCKET_FAMILY_UNIX, G_SOCKET_TYPE_STREAM, G_SOCKET_PROTOCOL_DEFAULT, &error);
+
+    // bind socket
+    g_socket_bind(sock, sockAddr, 1 &error);
+    return;
+
+    memset(&addr, 0, sizeof(addr));
+    addr.sun_family = AF_UNIX;
+    strncpy(addr.sun_path, SOCKNAME, sizeof(addr.sun_path) - 1);
+
+
+    // if domain socket exists connect to it
+    if (g_file_test(SOCKNAME, G_FILE_TEST_EXISTS)) {
+        DEBUGPRINT("Connecting to domain socket.\n");
+        err = connect(fd, (struct sockaddr_un *)&addr, sizeof(addr));
+        write(fd, kalle, 5);
+        close(fd);
+        exit(0);
+    }
+
+    //
+    bind(fd, (struct sockaddr *)&addr, sizeof(addr));
+
+    DEBUGPRINT("Listening to domain socket.\n");
+    if (listen(fd, 5) == -1) {
+        perror("listen error");
+        exit(-1);
+    }
+
+
+    /*
+
+        if ((cl = accept(fd, NULL, NULL)) == -1) {
+            DEBUGPRINT("Incomming socket accepted\n");
+        }
+
+        channel = g_io_channel_unix_new(cl);
+        if ( !g_io_add_watch(channel, G_IO_IN | G_IO_HUP, socket_in, NULL) ) {
+            g_error ("Cannot add watch on GIOChannel!\n");
+        }
+
+    */
+    channel2 = g_io_channel_unix_new(fd);
+
+    if ( !g_io_add_watch(channel2, G_IO_IN | G_IO_HUP, socket_in, NULL) ) {
+        g_error ("Cannot add watch on GIOChannel!\n");
+    }
+
+
+    g_main_loop_run(mLoop1);
+}
+
+void domainTest2(void) {
+    int fd, cl, err;
+    struct sockaddr_un addr;
+    GIOChannel *channel, *channel2;
+    char *kalle = "Kalle";
 
     mLoop1 = g_main_loop_new(NULL, FALSE);
 
@@ -491,9 +559,10 @@ void domainTest(void) {
         exit(0);
     }
 
-
+    //
     bind(fd, (struct sockaddr *)&addr, sizeof(addr));
 
+    DEBUGPRINT("Listening to domain socket.\n");
     if (listen(fd, 5) == -1) {
         perror("listen error");
         exit(-1);
