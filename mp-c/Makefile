@@ -234,10 +234,12 @@ BIN2ARRAY = python3 tools/bin2array.py
 MPTOOL    = tools/mkptools
 CPPCHECK  = cppcheck
 INSTALL   = install
+ASTYLE    = astyle
 
 TCHAIN = $(TCHAIN_BASE)/$(TCHAIN_PREFIX)
 
 CC        = ${TCHAIN}gcc
+PP        = ${TCHAIN}g++
 OBJCOPY   = ${TCHAIN}objcopy
 OBJDUMP   = ${TCHAIN}objdump
 SIZE      = ${TCHAIN}size
@@ -446,7 +448,7 @@ $(OBJDIR)/%.o : %.c
 $(OBJDIR)/%.o : %.cpp
 	@echo
 	@echo -e $(MSG_COMPILING_CPP) "$(C_FILE)" $< "$(E_END)"
-	@$(CC) -c $(ALL_CPPFLAGS) $< -o $@ 2>&1  $(CPP_FILTER)
+	@$(PP) -c $(ALL_CPPFLAGS) $< -o $@ 2>&1  $(CPP_FILTER)
 	
 # Assemble: create object files from assembler source files.
 $(OBJDIR)/%.o : %.S
@@ -762,7 +764,53 @@ ccheck: ## Static code analysis using cppcheck(errors only)
 acheck: ## Static code analysis using cppcheck(all warnings)
 	@$(CPPCHECK) --inline-suppr --enable=all $(SRC) 
 
+#
+# Artistic Style (astyle) Format source code to a standard
+#============================================================================
+.PHONY: astyle
 
+TABSIZE=4
+
+# Bracket style options
+AST  = --style=java
+
+# Tab options
+AST += --indent=spaces=$(TABSIZE)
+
+# Indentation options
+AST += --indent-switches
+AST += --indent-cases
+#AST += --indent-preproc-cond
+AST += --indent-col1-comments
+AST += --max-instatement-indent=40
+ 
+# C++ specific indentation
+AST += --indent-modifiers
+
+
+# Padding options
+AST += --break-blocks
+AST += --pad-oper
+#AST += --pad-comma
+AST += --pad-header
+AST += --align-pointer=name
+AST += --align-reference=name 
+
+# Formatting options
+AST += --add-brackets 
+AST += --convert-tabs
+
+# Other options
+AST += --lineend=linux
+#AST += --recursive
+#AST += --exclude=
+AST +=--preserve-date
+
+PSRCH = $(PSRC:%.c=%.h) 
+
+astyle: ## Format source to conform to a standard
+#	@$(ASTYLE) $(AST) $(PSRC) $(PSRCH)
+	@$(ASTYLE) $(AST) src/*.cpp src/*.h
 
 	
 # Listing of phony targets.

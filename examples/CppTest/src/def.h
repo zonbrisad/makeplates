@@ -19,10 +19,10 @@
 
 
 #ifndef DEF_H_
-#define	DEF_H_
+#define DEF_H_
 
 // Type min/max -------------------------------------------------------------
- 
+
 #ifndef MAXCHAR
 #define MAXCHAR         255
 #endif
@@ -59,28 +59,28 @@
 #define MAXSLONG        2147483647
 #endif
 
-#ifndef	FALSE
-#define	FALSE	(0)
+#ifndef FALSE
+#define FALSE   (0)
 #endif
 
-#ifndef	TRUE
-#define	TRUE	(1)
+#ifndef TRUE
+#define TRUE    (1)
 #endif
 
-#undef	MAX
+#undef  MAX
 #define MAX(a, b)  (((a) > (b)) ? (a) : (b))
 
-#undef	MIN
+#undef  MIN
 #define MIN(a, b)  (((a) < (b)) ? (a) : (b))
 
-#undef	ABS
-#define ABS(a)	   (((a) < 0) ? -(a) : (a))
+#undef  ABS
+#define ABS(a)     (((a) < 0) ? -(a) : (a))
 
-#undef	CLAMP
+#undef  CLAMP
 #define CLAMP(x, low, high)  (((x) > (high)) ? (high) : (((x) < (low)) ? (low) : (x)))
 
 #ifndef NULL
-#define NULL			(void)0
+#define NULL            (void)0
 #endif
 
 // Bit manipulation ---------------------------------------------------------
@@ -146,11 +146,11 @@
 #define SIGTERM         15      // Termination (request to terminate)
 #define SIGCHLD         17      // Child process terminated, stopped (or continued*)
 #define SIGCONT         18      // Continue if stopped
-#define SIGSTOP	        19      // Stop executing temporarily
+#define SIGSTOP         19      // Stop executing temporarily
 #define SIGTSTP         20      // Terminal stop signal
-#define SIGTTIN	        21      // Background process attempting to read from tty ("in")
+#define SIGTTIN         21      // Background process attempting to read from tty ("in")
 #define SIGTTOU         22      // Background process attempting to write to tty ("out")
-#define SIGURG	        23      // Urgent data available on socket
+#define SIGURG          23      // Urgent data available on socket
 #define SIGXCPU         24      // CPU time limit exceeded
 #define SIGXFSZ         25      // File size limit exceeded
 #define SIGVTALRM       26      // Signal raised by timer counting virtual time: "virtual timer expired"
@@ -233,7 +233,7 @@
 // Filename without path
 //#define FILEX (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 
-#define WHEREARG  __LINE__, __FUNCTION__ 
+#define WHEREARG  __LINE__, __FUNCTION__
 #define DEBUGPRINT2(...)       fprintf(stderr, __VA_ARGS__)
 
 #ifdef DEBUGPRINT
@@ -244,7 +244,7 @@
 #define DEBUG_DO(f) f
 #else
 #define DEBUGPRINT(_fmt, ...)
-#define DEBUGPRINT_COND(cond, _fmt, ...) 
+#define DEBUGPRINT_COND(cond, _fmt, ...)
 #define DEBUG_DO(f)
 #endif
 
@@ -256,7 +256,7 @@
 #define ERROR_DO(f) f
 #else
 #define ERRORPRINT(_fmt, ...)
-#define ERRORPRINT_COND(cond, _fmt, ...) 
+#define ERRORPRINT_COND(cond, _fmt, ...)
 #define ERROR_DO(f)
 #endif
 
@@ -281,14 +281,14 @@
 #else
 #define INFOPRINT(_fmt, ...)
 #define INFOPRINT_COND(cond, _fmt, ...)
-#define INFO_DO(f) 
+#define INFO_DO(f)
 #endif
 
 
 // Misc ---------------------------------------------------------------------
 
-#define UNUSED_PARAM(p)		(void)p
+#define UNUSED_PARAM(p)     (void)p
 #define UNUSED(p)         UNUSED_PARAM(p)
 
-#endif	/* DEF_H */
+#endif  /* DEF_H */
 

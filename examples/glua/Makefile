@@ -262,12 +262,14 @@ ASTYLE    = astyle
 TCHAIN = $(TCHAIN_BASE)/$(TCHAIN_PREFIX)
 
 CC        = ${TCHAIN}gcc
+PP        = ${TCHAIN}g++
 OBJCOPY   = ${TCHAIN}objcopy
 OBJDUMP   = ${TCHAIN}objdump
 SIZE      = ${TCHAIN}size
 AR        = ${TCHAIN}ar rcs
 NM        = ${TCHAIN}nm
 AS        = ${TCHAIN}as
+GDB       = ${TCHAIN}gdb
 
 #
 # Message/Filter settings
@@ -359,6 +361,7 @@ F_WARNING2="s/unused variable/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_WARNING3="s/may be used uninitialized in this function/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_WARNING4="s/implicit declaration of function/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_WARNING5="s/value computed is not used/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
+F_BRACKET="s/\[-W.*\]/$$(printf "$(E_GREEN)")&$$(printf "$(E_END)")/g"
 #XX="s/\[[^][]*\]/$$(printf "$(E_BR_BLUE)")&$$(printf "$(E_END)")/i"
 #YY="s/\'[^][]*\'/$$(printf "$(E_BR_GREEN)")&$$(printf "$(E_END)")/i"
 C_FILTER   = | sed -ru -e $(F_FATAL_ERROR) -e $(F_ERROR) -e $(FF_ERROR)     \
@@ -604,11 +607,18 @@ debug:  ## Debug application
 # Include the dependency files.
 -include $(shell mkdir .dep 2>/dev/null) $(wildcard .dep/*)
 
+
+# Project options -----------------------------------------------------------
+
 newfile:  ## Create a new C file
 	@${CTEMPLATE} --newc --dir src --author "$(AUTHOR)" --licence "$(LICENCE)"
-	
-newproj:  ## Create a new project
-	@${PROJECT} newproj
+
+newclass:  ## Create a new C++ class
+	@${CTEMPLATE} --newclass --dir src --author "$(AUTHOR)" --licence "$(LICENCE)"	
+		
+#newproj:  ## Create a new project
+#	@${PROJECT} newproj
+
 
 # Install options -----------------------------------------------------------
 

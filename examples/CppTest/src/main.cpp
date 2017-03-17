@@ -2,7 +2,7 @@
  *---------------------------------------------------------------------------
  * @brief   Makeplates main example file.
  *
- * @file    main.c
+ * @file    main.cpp
  * @author  Peter Malmberg <peter.malmberg@gmail.com>
  * @date    2016-10-24
  * @licence GPLv2
@@ -12,6 +12,7 @@
 
 // Includes ---------------------------------------------------------------
 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
@@ -19,8 +20,15 @@
 #include <signal.h>
 #include <string.h>
 #include <errno.h>
+#include <vector>
+#include <array>
+#include <string>
+
+#include "MyClass.h"
 
 #include "def.h"
+
+using namespace std;
 
 // Defines ----------------------------------------------------------------
 
@@ -36,54 +44,45 @@ void sigHup(int sig);
 
 
 void sigInt(int sig) {
-	UNUSED(sig);
-	
-	printf("\nExiting program\n");
-	exit(0);
+    UNUSED(sig);
+
+    printf("\nExiting program\n");
+    exit(0);
 }
 
 void sigHup(int sig) {
-	UNUSED(sig);
-	printf("Sighup\n");
+    UNUSED(sig);
+    printf("Sighup\n");
 }
 
 
 int main(int argc, char *argv[]) {
-	int i;
-	
-	UNUSED(argc);
-	UNUSED(argv);
-	
-	signal(SIGINT, sigInt);
-	signal(SIGHUP, sigHup);
-	
-	printf("\nMakeplate linux C example.\n\n\n");
+    int i;
+    MyClass a, *b;
+    vector<MyClass> mcList;
+    string str;
 
-	INFOPRINT("Information printout\n");
-	
-	DEBUGPRINT("Debug printout\n");
-	
-	WARNINGPRINT("Warning printout\n");
-	
-	ERRORPRINT("Error printout\n");
-	
-	DEBUG_DO(printf("Debug do\n"));
-	
-	
-	i = 0;
-	
-	printf("Var i = %2x\n", i);
-	BIT_SET(i, 4);
-	printf("Var i = %2x\n", i);
-	BIT_SET(i, 2);
-	printf("Var i = %2x\n", i);
-	BIT_CLEAR(i,4);
-	printf("Var i = %2x\n", i);
+    UNUSED(argc);
+    UNUSED(argv);
 
-	
-	printf("Use CTRL-C to stop program\n");
-	while(1) {
-	}
-	
-	return 0;
+    signal(SIGINT, sigInt);
+    signal(SIGHUP, sigHup);
+
+    printf("\nMakeplate linux C++ example.\n\n\n");
+
+    a.Do(1);
+
+    b = new MyClass;
+
+    b->Do(10);
+
+    for (i = 0; i < 10; i++) {
+        b = new MyClass(i);
+
+        b->Do(i);
+
+    }
+
+
+    return 0;
 }
