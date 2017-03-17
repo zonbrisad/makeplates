@@ -8,7 +8,7 @@
 //#include <QtCore/QCoreApplication>
 //#include <QtCore/QTimer>
 //#include <QDebug>
-#include <QtCore>
+//#include <QtCore>
 #include <QtGui>
 
 

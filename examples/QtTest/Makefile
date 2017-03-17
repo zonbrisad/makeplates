@@ -671,9 +671,9 @@ list-ldflags: ## List linker flags
 	  echo $${f} ;             \
 	done                       \
 
-			@for f in $(LIB); do  \
-		  echo  $${f};        \
-		done                  \
+	@for f in $(LIB); do  \
+	  echo  $${f};        \
+	done                  \
 
 
 check: ## Check if tools and libraries are present 
