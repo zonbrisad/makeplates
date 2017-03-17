@@ -87,8 +87,8 @@ extern "C" {
 #define LC_GLOBAL_STR(name)     { LC_TYPE_STRING,  name, NULL, LC_FLAG_PUSH|LC_FLAG_PULL, LC_ERR_VALID, .data.strParam  = {NULL,NULL,0,NULL} }
 #define LC_GLOBAL_BOOLEAN(name) { LC_TYPE_BOOLEAN, name, NULL, LC_FLAG_PUSH|LC_FLAG_PULL, LC_ERR_VALID, .data.boolParam = {0,0} }
 
-#define LCT_FUNCTION(name, params, returns)      { LC_TYPE_FUNCTION, name, NULL, 0, LC_ERR_VALID, .data.function={params, returns, 0, 0}}
-#define LCT_API(name, params, function) { LC_TYPE_API,      name, NULL, 0, LC_ERR_VALID, .data.api = {params, function} }
+#define LCT_FUNCTION(name, params, returns)   { LC_TYPE_FUNCTION, name, NULL, 0, LC_ERR_VALID, .data.function={params, returns, 0, 0} }
+#define LCT_API(name, params, function)       { LC_TYPE_API,      name, NULL, 0, LC_ERR_VALID, .data.api = {params, function} }
 
 #define LCT_COMMENT(cmt)  {LC_TYPE_COMMENT, cmt}
 #define LC_LAST()  {LC_TYPE_LAST}

@@ -246,9 +246,9 @@ char *val2string(luaConf *param) {
     return buf;
 }
 
-char *LCT_Default2String(luaConf *param) {
-
-}
+//char *LCT_Default2String(luaConf *param) {
+//
+//}
 
 char *LCT_paramLimits(luaConf *param) {
     static char buf[1024];
@@ -447,6 +447,7 @@ void LCT_SetDefaults(luaConf *params) {
 }
 
 int list[] = {
+
     LC_TYPE_INTEGER,
     LC_TYPE_DOUBLE,
     LC_TYPE_STRING,
@@ -455,8 +456,8 @@ int list[] = {
     LC_TYPE_INTEGER_PL,
     LC_TYPE_DOUBLE_PL,
 
-    LC_TYPE_INTEGER_NL,
-    LC_TYPE_DOUBLE_NL,
+//    LC_TYPE_INTEGER_NL,
+//    LC_TYPE_DOUBLE_NL,
 
     LC_TYPE_INTEGER_LIST,
     LC_TYPE_DOUBLE_LIST,
@@ -487,9 +488,9 @@ int LCT_IsParam(int p) {
 
 void LC_PrintParamFile(luaConf *param, FILE *f) {
 
-    if (!IS_PARAM(param)) {
-        return;
-    }
+//    if (!LCT_IsParam(param)) {
+//        return;
+//    }
 
     switch (param->type) {
         case LC_TYPE_COMMENT:
@@ -497,10 +498,10 @@ void LC_PrintParamFile(luaConf *param, FILE *f) {
             break;
 
         default:
-        	fprintf(f, "--\n");
+            fprintf(f, "-- \n");
             fprintf(f, "-- %s\n", param->desc);
             fprintf(f, "-- %s\n", LCT_paramLimits(param));
-        	fprintf(f, "--\n");
+            fprintf(f, "-- \n");
             fprintf(f, "%s = %s\n\n", param->name, val2string(param));
             break;
     }
@@ -513,7 +514,9 @@ void LCT_File(luaConf *conf) {
     i = 0;
 
     while (conf[i].type != LC_TYPE_LAST) {
-        LC_PrintParamFile(&conf[i], stdout);
+        if (LCT_IsParam(conf[i].type)) {
+          LC_PrintParamFile(&conf[i], stdout);
+        }
         i++;
     }
 }
@@ -792,7 +795,6 @@ void LCT_PullParameter(LCT *lct, luaConf *param) {
 
                     break;
 
-
                 //                case LC_TYPE_TABLE_LIST:
                 //                    if (!lua_istable(lct->L, -1)) {
                 //                        params[i].err = LC_ERR_INVALID;
@@ -844,6 +846,7 @@ void LCT_PullParameter(LCT *lct, luaConf *param) {
                     }
 
                     break;
+
 
                 case LC_TYPE_TABLE:
                     if (!lua_istable(lct->L, -1)) {

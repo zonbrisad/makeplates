@@ -60,8 +60,6 @@ CPPDEFS =
 # 3=maximal debug information
 DEBUG=0
 
-
-
 #
 # Compiler and Linker options
 #============================================================================
@@ -195,6 +193,7 @@ SIZE      = ${TCHAIN}size
 AR        = ${TCHAIN}ar rcs
 NM        = ${TCHAIN}nm
 AS        = ${TCHAIN}as
+GDB       = ${TCHAIN}gdb
 
 #
 # Message/Filter settings
@@ -396,7 +395,7 @@ $(OBJDIR)/%.o : %.c
 $(OBJDIR)/%.o : %.cpp
 	@echo
 	@echo -e $(MSG_COMPILING_CPP) "$(C_FILE)" $< "$(E_END)"
-	@$(CC) -c $(ALL_CPPFLAGS) $< -o $@ 2>&1 | $(CPP_FILTER)
+	@$(CC) -c $(ALL_CPPFLAGS) $< -o $@ 2>&1  $(CPP_FILTER)
 	
 # Assemble: create object files from assembler source files.
 $(OBJDIR)/%.o : %.S
@@ -541,6 +540,7 @@ list-info:
 	@echo "C standard: $(CSTANDARD)"
 	@echo "MCU:        $(MCU)"
 	@echo "F_CPU:      $(F_CPU)"
+
 	
 list-includes: 
 	@echo -e $(MSG_INCLUDES)

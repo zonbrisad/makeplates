@@ -446,7 +446,7 @@ $(OBJDIR)/%.o : %.c
 $(OBJDIR)/%.o : %.cpp
 	@echo
 	@echo -e $(MSG_COMPILING_CPP) "$(C_FILE)" $< "$(E_END)"
-	@$(CC) -c $(ALL_CPPFLAGS) $< -o $@ 2>&1 $(CPP_FILTER)
+	@$(CC) -c $(ALL_CPPFLAGS) $< -o $@ 2>&1  $(CPP_FILTER)
 	
 # Assemble: create object files from assembler source files.
 $(OBJDIR)/%.o : %.S
@@ -587,11 +587,18 @@ debug:  ## Debug application
 # Include the dependency files.
 -include $(shell mkdir .dep 2>/dev/null) $(wildcard .dep/*)
 
+
+# Project options -----------------------------------------------------------
+
 newfile:  ## Create a new C file
 	@${CTEMPLATE} --newc --dir src --author "$(AUTHOR)" --licence "$(LICENCE)"
-	
-newproj:  ## Create a new project
-	@${PROJECT} newproj
+
+newclass:  ## Create a new C++ class
+	@${CTEMPLATE} --newclass --dir src --author "$(AUTHOR)" --licence "$(LICENCE)"	
+		
+#newproj:  ## Create a new project
+#	@${PROJECT} newproj
+
 
 # Install options -----------------------------------------------------------
 

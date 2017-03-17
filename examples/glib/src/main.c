@@ -14,6 +14,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <signal.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -636,6 +637,7 @@ char *char2Str(int ch) {
     i = 0;
 
     //printf("CH %4x\n",ch);
+
     while (charToStr[i].val != NO_CHAR) {
         if (ch == charToStr[i].val) {
 
@@ -652,6 +654,7 @@ char *char2Str(int ch) {
 
 uint16_t getCharX(char ch) {
     static int xChar;
+
     cBuf[b] = ch;
 
     switch (b) {
@@ -778,6 +781,7 @@ static gboolean stdin_in (GIOChannel *gio, GIOCondition condition, gpointer data
     gsize len = 0;
     char buf[32];
     int ch;
+    int i,j;
 
     if (condition & G_IO_IN) {
         ret = g_io_channel_read_chars (gio, buf, 1, &len, &err);
@@ -785,11 +789,15 @@ static gboolean stdin_in (GIOChannel *gio, GIOCondition condition, gpointer data
         if (ret == G_IO_STATUS_ERROR) {
             g_error ("Error reading: %s\n", err->message);
         } else {
-            //printChar(buf[0]);
 
-            ch = getCharX(buf[0]);
+
+          //for (i=0;i<len;i++) {
+            ch = getCharX(buf[i]);
 
             if (ch != NO_CHAR) {
+                for (j=0; j<b; j++) {
+                  printf("%x ", cBuf[j]);
+                }
                 printf("%s\n", char2Str(ch));
             }
 
