@@ -719,8 +719,6 @@ list-installinfo:
 	@echo "Install group: $(INSTALL_GROUP)"
 
 
-
-
 info: list-info list-includes list-defs list-flags list-ldflags list-installinfo ## Print information about project
 
 files: list-src ## List source files
