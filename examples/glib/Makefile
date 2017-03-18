@@ -46,6 +46,7 @@ PKGLIB = glib-2.0 gthread-2.0
 LIB = -lm 
 LIB += $(shell pkg-config --libs glib-2.0)
 LIB += $(shell pkg-config --libs gthread-2.0)
+LIB += $(shell pkg-config --libs gio-2.0)
 #LIB += $(shell pkg-config --libs ncurses)
 #LIB += $(shell pkg-config --libs lua5.1)
 #LIB += $(shell pkg-config --libs sqlite3)
@@ -112,6 +113,8 @@ CFLAGS += $(patsubst %,-I%,$(INCLUDE))
 CFLAGS += -std=$(CSTANDARD)
 CFLAGS += $(shell pkg-config --cflags glib-2.0)
 CFLAGS += $(shell pkg-config --cflags gthread-2.0)
+CFLAGS += $(shell pkg-config --cflags gio-2.0)
+
 #CFLAGS += $(shell pkg-config --cflags lua5.1)
 #CFLAGS += $(shell pkg-config --cflags sqlite3)
 

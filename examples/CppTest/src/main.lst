@@ -1,0 +1,218 @@
+   1              		.file	"main.cpp"
+   2              		.section	.rodata.str1.1,"aMS",@progbits,1
+   3              	.LC0:
+   4 0000 53696768 		.string	"Sighup\n"
+   4      75700A00 
+   5              		.section	.text.unlikely,"ax",@progbits
+   6              	.LCOLDB1:
+   7              		.text
+   8              	.LHOTB1:
+   9              		.p2align 4,,15
+  10              		.globl	_Z6sigHupi
+  12              	_Z6sigHupi:
+  13              	.LFB1348:
+  14              		.cfi_startproc
+  15 0000 BE000000 		movl	$.LC0, %esi
+  15      00
+  16 0005 BF010000 		movl	$1, %edi
+  16      00
+  17 000a 31C0     		xorl	%eax, %eax
+  18 000c E9000000 		jmp	__printf_chk
+  18      00
+  19              		.cfi_endproc
+  20              	.LFE1348:
+  22              		.section	.text.unlikely
+  23              	.LCOLDE1:
+  24              		.text
+  25              	.LHOTE1:
+  26              		.section	.rodata.str1.1
+  27              	.LC2:
+  28 0008 0A457869 		.string	"\nExiting program\n"
+  28      74696E67 
+  28      2070726F 
+  28      6772616D 
+  28      0A00
+  29              		.section	.text.unlikely
+  30              	.LCOLDB3:
+  31              		.text
+  32              	.LHOTB3:
+  33 0011 0F1F4400 		.p2align 4,,15
+  33      00662E0F 
+  33      1F840000 
+  33      000000
+  34              		.globl	_Z6sigInti
+  36              	_Z6sigInti:
+  37              	.LFB1347:
+  38              		.cfi_startproc
+  39 0020 BF010000 		movl	$1, %edi
+  39      00
+  40 0025 4883EC08 		subq	$8, %rsp
+  41              		.cfi_def_cfa_offset 16
+  42 0029 BE000000 		movl	$.LC2, %esi
+  42      00
+  43 002e 31C0     		xorl	%eax, %eax
+  44 0030 E8000000 		call	__printf_chk
+  44      00
+  45 0035 31FF     		xorl	%edi, %edi
+  46 0037 E8000000 		call	exit
+  46      00
+  47              		.cfi_endproc
+  48              	.LFE1347:
+  50              		.section	.text.unlikely
+  51              	.LCOLDE3:
+  52              		.text
+  53              	.LHOTE3:
+  54              		.section	.rodata.str1.8,"aMS",@progbits,1
+  55              		.align 8
+  56              	.LC4:
+  57 0000 0A4D616B 		.string	"\nMakeplate linux C++ example.\n\n\n"
+  57      65706C61 
+  57      7465206C 
+  57      696E7578 
+  57      20432B2B 
+  58              		.section	.text.unlikely
+  59              	.LCOLDB5:
+  60              		.section	.text.startup,"ax",@progbits
+  61              	.LHOTB5:
+  62              		.p2align 4,,15
+  63              		.globl	main
+  65              	main:
+  66              	.LFB1349:
+  67              		.cfi_startproc
+  68 0000 55       		pushq	%rbp
+  69              		.cfi_def_cfa_offset 16
+  70              		.cfi_offset 6, -16
+  71 0001 53       		pushq	%rbx
+  72              		.cfi_def_cfa_offset 24
+  73              		.cfi_offset 3, -24
+  74 0002 4883EC48 		subq	$72, %rsp
+  75              		.cfi_def_cfa_offset 96
+  76 0006 4889E7   		movq	%rsp, %rdi
+  77 0009 64488B04 		movq	%fs:40, %rax
+  77      25280000 
+  77      00
+  78 0012 48894424 		movq	%rax, 56(%rsp)
+  78      38
+  79 0017 31C0     		xorl	%eax, %eax
+  80 0019 E8000000 		call	_ZN7MyClassC1Ev
+  80      00
+  81 001e 488D4424 		leaq	32(%rsp), %rax
+  81      20
+  82 0023 BE000000 		movl	$_Z6sigInti, %esi
+  82      00
+  83 0028 BF020000 		movl	$2, %edi
+  83      00
+  84 002d 48C74424 		movq	$0, 24(%rsp)
+  84      18000000 
+  84      00
+  85 0036 C6442420 		movb	$0, 32(%rsp)
+  85      00
+  86 003b 48894424 		movq	%rax, 16(%rsp)
+  86      10
+  87 0040 E8000000 		call	signal
+  87      00
+  88 0045 BE000000 		movl	$_Z6sigHupi, %esi
+  88      00
+  89 004a BF010000 		movl	$1, %edi
+  89      00
+  90 004f E8000000 		call	signal
+  90      00
+  91 0054 BE000000 		movl	$.LC4, %esi
+  91      00
+  92 0059 BF010000 		movl	$1, %edi
+  92      00
+  93 005e 31C0     		xorl	%eax, %eax
+  94 0060 E8000000 		call	__printf_chk
+  94      00
+  95 0065 BE010000 		movl	$1, %esi
+  95      00
+  96 006a 4889E7   		movq	%rsp, %rdi
+  97 006d E8000000 		call	_ZN7MyClass2DoEi
+  97      00
+  98 0072 BF080000 		movl	$8, %edi
+  98      00
+  99 0077 E8000000 		call	_Znwm
+  99      00
+ 100 007c 4889C3   		movq	%rax, %rbx
+ 101 007f 4889C7   		movq	%rax, %rdi
+ 102 0082 E8000000 		call	_ZN7MyClassC1Ev
+ 102      00
+ 103 0087 4889DF   		movq	%rbx, %rdi
+ 104 008a BE0A0000 		movl	$10, %esi
+ 104      00
+ 105 008f 31DB     		xorl	%ebx, %ebx
+ 106 0091 E8000000 		call	_ZN7MyClass2DoEi
+ 106      00
+ 107 0096 662E0F1F 		.p2align 4,,10
+ 107      84000000 
+ 107      0000
+ 108              		.p2align 3
+ 109              	.L5:
+ 110 00a0 BF080000 		movl	$8, %edi
+ 110      00
+ 111 00a5 E8000000 		call	_Znwm
+ 111      00
+ 112 00aa 89DE     		movl	%ebx, %esi
+ 113 00ac 4889C5   		movq	%rax, %rbp
+ 114 00af 4889C7   		movq	%rax, %rdi
+ 115 00b2 E8000000 		call	_ZN7MyClassC1Ei
+ 115      00
+ 116 00b7 89DE     		movl	%ebx, %esi
+ 117 00b9 4889EF   		movq	%rbp, %rdi
+ 118 00bc 83C301   		addl	$1, %ebx
+ 119 00bf E8000000 		call	_ZN7MyClass2DoEi
+ 119      00
+ 120 00c4 83FB0A   		cmpl	$10, %ebx
+ 121 00c7 75D7     		jne	.L5
+ 122 00c9 488B7C24 		movq	16(%rsp), %rdi
+ 122      10
+ 123 00ce 488D4424 		leaq	32(%rsp), %rax
+ 123      20
+ 124 00d3 4839C7   		cmpq	%rax, %rdi
+ 125 00d6 7405     		je	.L6
+ 126 00d8 E8000000 		call	_ZdlPv
+ 126      00
+ 127              	.L6:
+ 128 00dd 31C0     		xorl	%eax, %eax
+ 129 00df 488B5424 		movq	56(%rsp), %rdx
+ 129      38
+ 130 00e4 64483314 		xorq	%fs:40, %rdx
+ 130      25280000 
+ 130      00
+ 131 00ed 7507     		jne	.L11
+ 132 00ef 4883C448 		addq	$72, %rsp
+ 133              		.cfi_remember_state
+ 134              		.cfi_def_cfa_offset 24
+ 135 00f3 5B       		popq	%rbx
+ 136              		.cfi_def_cfa_offset 16
+ 137 00f4 5D       		popq	%rbp
+ 138              		.cfi_def_cfa_offset 8
+ 139 00f5 C3       		ret
+ 140              	.L11:
+ 141              		.cfi_restore_state
+ 142 00f6 E8000000 		call	__stack_chk_fail
+ 142      00
+ 143              		.cfi_endproc
+ 144              	.LFE1349:
+ 146              		.section	.text.unlikely
+ 147              	.LCOLDE5:
+ 148              		.section	.text.startup
+ 149              	.LHOTE5:
+ 150              		.ident	"GCC: (Ubuntu 5.4.0-6ubuntu1~16.04.4) 5.4.0 20160609"
+ 151              		.section	.note.GNU-stack,"",@progbits
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 main.cpp
+     /tmp/cctM31Dy.s:12     .text:0000000000000000 _Z6sigHupi
+     /tmp/cctM31Dy.s:36     .text:0000000000000020 _Z6sigInti
+     /tmp/cctM31Dy.s:65     .text.startup:0000000000000000 main
+
+UNDEFINED SYMBOLS
+__printf_chk
+exit
+_ZN7MyClassC1Ev
+signal
+_ZN7MyClass2DoEi
+_Znwm
+_ZN7MyClassC1Ei
+_ZdlPv
+__stack_chk_fail

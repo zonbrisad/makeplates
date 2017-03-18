@@ -1,7 +1,7 @@
 # Hey Emacs, this is a -*- makefile -*-
 #----------------------------------------------------------------------------
 # 
-# Makeplate glib lua example project
+# Makeplate example project
 #
 # author: Peter Malmberg <peter.malmberg@gmail.com>
 #
@@ -19,52 +19,15 @@ TARGET_PLATFORM = linux
 LICENCE = GPLv2
 
 # Target file name (without extension).
-TARGET = glua
+TARGET = cpptest
 
 # List C source files here. (C dependencies are automatically generated.)
-PSRC = src/main.c \
-       src/gp_log.c \
-       src/luaConf.c 
- 
-SRC =   $(PSRC)    
-SRC +=		src/lua-5.2.3/src/lstrlib.c \
-			src/lua-5.2.3/src/lvm.c \
-			src/lua-5.2.3/src/lzio.c \
-			src/lua-5.2.3/src/lfunc.c \
-			src/lua-5.2.3/src/ldo.c \
-			src/lua-5.2.3/src/lgc.c \
-			src/lua-5.2.3/src/lbitlib.c \
-			src/lua-5.2.3/src/ldump.c \
-			src/lua-5.2.3/src/lctype.c \
-			src/lua-5.2.3/src/lauxlib.c \
-			src/lua-5.2.3/src/lundump.c \
-			src/lua-5.2.3/src/lmem.c \
-			src/lua-5.2.3/src/ltm.c \
-			src/lua-5.2.3/src/ldebug.c \
-			src/lua-5.2.3/src/lmathlib.c \
-			src/lua-5.2.3/src/ltablib.c \
-			src/lua-5.2.3/src/lapi.c \
-			src/lua-5.2.3/src/loadlib.c \
-			src/lua-5.2.3/src/llex.c \
-			src/lua-5.2.3/src/lstring.c \
-			src/lua-5.2.3/src/lbaselib.c \
-			src/lua-5.2.3/src/lobject.c \
-			src/lua-5.2.3/src/loslib.c \
-			src/lua-5.2.3/src/lstate.c \
-			src/lua-5.2.3/src/lparser.c \
-			src/lua-5.2.3/src/ltable.c \
-			src/lua-5.2.3/src/lopcodes.c \
-			src/lua-5.2.3/src/linit.c \
-			src/lua-5.2.3/src/lcorolib.c \
-			src/lua-5.2.3/src/lcode.c \
-			src/lua-5.2.3/src/liolib.c \
-			src/lua-5.2.3/src/ldblib.c \
+SRC = 
 
-ALLSRC = $(SRC)
-ALLSRC += $(LSRC)			
 
 # List C++ source files here. (C dependencies are automatically generated.)
-CPPSRC = 
+CPPSRC = src/main.cpp \
+         src/MyClass.cpp
 
 # List Assembler source files here.
 #     Make them always end in a capital .S.  
@@ -73,13 +36,12 @@ ASRC =
 # Include directories
 INCLUDE = inc \
           src \
-          src/lua-5.2.3/src \
-          src/Unity
+#					Unity/src
 
 # Libraries to link
-LIB  = -lm 
-LIB += $(shell pkg-config --libs glib-2.0)
-LIB += $(shell pkg-config --libs gthread-2.0)
+LIB   = -lm 
+#LIB += $(shell pkg-config --libs glib-2.0)
+#LIB += $(shell pkg-config --libs gthread-2.0)
 #LIB += $(shell pkg-config --libs ncurses)
 #LIB += $(shell pkg-config --libs lua5.1)
 #LIB += $(shell pkg-config --libs sqlite3)
@@ -94,15 +56,17 @@ OUTDIR = output
 
 # Optimization level, can be [0, 1, 2, 3, s]. 
 #     0 = turn off optimization. s = optimize for size.
-OPT = 0
+OPT = 2
 
 # Compiler flag to set the C Standard level.
 # [ gnu99 gnu11 c++98 c++03 c++11 c++14 ] 
-CSTANDARD = gnu99
+CSTANDARD = c++11
 
 # C Macro definitions
-CDEFS = HAVE_CONFIG_H   \
-        LUA_USE_MKSTEMP 
+CDEFS = DEBUGPRINT   \
+        WARNINGPRINT \
+        ERRORPRINT   \
+        INFOPRINT   
 
 # ASM  Macro definitions
 ADEFS = 
@@ -110,78 +74,94 @@ ADEFS =
 # C++ Macro definitions
 CPPDEFS = 
 
-# Debug information 
-# 0=no debug information 
-# 1=minimal debug information
-#  = normal debug information 
-# 3=maximal debug information
-DEBUG=3
-
-
+# Debug information --------------------------------------------------------- 
+# 0 = no debug information 
+# 1 = minimal debug information
+# 2 = normal debug information 
+# 3 = maximal debug information
+DEBUG=0
 
 #
 # Compiler and Linker options
 #============================================================================
 
 # Compiler Options C --------------------------------------------------------
-#  -g*:          generate debugging information
-#  -O*:          optimization level
-#  -f...:        tuning, see GCC manual
-#  -Wall...:     warning level
-#  -Wa,...:      tell GCC to pass this to the assembler.
-#    -adhlns...: create assembler listing
-CFLAGS = -g$(DEBUG)
-CFLAGS += $(patsubst %,-D%,$(CDEFS))
-CFLAGS += -O$(OPT)
+CFLAGS = -g$(DEBUG)                            # Debugging information
+CFLAGS += -O$(OPT)                             # Optimisation level
+CFLAGS += -std=$(CSTANDARD)                    # C standard
+CFLAGS += $(patsubst %,-I%,$(INCLUDE))         # Include directories 
+CFLAGS += $(patsubst %,-D%,$(CDEFS))           # Macro definitions
+CFLAGS += -Wa,-adhlns=$(<:%.c=$(OBJDIR)/%.lst) # Generate assembler listing
+
+# Compiler Tuning C ---------------------------------------------------------
 CFLAGS += -funsigned-char
 #CFLAGS += -funsigned-bitfields
 #CFLAGS += -fpack-struct
 #CFLAGS += -fshort-enums
-CFLAGS += -Wall
-#CFLAGS += -Wstrict-prototypes
-#CFLAGS += -mshort-calls
 #CFLAGS += -fno-unit-at-a-time
-#CFLAGS += -Wundef
-CFLAGS += -Wunreachable-code
+#CFLAGS += -mshort-calls
+
+# Compiler Warnings C -------------------------------------------------------
+CFLAGS += -Wall                  # Standard warnings
+CFLAGS += -Wextra                # Some extra warnings
+CFLAGS += -Wmissing-braces 
+CFLAGS += -Wmissing-declarations # Warn if global function is not declared
+CFLAGS += -Wmissing-prototypes   # if a function is missing its prototype
+CFLAGS += -Wstrict-prototypes    # non correct prototypes i.e. void fun() => void fun(void) 
+CFLAGS += -Wredundant-decls      # Warn if something is declared more than ones
+CFLAGS += -Wunreachable-code     # if code is not used
+CFLAGS += -Wshadow               # if local variable has same name as global
+CFLAGS += -Wformat=2             # check printf and scanf for problems
+#CFLAGS += -Wno-format-nonliteral # 
+CFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void pointer
 #CFLAGS += -Wsign-compare
-#CFLAGS += -Wa,-adhlns=$(<:%.c=$(OBJDIR)/%.lst)
-CFLAGS += $(patsubst %,-I%,$(INCLUDE))
-CFLAGS += -std=$(CSTANDARD)
-CFLAGS += $(shell pkg-config --cflags glib-2.0)
-CFLAGS += $(shell pkg-config --cflags gthread-2.0)
+#CFLAGS += -Wundef
+#CFLAGS += -Werror               # All warnings will be treated as errors
+
+# Library compiler flags C --------------------------------------------------
+#CFLAGS += $(shell pkg-config --cflags glib-2.0)
+#CFLAGS += $(shell pkg-config --cflags gthread-2.0)
 #CFLAGS += $(shell pkg-config --cflags lua5.1)
 #CFLAGS += $(shell pkg-config --cflags sqlite3)
 
-# Profiling option
-CFLAGS += -pg
 
 # Compiler Options C++ ------------------------------------------------------
-#  -g*:          generate debugging information
-#  -O*:          optimization level
-#  -f...:        tuning, see GCC manual and avr-libc documentation
-#  -Wall...:     warning level
-#  -Wa,...:      tell GCC to pass this to the assembler.
-#    -adhlns...: create assembler listing
-CPPFLAGS = -g$(DEBUG)
-CPPFLAGS += $(patsubst %,-D%,$(CPPDEFS))
-CPPFLAGS += -O$(OPT)
+CPPFLAGS = -g$(DEBUG)                              # Debugging information
+CPPFLAGS += -O$(OPT)                               # Optimisation level
+CPPFLAGS += -std=$(CSTANDARD)                      # C standard
+CPPFLAGS += $(patsubst %,-I%,$(INCLUDE))           # Include directories 
+CPPFLAGS += $(patsubst %,-D%,$(CPPDEFS))           # Macro definitions
+CPPFLAGS += -Wa,-adhlns=$(<:%.cpp=$(OBJDIR)/%.lst) # Generate assembler listing
+
+# Compiler Tuning C++ -------------------------------------------------------
 CPPFLAGS += -funsigned-char
 CPPFLAGS += -funsigned-bitfields
 CPPFLAGS += -fpack-struct
 CPPFLAGS += -fshort-enums
 CPPFLAGS += -fno-exceptions
-CPPFLAGS += -Wall
-CPPFLAGS += -Wundef
 #CPPFLAGS += -mshort-calls
 #CPPFLAGS += -fno-unit-at-a-time
-#CPPFLAGS += -Wstrict-prototypes
-#CPPFLAGS += -Wunreachable-code
+
+# Compiler Warnings C++ -----------------------------------------------------
+CPPFLAGS += -Wall                  # Standard warnings
+CPPFLAGS += -Wextra                # Some extra warnings
+CPPFLAGS += -Wmissing-braces 
+CPPFLAGS += -Wmissing-declarations # Warn if global function is not declared
+CPPFLAGS += -Wredundant-decls      # Warn if something is declared more than ones
+CPPFLAGS += -Wunreachable-code     # if code is not used
+CPPFLAGS += -Wshadow               # if local variable has same name as global
+CPPFLAGS += -Wformat=2             # check printf and scanf for problems
+#CPPFLAGS += -Wno-format-nonliteral # 
+CPPFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void pointer
 #CPPFLAGS += -Wsign-compare
-CPPFLAGS += -Wa,-adhlns=$(<:%.cpp=$(OBJDIR)/%.lst)
-CPPFLAGS += $(patsubst %,-I%,$(INCLUDE))
-#CPPFLAGS += $(CSTANDARD)
-CPPFLAGS += $(shell pkg-config --cflags glib-2.0)
-CPPFLAGS += $(shell pkg-config --cflags gthread-2.0)
+#CPPFLAGS += -Wundef
+#CPPFLAGS += -Werror              # All warnings will be treated as errors
+
+# Library compiler flags C++ ------------------------------------------------
+#CPPFLAGS += $(shell pkg-config --cflags glib-2.0)
+#CPPFLAGS += $(shell pkg-config --cflags gthread-2.0)
+#CPPFLAGS += $(shell pkg-config --cflags lua5.1)
+#CPPFLAGS += $(shell pkg-config --cflags sqlite3)
 
 
 # Assembler Options ---------------------------------------------------------
@@ -203,8 +183,6 @@ ASFLAGS += -Wa,-adhlns=$(<:%.S=$(OBJDIR)/%.lst),-gstabs,--listing-cont-lines=100
 LDFLAGS = -Wl,-Map=$(OUTDIR)/$(TARGET).map,--cref
 LDFLAGS += $(EXTMEMOPTS)
 LDFLAGS += -g
-
-LDFLAGS += -pg
 
 #
 # Platform specific options
@@ -312,8 +290,8 @@ C_ACTION=$(E_BR_MAGENTA)
 
 # Messages ------------------------------------------------------------------
 MSG_LINE             = "$(E_WHITE)------------------------------------------------------------------$(E_END)"
-MSG_BEGIN            = "${E_WHITE}===== Begin ${E_GRAY}------------------------------------------------------------${E_END}"
-MSG_END              = "${E_WHITE}===== End${E_GRAY} --------------------------------------------------------------${E_END}"
+MSG_BEGIN            = "${E_WHITE}-------------------------------- Begin ---------------------------${E_END}"
+MSG_END              = "${E_WHITE}-------------------------------- End -----------------------------${E_END}"
 MSG_ERRORS_NONE      = "${C_OK}Errors: none ${E_END}"
 MSG_LINKING          = "${C_ACTION}Linking:${E_END}"
 MSG_COMPILING        = "${C_ACTION}Compiling C:${E_END}"
@@ -367,9 +345,9 @@ F_BRACKET="s/\[-W.*\]/$$(printf "$(E_GREEN)")&$$(printf "$(E_END)")/g"
 C_FILTER   = | sed -ru -e $(F_FATAL_ERROR) -e $(F_ERROR) -e $(FF_ERROR)     \
                        -e $(F_WARNING) -e $(FF_WARNING)                     \
                        -e $(F_WARNING1) -e $(F_WARNING2) -e $(F_WARNING3)   \
-											 -e $(F_WARNING4) -e $(F_WARNING5)                    \
-											 -e $(F_NOTE) -e $(FF_NOTE)                           \
-											 -e $(F_INF) -e $(FF_INF)
+                       -e $(F_WARNING4) -e $(F_WARNING5)                    \
+                       -e $(F_NOTE) -e $(FF_NOTE)                           \
+                       -e $(F_INF) -e $(FF_INF) -e $(F_BRACKET)
 CPP_FILTER = $(C_FILTER)
 
 LD_ERROR1="s/undefined reference/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
@@ -409,9 +387,6 @@ nocolor:
 nc: nocolor all   ## Build with no color on compiler output
 
 
-#prof: cflags+=-pg all
-#prof: all
-
 build: elf lss sym size
 
 elf: $(TRGFILE)
@@ -444,7 +419,7 @@ gccversion :  ## Display compiler version
 $(TRGFILE): $(OBJS) $(OUTDIR)
 	@echo 
 	@echo -e $(MSG_LINKING)"\n             $(C_FILE)" $@ "$(E_END)"
-	@$(CC) $(ALL_CFLAGS) $(OBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)
+	@$(PP) $(ALL_CFLAGS) $(OBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)
 	
 # Create extended listing file/disassambly from ELF output file.
 # using objdump testing: option -C
@@ -474,7 +449,7 @@ $(OBJDIR)/%.o : %.c
 $(OBJDIR)/%.o : %.cpp
 	@echo
 	@echo -e $(MSG_COMPILING_CPP) "$(C_FILE)" $< "$(E_END)"
-	@$(CC) -c $(ALL_CPPFLAGS) $< -o $@ 2>&1 | $(CPP_FILTER)
+	@$(PP) -c $(ALL_CPPFLAGS) $< -o $@ 2>&1  $(CPP_FILTER)
 	
 # Assemble: create object files from assembler source files.
 $(OBJDIR)/%.o : %.S
@@ -498,6 +473,14 @@ size: $(TRGFILE)
 	@echo
 	@echo -e $(MSG_SIZE_AFTER)
 	@$(SIZE) $(TRGFILE)
+
+
+# 
+# Debug rules
+#============================================================================
+debug: ## Debug program
+	@$(GDB) $(TRGFILE) 
+
 	
 #
 # Various utility rules	
@@ -518,7 +501,7 @@ clean:  ## Remove all build files
 	@$(REMOVE) $(OUTDIR)/$(TARGET).cof
 	@$(REMOVEDIR) .dep
 	@$(REMOVE) $(OBJS)
-#	@find . -name *~ -delete
+	@find . -name *~ -delete
 
 
 archive: ## Make a tar archive of the source code
@@ -752,7 +735,7 @@ files: list-src ## List source files
 #============================================================================
 
 # Only for default settings. Change value in settings.mk
-AUTHOR=Peter Malmberg <peter.malmberg@gmail.com>
+AUTHOR=Your Name <your.name@yourdomain.org>
 EDITOR=jed
 US:=$$USER
 #PERSONAL=personal_$${USER}.mk
@@ -799,10 +782,15 @@ AST += --indent=spaces=$(TABSIZE)
 AST += --indent-switches
 AST += --indent-cases
 #AST += --indent-preproc-cond
+AST += --indent-col1-comments
+AST += --max-instatement-indent=40
+ 
+# C++ specific indentation
+AST += --indent-modifiers
+
 
 # Padding options
 AST += --break-blocks
-AST += --max-instatement-indent=40
 AST += --pad-oper
 #AST += --pad-comma
 AST += --pad-header
@@ -823,7 +811,7 @@ PSRCH = $(PSRC:%.c=%.h)
 
 astyle: ## Format source to conform to a standard
 #	@$(ASTYLE) $(AST) $(PSRC) $(PSRCH)
-	@$(ASTYLE) $(AST) src/*.c src/*.h
+	@$(ASTYLE) $(AST) src/*.cpp src/*.h
 #
 # splint static code analysis
 #============================================================================
