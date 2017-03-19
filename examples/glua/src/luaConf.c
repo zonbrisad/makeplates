@@ -591,6 +591,19 @@ void LC_validate(luaConf *param) {
     }
 }
 
+void LCT_doFile(LCT *lct, char *confFile) {
+  if (luaL_dofile(lct->L, confFile)) {
+    printf("%s\n", lua_tostring(lct->L, -1));
+  }
+}
+
+void LCT_doString(lua_State *L, char *confFile) {
+  if (luaL_dostring(L, confFile)) {
+    printf("%s\n", lua_tostring(L, -1));
+  }
+}
+
+
 void LCT_Constants(lua_State *L, luaConf *conf) {
     int i;
     static char buf[512];
@@ -599,7 +612,7 @@ void LCT_Constants(lua_State *L, luaConf *conf) {
 
     while (lct_falseList[i] != NULL) {
         sprintf(buf, "%s=1", lct_falseList[i]);
-        luaL_dostring(L, buf);
+        LCT_doString(L, buf);
         i++;
     }
 
@@ -607,7 +620,7 @@ void LCT_Constants(lua_State *L, luaConf *conf) {
 
     while (lct_trueList[i] != NULL) {
         sprintf(buf, "%s=1", lct_trueList[i]);
-        luaL_dostring(L, buf);
+        LCT_doString(L, buf);
         i++;
     }
 
@@ -617,17 +630,17 @@ void LCT_Constants(lua_State *L, luaConf *conf) {
         switch (conf[i].type) {
             case LC_TYPE_INTEGER_CONST:
                 sprintf(buf, "%s=%d", conf[i].name, conf[i].data.intParam.val);
-                luaL_dostring(L, buf);
+                LCT_doString(L, buf);
                 break;
 
             case LC_TYPE_DOUBLE_CONST:
                 sprintf(buf, "%s=%f", conf[i].name, conf[i].data.dblParam.val);
-                luaL_dostring(L, buf);
+                LCT_doString(L, buf);
                 break;
 
             case LC_TYPE_STRING_CONST:
                 sprintf(buf, "%s=\"%s\"", conf[i].name, conf[i].data.strParam.val);
-                luaL_dostring(L, buf);
+                LCT_doString(L, buf);
                 break;
 
             default:
@@ -879,6 +892,7 @@ void LCT_PullParameter(LCT *lct, luaConf *param) {
 }
 
 
+
 void stackDump(lua_State *l) {
     int i;
     int top = lua_gettop(l);
@@ -913,6 +927,7 @@ void stackDump(lua_State *l) {
     printf("\n");  /* end the listing */
 }
 
+
 void LC_read(LCT *lct, char *confFile) {
     int i;
     luaConf *param;
@@ -921,7 +936,7 @@ void LC_read(LCT *lct, char *confFile) {
 
     LCT_Constants(lct->L, params);
 
-    luaL_dofile(lct->L, confFile);
+    LCT_doFile(lct, confFile);
 
     i = 0;
 
