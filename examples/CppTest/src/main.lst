@@ -202,9 +202,9 @@
  151              		.section	.note.GNU-stack,"",@progbits
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 main.cpp
-     /tmp/cctM31Dy.s:12     .text:0000000000000000 _Z6sigHupi
-     /tmp/cctM31Dy.s:36     .text:0000000000000020 _Z6sigInti
-     /tmp/cctM31Dy.s:65     .text.startup:0000000000000000 main
+     /tmp/ccNDIAzB.s:12     .text:0000000000000000 _Z6sigHupi
+     /tmp/ccNDIAzB.s:36     .text:0000000000000020 _Z6sigInti
+     /tmp/ccNDIAzB.s:65     .text.startup:0000000000000000 main
 
 UNDEFINED SYMBOLS
 __printf_chk

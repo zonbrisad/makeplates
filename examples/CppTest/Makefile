@@ -149,7 +149,7 @@ CPPFLAGS += -Wmissing-braces
 CPPFLAGS += -Wmissing-declarations # Warn if global function is not declared
 CPPFLAGS += -Wredundant-decls      # Warn if something is declared more than ones
 CPPFLAGS += -Wunreachable-code     # if code is not used
-CPPFLAGS += -Wshadow               # if local variable has same name as global
+#CPPFLAGS += -Wshadow               # if local variable has same name as global (problematic?)
 CPPFLAGS += -Wformat=2             # check printf and scanf for problems
 #CPPFLAGS += -Wno-format-nonliteral # 
 CPPFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void pointer
