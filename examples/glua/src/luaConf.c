@@ -347,13 +347,6 @@ char *LCT_printProblem(luaConf *param) {
     return msg;
 }
 
-
-//void printParam(luaConf *param) {
-//    printf("Name: %s\n", param->name);
-//    printf("Desc: %s\n", param->desc);
-//    printf("Type: %s\n", LC_TYPE2STR(param->type));
-//    printf("Val:  %s\n", val2string(param));
-//}
 void LC_PrintParams(luaConf *conf);
 
 void LC_PrintParam(luaConf *param) {
