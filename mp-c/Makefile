@@ -97,6 +97,9 @@ CFLAGS += -funsigned-char
 #CFLAGS += -funsigned-bitfields
 #CFLAGS += -fpack-struct
 #CFLAGS += -fshort-enums
+CFLAGS += -Wall
+#CFLAGS += -Wstrict-prototypes
+#CFLAGS += -mshort-calls
 #CFLAGS += -fno-unit-at-a-time
 #CFLAGS += -mshort-calls
 
@@ -148,7 +151,7 @@ CPPFLAGS += -Wmissing-braces
 CPPFLAGS += -Wmissing-declarations # Warn if global function is not declared
 CPPFLAGS += -Wredundant-decls      # Warn if something is declared more than ones
 CPPFLAGS += -Wunreachable-code     # if code is not used
-CPPFLAGS += -Wshadow               # if local variable has same name as global
+#CPPFLAGS += -Wshadow               # if local variable has same name as global (problematic?)
 CPPFLAGS += -Wformat=2             # check printf and scanf for problems
 #CPPFLAGS += -Wno-format-nonliteral # 
 CPPFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void pointer
@@ -408,9 +411,6 @@ finished:
 	@echo
 #	@echo -e $(MSG_ERRORS_NONE)
 
-# Display compiler version information.
-gccversion :  ## Display compiler version
-	@$(CC) --version
 
 # Link target
 #.SECONDARY : $(TARGET)
@@ -438,7 +438,7 @@ $(TRGFILE): $(OBJS) $(OUTDIR)
 	@echo
 	@echo -e $(MSG_HEX_FILE) "\n             $(C_FILE)" $@ "$(E_END)"
 	@$(OBJCOPY) -O ihex $< $@
-	
+
 # Compile: create object files from C source files.
 $(OBJDIR)/%.o : %.c
 	@echo -e $(MSG_COMPILING) "$(C_FILE)" $< "$(E_END)"
@@ -446,13 +446,11 @@ $(OBJDIR)/%.o : %.c
 
 # Compile: create object files from C++ source files.
 $(OBJDIR)/%.o : %.cpp
-	@echo
 	@echo -e $(MSG_COMPILING_CPP) "$(C_FILE)" $< "$(E_END)"
 	@$(PP) -c $(ALL_CPPFLAGS) $< -o $@ 2>&1  $(CPP_FILTER)
 	
 # Assemble: create object files from assembler source files.
 $(OBJDIR)/%.o : %.S
-	@echo
 	@echo -e $(MSG_ASSEMBLING) "$(C_FILE)" $< "$(E_END)"
 	@$(CC) -c $(ALL_ASFLAGS) $< -o $@
 
@@ -468,6 +466,7 @@ $(OBJDIR)/%.s : %.cpp
 $(OUTDIR):
 	@$(MKDIR) $@
 
+# Print information about target binary 
 size: $(TRGFILE)
 	@echo
 	@echo -e $(MSG_SIZE_AFTER)
@@ -675,9 +674,11 @@ check: ## Check if tools and libraries are present
 	@$(MPTOOL) ce $(AS)
 	@$(MPTOOL) ce $(QMAKE)
 	@$(MPTOOL) ce $(MOC)
+	@$(MPTOOL) ce $(GDB)
 	@$(MPTOOL) ce python3
 	@$(MPTOOL) ce $(CPPCHECK)
 	@$(MPTOOL) ce $(INSTALL)
+	@$(MPTOOL) ce $(ASTYLE)
 	@for f in $(LIB); do               \
 		${MPTOOL} cl ${CC} $${f};      \
 	done                               \
@@ -726,6 +727,9 @@ list-installinfo:
 info: list-info list-includes list-defs list-flags list-ldflags list-installinfo ## Print information about project
 
 files: list-src ## List source files
+
+gccversion :    ## Display compiler version
+	@$(CC) --version
 	
 #
 # Personal settings
@@ -784,7 +788,6 @@ AST += --max-instatement-indent=40
  
 # C++ specific indentation
 AST += --indent-modifiers
-
 
 # Padding options
 AST += --break-blocks

@@ -41,7 +41,7 @@ void MyClass::Do(int i) {
 }
 
 void MyClass::Nisse(int kalle) {
-	printf("%d\n", kalle);
+    printf("%d\n", kalle);
 }
 
 void MyClass::Arne() {
@@ -51,12 +51,12 @@ void MyClass::Bertil() {
 }
 
 void MyClass::Kalle(int sss) {
-	printf("%d\n", sss);
+    printf("%d\n", sss);
 }
 
 int MyClass::Lisa(char *str) {
-	printf("%s\n", str);
-	return 0;
+    printf("%s\n", str);
+    return 0;
 }
 
 int MyClass::getA() const {
