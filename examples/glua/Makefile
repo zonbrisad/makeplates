@@ -150,7 +150,7 @@ CFLAGS += -Wredundant-decls      # Warn if something is declared more than ones
 CFLAGS += -Wunreachable-code     # if code is not used
 CFLAGS += -Wshadow               # if local variable has same name as global
 CFLAGS += -Wformat=2             # check printf and scanf for problems
-#CFLAGS += -Wno-format-nonliteral # 
+CFLAGS += -Wno-format-nonliteral # 
 CFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void pointer
 #CFLAGS += -Wsign-compare
 #CFLAGS += -Wundef

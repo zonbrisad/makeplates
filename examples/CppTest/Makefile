@@ -21,7 +21,7 @@ LICENCE = GPLv2
 # Target file name (without extension).
 TARGET = cpptest
 
- 
+
 # List C, C++ and assembler source files here. (C/C++ dependencies are automatically generated.)
 SRC = src/main.cpp \
       src/MyClass.cpp \
