@@ -500,7 +500,7 @@ clean:  ## Remove all build files
 	@$(REMOVE) $(OUTDIR)/$(TARGET).cof
 	@$(REMOVEDIR) .dep
 	@$(REMOVE) $(OBJS)
-	@find . -name *~ -delete
+	@find . -name "*~" -delete
 
 
 archive: ## Make a tar archive of the source code
