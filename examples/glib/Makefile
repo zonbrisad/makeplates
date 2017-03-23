@@ -224,12 +224,14 @@ ASTYLE    = astyle
 TCHAIN = $(TCHAIN_BASE)/$(TCHAIN_PREFIX)
 
 CC        = ${TCHAIN}gcc
+CPP       = ${TCHAIN}g++
 OBJCOPY   = ${TCHAIN}objcopy
 OBJDUMP   = ${TCHAIN}objdump
 SIZE      = ${TCHAIN}size
 AR        = ${TCHAIN}ar rcs
 NM        = ${TCHAIN}nm
 AS        = ${TCHAIN}as
+GDB       = ${TCHAIN}gdb
 
 #
 # Message/Filter settings
@@ -276,7 +278,7 @@ MSG_BEGIN            = "${E_WHITE}===== Begin ${E_GRAY}-------------------------
 MSG_END              = "${E_WHITE}===== End${E_GRAY} --------------------------------------------------------------${E_END}"
 MSG_ERRORS_NONE      = "${C_OK}Errors: none ${E_END}"
 MSG_LINKING          = "${C_ACTION}Linking:${E_END}"
-MSG_COMPILING        = "${C_ACTION}Compiling C:${E_END}"
+MSG_COMPILING        = "${C_ACTION}Compiling C:  ${E_END}"
 MSG_COMPILING_CPP    = "${C_ACTION}Compiling C++:${E_END}"
 MSG_ASSEMBLING       = "${C_ACTION}Assembling:${E_END}"
 MSG_CLEANING         = "$(C_ACTION)Cleaning project:$(E_END)"
@@ -321,14 +323,14 @@ F_WARNING2="s/unused variable/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_WARNING3="s/may be used uninitialized in this function/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_WARNING4="s/implicit declaration of function/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_WARNING5="s/value computed is not used/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
-#XX="s/\[[^][]*\]/$$(printf "$(E_BR_BLUE)")&$$(printf "$(E_END)")/i"
-#YY="s/\'[^][]*\'/$$(printf "$(E_BR_GREEN)")&$$(printf "$(E_END)")/i"
-C_FILTER   = | sed -ru -e $(F_FATAL_ERROR) -e $(F_ERROR) -e $(FF_ERROR)     \
+F_BRACKET="s/\[\(.*\)\]/[$$(printf '$(E_GREEN)')\1$$(printf '$(E_END)')]/g"
+C_FILTER   = | sed -u  -e $(F_BRACKET) \
+                       -e $(F_FATAL_ERROR) -e $(F_ERROR) -e $(FF_ERROR)     \
                        -e $(F_WARNING) -e $(FF_WARNING)                     \
                        -e $(F_WARNING1) -e $(F_WARNING2) -e $(F_WARNING3)   \
-											 -e $(F_WARNING4) -e $(F_WARNING5)                    \
-											 -e $(F_NOTE) -e $(FF_NOTE)                           \
-											 -e $(F_INF) -e $(FF_INF)
+                       -e $(F_WARNING4) -e $(F_WARNING5)                    \
+                       -e $(F_NOTE) -e $(FF_NOTE)                           \
+                       -e $(F_INF) -e $(FF_INF) 
 CPP_FILTER = $(C_FILTER)
 
 LD_ERROR1="s/undefined reference/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
@@ -485,9 +487,10 @@ clean:  ## Remove all build files
 	@$(REMOVE) $(OUTDIR)/$(TARGET).bin
 	@$(REMOVE) $(OUTDIR)/$(TARGET).eep
 	@$(REMOVE) $(OUTDIR)/$(TARGET).cof
-	@$(REMOVEDIR) .dep
 	@$(REMOVE) $(OBJS)
-	@find . -name *~ -delete
+	@$(REMOVEDIR) .dep
+	@$(REMOVEDIR) $(BUILDDIR)	
+	@find . -name "*~" -delete
 
 
 archive: ## Make a tar archive of the source code
@@ -655,9 +658,11 @@ check: ## Check if tools and libraries are present
 	@$(MPTOOL) ce $(AS)
 	@$(MPTOOL) ce $(QMAKE)
 	@$(MPTOOL) ce $(MOC)
+	@$(MPTOOL) ce $(GDB)
 	@$(MPTOOL) ce python3
 	@$(MPTOOL) ce $(CPPCHECK)
 	@$(MPTOOL) ce $(INSTALL)
+	@$(MPTOOL) ce $(ASTYLE)
 	@for f in $(LIB); do               \
 		${MPTOOL} cl ${CC} $${f};      \
 	done                               \
@@ -738,11 +743,19 @@ $(PERSONAL):	# Create a settings file
 #============================================================================
 .PHONY: ccheck acheck
 
+F_CPPC_FILE="s/\[\(.*\)\]/[$$(printf '$(C_FILE)')\1$$(printf '$(E_END)')]/g"
+F_CPPC_VAR="s/'\(.*\)'/'$$(printf '$(E_BR_MAGENTA)')\1$$(printf '$(E_END)')'/g"
+F_CPPC_STYLE="s/style/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
+F_CPPC_PORTABILITY="s/portability/$$(printf "$(E_WHITE)")&$$(printf "$(E_END)")/i"
+F_CPPC_ERROR="s/error/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
+
+CPPCHECK_FILTER   = 2>&1 | sed -u -e $(F_CPPC_FILE) -e $(F_CPPC_VAR) -e $(F_CPPC_STYLE) -e $(F_CPPC_ERROR) -e $(F_CPPC_PORTABILITY)
+
 ccheck: ## Static code analysis using cppcheck(errors only)
-	@$(CPPCHECK) --inline-suppr $(SRC) 
+	@$(CPPCHECK) --inline-suppr $(SRC)  $(CPPCHECK_FILTER)
 
 acheck: ## Static code analysis using cppcheck(all warnings)
-	@$(CPPCHECK) --inline-suppr --enable=all $(SRC) 
+	@$(CPPCHECK) --inline-suppr --enable=all $(SRC) $(CPPCHECK_FILTER)
 
 #
 # Artistic Style (astyle) Format source code to a standard
@@ -761,10 +774,14 @@ AST += --indent=spaces=$(TABSIZE)
 AST += --indent-switches
 AST += --indent-cases
 #AST += --indent-preproc-cond
+AST += --indent-col1-comments
+AST += --max-instatement-indent=40
+ 
+# C++ specific indentation
+AST += --indent-modifiers
 
 # Padding options
 AST += --break-blocks
-AST += --max-instatement-indent=40
 AST += --pad-oper
 #AST += --pad-comma
 AST += --pad-header

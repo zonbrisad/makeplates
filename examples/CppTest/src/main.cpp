@@ -42,6 +42,20 @@ void sigHup(int sig);
 
 // Code -------------------------------------------------------------------
 
+class kalle {
+  private:
+    int a;
+
+  public:
+    kalle() {
+        a = 1;
+    }
+	 
+	  void Do(void) {
+			printf("Do %d\n", a);
+		}
+};
+
 
 void sigInt(int sig) {
     UNUSED(sig);
@@ -61,6 +75,7 @@ int main(int argc, char *argv[]) {
     MyClass a, *b;
     vector<MyClass> mcList;
     string str;
+	  kalle *k;
 
     UNUSED(argc);
     UNUSED(argv);
@@ -83,6 +98,8 @@ int main(int argc, char *argv[]) {
 
     }
 
-
+	k = new kalle;
+	k->Do();
+	
     return 0;
 }

@@ -347,13 +347,6 @@ char *LCT_printProblem(luaConf *param) {
     return msg;
 }
 
-
-//void printParam(luaConf *param) {
-//    printf("Name: %s\n", param->name);
-//    printf("Desc: %s\n", param->desc);
-//    printf("Type: %s\n", LC_TYPE2STR(param->type));
-//    printf("Val:  %s\n", val2string(param));
-//}
 void LC_PrintParams(luaConf *conf);
 
 void LC_PrintParam(luaConf *param) {
@@ -1330,7 +1323,8 @@ luaConf *LCT_FCallSimple(LCT *lct, char *funcName, ...) {
     i = 0;
 
     p = func->data.function.p;
-    va_start(ap, p);
+
+    va_start(ap, funcName);
 
     for (i = 0; i < p; i++) {
         params = func->data.function.params;
@@ -1364,7 +1358,7 @@ luaConf *LCT_FCallSimple(LCT *lct, char *funcName, ...) {
             case LC_TYPE_STRING_LIST:
                 sPtr = va_arg(ap, char *);
                 l    = va_arg(ap, int);
-                LCT_PushStrArray(lct, sPtr , l);
+                LCT_PushStrArray(lct, (char**) sPtr , l);
                 break;
 
             case LC_TYPE_TABLE:
@@ -1392,7 +1386,7 @@ luaConf *LCT_FCallSimple(LCT *lct, char *funcName, ...) {
 
 
 void LCT_FCallSimple2(LCT *lct, char *funcName, char *format, ...) {
-    int i, p;
+    int i;
     int *iPtr;
     int l;
     double *dPtr;
@@ -1403,7 +1397,7 @@ void LCT_FCallSimple2(LCT *lct, char *funcName, char *format, ...) {
 
     i = 0;
 
-    va_start(ap, p);
+    va_start(ap, format);
 
     while (format[i] != '\0') {
 
@@ -1435,7 +1429,7 @@ void LCT_FCallSimple2(LCT *lct, char *funcName, char *format, ...) {
             case 'S':
                 sPtr = va_arg(ap, char *);
                 l    = va_arg(ap, int);
-                LCT_PushStrArray(lct, sPtr , l);
+                LCT_PushStrArray(lct, (char**) sPtr , l);
                 break;
 
 //            case LC_TYPE_TABLE:
@@ -1527,7 +1521,7 @@ luaConf intReturn[] = {
     LC_LAST()
 };
 
-int *cFunction(lua_State *L) {
+int cFunction(lua_State *L) {
     printf("My c function\n");
     return 0;
 }

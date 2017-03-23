@@ -486,7 +486,7 @@ void domainTest(void) {
     sock = g_socket_new(G_SOCKET_FAMILY_UNIX, G_SOCKET_TYPE_STREAM, G_SOCKET_PROTOCOL_DEFAULT, &error);
 
     // bind socket
-    g_socket_bind(sock, sockAddr, 1 &error);
+//    g_socket_bind(sock, sockAddr, 1 &error);
     return;
 
     memset(&addr, 0, sizeof(addr));
@@ -600,7 +600,7 @@ typedef struct {
 
 char cBuf[10];
 int b = 0;
-#define ESC          0x1b
+//#define ESC          0x1b
 #define ARROW_UP     0x8041
 #define ARROW_DOWN   0x8042
 #define ARROW_RIGHT  0x8043

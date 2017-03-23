@@ -21,13 +21,13 @@ LICENCE = GPLv2
 # Target file name (without extension).
 TARGET = glua
 
-# List C source files here. (C dependencies are automatically generated.)
-PSRC = src/main.c \
+# List C, C++ and assembler source files here. (C/C++ dependencies are automatically generated.)
+SRC = src/main.c \
        src/gp_log.c \
        src/luaConf.c 
  
-SRC =   $(PSRC)    
-SRC +=		src/lua-5.2.3/src/lstrlib.c \
+# List C, C++ and assembler library/3rd partry source files here. (C/C++ dependencies are automatically generated.)
+LSRC =		src/lua-5.2.3/src/lstrlib.c \
 			src/lua-5.2.3/src/lvm.c \
 			src/lua-5.2.3/src/lzio.c \
 			src/lua-5.2.3/src/lfunc.c \
@@ -60,15 +60,7 @@ SRC +=		src/lua-5.2.3/src/lstrlib.c \
 			src/lua-5.2.3/src/liolib.c \
 			src/lua-5.2.3/src/ldblib.c \
 
-ALLSRC = $(SRC)
-ALLSRC += $(LSRC)			
 
-# List C++ source files here. (C dependencies are automatically generated.)
-CPPSRC = 
-
-# List Assembler source files here.
-#     Make them always end in a capital .S.  
-ASRC =
 
 # Include directories
 INCLUDE = inc \
@@ -89,6 +81,12 @@ LIB += $(shell pkg-config --libs gthread-2.0)
 #     this an empty or blank macro!
 OBJDIR = .
 
+# Source code directory
+SRCDIR=src
+
+# Build directory
+BUILDDIR=build
+
 # Output directory
 OUTDIR = output
 
@@ -98,7 +96,8 @@ OPT = 0
 
 # Compiler flag to set the C Standard level.
 # [ gnu99 gnu11 c++98 c++03 c++11 c++14 ] 
-CSTANDARD = gnu99
+CSTANDARD   = gnu99
+CPPSTANDARD = c++11
 
 # C Macro definitions
 CDEFS = HAVE_CONFIG_H   \
@@ -116,6 +115,7 @@ CPPDEFS =
 # 2 = normal debug information 
 # 3 = maximal debug information
 DEBUG=3
+
 
 #
 # Compiler and Linker options
@@ -166,7 +166,7 @@ CFLAGS += -pg
 # Compiler Options C++ ------------------------------------------------------
 CPPFLAGS = -g$(DEBUG)                              # Debugging information
 CPPFLAGS += -O$(OPT)                               # Optimisation level
-CPPFLAGS += -std=$(CSTANDARD)                      # C standard
+CPPFLAGS += -std=$(CPPSTANDARD)                      # C standard
 CPPFLAGS += $(patsubst %,-I%,$(INCLUDE))           # Include directories 
 CPPFLAGS += $(patsubst %,-D%,$(CPPDEFS))           # Macro definitions
 CPPFLAGS += -Wa,-adhlns=$(<:%.cpp=$(OBJDIR)/%.lst) # Generate assembler listing
@@ -187,7 +187,7 @@ CPPFLAGS += -Wmissing-braces
 CPPFLAGS += -Wmissing-declarations # Warn if global function is not declared
 CPPFLAGS += -Wredundant-decls      # Warn if something is declared more than ones
 CPPFLAGS += -Wunreachable-code     # if code is not used
-CPPFLAGS += -Wshadow               # if local variable has same name as global
+#CPPFLAGS += -Wshadow               # if local variable has same name as global (problematic?)
 CPPFLAGS += -Wformat=2             # check printf and scanf for problems
 #CPPFLAGS += -Wno-format-nonliteral # 
 CPPFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void pointer
@@ -196,8 +196,8 @@ CPPFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void 
 #CPPFLAGS += -Werror              # All warnings will be treated as errors
 
 # Library compiler flags C++ ------------------------------------------------
-#CPPFLAGS += $(shell pkg-config --cflags glib-2.0)
-#CPPFLAGS += $(shell pkg-config --cflags gthread-2.0)
+CPPFLAGS += $(shell pkg-config --cflags glib-2.0)
+CPPFLAGS += $(shell pkg-config --cflags gthread-2.0)
 #CPPFLAGS += $(shell pkg-config --cflags lua5.1)
 #CPPFLAGS += $(shell pkg-config --cflags sqlite3)
 
@@ -220,6 +220,7 @@ ASFLAGS += -Wa,-adhlns=$(<:%.S=$(OBJDIR)/%.lst),-gstabs,--listing-cont-lines=100
 #    --cref:    add cross reference to  map file
 LDFLAGS = -Wl,-Map=$(OUTDIR)/$(TARGET).map,--cref
 LDFLAGS += $(EXTMEMOPTS)
+LDFLAGS += $(patsubst %,-L%,$(INCLUDE))
 LDFLAGS += -g
 
 LDFLAGS += -pg
@@ -280,7 +281,7 @@ ASTYLE    = astyle
 TCHAIN = $(TCHAIN_BASE)/$(TCHAIN_PREFIX)
 
 CC        = ${TCHAIN}gcc
-PP        = ${TCHAIN}g++
+CPP       = ${TCHAIN}g++
 OBJCOPY   = ${TCHAIN}objcopy
 OBJDUMP   = ${TCHAIN}objdump
 SIZE      = ${TCHAIN}size
@@ -334,7 +335,7 @@ MSG_BEGIN            = "${E_WHITE}===== Begin ${E_GRAY}-------------------------
 MSG_END              = "${E_WHITE}===== End${E_GRAY} --------------------------------------------------------------${E_END}"
 MSG_ERRORS_NONE      = "${C_OK}Errors: none ${E_END}"
 MSG_LINKING          = "${C_ACTION}Linking:${E_END}"
-MSG_COMPILING        = "${C_ACTION}Compiling C:${E_END}"
+MSG_COMPILING        = "${C_ACTION}Compiling C:  ${E_END}"
 MSG_COMPILING_CPP    = "${C_ACTION}Compiling C++:${E_END}"
 MSG_ASSEMBLING       = "${C_ACTION}Assembling:${E_END}"
 MSG_CLEANING         = "$(C_ACTION)Cleaning project:$(E_END)"
@@ -407,11 +408,28 @@ ALL_CFLAGS   =  -I. $(CFLAGS) $(GENDEPFLAGS)
 ALL_CPPFLAGS =  -I. -x c++ $(CPPFLAGS) $(GENDEPFLAGS)
 ALL_ASFLAGS  =  -I. -x assembler-with-cpp $(ASFLAGS)
 
+
+# Filter out C sources
+CSRC_1 = $(patsubst $(SRCDIR)/%.cpp,  , $(SRC) $(LSRC))
+CSRC   = $(patsubst $(SRCDIR)/%.S,    , $(CSRC_1))
+
+# Filter out C++ sources
+CPPSRC_1 = $(patsubst $(SRCDIR)/%.c,  , $(SRC) $(LSRC))
+CPPSRC   = $(patsubst $(SRCDIR)/%.S,  , $(CPPSRC_1))
+
+# Filter out Assembler sources
+ASRC_1 = $(patsubst $(SRCDIR)/%.c,    , $(SRC) $(LSRC))
+ASRC   = $(patsubst $(SRCDIR)/%.cpp,  , $(ASRC_1))
+
 # Define all object files.
-OBJS = $(SRC:%.c=$(OBJDIR)/%.o) $(CPPSRC:%.cpp=$(OBJDIR)/%.o) $(ASRC:%.S=$(OBJDIR)/%.o)
+COBJS    = $(patsubst $(SRCDIR)/%.c,   $(BUILDDIR)/%.o, $(CSRC)) 
+CPPOBJS  = $(patsubst $(SRCDIR)/%.cpp, $(BUILDDIR)/%.o, $(CPPSRC))
+AOBJS    = $(patsubst $(SRCDIR)/%.S,   $(BUILDDIR)/%.o, $(ASRC))
+
+OBJS    = $(COBJS) $(CPPOBJS) $(AOBJS)
 
 # Define all listing files.
-LST = $(SRC:%.c=$(OBJDIR)/%.lst) $(CPPSRC:%.cpp=$(OBJDIR)/%.lst) $(ASRC:%.S=$(OBJDIR)/%.lst) 
+LST = $(patsubst src/%.c, $(BUILDDIR)/%.lst, $(SRC)) $(patsubst src/%.cpp, $(BUILDDIR)/%.lst, $(CPPSRC)) $(patsubst src/%.S, $(BUILDDIR)/%.lst, $(ASRC))
 
 # Default target.
 all:	begin build finished end
@@ -442,7 +460,7 @@ eep: $(OUTDIR)/$(TARGET).eep
 # Eye candy.
 begin:
 	@echo -e $(MSG_BEGIN)
-	@echo -e ${MSG_BUILDING}"$(E_BR_GREEN)$(TARGET) $(E_END)"
+	@echo -e ${MSG_BUILDING}"  $(E_BR_GREEN)$(TARGET) $(E_END)"
  
 end:
 	@echo
@@ -450,53 +468,49 @@ end:
 	
 finished:
 	@echo
-#	@echo -e $(MSG_ERRORS_NONE)
 
-# Display compiler version information.
-gccversion :  ## Display compiler version
-	@$(CC) --version
 
 # Link target
 #.SECONDARY : $(TARGET)
 .PRECIOUS : $(OBJS)
 $(TRGFILE): $(OBJS) $(OUTDIR)
 	@echo 
-	@echo -e $(MSG_LINKING)"\n             $(C_FILE)" $@ "$(E_END)"
-	@$(CC) $(ALL_CFLAGS) $(OBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)
+	@echo -e $(MSG_LINKING)"\n               $(C_FILE)" $@ "$(E_END)"
+	@$(CPP) $(ALL_CFLAGS) $(OBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)
 	
 # Create extended listing file/disassambly from ELF output file.
 # using objdump testing: option -C
 %.lss:	$(TRGFILE)
 	@echo
-	@echo -e $(MSG_EXTENDED_LISTING) "\n             $(C_FILE)" $@ "$(E_END)"
+	@echo -e $(MSG_EXTENDED_LISTING) "\n               $(C_FILE)" $@ "$(E_END)"
 	@$(OBJDUMP) -h -S -C -r $< > $@
 	
 # Create a symbol table from ELF output file.
 %.sym: $(TRGFILE)
 	@echo
-	@echo -e $(MSG_SYMBOL_TABLE) "\n             $(C_FILE)" $@ "$(E_END)"
+	@echo -e $(MSG_SYMBOL_TABLE) "\n               $(C_FILE)" $@ "$(E_END)"
 	@$(NM) -n $< > $@
 
 # Create hex file from ELF output file.
 %.hex: $(TRGFILE)
 	@echo
-	@echo -e $(MSG_HEX_FILE) "\n             $(C_FILE)" $@ "$(E_END)"
+	@echo -e $(MSG_HEX_FILE) "\n               $(C_FILE)" $@ "$(E_END)"
 	@$(OBJCOPY) -O ihex $< $@
-	
+
 # Compile: create object files from C source files.
-$(OBJDIR)/%.o : %.c
+$(COBJS): $(BUILDDIR)/%.o : src/%.c
+	@$(MKDIR) $(@D)                                       # Create directory for object file
 	@echo -e $(MSG_COMPILING) "$(C_FILE)" $< "$(E_END)"
 	@$(CC) -c $(ALL_CFLAGS) $< -o $@ 2>&1  $(C_FILTER)
 
 # Compile: create object files from C++ source files.
-$(OBJDIR)/%.o : %.cpp
-	@echo
+$(CPPOBJS): $(BUILDDIR)/%.o : src/%.cpp
+	@$(MKDIR) $(@D)                                       # Create directory for object file
 	@echo -e $(MSG_COMPILING_CPP) "$(C_FILE)" $< "$(E_END)"
-	@$(CC) -c $(ALL_CPPFLAGS) $< -o $@ 2>&1 | $(CPP_FILTER)
+	@$(CPP) -c $(ALL_CPPFLAGS) $< -o $@ 2>&1  $(CPP_FILTER)
 	
 # Assemble: create object files from assembler source files.
 $(OBJDIR)/%.o : %.S
-	@echo
 	@echo -e $(MSG_ASSEMBLING) "$(C_FILE)" $< "$(E_END)"
 	@$(CC) -c $(ALL_ASFLAGS) $< -o $@
 
@@ -512,6 +526,11 @@ $(OBJDIR)/%.s : %.cpp
 $(OUTDIR):
 	@$(MKDIR) $@
 
+# Create build dir
+$(BUILDDIR):
+	@$(MKDIR) $@
+
+# Print information about target binary 
 size: $(TRGFILE)
 	@echo
 	@echo -e $(MSG_SIZE_AFTER)
@@ -534,8 +553,9 @@ clean:  ## Remove all build files
 	@$(REMOVE) $(OUTDIR)/$(TARGET).bin
 	@$(REMOVE) $(OUTDIR)/$(TARGET).eep
 	@$(REMOVE) $(OUTDIR)/$(TARGET).cof
-	@$(REMOVEDIR) .dep
 	@$(REMOVE) $(OBJS)
+	@$(REMOVEDIR) .dep
+	@$(REMOVEDIR) $(BUILDDIR)	
 	@find . -name "*~" -delete
 
 
@@ -711,9 +731,11 @@ check: ## Check if tools and libraries are present
 	@$(MPTOOL) ce $(AS)
 	@$(MPTOOL) ce $(QMAKE)
 	@$(MPTOOL) ce $(MOC)
+	@$(MPTOOL) ce $(GDB)
 	@$(MPTOOL) ce python3
 	@$(MPTOOL) ce $(CPPCHECK)
 	@$(MPTOOL) ce $(INSTALL)
+	@$(MPTOOL) ce $(ASTYLE)
 	@for f in $(LIB); do               \
 		${MPTOOL} cl ${CC} $${f};      \
 	done                               \
@@ -762,6 +784,9 @@ list-installinfo:
 info: list-info list-includes list-defs list-flags list-ldflags list-installinfo ## Print information about project
 
 files: list-src ## List source files
+
+gccversion :    ## Display compiler version
+	@$(CC) --version
 	
 #
 # Personal settings
@@ -792,11 +817,45 @@ $(PERSONAL):	# Create a settings file
 #============================================================================
 .PHONY: ccheck acheck
 
+
+#F_INF="s/In function/$$(printf "$(E_BR_GREEN)")&$$(printf "$(E_END)")/i"
+#FF_INF="s/^.*In function/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
+#F_ERROR="s/error:/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
+#F_FATAL_ERROR="s/fatal error:/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
+#F_WARNING="s/warning:/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
+#F_NOTE="s/note:/$$(printf "$(C_NOTE)")&$$(printf "$(E_END)")/i"
+#FF_ERROR="s/^.*error:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
+#FF_WARNING="s/^.*warning:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
+#FF_NOTE="s/^.*note:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
+#F_WARNING1="s/defined but not used/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
+#F_WARNING2="s/unused variable/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
+#F_WARNING3="s/may be used uninitialized in this function/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
+#F_WARNING4="s/implicit declaration of function/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
+#F_WARNING5="s/value computed is not used/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
+#F_BRACKET="s/\[-W.*\]/$$(printf "$(E_GREEN)")&$$(printf "$(E_END)")/g"
+#XX="s/\[[^][]*\]/$$(printf "$(E_BR_BLUE)")&$$(printf "$(E_END)")/i"
+#YY="s/\'[^][]*\'/$$(printf "$(E_BR_GREEN)")&$$(printf "$(E_END)")/i"
+# 
+
+#CPPCHECK_FILTER   = | sed -ru -e $(F_FATAL_ERROR) -e $(F_ERROR) -e $(FF_ERROR)     \
+#                       -e $(F_WARNING) -e $(FF_WARNING)                     \
+#                       -e $(F_WARNING1) -e $(F_WARNING2) -e $(F_WARNING3)   \
+#                       -e $(F_WARNING4) -e $(F_WARNING5)                    \
+#                       -e $(F_NOTE) -e $(FF_NOTE)                           \
+#                       -e $(F_INF) -e $(FF_INF) -e $(F_BRACKET)
+
+##F_CPPC_FILE="s/\[.*\]/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
+F_CPPC_FILE="s/^\[(.*)\]/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
+F_CPPC_STYLE="s/style/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
+F_CPPC_PORTABILITY="s/portability/$$(printf "$(C_CYAN)")&$$(printf "$(E_END)")/i"
+F_CPPC_ERROR="s/error/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
+CPPCHECK_FILTER   = 2>&1 | sed -ru -e $(F_CPPC_FILE) -e $(F_CPPC_STYLE) -e $(F_CPPC_ERROR) -e $(F_CPPC_PORTABILITY)
+
 ccheck: ## Static code analysis using cppcheck(errors only)
-	@$(CPPCHECK) --inline-suppr $(SRC) 
+	@$(CPPCHECK) --inline-suppr $(SRC)  $(CPPCHECK_FILTER)
 
 acheck: ## Static code analysis using cppcheck(all warnings)
-	@$(CPPCHECK) --inline-suppr --enable=all $(SRC) 
+	@$(CPPCHECK) --inline-suppr --enable=all $(SRC) $(CPPCHECK_FILTER)
 
 #
 # Artistic Style (astyle) Format source code to a standard
@@ -815,10 +874,14 @@ AST += --indent=spaces=$(TABSIZE)
 AST += --indent-switches
 AST += --indent-cases
 #AST += --indent-preproc-cond
+AST += --indent-col1-comments
+AST += --max-instatement-indent=40
+ 
+# C++ specific indentation
+AST += --indent-modifiers
 
 # Padding options
 AST += --break-blocks
-AST += --max-instatement-indent=40
 AST += --pad-oper
 #AST += --pad-comma
 AST += --pad-header
@@ -838,20 +901,7 @@ AST +=--preserve-date
 PSRCH = $(PSRC:%.c=%.h) 
 
 astyle: ## Format source to conform to a standard
-#	@$(ASTYLE) $(AST) $(PSRC) $(PSRCH)
-	@$(ASTYLE) $(AST) src/*.c src/*.h
-#
-# splint static code analysis
-#============================================================================
-.PHONY: splint
-
-SO  = +posixlib
-#SO += +posixstrictlib
-#SO += -warnposix
-#SO += -preproc
-
-splint: ## Static code analysis
-	splint $(SO) -Isrc -Isrc/lua-5.2.3/src  src/main.c
+	@$(ASTYLE) $(AST) src/*.c src/*.cpp src/*.h
 
 
 #
@@ -864,7 +914,6 @@ PROG += -b
 
 prof:  run ## Run code profiling
 	gprof $(PROF) $(TRGFILE) gmon.out 
-
 
 	
 # Listing of phony targets.
