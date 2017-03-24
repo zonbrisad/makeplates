@@ -519,8 +519,11 @@ clean:  ## Remove all build files
 	@$(REMOVE) $(OUTDIR)/$(TARGET).eep
 	@$(REMOVE) $(OUTDIR)/$(TARGET).cof
 	@$(REMOVE) $(OBJS)
+<<<<<<< HEAD
+=======
 	@$(REMOVEDIR) .dep
 	@$(REMOVEDIR) $(BUILDDIR)	
+>>>>>>> b9461a49f95452ed9ccb8d4ff57fc264c9a54e25
 	@find . -name "*~" -delete
 
 

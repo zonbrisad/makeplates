@@ -114,7 +114,8 @@ CPPDEFS =
 # 1 = minimal debug information
 # 2 = normal debug information 
 # 3 = maximal debug information
-DEBUG=0
+DEBUG=3
+
 
 #
 # Compiler and Linker options
@@ -133,9 +134,6 @@ CFLAGS += -funsigned-char
 #CFLAGS += -funsigned-bitfields
 #CFLAGS += -fpack-struct
 #CFLAGS += -fshort-enums
-CFLAGS += -Wall
-#CFLAGS += -Wstrict-prototypes
-#CFLAGS += -mshort-calls
 #CFLAGS += -fno-unit-at-a-time
 #CFLAGS += -mshort-calls
 
@@ -144,13 +142,13 @@ CFLAGS += -Wall                  # Standard warnings
 CFLAGS += -Wextra                # Some extra warnings
 CFLAGS += -Wmissing-braces 
 CFLAGS += -Wmissing-declarations # Warn if global function is not declared
-CFLAGS += -Wmissing-prototypes   # if a function is missing its prototype
-CFLAGS += -Wstrict-prototypes    # non correct prototypes i.e. void fun() => void fun(void) 
+#CFLAGS += -Wmissing-prototypes   # if a function is missing its prototype
+#CFLAGS += -Wstrict-prototypes    # non correct prototypes i.e. void fun() => void fun(void) 
 CFLAGS += -Wredundant-decls      # Warn if something is declared more than ones
 CFLAGS += -Wunreachable-code     # if code is not used
 CFLAGS += -Wshadow               # if local variable has same name as global
 CFLAGS += -Wformat=2             # check printf and scanf for problems
-CFLAGS += -Wno-format-nonliteral # 
+#CFLAGS += -Wno-format-nonliteral # 
 CFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void pointer
 #CFLAGS += -Wsign-compare
 #CFLAGS += -Wundef
@@ -825,11 +823,45 @@ $(PERSONAL):	# Create a settings file
 #============================================================================
 .PHONY: ccheck acheck
 
+
+#F_INF="s/In function/$$(printf "$(E_BR_GREEN)")&$$(printf "$(E_END)")/i"
+#FF_INF="s/^.*In function/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
+#F_ERROR="s/error:/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
+#F_FATAL_ERROR="s/fatal error:/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
+#F_WARNING="s/warning:/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
+#F_NOTE="s/note:/$$(printf "$(C_NOTE)")&$$(printf "$(E_END)")/i"
+#FF_ERROR="s/^.*error:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
+#FF_WARNING="s/^.*warning:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
+#FF_NOTE="s/^.*note:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
+#F_WARNING1="s/defined but not used/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
+#F_WARNING2="s/unused variable/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
+#F_WARNING3="s/may be used uninitialized in this function/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
+#F_WARNING4="s/implicit declaration of function/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
+#F_WARNING5="s/value computed is not used/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
+#F_BRACKET="s/\[-W.*\]/$$(printf "$(E_GREEN)")&$$(printf "$(E_END)")/g"
+#XX="s/\[[^][]*\]/$$(printf "$(E_BR_BLUE)")&$$(printf "$(E_END)")/i"
+#YY="s/\'[^][]*\'/$$(printf "$(E_BR_GREEN)")&$$(printf "$(E_END)")/i"
+# 
+
+#CPPCHECK_FILTER   = | sed -ru -e $(F_FATAL_ERROR) -e $(F_ERROR) -e $(FF_ERROR)     \
+#                       -e $(F_WARNING) -e $(FF_WARNING)                     \
+#                       -e $(F_WARNING1) -e $(F_WARNING2) -e $(F_WARNING3)   \
+#                       -e $(F_WARNING4) -e $(F_WARNING5)                    \
+#                       -e $(F_NOTE) -e $(FF_NOTE)                           \
+#                       -e $(F_INF) -e $(FF_INF) -e $(F_BRACKET)
+
+##F_CPPC_FILE="s/\[.*\]/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
+F_CPPC_FILE="s/^\[(.*)\]/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
+F_CPPC_STYLE="s/style/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
+F_CPPC_PORTABILITY="s/portability/$$(printf "$(C_CYAN)")&$$(printf "$(E_END)")/i"
+F_CPPC_ERROR="s/error/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
+CPPCHECK_FILTER   = 2>&1 | sed -ru -e $(F_CPPC_FILE) -e $(F_CPPC_STYLE) -e $(F_CPPC_ERROR) -e $(F_CPPC_PORTABILITY)
+
 ccheck: ## Static code analysis using cppcheck(errors only)
-	@$(CPPCHECK) --inline-suppr $(SRC) 
+	@$(CPPCHECK) --inline-suppr $(SRC)  $(CPPCHECK_FILTER)
 
 acheck: ## Static code analysis using cppcheck(all warnings)
-	@$(CPPCHECK) --inline-suppr --enable=all $(SRC) 
+	@$(CPPCHECK) --inline-suppr --enable=all $(SRC) $(CPPCHECK_FILTER)
 
 #
 # Artistic Style (astyle) Format source code to a standard
