@@ -60,14 +60,11 @@ static GOptionEntry entries[] = {
     { NULL }
 };
 
-/**
- * Code
- *---------------------------------------------------------------------------
- */
 
-void testPage(FILE *f) {
-//  swill_printf(f, "Kalle");
-}
+// Prototypes -----------------------------------------------------------------
+void safeExit();
+
+// Code -----------------------------------------------------------------------
 
 
 void safeExit() {
@@ -78,8 +75,7 @@ void safeExit() {
 int main(int argc, char *argv[]) {
     GError *error = NULL;
     GOptionContext *context;
-    lua_State *L;
-    //int kalle;
+     //int kalle;
 
     // init log system
     gp_log_init("glua.log");
@@ -107,16 +103,7 @@ int main(int argc, char *argv[]) {
     printf("Ett litet testprogram.\n");
 
 
-
-    LC_Test();
-
-    L = luaL_newstate();
-    luaL_openlibs(L);
-    (void) luaL_dofile(L, "test.lua");
-
-    UNUSED_PARAM(L);
-
-    lua_close(L);
+    LCT_Test();
 
     safeExit();
 }

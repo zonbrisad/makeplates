@@ -380,21 +380,15 @@ F_WARNING2="s/unused variable/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_WARNING3="s/may be used uninitialized in this function/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_WARNING4="s/implicit declaration of function/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_WARNING5="s/value computed is not used/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
-F_BRACKET="s/\[-W.*\]/$$(printf "$(E_GREEN)")&$$(printf "$(E_END)")/g"
-#echo "abcd1(fsef)fasdfd" |sed 's/(\(.*\))/($\1)/'
-#F_BRACKET="s/[\(.*\)]/$$(printf "$(E_GREEN)")/1$$(printf "$(E_END)")/"
-#F_BRACKET="s/\[\(.*\)\]/AA$$(printf "$(E_GREEN)")\1ZZ$$(printf "$(E_END)")AA/g"
-
-# # #XX="s/\[[^][]*\]/$$(printf "$(E_BR_BLUE)")&$$(printf "$(E_END)")/i"
-#YY="s/\'[^][]*\'/$$(printf "$(E_BR_GREEN)")&$$(printf "$(E_END)")/i"
+F_BRACKET="s/\[\(.*\)\]/[$$(printf "$(E_GREEN)")\1$$(printf "$(E_END)")]/"	
 F_VARIABLE="s/\‘\(.*\)[\’\‘]/'$$(printf "$(E_WHITE)")\1$$(printf "$(E_END)")'/g"
-# ‘LC_UnitTest’
-C_FILTER   = | sed -u -e $(F_FATAL_ERROR) -e $(F_ERROR) -e $(FF_ERROR)     \
-                       -e $(F_WARNING) -e $(FF_WARNING)                     \
-                       -e $(F_WARNING1) -e $(F_WARNING2) -e $(F_WARNING3)   \
-                       -e $(F_WARNING4) -e $(F_WARNING5)                    \
-                       -e $(F_NOTE) -e $(FF_NOTE)                           \
-                       -e $(F_INF) -e $(FF_INF) -e $(F_BRACKET) -e $(F_VARIABLE)
+C_FILTER   = | sed -u -e $(F_BRACKET)                          \
+                      -e $(F_FATAL_ERROR) -e $(F_ERROR) -e $(FF_ERROR)     \
+                      -e $(F_WARNING) -e $(FF_WARNING)                     \
+                      -e $(F_WARNING1) -e $(F_WARNING2) -e $(F_WARNING3)   \
+                      -e $(F_WARNING4) -e $(F_WARNING5)                    \
+                      -e $(F_NOTE) -e $(FF_NOTE)                           \
+                      -e $(F_INF) -e $(FF_INF) -e $(F_VARIABLE)
 CPP_FILTER = $(C_FILTER)
 
 LD_ERROR1="s/undefined reference/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
