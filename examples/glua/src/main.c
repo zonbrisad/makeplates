@@ -75,7 +75,7 @@ void safeExit() {
 int main(int argc, char *argv[]) {
     GError *error = NULL;
     GOptionContext *context;
-     //int kalle;
+    //int kalle;
 
     // init log system
     gp_log_init("glua.log");

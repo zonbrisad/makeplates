@@ -1,3 +1,4 @@
+
 # Hey Emacs, this is a -*- makefile -*-
 #----------------------------------------------------------------------------
 # 
@@ -23,10 +24,10 @@ TARGET = glua
 
 # List C, C++ and assembler source files here. (C/C++ dependencies are automatically generated.)
 SRC = src/main.c \
-       src/gp_log.c \
-       src/luaConf.c 
+      src/gp_log.c \
+      src/luaConf.c 
  
-# List C, C++ and assembler library/3rd partry source files here. (C/C++ dependencies are automatically generated.)
+# List C, C++ and assembler library/3rd party source files here. (C/C++ dependencies are automatically generated.)
 LSRC =		src/lua-5.2.3/src/lstrlib.c \
 			src/lua-5.2.3/src/lvm.c \
 			src/lua-5.2.3/src/lzio.c \
@@ -61,17 +62,22 @@ LSRC =		src/lua-5.2.3/src/lstrlib.c \
 			src/lua-5.2.3/src/ldblib.c \
 
 
-
+TSRC = src/main.c        \
+        src/gp_log.c      \
+        src/luaConf.c  \
+        src/Unity/src/unity.c
+  
 # Include directories
 INCLUDE = inc \
           src \
           src/lua-5.2.3/src \
-          src/Unity
+          src/Unity/src
 
 # Libraries to link
 LIB  = -lm 
 LIB += $(shell pkg-config --libs glib-2.0)
 LIB += $(shell pkg-config --libs gthread-2.0)
+LIB += $(shell pkg-config --libs gio-2.0)
 #LIB += $(shell pkg-config --libs ncurses)
 #LIB += $(shell pkg-config --libs lua5.1)
 #LIB += $(shell pkg-config --libs sqlite3)
@@ -157,6 +163,7 @@ CFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void po
 # Library compiler flags C --------------------------------------------------
 CFLAGS += $(shell pkg-config --cflags glib-2.0)
 CFLAGS += $(shell pkg-config --cflags gthread-2.0)
+CFLAGS += $(shell pkg-config --cflags gio-2.0)
 #CFLAGS += $(shell pkg-config --cflags lua5.1)
 #CFLAGS += $(shell pkg-config --cflags sqlite3)
 
@@ -235,6 +242,8 @@ ifeq ($(TARGET_PLATFORM), linux)
 # Target filename
 TRGFILE=$(OUTDIR)/$(TARGET)
 
+TESTTRG=$(OUTDIR)/$(TARGET)_test
+
 # Toolchain base directory
 TCHAIN_BASE=/usr/bin
 
@@ -277,6 +286,7 @@ MPTOOL    = tools/mkptools
 CPPCHECK  = cppcheck
 INSTALL   = install
 ASTYLE    = astyle
+DOXYGEN   = doxygen
 
 TCHAIN = $(TCHAIN_BASE)/$(TCHAIN_PREFIX)
 
@@ -365,16 +375,11 @@ MSG_INSTALLING       = "${C_ACTION}Installing:   ${E_END}"
 MSG_BUILDING         = "$(C_ACTION)Building:     "
 	
 # Compiler output colorizer filter ------------------------------------------
-
 F_INF="s/In function/$$(printf "$(E_BR_GREEN)")&$$(printf "$(E_END)")/i"
-FF_INF="s/^.*In function/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
+F_NOTE="s/note:/$$(printf "$(C_NOTE)")&$$(printf "$(E_END)")/i"
+F_WARNING="s/warning:/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_ERROR="s/error:/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
 F_FATAL_ERROR="s/fatal error:/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
-F_WARNING="s/warning:/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
-F_NOTE="s/note:/$$(printf "$(C_NOTE)")&$$(printf "$(E_END)")/i"
-FF_ERROR="s/^.*error:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
-FF_WARNING="s/^.*warning:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
-FF_NOTE="s/^.*note:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
 F_WARNING1="s/defined but not used/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_WARNING2="s/unused variable/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_WARNING3="s/may be used uninitialized in this function/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
@@ -382,13 +387,16 @@ F_WARNING4="s/implicit declaration of function/$$(printf "$(C_WARNING)")&$$(prin
 F_WARNING5="s/value computed is not used/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_BRACKET="s/\[\(.*\)\]/[$$(printf "$(E_GREEN)")\1$$(printf "$(E_END)")]/"	
 F_VARIABLE="s/\‘\(.*\)[\’\‘]/'$$(printf "$(E_WHITE)")\1$$(printf "$(E_END)")'/g"
-C_FILTER   = | sed -u -e $(F_BRACKET)                          \
-                      -e $(F_FATAL_ERROR) -e $(F_ERROR) -e $(FF_ERROR)     \
-                      -e $(F_WARNING) -e $(FF_WARNING)                     \
-                      -e $(F_WARNING1) -e $(F_WARNING2) -e $(F_WARNING3)   \
-                      -e $(F_WARNING4) -e $(F_WARNING5)                    \
-                      -e $(F_NOTE) -e $(FF_NOTE)                           \
-                      -e $(F_INF) -e $(FF_INF) -e $(F_VARIABLE)
+F_FILE="s/[^: ]*/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/"
+F_ROWNR="s/:[0-9]*:[0-9]*:/$$(printf "$(E_CYAN)")&$$(printf "$(E_END)")/"
+
+C_FILTER   = | sed -u -e $(F_BRACKET) -e $(F_FILE) -e $(F_ROWNR)          \
+                      -e $(F_INF) -e $(F_NOTE)                            \
+ 	                  -e $(F_WARNING) -e $(F_ERROR) -e $(F_FATAL_ERROR)   \
+                      -e $(F_WARNING1) -e $(F_WARNING2) -e $(F_WARNING3)  \
+                      -e $(F_WARNING4) -e $(F_WARNING5)                   \
+                      -e $(F_VARIABLE)
+
 CPP_FILTER = $(C_FILTER)
 
 LD_ERROR1="s/undefined reference/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
@@ -428,11 +436,37 @@ AOBJS    = $(patsubst $(SRCDIR)/%.S,   $(BUILDDIR)/%.o, $(ASRC))
 
 OBJS    = $(COBJS) $(CPPOBJS) $(AOBJS)
 
+
+# Filter out C sources
+TCSRC_1 = $(patsubst $(SRCDIR)/%.cpp,  , $(TSRC) $(LSRC))
+TCSRC   = $(patsubst $(SRCDIR)/%.S,    , $(TCSRC_1))
+
+# Filter out C++ sources
+TCPPSRC_1 = $(patsubst $(SRCDIR)/%.c,  , $(TSRC) $(LSRC))
+TCPPSRC   = $(patsubst $(SRCDIR)/%.S,  , $(TCPPSRC_1))
+
+# Filter out Assembler sources
+TASRC_1 = $(patsubst $(SRCDIR)/%.c,    , $(TSRC) $(LSRC))
+TASRC   = $(patsubst $(SRCDIR)/%.cpp,  , $(TASRC_1))
+
+# Define all object files.
+TCOBJS    = $(patsubst $(SRCDIR)/%.c,   $(BUILDDIR)/%.o, $(TCSRC)) 
+TCPPOBJS  = $(patsubst $(SRCDIR)/%.cpp, $(BUILDDIR)/%.o, $(TCPPSRC))
+TAOBJS    = $(patsubst $(SRCDIR)/%.S,   $(BUILDDIR)/%.o, $(TASRC))
+
+TOBJS    = $(TCOBJS) $(TCPPOBJS) $(TAOBJS)
+
+ALLOBJS = $(OBJS) $(TOBJS)
+
+
 # Define all listing files.
 LST = $(patsubst src/%.c, $(BUILDDIR)/%.lst, $(SRC)) $(patsubst src/%.cpp, $(BUILDDIR)/%.lst, $(CPPSRC)) $(patsubst src/%.S, $(BUILDDIR)/%.lst, $(ASRC))
 
 # Default target.
 all:	begin build finished end
+
+# Unittest target
+test:  buildtest  ## Build inittest target
 
 # Remove colorfilter
 nocolor:
@@ -448,7 +482,20 @@ nc: nocolor all   ## Build with no color on compiler output
 #prof: cflags+=-pg all
 #prof: all
 
-build: elf lss sym size
+# Main target build 
+#build: elf lss sym size
+build: $(TRGFILE) $(OUTDIR)/$(TARGET).lss $(OUTDIR)/$(TARGET).sym size
+#hex: $(OUTDIR)/$(TARGET).hex
+
+# Unittest target build
+
+TESTTARGET:=$(OUTDIR)/$(TARGET)_test
+
+#buildtest: TARGET:=$(TARGET)_test
+#buildtest: TRGFILE = $(OUTDIR)/$(TARGET)
+#buildtest: begin $(TRGFILE) $(OUTDIR)/$(TARGET).lss $(OUTDIR)/$(TARGET).sym end
+buildtest: begin $(TESTTARGET) end
+
 
 elf: $(TRGFILE)
 lss: $(OUTDIR)/$(TARGET).lss
@@ -456,6 +503,8 @@ sym: $(OUTDIR)/$(TARGET).sym
 hex: $(OUTDIR)/$(TARGET).hex
 bin: $(OUTDIR)/$(TARGET).bin
 eep: $(OUTDIR)/$(TARGET).eep
+
+uelf: $(TESTTRG)
 
 # Eye candy.
 begin:
@@ -476,8 +525,14 @@ finished:
 $(TRGFILE): $(OBJS) $(OUTDIR)
 	@echo 
 	@echo -e $(MSG_LINKING)"\n               $(C_FILE)" $@ "$(E_END)"
-	@$(CPP) $(ALL_CFLAGS) $(OBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)
+	@$(CC) $(ALL_CFLAGS) $(OBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)
 	
+.PRECIOUS : $(TOBJS)	
+$(TESTTARGET): $(TOBJS) $(OUTDIR)
+	@echo 
+	@echo -e $(MSG_LINKING)"\n               $(C_FILE)" $@ "$(E_END)"
+	@$(CC) $(ALL_CFLAGS) $(TOBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)
+		
 # Create extended listing file/disassambly from ELF output file.
 # using objdump testing: option -C
 %.lss:	$(TRGFILE)
@@ -498,7 +553,13 @@ $(TRGFILE): $(OBJS) $(OUTDIR)
 	@$(OBJCOPY) -O ihex $< $@
 
 # Compile: create object files from C source files.
-$(COBJS): $(BUILDDIR)/%.o : src/%.c
+#$(COBJS): $(BUILDDIR)/%.o : src/%.c
+#	@$(MKDIR) $(@D)                                       # Create directory for object file
+#	@echo -e $(MSG_COMPILING) "$(C_FILE)" $< "$(E_END)"
+#	@$(CC) -c $(ALL_CFLAGS) $< -o $@ 2>&1  $(C_FILTER)
+	
+# Compile: create object files from C source files.
+$(ALLOBJS): $(BUILDDIR)/%.o : src/%.c
 	@$(MKDIR) $(@D)                                       # Create directory for object file
 	@echo -e $(MSG_COMPILING) "$(C_FILE)" $< "$(E_END)"
 	@$(CC) -c $(ALL_CFLAGS) $< -o $@ 2>&1  $(C_FILTER)
@@ -554,6 +615,7 @@ clean:  ## Remove all build files
 	@$(REMOVE) $(OUTDIR)/$(TARGET).eep
 	@$(REMOVE) $(OUTDIR)/$(TARGET).cof
 	@$(REMOVE) $(OBJS)
+	@$(REMOVE) $(TESTTARGET)
 	@$(REMOVEDIR) .dep
 	@$(REMOVEDIR) $(BUILDDIR)	
 	@find . -name "*~" -delete
@@ -817,34 +879,7 @@ $(PERSONAL):	# Create a settings file
 #============================================================================
 .PHONY: ccheck acheck
 
-
-#F_INF="s/In function/$$(printf "$(E_BR_GREEN)")&$$(printf "$(E_END)")/i"
-#FF_INF="s/^.*In function/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
-#F_ERROR="s/error:/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
-#F_FATAL_ERROR="s/fatal error:/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
-#F_WARNING="s/warning:/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
-#F_NOTE="s/note:/$$(printf "$(C_NOTE)")&$$(printf "$(E_END)")/i"
-#FF_ERROR="s/^.*error:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
-#FF_WARNING="s/^.*warning:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
-#FF_NOTE="s/^.*note:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
-#F_WARNING1="s/defined but not used/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
-#F_WARNING2="s/unused variable/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
-#F_WARNING3="s/may be used uninitialized in this function/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
-#F_WARNING4="s/implicit declaration of function/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
-#F_WARNING5="s/value computed is not used/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
-#F_BRACKET="s/\[-W.*\]/$$(printf "$(E_GREEN)")&$$(printf "$(E_END)")/g"
-#XX="s/\[[^][]*\]/$$(printf "$(E_BR_BLUE)")&$$(printf "$(E_END)")/i"
-#YY="s/\'[^][]*\'/$$(printf "$(E_BR_GREEN)")&$$(printf "$(E_END)")/i"
-# 
-
-#CPPCHECK_FILTER   = | sed -ru -e $(F_FATAL_ERROR) -e $(F_ERROR) -e $(FF_ERROR)     \
-#                       -e $(F_WARNING) -e $(FF_WARNING)                     \
-#                       -e $(F_WARNING1) -e $(F_WARNING2) -e $(F_WARNING3)   \
-#                       -e $(F_WARNING4) -e $(F_WARNING5)                    \
-#                       -e $(F_NOTE) -e $(FF_NOTE)                           \
-#                       -e $(F_INF) -e $(FF_INF) -e $(F_BRACKET)
-
-##F_CPPC_FILE="s/\[.*\]/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
+# Filter rules to colorize output from cppcheck (eye candy)
 F_CPPC_FILE="s/^\[(.*)\]/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
 F_CPPC_STYLE="s/style/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_CPPC_PORTABILITY="s/portability/$$(printf "$(C_CYAN)")&$$(printf "$(E_END)")/i"
@@ -914,6 +949,16 @@ PROG += -b
 
 prof:  run ## Run code profiling
 	gprof $(PROF) $(TRGFILE) gmon.out 
+
+
+#
+# Doxygen documentation generation
+#============================================================================
+.PHONY: doc
+
+doc: ## Generate doxygen documentation
+	$(DOXYGEN)
+
 
 	
 # Listing of phony targets.

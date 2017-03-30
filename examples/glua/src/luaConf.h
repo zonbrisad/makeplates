@@ -92,7 +92,7 @@ extern "C" {
 #define LCT_FUNCTION(name, params, returns)   { LCT_TYPE_FUNCTION, name, NULL, 0, LCT_ERR_VALID, .data.function={params, returns, 0, 0} }
 #define LCT_API(name, params, function)       { LCT_TYPE_API,      name, NULL, 0, LCT_ERR_VALID, .data.api = {params, function} }
 
-#define LCT_COMMENT(cmt)  {LCT_TYPE_COMMENT, cmt, NULL, 0, LCT_ERR_VALID, .data.boolParam = {0,0} }
+#define LCT_COMMENT(cmt)   {LCT_TYPE_COMMENT, cmt, NULL, 0, LCT_ERR_VALID, .data.boolParam = {0,0} }
 #define LCT_LAST()         {LCT_TYPE_LAST,    "",  NULL, 0, LCT_ERR_VALID, .data.boolParam = {0,0} }
 
 
@@ -117,6 +117,7 @@ typedef enum {
     LCT_FLAG_PULL     = 0x0008,  // Pull global variable  from lua space to c space
     LCT_FLAG_ARG      = 0x0010,  // Argument flag
     LCT_FLAG_PARAM    = 0x0020,  //
+	LCT_FLAG_GLOBAL   = 0x0020,  // Parameter is a global variable
 
 } LCT_FLAGS;
 
@@ -228,7 +229,7 @@ typedef void (*intArgGet)(int *);
 
 
 struct luaConf {
-    LCT_TYPES     type;                     // parameter type
+    LCT_TYPES    type;                     // parameter type
     char         name[LCT_NAME_LENGTH];    // parameter name
     char         *desc;                    // parameter description
     uint16_t     flags;                    // parameter control flags
@@ -356,7 +357,7 @@ void LCT_PrintParams(luaConf *conf);
 
 char* LCT_paramLimits(luaConf *param);
 
-int LCT_IsParam(int p);
+int LCT_IsParam(luaConf *param);
 
 void LCT_PrintParamFile(luaConf *param, FILE *f);
 void LCT_File(luaConf *conf);

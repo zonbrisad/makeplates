@@ -280,26 +280,26 @@ char *LCT_val2string(luaConf *param) {
         case LCT_TYPE_STRING:
             return param->data.strParam.val;
 
-//        case LCT_TYPE_INTEGER_LIST:
-//            bp = buf;
-//
-//            for (i = 0; i < param->data.intParam.length; i++) {
-//                //printf("%d ", param->data.intParam.list[i]);
-//                sprintf(bp, "%d ", param->data.intParam.list[i]);
-//                bp += strlen(bp);
-//            }
-//
-//            break;
-//
-//        case LCT_TYPE_DOUBLE_LIST:
-//            bp = buf;
-//
-//            for (i = 0; i < param->data.dblParam.length; i++) {
-//                sprintf(bp, "%.2lf ", param->data.dblParam.list[i]);
-//                bp += strlen(bp);
-//            }
-//
-//            break;
+        //        case LCT_TYPE_INTEGER_LIST:
+        //            bp = buf;
+        //
+        //            for (i = 0; i < param->data.intParam.length; i++) {
+        //                //printf("%d ", param->data.intParam.list[i]);
+        //                sprintf(bp, "%d ", param->data.intParam.list[i]);
+        //                bp += strlen(bp);
+        //            }
+        //
+        //            break;
+        //
+        //        case LCT_TYPE_DOUBLE_LIST:
+        //            bp = buf;
+        //
+        //            for (i = 0; i < param->data.dblParam.length; i++) {
+        //                sprintf(bp, "%.2lf ", param->data.dblParam.list[i]);
+        //                bp += strlen(bp);
+        //            }
+        //
+        //            break;
 
 
         default:
@@ -464,19 +464,20 @@ void LCT_SetDefault(luaConf *param) {
         case LCT_TYPE_INTEGER:
         case LCT_TYPE_INTEGER_PL:
         case LCT_TYPE_INTEGER_NL:
-        	*(LCT_TINT *) param->valPtr = param->data.intParam.default_val;
+            *(LCT_TINT *) param->valPtr = param->data.intParam.default_val;
             break;
 
         case LCT_TYPE_DOUBLE:
         case LCT_TYPE_DOUBLE_PL:
         case LCT_TYPE_DOUBLE_NL:
-        	*(LCT_TDBL *)param->valPtr = param->data.dblParam.default_val;
+            *(LCT_TDBL *)param->valPtr = param->data.dblParam.default_val;
             break;
 
-//        case LCT_TYPE_STRING:
+        case LCT_TYPE_STRING:
+        	param->data.strParam.val = param->data.strParam.default_val;
 //            param->data.strParam.val = malloc( strlen(param->data.strParam.default_val + 1) );
 //            strcpy(param->data.strParam.val, param->data.strParam.default_val);
-//            break;
+            break;
 
         case LCT_TYPE_BOOLEAN:
             *(LCT_TBOOL *)param->valPtr = param->data.boolParam.default_val;
@@ -512,27 +513,26 @@ int list[] = {
     LCT_TYPE_INTEGER_PL,
     LCT_TYPE_DOUBLE_PL,
 
-//    LCT_TYPE_INTEGER_NL,
-//    LCT_TYPE_DOUBLE_NL,
-
     LCT_TYPE_INTEGER_LIST,
     LCT_TYPE_DOUBLE_LIST,
     LCT_TYPE_STRING_LIST,
     LCT_TYPE_BOOLEAN_LIST,
     LCT_TYPE_BYTE_LIST,
-
+    LCT_TYPE_LAST
+};
+int list2[] = {
     LCT_TYPE_TABLE,
     LCT_TYPE_TABLE_LIST,
     LCT_TYPE_COMMENT,
     LCT_TYPE_LAST
 };
 
-int LCT_IsParam(int p) {
+int LCT_IsParam(luaConf *param) {
     int i;
     i = 0;
 
     while (list[i] != LCT_TYPE_LAST) {
-        if (list[i] == p) {
+        if ((list[i] == param->type) && (param->flags & LCT_FLAG_PARAM)) {
             return 1;
         }
 
@@ -544,9 +544,9 @@ int LCT_IsParam(int p) {
 
 void LCT_PrintParamFile(luaConf *param, FILE *f) {
 
-//    if (!LCT_IsParam(param)) {
-//        return;
-//    }
+    //    if (!LCT_IsParam(param)) {
+    //        return;
+    //    }
 
     switch (param->type) {
         case LCT_TYPE_COMMENT:
@@ -570,9 +570,10 @@ void LCT_File(luaConf *conf) {
     i = 0;
 
     while (conf[i].type != LCT_TYPE_LAST) {
-        if (LCT_IsParam(conf[i].type)) {
-          LCT_PrintParamFile(&conf[i], stdout);
+        if (LCT_IsParam(&conf[i])) {
+            LCT_PrintParamFile(&conf[i], stdout);
         }
+
         i++;
     }
 }
@@ -648,15 +649,15 @@ void LCT_validate(luaConf *params) {
 }
 
 void LCT_doFile(LCT *lct, char *luaFile) {
-  if (luaL_dofile(lct->L, luaFile)) {
-    printf("%s\n", lua_tostring(lct->L, -1));
-  }
+    if (luaL_dofile(lct->L, luaFile)) {
+        printf("%s\n", lua_tostring(lct->L, -1));
+    }
 }
 
 void LCT_doString(lua_State *L, char *luaString) {
-  if (luaL_dostring(L, luaString)) {
-    printf("%s\n", lua_tostring(L, -1));
-  }
+    if (luaL_dostring(L, luaString)) {
+        printf("%s\n", lua_tostring(L, -1));
+    }
 }
 
 
@@ -1223,9 +1224,9 @@ void LCT_PushParameter(LCT *lct, luaConf *param, void *value) {
             LCT_PushDblArray(lct, param->data.dblParam.list, LCT_DblListLen(param->data.dblParam.list));
             break;
 
-//
-//        case LCT_TYPE_ARG_STRING_LIST:
-//            break;
+        //
+        //        case LCT_TYPE_ARG_STRING_LIST:
+        //            break;
 
         case LCT_TYPE_TABLE:
             params = param->data.tableParam.params;
@@ -1382,6 +1383,9 @@ luaConf *LCT_FCallSimple(LCT *lct, char *funcName, ...) {
     LCT_PushGlobalVars(lct);
 
     lua_getglobal(lct->L, func->name);
+    if (lua_isnil(lct->L, -1)) {
+         return NULL;
+      }
 
     i = 0;
 
@@ -1421,7 +1425,7 @@ luaConf *LCT_FCallSimple(LCT *lct, char *funcName, ...) {
             case LCT_TYPE_STRING_LIST:
                 sPtr = va_arg(ap, char *);
                 l    = va_arg(ap, int);
-                LCT_PushStrArray(lct, (char**) sPtr , l);
+                LCT_PushStrArray(lct, (char **) sPtr , l);
                 break;
 
             case LCT_TYPE_TABLE:
@@ -1458,6 +1462,10 @@ void LCT_FCallSimple2(LCT *lct, char *funcName, char *format, ...) {
 
     lua_getglobal(lct->L, funcName);
 
+    if (lua_isnil(lct->L, -1)) {
+       return;
+    }
+
     i = 0;
 
     va_start(ap, format);
@@ -1492,14 +1500,14 @@ void LCT_FCallSimple2(LCT *lct, char *funcName, char *format, ...) {
             case 'S':
                 sPtr = va_arg(ap, char *);
                 l    = va_arg(ap, int);
-                LCT_PushStrArray(lct, (char**) sPtr , l);
+                LCT_PushStrArray(lct, (char **) sPtr , l);
                 break;
 
-//            case LCT_TYPE_TABLE:
-//                table = va_arg(ap, luaConf *);
-//                //LCT_PushTable(lct, table->data.customParam.params);
-//                LCT_PushTable(lct, table);
-//                break;
+            //            case LCT_TYPE_TABLE:
+            //                table = va_arg(ap, luaConf *);
+            //                //LCT_PushTable(lct, table->data.customParam.params);
+            //                LCT_PushTable(lct, table);
+            //                break;
 
             default:
                 break;
@@ -1532,7 +1540,7 @@ luaConf tableParams[] = {
     LCT_INT("a", "", 0, 1, 0, 0),
     LCT_DBL("b", "", 0, 0 , 0 , 0),
     LCT_STR("c", "", 0, ""),
-//   LCT_INT_LIST("d", "", 0, 0, 0, 0),
+    //   LCT_INT_LIST("d", "", 0, 0, 0, 0),
     LCT_LAST(),
 };
 
@@ -1586,35 +1594,35 @@ luaConf intReturn[] = {
 
 int cFunction(lua_State *L);
 int cFunction(lua_State *L) {
-	UNUSED(L);
+    UNUSED(L);
     printf("My c function\n");
     return 0;
 }
 
 luaConf confTest[] = {
     LCT_COMMENT("This is a comment"),
-    LCT_INT("IntParam1",        "Correct Integer parameter",       0, -42, 0, 0),
-    LCT_INT("IntParam2",        "Correct Integer parameter",       0, 0, 0, 0),
-    LCT_INT("IntParam3",        "Correct Integer parameter",       0, 0, 0, 0),
-    LCT_INT_PL("IntParam4",     "Int parameter pick list valid value", 0, 0, validIntList),
-    LCT_INT_PL("IntParam5",     "Int parameter pick list invalid value", 0, 0, validIntList),
-    LCT_INT("IntParamInvalid1", "Integer parameter value invalid", 0, 0, 0, 0),
-    LCT_INT("IntParamInvalid2", "Integer parameter value to low",  0, 0, 0, 100),
-    LCT_INT("IntParamInvalid3", "Integer parameter value to high", 0, 0, 0, 100),
-    LCT_DBL("DblParam1",        "Correct Double parameter",        0, 0, 0, 0),
-    LCT_DBL("DblParam2",        "Correct Double parameter",        0, 0, 0, 0),
-    LCT_DBL("DblParam3",        "Correct Double parameter",        0, 0, 0, 0),
-    LCT_DBL("DblParamInvalid1", "Double parameter value invalid",  0, 0, 0, 0),
-    LCT_DBL("DblParamInvalid2", "Double parameter value to low",   0, 0, 1, 100),
-    LCT_DBL("DblParamInvalid3", "Double parameter value to high",  0, 0, 1, 100),
-    LCT_DBL_PL("DblParam4",     "Double parameter pick list valid values", 0, 0, validDblList),
-    LCT_DBL_PL("DblParam5",     "Double parameter pick list valid values", 0, 0, validDblList),
-    LCT_STR("StrParam1",        "Correct String parameter",        0, ""),
-    LCT_STR("StrParam2",        "Correct String parameter",        0, ""),
-    LCT_STR("StrParam3",        "Test of string constant parameter", 0, ""),
-    LCT_STR("StrParamInvalid1", "Invalid String parameter",        0, ""),
-    LCT_BOOLEAN("BoolParam1",  "Boolean parameter",               0, 0),
-    LCT_BOOLEAN("BoolParam2",  "Boolean parameter",               0, 0),
+    LCT_INT("IntParam1",        "Correct Integer parameter",       0,  42, 0, 0),
+    LCT_INT("IntParam2",        "Correct Integer parameter",       0,  42, 0, 0),
+    LCT_INT("IntParam3",        "Correct Integer parameter",       0,  42, 0, 0),
+    LCT_INT_PL("IntParam4",     "Int parameter pick list valid value", 42, 0, validIntList),
+    LCT_INT_PL("IntParam5",     "Int parameter pick list invalid value", 42, 0, validIntList),
+    LCT_INT("IntParamInvalid1", "Integer parameter value invalid", 0,  42, 0, 0),
+    LCT_INT("IntParamInvalid2", "Integer parameter value to low",  0,  42, 0, 100),
+    LCT_INT("IntParamInvalid3", "Integer parameter value to high", 0,  42, 0, 100),
+    LCT_DBL("DblParam1",        "Correct Double parameter",        0,  42, 0, 0),
+    LCT_DBL("DblParam2",        "Correct Double parameter",        0,  42, 0, 0),
+    LCT_DBL("DblParam3",        "Correct Double parameter",        0,  42, 0, 0),
+    LCT_DBL("DblParamInvalid1", "Double parameter value invalid",  0,  42, 0, 0),
+    LCT_DBL("DblParamInvalid2", "Double parameter value to low",   0,  42, 1, 100),
+    LCT_DBL("DblParamInvalid3", "Double parameter value to high",  0,  42, 1, 100),
+    LCT_DBL_PL("DblParam4",     "Double parameter pick list valid values", 0, 42, validDblList),
+    LCT_DBL_PL("DblParam5",     "Double parameter pick list valid values", 0, 42, validDblList),
+    LCT_STR("StrParam1",        "Correct String parameter",        0, "Default string"),
+    LCT_STR("StrParam2",        "Correct String parameter",        0, "Default string"),
+    LCT_STR("StrParam3",        "Test of string constant parameter", 0, "Default string"),
+    LCT_STR("StrParamInvalid1", "Invalid String parameter",        0, "Default string"),
+    LCT_BOOLEAN("BoolParam1",   "Boolean parameter",               0, 0),
+    LCT_BOOLEAN("BoolParam2",   "Boolean parameter",               0, 0),
     LCT_STR("BoolParamTrue",    "Test of all true parameters",     0, ""),
     LCT_STR("BoolParamFalse",   "Test of all false parameters",    0, ""),
     LCT_DBL("MissingParam",     "Missing parameter",               0, 0, 0, 0),
@@ -1635,16 +1643,16 @@ luaConf confTest[] = {
     LCT_STRING_CONST("StrConst",  "A little string constant"),
 
     // LCT functions
-    LCT_FUNCTION("MyFunction",      NULL, intReturn),
-    LCT_FUNCTION("FunIntArg",       funIntArg, NULL),
-    LCT_FUNCTION("FunDblArg",       funDblArg, NULL),
-    LCT_FUNCTION("FunStrArg",       funStrArg, NULL),
-    LCT_FUNCTION("FunMultiArg",     funMultiArg, NULL),
+    LCT_FUNCTION("MyFunction",      NULL,          intReturn),
+    LCT_FUNCTION("FunIntArg",       funIntArg,     NULL),
+    LCT_FUNCTION("FunDblArg",       funDblArg,     NULL),
+    LCT_FUNCTION("FunStrArg",       funStrArg,     NULL),
+    LCT_FUNCTION("FunMultiArg",     funMultiArg,   NULL),
     LCT_FUNCTION("FunIntListArg",   funIntListArg, NULL),
     LCT_FUNCTION("FunDblListArg",   funDblListArg, NULL),
     LCT_FUNCTION("FunStrListArg",   funStrListArg, NULL),
-    LCT_FUNCTION("FunTableArg",     funTableArg, NULL),
-    LCT_FUNCTION("MissingFunction", NULL, NULL),
+    LCT_FUNCTION("FunTableArg",     funTableArg,   NULL),
+    LCT_FUNCTION("MissingFunction", NULL,          NULL),
 
     LCT_FUNCTION("FunGlobalVarsToLua",   NULL, NULL),
     LCT_FUNCTION("FunGlobalVarsFromLua", NULL, NULL),
@@ -1741,15 +1749,15 @@ void LCT_Test(void) {
     };
 
 
-
+    LCT_SetDefaults(lct->params);
     LCT_File(confTest);
 
     //LCT_PrintProblems(confTest);
 
-//    LCT_FCallSimple2(lct, "SimpleTest", "i", 23);
-//    LCT_FCallSimple2(lct, "SimpleTest", "d", 43.68);
-//    LCT_FCallSimple2(lct, "SimpleTest", "s", "En liten string");
-//    LCT_FCallSimple2(lct, "SimpleTest", "ii", 23, 32);
+    //    LCT_FCallSimple2(lct, "SimpleTest", "i", 23);
+    //    LCT_FCallSimple2(lct, "SimpleTest", "d", 43.68);
+    //    LCT_FCallSimple2(lct, "SimpleTest", "s", "En liten string");
+    //    LCT_FCallSimple2(lct, "SimpleTest", "ii", 23, 32);
     //LCT_FCallSimple2(lct, "SimpleTest", "I", *(int){1,2,3,66,8,99}, 3);
 
     exit(0);
