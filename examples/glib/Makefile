@@ -423,7 +423,6 @@ eep: $(OUTDIR)/$(TARGET).eep
 begin:
 	@echo -e $(MSG_BEGIN)
 	@echo -e ${MSG_BUILDING}"  $(E_BR_GREEN)$(TARGET) $(E_END)"
-	@echo -e $(COBJS)
  
 end:
 	@echo
