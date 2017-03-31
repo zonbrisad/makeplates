@@ -1012,7 +1012,7 @@ int main(int argc, char *argv[]) {
         exit(0);
     }
 
-    // stdin test
+    // CLI test
     if (opt_cliTest) {
         cliTest();
         exit(0);

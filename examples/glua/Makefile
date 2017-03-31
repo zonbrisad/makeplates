@@ -122,7 +122,6 @@ CPPDEFS =
 # 3 = maximal debug information
 DEBUG=3
 
-
 #
 # Compiler and Linker options
 #============================================================================
@@ -173,7 +172,7 @@ CFLAGS += -pg
 # Compiler Options C++ ------------------------------------------------------
 CPPFLAGS = -g$(DEBUG)                              # Debugging information
 CPPFLAGS += -O$(OPT)                               # Optimisation level
-CPPFLAGS += -std=$(CPPSTANDARD)                      # C standard
+CPPFLAGS += -std=$(CPPSTANDARD)                    # C++ standard
 CPPFLAGS += $(patsubst %,-I%,$(INCLUDE))           # Include directories 
 CPPFLAGS += $(patsubst %,-D%,$(CPPDEFS))           # Macro definitions
 CPPFLAGS += -Wa,-adhlns=$(<:%.cpp=$(OBJDIR)/%.lst) # Generate assembler listing
@@ -338,8 +337,6 @@ C_FILE=$(E_BR_CYAN)
 C_NOTE=$(E_BR_GREEN)
 C_MSG=$(E_BR_GREEN)
 C_ACTION=$(E_BR_MAGENTA)
-
-
 
 # Messages ------------------------------------------------------------------
 MSG_LINE             = "$(E_WHITE)------------------------------------------------------------------$(E_END)"
@@ -784,6 +781,14 @@ list-ldflags: ## List linker flags
 	@for f in $(LDFLAGS); do   \
 	  echo $${f} ;             \
 	done                       \
+
+list-objs: ## List objects 
+	@echo -e $(MSG_INCLUDES)
+	@export IFS=" "
+	@for f in $(OBJS); do   \
+	  echo $${f} ;             \
+	done        
+
 
 check: ## Check if tools and libraries are present 
 	@$(MPTOOL) ce $(CC)

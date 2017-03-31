@@ -344,7 +344,7 @@ F_WARNING5="s/value computed is not used/$$(printf "$(C_WARNING)")&$$(printf "$(
 F_BRACKET="s/\[\(.*\)\]/[$$(printf "$(E_GREEN)")\1$$(printf "$(E_END)")]/"	
 F_VARIABLE="s/\‘\(.*\)[\’\‘]/'$$(printf "$(E_WHITE)")\1$$(printf "$(E_END)")'/g"
 F_FILE="s/[^: ]*/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/"
-F_ROWNR="s/:[0-9]*:[0-9]*:/$$(printf "$(E_CYAN)")&$$(printf "$(E_END)")/"
+F_ROWNR="s/:\([0-9]*\):\([0-9]*\):/:$$(printf "$(E_WHITE)$(E_ON_BLUE)")\1$$(printf "$(E_END)"):$$(printf "$(E_WHITE)$(E_ON_BLUE)")\2$$(printf "$(E_END)"):/"
 
 C_FILTER   = | sed -u -e $(F_BRACKET) -e $(F_FILE) -e $(F_ROWNR)          \
                       -e $(F_INF) -e $(F_NOTE)                            \
