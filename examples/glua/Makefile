@@ -331,12 +331,14 @@ E_ON_CYAN      = \033[46m
 E_ON_WHITE     = \033[47m
 
 C_OK=$(E_BR_GREEN)
-C_ERROR=$(E_BR_RED)
 C_WARNING=$(E_BR_YELLOW)
+C_ERROR=$(E_BR_RED)
 C_FILE=$(E_BR_CYAN)
 C_NOTE=$(E_BR_GREEN)
 C_MSG=$(E_BR_GREEN)
 C_ACTION=$(E_BR_MAGENTA)
+C_VALUE=$(E_WHITE)$(E_ON_BLUE)
+C_IDENTIFIER=$(E_WHITE)
 
 # Messages ------------------------------------------------------------------
 MSG_LINE             = "$(E_WHITE)------------------------------------------------------------------$(E_END)"
@@ -385,9 +387,9 @@ F_WARNING3="s/may be used uninitialized in this function/$$(printf "$(C_WARNING)
 F_WARNING4="s/implicit declaration of function/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_WARNING5="s/value computed is not used/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_BRACKET="s/\[\(.*\)\]/[$$(printf "$(E_GREEN)")\1$$(printf "$(E_END)")]/"	
-F_VARIABLE="s/\‘\(.*\)[\’\‘]/'$$(printf "$(E_WHITE)")\1$$(printf "$(E_END)")'/g"
+F_VARIABLE="s/\‘\(.*\)[\’\‘]/'$$(printf "$(C_IDENTIFIER)")\1$$(printf "$(E_END)")'/g"
 F_FILE="s/[^: ]*/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/"
-F_ROWNR="s/:\([0-9]*\):\([0-9]*\):/:$$(printf "$(E_WHITE)$(E_ON_BLUE)")\1$$(printf "$(E_END)"):$$(printf "$(E_WHITE)$(E_ON_BLUE)")\2$$(printf "$(E_END)"):/"
+F_ROWNR="s/:\([0-9]*\):\([0-9]*\):/:$$(printf "$(C_VALUE)")\1$$(printf "$(E_END)"):$$(printf "$(C_VALUE)")\2$$(printf "$(E_END)"):/"
 
 C_FILTER   = | sed -u -e $(F_BRACKET) -e $(F_FILE) -e $(F_ROWNR)          \
                       -e $(F_INF) -e $(F_NOTE)                            \
@@ -887,11 +889,14 @@ $(PERSONAL):	# Create a settings file
 .PHONY: ccheck acheck
 
 # Filter rules to colorize output from cppcheck (eye candy)
-F_CPPC_FILE="s/^\[(.*)\]/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
+F_CPPC_FILE="s/\[\(.*\):\(.*\)\]/[$$(printf "$(C_FILE)")\1$$(printf "$(E_END)"):\2]/i"
+F_CPPC_ROWNR="s/:\([0-9]*\)\]/:$$(printf "$(C_VALUE)")\1$$(printf "$(E_END)")]/"
+F_CPPC_VAR="s/'\(.*\)'/'$$(printf "$(C_IDENTIFIER)")\1$$(printf "$(E_END)")'/g"
 F_CPPC_STYLE="s/style/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_CPPC_PORTABILITY="s/portability/$$(printf "$(C_CYAN)")&$$(printf "$(E_END)")/i"
 F_CPPC_ERROR="s/error/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
-CPPCHECK_FILTER   = 2>&1 | sed -ru -e $(F_CPPC_FILE) -e $(F_CPPC_STYLE) -e $(F_CPPC_ERROR) -e $(F_CPPC_PORTABILITY)
+F_CPPC_CHECK="s/\(Checking \)\(.*\)/$$(printf "$(C_ACTION)")\1$$(printf "$(E_END)")$$(printf "$(C_FILE)")\2$$(printf "$(E_END)")/i"	
+CPPCHECK_FILTER   = 2>&1 | sed -u -e $(F_CPPC_ROWNR) -e $(F_CPPC_FILE) -e $(F_CPPC_STYLE) -e $(F_CPPC_ERROR) -e $(F_CPPC_PORTABILITY) -e $(F_CPPC_VAR)  -e $(F_CPPC_CHECK)
 
 ccheck: ## Static code analysis using cppcheck(errors only)
 	@$(CPPCHECK) --inline-suppr $(SRC)  $(CPPCHECK_FILTER)
