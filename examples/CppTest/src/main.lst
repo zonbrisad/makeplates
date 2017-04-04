@@ -221,9 +221,9 @@
  162              		.section	.note.GNU-stack,"",@progbits
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 main.cpp
-     /tmp/ccVlZ0Hl.s:12     .text:0000000000000000 _Z6sigHupi
-     /tmp/ccVlZ0Hl.s:36     .text:0000000000000020 _Z6sigInti
-     /tmp/ccVlZ0Hl.s:68     .text.startup:0000000000000000 main
+     /tmp/ccuefewa.s:12     .text:0000000000000000 _Z6sigHupi
+     /tmp/ccuefewa.s:36     .text:0000000000000020 _Z6sigInti
+     /tmp/ccuefewa.s:68     .text.startup:0000000000000000 main
 
 UNDEFINED SYMBOLS
 __printf_chk
