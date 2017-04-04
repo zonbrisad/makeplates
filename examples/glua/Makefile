@@ -166,8 +166,6 @@ CFLAGS += $(shell pkg-config --cflags gio-2.0)
 #CFLAGS += $(shell pkg-config --cflags lua5.1)
 #CFLAGS += $(shell pkg-config --cflags sqlite3)
 
-# Profiling option
-CFLAGS += -pg
 
 # Compiler Options C++ ------------------------------------------------------
 CPPFLAGS = -g$(DEBUG)                              # Debugging information
@@ -228,8 +226,6 @@ LDFLAGS = -Wl,-Map=$(OUTDIR)/$(TARGET).map,--cref
 LDFLAGS += $(EXTMEMOPTS)
 LDFLAGS += $(patsubst %,-L%,$(INCLUDE))
 LDFLAGS += -g
-
-LDFLAGS += -pg
 
 #
 # Platform specific options
@@ -343,8 +339,8 @@ C_IDENTIFIER=$(E_WHITE)
 
 # Messages ------------------------------------------------------------------
 MSG_LINE             = "$(E_WHITE)------------------------------------------------------------------$(E_END)"
-MSG_BEGIN            = "${E_WHITE}===== Begin ${E_GRAY}------------------------------------------------------------${E_END}"
-MSG_END              = "${E_WHITE}===== End${E_GRAY} --------------------------------------------------------------${E_END}"
+MSG_BEGIN            = "${E_WHITE}-------------------------------- Begin ---------------------------${E_END}"
+MSG_END              = "${E_WHITE}-------------------------------- End -----------------------------${E_END}"
 MSG_ERRORS_NONE      = "${C_OK}Errors: none ${E_END}"
 MSG_LINKING          = "${C_ACTION}Linking:${E_END}"
 MSG_COMPILING        = "${C_ACTION}Compiling C:  ${E_END}"
@@ -490,6 +486,11 @@ nc: nocolor all   ## Build with no color on compiler output
 #build: elf lss sym size
 build: $(TRGFILE) $(OUTDIR)/$(TARGET).lss $(OUTDIR)/$(TARGET).sym size
 #hex: $(OUTDIR)/$(TARGET).hex
+
+buildprof: CFLAGS   += -pg  ## Build target with profiling symbols
+buildprof: CPPFLAGS += -pg
+buildprof: LDLAGS   += -pg
+buildprof: $(TRGFILE) $(OUTDIR)/$(TARGET).lss $(OUTDIR)/$(TARGET).sym size
 
 # Unittest target build
 
@@ -861,17 +862,6 @@ info: list-info list-includes list-defs list-flags list-ldflags list-installinfo
 
 files: list-src ## List source files
 
-
-#C_OK=$(E_BR_GREEN)
-#C_WARNING=$(E_BR_YELLOW)
-#C_ERROR=$(E_BR_RED)
-#C_FILE=$(E_BR_CYAN)
-#C_DIR=$(E_CYAN)
-#C_NOTE=$(E_BR_GREEN)
-#C_MSG=$(E_BR_GREEN)
-#C_ACTION=$(E_BR_MAGENTA)
-#C_VALUE=$(E_WHITE)$(E_ON_BLUE)
-#C_IDENTIFIER=$(E_WHITE)
 colorinfo: ## Show colorcoding info
 	@echo -e "     $(C_OK)Ok color$(E_END)"
 	@echo -e "     $(C_WARNING)Warning color$(E_END)"
@@ -894,12 +884,12 @@ gccversion :    ## Display compiler version
 AUTHOR=Peter Malmberg <peter.malmberg@gmail.com>
 EDITOR=jed
 US:=$$USER
-#PERSONAL=personal_$${USER}.mk
-PERSONAL=personal.mk
+PERSONAL:=personal_${USER}.mk
+#PERSONAL=personal.mk
 
 # Include some external settings
 # If file does not exist it will be generated.
-include  ${PERSONAL}
+include  $(PERSONAL)
 
 $(PERSONAL):	# Create a settings file
 	@echo "#" > ${PERSONAL}
