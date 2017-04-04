@@ -626,6 +626,7 @@ clean:  ## Remove all build files
 	@$(REMOVEDIR) .dep
 	@$(REMOVEDIR) $(BUILDDIR)	
 	@find . -name "*~" -delete
+	@find . -name "*.orig" -delete
 
 
 archive: ## Make a tar archive of the source code

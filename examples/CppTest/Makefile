@@ -82,7 +82,7 @@ CPPDEFS =
 # 1 = minimal debug information
 # 2 = normal debug information 
 # 3 = maximal debug information
-DEBUG=0
+DEBUG=2
 
 #
 # Compiler and Linker options
@@ -629,7 +629,7 @@ newfile:  ## Create a new C file
 newclass:  ## Create a new C++ class
 	@${CTEMPLATE} --newclass --dir src --author "$(AUTHOR)" --licence "$(LICENCE)"	
 		
-#newproj:  ## Create a new project
+#newproj:  # Create a new project
 #	@${PROJECT} newproj
 
 
