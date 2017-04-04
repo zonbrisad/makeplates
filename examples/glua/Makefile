@@ -861,6 +861,28 @@ info: list-info list-includes list-defs list-flags list-ldflags list-installinfo
 
 files: list-src ## List source files
 
+
+#C_OK=$(E_BR_GREEN)
+#C_WARNING=$(E_BR_YELLOW)
+#C_ERROR=$(E_BR_RED)
+#C_FILE=$(E_BR_CYAN)
+#C_DIR=$(E_CYAN)
+#C_NOTE=$(E_BR_GREEN)
+#C_MSG=$(E_BR_GREEN)
+#C_ACTION=$(E_BR_MAGENTA)
+#C_VALUE=$(E_WHITE)$(E_ON_BLUE)
+#C_IDENTIFIER=$(E_WHITE)
+colorinfo: ## Show colorcoding info
+	@echo -e "     $(C_OK)Ok color$(E_END)"
+	@echo -e "     $(C_WARNING)Warning color$(E_END)"
+	@echo -e "     $(C_ERROR)Error color$(E_END)"
+	@echo -e "     $(C_DIR)Directory color$(E_END)"
+	@echo -e "     $(C_FILE)File color$(E_END)"
+	@echo -e "     $(C_NOTE)Note color$(E_END)"
+	@echo -e "     $(C_ACTION)Action color$(E_END)"
+	@echo -e "     ${C_VALUE}Value color$(E_END)"
+	@echo -e "     ${C_IDENTIFIER}Identifier color$(E_END)"
+
 gccversion :    ## Display compiler version
 	@$(CC) --version
 	
