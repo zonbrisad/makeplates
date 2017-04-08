@@ -166,8 +166,6 @@ CFLAGS += $(shell pkg-config --cflags gio-2.0)
 #CFLAGS += $(shell pkg-config --cflags lua5.1)
 #CFLAGS += $(shell pkg-config --cflags sqlite3)
 
-# Profiling option
-CFLAGS += -pg
 
 # Compiler Options C++ ------------------------------------------------------
 CPPFLAGS = -g$(DEBUG)                              # Debugging information
@@ -228,8 +226,6 @@ LDFLAGS = -Wl,-Map=$(OUTDIR)/$(TARGET).map,--cref
 LDFLAGS += $(EXTMEMOPTS)
 LDFLAGS += $(patsubst %,-L%,$(INCLUDE))
 LDFLAGS += -g
-
-LDFLAGS += -pg
 
 #
 # Platform specific options
@@ -331,17 +327,20 @@ E_ON_CYAN      = \033[46m
 E_ON_WHITE     = \033[47m
 
 C_OK=$(E_BR_GREEN)
-C_ERROR=$(E_BR_RED)
 C_WARNING=$(E_BR_YELLOW)
+C_ERROR=$(E_BR_RED)
 C_FILE=$(E_BR_CYAN)
+C_DIR=$(E_CYAN)
 C_NOTE=$(E_BR_GREEN)
 C_MSG=$(E_BR_GREEN)
 C_ACTION=$(E_BR_MAGENTA)
+C_VALUE=$(E_WHITE)$(E_ON_BLUE)
+C_IDENTIFIER=$(E_WHITE)
 
 # Messages ------------------------------------------------------------------
 MSG_LINE             = "$(E_WHITE)------------------------------------------------------------------$(E_END)"
-MSG_BEGIN            = "${E_WHITE}===== Begin ${E_GRAY}------------------------------------------------------------${E_END}"
-MSG_END              = "${E_WHITE}===== End${E_GRAY} --------------------------------------------------------------${E_END}"
+MSG_BEGIN            = "${E_WHITE}-------------------------------- Begin ---------------------------${E_END}"
+MSG_END              = "${E_WHITE}-------------------------------- End -----------------------------${E_END}"
 MSG_ERRORS_NONE      = "${C_OK}Errors: none ${E_END}"
 MSG_LINKING          = "${C_ACTION}Linking:${E_END}"
 MSG_COMPILING        = "${C_ACTION}Compiling C:  ${E_END}"
@@ -374,6 +373,7 @@ MSG_INSTALLING       = "${C_ACTION}Installing:   ${E_END}"
 MSG_BUILDING         = "$(C_ACTION)Building:     "
 	
 # Compiler output colorizer filter ------------------------------------------
+F_SOURCE=| sed -e "s/\(.*\/\)\(.*\)/$$(printf "$(C_DIR)")\1$$(printf "$(C_FILE)")\2$$(printf "$(E_END)")/"
 F_INF="s/In function/$$(printf "$(E_BR_GREEN)")&$$(printf "$(E_END)")/i"
 F_NOTE="s/note:/$$(printf "$(C_NOTE)")&$$(printf "$(E_END)")/i"
 F_WARNING="s/warning:/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
@@ -385,9 +385,10 @@ F_WARNING3="s/may be used uninitialized in this function/$$(printf "$(C_WARNING)
 F_WARNING4="s/implicit declaration of function/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_WARNING5="s/value computed is not used/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_BRACKET="s/\[\(.*\)\]/[$$(printf "$(E_GREEN)")\1$$(printf "$(E_END)")]/"	
-F_VARIABLE="s/\‘\(.*\)[\’\‘]/'$$(printf "$(E_WHITE)")\1$$(printf "$(E_END)")'/g"
+F_VARIABLE="s/\‘\(.*\)[\’\‘]/'$$(printf "$(C_IDENTIFIER)")\1$$(printf "$(E_END)")'/g"
 F_FILE="s/[^: ]*/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/"
-F_ROWNR="s/:\([0-9]*\):\([0-9]*\):/:$$(printf "$(E_WHITE)$(E_ON_BLUE)")\1$$(printf "$(E_END)"):$$(printf "$(E_WHITE)$(E_ON_BLUE)")\2$$(printf "$(E_END)"):/"
+#F_FILE="s/\(.*\/\)\(.*\):/$$(printf "$(C_DIR)")\1$$(printf "$(C_FILE)")\2$$(printf "$(E_END)"):/1"
+F_ROWNR="s/:\([0-9]*\):\([0-9]*\):/:$$(printf "$(C_VALUE)")\1$$(printf "$(E_END)"):$$(printf "$(C_VALUE)")\2$$(printf "$(E_END)"):/"
 
 C_FILTER   = | sed -u -e $(F_BRACKET) -e $(F_FILE) -e $(F_ROWNR)          \
                       -e $(F_INF) -e $(F_NOTE)                            \
@@ -486,6 +487,11 @@ nc: nocolor all   ## Build with no color on compiler output
 build: $(TRGFILE) $(OUTDIR)/$(TARGET).lss $(OUTDIR)/$(TARGET).sym size
 #hex: $(OUTDIR)/$(TARGET).hex
 
+buildprof: CFLAGS   += -pg  ## Build target with profiling symbols
+buildprof: CPPFLAGS += -pg
+buildprof: LDLAGS   += -pg
+buildprof: $(TRGFILE) $(OUTDIR)/$(TARGET).lss $(OUTDIR)/$(TARGET).sym size
+
 # Unittest target build
 
 TESTTARGET:=$(OUTDIR)/$(TARGET)_test
@@ -508,7 +514,7 @@ uelf: $(TESTTRG)
 # Eye candy.
 begin:
 	@echo -e $(MSG_BEGIN)
-	@echo -e ${MSG_BUILDING}"  $(E_BR_GREEN)$(TARGET) $(E_END)"
+	@echo -e ${MSG_BUILDING}" $(E_BR_GREEN)$(TARGET) $(E_END)"
  
 end:
 	@echo
@@ -522,8 +528,8 @@ finished:
 #.SECONDARY : $(TARGET)
 .PRECIOUS : $(OBJS)
 $(TRGFILE): $(OBJS) $(OUTDIR)
-	@echo 
-	@echo -e $(MSG_LINKING)"\n               $(C_FILE)" $@ "$(E_END)"
+	@echo -en "\n"$(MSG_LINKING)"\n               "
+	@echo -e $@ $(F_SOURCE)
 	@$(CC) $(ALL_CFLAGS) $(OBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)
 	
 .PRECIOUS : $(TOBJS)	
@@ -535,14 +541,14 @@ $(TESTTARGET): $(TOBJS) $(OUTDIR)
 # Create extended listing file/disassambly from ELF output file.
 # using objdump testing: option -C
 %.lss:	$(TRGFILE)
-	@echo
-	@echo -e $(MSG_EXTENDED_LISTING) "\n               $(C_FILE)" $@ "$(E_END)"
+	@echo -en "\n"$(MSG_EXTENDED_LISTING) "\n               "
+	@echo -e $@ $(F_SOURCE)
 	@$(OBJDUMP) -h -S -C -r $< > $@
 	
 # Create a symbol table from ELF output file.
 %.sym: $(TRGFILE)
-	@echo
-	@echo -e $(MSG_SYMBOL_TABLE) "\n               $(C_FILE)" $@ "$(E_END)"
+	@echo -en "\n"${MSG_SYMBOL_TABLE}"\n               "
+	@echo -e $@ $(F_SOURCE)
 	@$(NM) -n $< > $@
 
 # Create hex file from ELF output file.
@@ -560,13 +566,15 @@ $(TESTTARGET): $(TOBJS) $(OUTDIR)
 # Compile: create object files from C source files.
 $(ALLOBJS): $(BUILDDIR)/%.o : src/%.c
 	@$(MKDIR) $(@D)                                       # Create directory for object file
-	@echo -e $(MSG_COMPILING) "$(C_FILE)" $< "$(E_END)"
+	@echo -en $(MSG_COMPILING)" "
+	@echo -e $< $(F_SOURCE)
 	@$(CC) -c $(ALL_CFLAGS) $< -o $@ 2>&1  $(C_FILTER)
 
 # Compile: create object files from C++ source files.
 $(CPPOBJS): $(BUILDDIR)/%.o : src/%.cpp
 	@$(MKDIR) $(@D)                                       # Create directory for object file
-	@echo -e $(MSG_COMPILING_CPP) "$(C_FILE)" $< "$(E_END)"
+	@echo -en $(MSG_COMPILING_CPP)" " 
+	@echo -e $< $(F_SOURCE)
 	@$(CPP) -c $(ALL_CPPFLAGS) $< -o $@ 2>&1  $(CPP_FILTER)
 	
 # Assemble: create object files from assembler source files.
@@ -618,6 +626,7 @@ clean:  ## Remove all build files
 	@$(REMOVEDIR) .dep
 	@$(REMOVEDIR) $(BUILDDIR)	
 	@find . -name "*~" -delete
+	@find . -name "*.orig" -delete
 
 
 archive: ## Make a tar archive of the source code
@@ -854,6 +863,17 @@ info: list-info list-includes list-defs list-flags list-ldflags list-installinfo
 
 files: list-src ## List source files
 
+colorinfo: ## Show colorcoding info
+	@echo -e "     $(C_OK)Ok color$(E_END)"
+	@echo -e "     $(C_WARNING)Warning color$(E_END)"
+	@echo -e "     $(C_ERROR)Error color$(E_END)"
+	@echo -e "     $(C_DIR)Directory color$(E_END)"
+	@echo -e "     $(C_FILE)File color$(E_END)"
+	@echo -e "     $(C_NOTE)Note color$(E_END)"
+	@echo -e "     $(C_ACTION)Action color$(E_END)"
+	@echo -e "     ${C_VALUE}Value color$(E_END)"
+	@echo -e "     ${C_IDENTIFIER}Identifier color$(E_END)"
+
 gccversion :    ## Display compiler version
 	@$(CC) --version
 	
@@ -865,12 +885,12 @@ gccversion :    ## Display compiler version
 AUTHOR=Peter Malmberg <peter.malmberg@gmail.com>
 EDITOR=jed
 US:=$$USER
-#PERSONAL=personal_$${USER}.mk
-PERSONAL=personal.mk
+PERSONAL:=personal_${USER}.mk
+#PERSONAL=personal.mk
 
 # Include some external settings
 # If file does not exist it will be generated.
-include  ${PERSONAL}
+include  $(PERSONAL)
 
 $(PERSONAL):	# Create a settings file
 	@echo "#" > ${PERSONAL}
@@ -887,11 +907,14 @@ $(PERSONAL):	# Create a settings file
 .PHONY: ccheck acheck
 
 # Filter rules to colorize output from cppcheck (eye candy)
-F_CPPC_FILE="s/^\[(.*)\]/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
+F_CPPC_FILE="s/\[\(.*\):\(.*\)\]/[$$(printf "$(C_FILE)")\1$$(printf "$(E_END)"):\2]/i"
+F_CPPC_ROWNR="s/:\([0-9]*\)\]/:$$(printf "$(C_VALUE)")\1$$(printf "$(E_END)")]/"
+F_CPPC_VAR="s/'\(.*\)'/'$$(printf "$(C_IDENTIFIER)")\1$$(printf "$(E_END)")'/g"
 F_CPPC_STYLE="s/style/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_CPPC_PORTABILITY="s/portability/$$(printf "$(C_CYAN)")&$$(printf "$(E_END)")/i"
 F_CPPC_ERROR="s/error/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
-CPPCHECK_FILTER   = 2>&1 | sed -ru -e $(F_CPPC_FILE) -e $(F_CPPC_STYLE) -e $(F_CPPC_ERROR) -e $(F_CPPC_PORTABILITY)
+F_CPPC_CHECK="s/\(Checking \)\(.*\)/$$(printf "$(C_ACTION)")\1$$(printf "$(E_END)")$$(printf "$(C_FILE)")\2$$(printf "$(E_END)")/i"	
+CPPCHECK_FILTER   = 2>&1 | sed -u -e $(F_CPPC_ROWNR) -e $(F_CPPC_FILE) -e $(F_CPPC_STYLE) -e $(F_CPPC_ERROR) -e $(F_CPPC_PORTABILITY) -e $(F_CPPC_VAR)  -e $(F_CPPC_CHECK)
 
 ccheck: ## Static code analysis using cppcheck(errors only)
 	@$(CPPCHECK) --inline-suppr $(SRC)  $(CPPCHECK_FILTER)

@@ -37,26 +37,48 @@ scriptName=$(basename $0)
 # User defined Settings
 #---------------------------------------------------------------------
 
+MPT_DIR=makeplate_files
+MPT_INSTALL_DIR=~/bin/${MPT_DIR}
+
+if [ -e ${scriptPath}/MPT ]; then
+  MPT=1
+else
+  NEW=1
+fi
 
 #---------------------------------------------------------------------
 # User defined functions
 #---------------------------------------------------------------------
 
-
-toolsDistribute() {
+toolsDistribute() { 
   cp -f "$1" ${scriptPath}/../examples/glib/tools/.
 	cp -f "$1" ${scriptPath}/../examples/glua/tools/.
 	cp -f "$1" ${scriptPath}/../examples/avr/tools/.
 	cp -f "$1" ${scriptPath}/../examples/STM32/tools/.
 }
 
-tdist() { ## Distribute tools to example projects
+tdist() { ##C MPT Distribute tools to example projects
   toolsDistribute tools/ctemplate.py
 	toolsDistribute tools/bin2array.py
   toolsDistribute tools/mkptools	
 }
 
 
+install-local() { ##C MPT Install makeplate localy for easy creating new projects
+  echo -e "Installing makeplates locally"
+  mkdir -p ${MPT_INSTALL_DIR}
+	make clean
+	cp -rf ${scriptPath}/* ${MPT_INSTALL_DIR}/.
+	
+	ln -fs ${MPT_INSTALL_DIR}/makeplate ~/bin/makeplate 
+	rm -f ${MPT_INSTALL_DIR}/MPT
+}
+
+new() { ##C NEW Create a new standard makeplate project
+  echo -e "Creating new makeplate project"
+  cp -rf ${scriptPath}/${MPT_DIR}/* .
+	rm -f makeplate
+}
 
 #--------------------------------------------------------------------- 
 # Bashplate settings

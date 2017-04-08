@@ -5,12 +5,13 @@
 archive
 backup
 output
-personal.mk
+personal*.mk
 
 # Temporary files
 #--------------------------------------------------------------------
 *.tmp
 *.old
+*.orig
 *~
 
 # Revision control
@@ -28,6 +29,12 @@ personal.mk
 *.elf
 *.lo
 *.slo
+
+# Symbols etc
+*.lst
+*.sym
+*.map
+*.lss
 
 # Precompiled Headers
 *.gch
@@ -53,6 +60,9 @@ personal.mk
 *.i*86
 *.x86_64
 *.hex
+*.bin
+*.elf
+*.a
 
 # Debug files
 *.dSYM/
@@ -60,4 +70,4 @@ personal.mk
 # Misc
 #--------------------------------------------------------------------
 *.d
-
+.dep

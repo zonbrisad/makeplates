@@ -649,8 +649,18 @@ void LCT_validate(luaConf *params) {
 }
 
 void LCT_doFile(LCT *lct, char *luaFile) {
-    if (luaL_dofile(lct->L, luaFile)) {
+	int err;
+
+	err = luaL_loadfile(lct->L, luaFile);
+
+	if (!err) {
+		err = lua_pcall(lct->L, 0, LUA_MULTRET, 0);
+	}
+	//err = luaL_dofile(lct->L, luaFile);
+    if (err) {
         printf("%s\n", lua_tostring(lct->L, -1));
+        lua_pop(lct->L, 1);
+        exit(0);
     }
 }
 
@@ -987,6 +997,7 @@ void LCT_StackDump(lua_State *l) {
 
 void LCT_read(LCT *lct, char *confFile) {
     int i;
+    int err;
     luaConf *param;
 
     luaConf *params = lct->params;

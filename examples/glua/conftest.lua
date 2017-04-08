@@ -224,3 +224,9 @@ end
 --function MissingFunction()  
 --  print("This function is missing")
 --end
+
+
+
+-- Parse error
+sven()
+
