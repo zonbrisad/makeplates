@@ -89,27 +89,17 @@ install() { ##C MPT Install makeplates on system
 
 install-local() { ##C MPT Install makeplates localy for easy creating new projects
   echo -e "Installing makeplates locally"
-  mkdir -p ${MPT_INSTALL_DIR}
-	make clean
-	
-	# Remove everything in destination folder
-	rm -rf ${MPT_INSTALL_DIR}/*
-	
-	# Copy files 
-	cp -rf ${scriptPath}/* ${MPT_INSTALL_DIR}/.
-	
-	ln -fs ${MPT_INSTALL_DIR}/mp ~/bin/mp
-	rm -f ${MPT_INSTALL_DIR}/MPT
+	mpInstall ~/bin/makeplate_files  ~/bin/
 }
 
 new() { ##C NEW Create a new standard makeplate project
   echo -e "Creating new makeplate project"
-  cp -rf ${scriptPath}/${MPT_DIR}/* .
-	rm -f makeplate
+  cp -rf ${scriptPath}/${MPT_DIR}/mp-c/* .
 }
 
 newSimple() { ##C NEW Create a new simple makeplate C project
-  exit
+  echo -e "Creating new simple makeplate project"
+  cp -rf ${scriptPath}/${MPT_DIR}/mp-simple/* .  
 }
 #--------------------------------------------------------------------- 
 # Bashplate settings
