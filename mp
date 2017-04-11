@@ -63,8 +63,31 @@ tdist() { ##C MPT Distribute tools to example projects
   toolsDistribute tools/mkptools	
 }
 
+#
+# arg1 install dir
+# arg2 symbolic link dir
+#
+mpInstall() {
 
-install-local() { ##C MPT Install makeplate localy for easy creating new projects
+	mkdir -p ${1}
+
+	cp -rf ${scriptPath}/mp-c      ${1}/.
+	cp -rf ${scriptPath}/mp-simple ${1}/.
+	cp -rf ${scriptPath}/mp        ${1}/mp
+	
+	ln -fs ${1}/mp ${2}
+	rm -f ${1}/MPT
+}
+
+
+install() { ##C MPT Install makeplates on system
+  assertRoot
+	echo -e "Installing makeplates"
+	mpInstall /usr/local/bin/makeplate_files  /usr/local/bin/
+}
+
+
+install-local() { ##C MPT Install makeplates localy for easy creating new projects
   echo -e "Installing makeplates locally"
   mkdir -p ${MPT_INSTALL_DIR}
 	make clean
@@ -85,6 +108,9 @@ new() { ##C NEW Create a new standard makeplate project
 	rm -f makeplate
 }
 
+newSimple() { ##C NEW Create a new simple makeplate C project
+  exit
+}
 #--------------------------------------------------------------------- 
 # Bashplate settings
 #---------------------------------------------------------------------
