@@ -96,7 +96,7 @@ CFLAGS += $(patsubst %,-D%,$(CDEFS))           # Macro definitions
 #CFLAGS += -Wa,-adhlns=$(<:%.c=$(OBJDIR)/%.lst) # Generate assembler listing
 CFLAGS += -Wa,-adhlns=$(<:$(SRCDIR)/%.c=$(BUILDDIR)/%.lst) # Generate assembler listing
 
-# # Compiler Tuning C ---------------------------------------------------------
+# Compiler Tuning C ---------------------------------------------------------
 CFLAGS += -funsigned-char
 #CFLAGS += -funsigned-bitfields
 #CFLAGS += -fpack-struct
@@ -131,7 +131,7 @@ CFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void po
 # Compiler Options C++ ------------------------------------------------------
 CPPFLAGS = -g$(DEBUG)                              # Debugging information
 CPPFLAGS += -O$(OPT)                               # Optimisation level
-CPPFLAGS += -std=$(CPPSTANDARD)                      # C standard
+CPPFLAGS += -std=$(CPPSTANDARD)                    # C++ standard
 CPPFLAGS += $(patsubst %,-I%,$(INCLUDE))           # Include directories 
 CPPFLAGS += $(patsubst %,-D%,$(CPPDEFS))           # Macro definitions
 #CPPFLAGS += -Wa,-adhlns=$(<:%.cpp=$(OBJDIR)/%.lst) # Generate assembler listing
@@ -285,6 +285,14 @@ E_ON_MAGENTA   = \033[45m
 E_ON_CYAN      = \033[46m
 E_ON_WHITE     = \033[47m
 
+# ANSI Text attributes
+E_ATTR_BOLD=\e[1m
+E_ATTR_LOWI=\e[2m
+E_ATTR_UNDERLINE=\e[4m
+E_ATTR_BLINK=\e[5m
+E_ATTR_REVERSE=\e[7m
+
+# System color definitions
 C_OK=$(E_BR_GREEN)
 C_WARNING=$(E_BR_YELLOW)
 C_ERROR=$(E_BR_RED)
@@ -389,7 +397,7 @@ ASRC_1 = $(patsubst $(SRCDIR)/%.c,    , $(SRC) $(LSRC))
 ASRC   = $(patsubst $(SRCDIR)/%.cpp,  , $(ASRC_1))
 
 # Define all object files.
-COBJS    = $(patsubst $(SRCDIR)/%.c,   $(BUILDDIR)/%.o, $(CSRC))
+COBJS    = $(patsubst $(SRCDIR)/%.c,   $(BUILDDIR)/%.o, $(CSRC)) 
 CPPOBJS  = $(patsubst $(SRCDIR)/%.cpp, $(BUILDDIR)/%.o, $(CPPSRC))
 AOBJS    = $(patsubst $(SRCDIR)/%.S,   $(BUILDDIR)/%.o, $(ASRC))
 
@@ -532,6 +540,7 @@ clean:  ## Remove all build files
 	@$(REMOVEDIR) .dep
 	@$(REMOVEDIR) $(BUILDDIR)	
 	@find . -name "*~" -delete
+	@find . -name "*.orig" -delete
 
 
 archive: ## Make a tar archive of the source code
