@@ -15,13 +15,13 @@
 TARGET = makeplate
 
 # List C source files here. (C dependencies are automatically generated.)
-SRC = src/main.c 
+SRC = main.c 
 
 # List C++ source files here. (C dependencies are automatically generated.)
 CPPSRC = 
 
 # Include directories
-INCLUDE = src 
+INCLUDE = 
 
 # Libraries to link
 LIB   = -lm 
@@ -37,7 +37,7 @@ LIB   = -lm
 OBJDIR = .
 
 # Output directory
-OUTDIR = output
+OUTDIR = .
 
 # Optimization level, can be [0, 1, 2, 3, s]. 
 #     0 = turn off optimization. s = optimize for size.
@@ -179,9 +179,6 @@ MKDIR     = mkdir -p
 SED       = sed
 MOC       = moc
 QMAKE     = qmake
-#CTEMPLATE = python3 tools/ctemplate.py
-#BIN2ARRAY = python3 tools/bin2array.py
-#MPTOOL    = tools/mkptools
 CPPCHECK  = cppcheck
 INSTALL   = install
 ASTYLE    = astyle
@@ -453,34 +450,8 @@ clean:  ## Remove all build files
 run:    ## Run application
 	@output/$(TARGET)
 
-
-
 # Include the dependency files.
 -include $(shell mkdir .dep 2>/dev/null) $(wildcard .dep/*)
-
-
-# Install options -----------------------------------------------------------
-
-# Install directory
-INSTALL_DIR      = ~/bin
-
-# Owner of binary
-INSTALL_OWNER    = $${USER}
-
-# Group owner of binary
-# #INSTALL_GROUP    = $${USER}
-INSTALL_GROUP    = users
-
-# Install options
-INSTALL_OPTIONS =  --owner ${INSTALL_OWNER}
-INSTALL_OPTIONS += --group ${INSTALL_GROUP}
-INSTALL_OPTIONS += -D
-INSTALL_OPTIONS += --preserve-timestamps
-#INSTALL_OPTIONS += --verbose
-
-install: $(TRGFILE) ## Install program
-	@echo -e $(MSG_INSTALLING) "$(E_BR_GREEN)$(TARGET) $(E_END)"
-	@${INSTALL} ${INSTALL_OPTIONS} $(TRGFILE) ${INSTALL_DIR}
 
 #
 # Help information
@@ -522,25 +493,6 @@ list-ldflags: ## List linker flags
 	  echo $${f} ;             \
 	done                       \
 
-check: ## Check if tools and libraries are present 
-	@$(MPTOOL) ce $(CC)
-	@$(MPTOOL) ce $(OBJCOPY)
-	@$(MPTOOL) ce $(OBJDUMP)
-	@$(MPTOOL) ce $(SIZE)
-	@$(MPTOOL) ce $(AR)
-	@$(MPTOOL) ce $(NM)
-	@$(MPTOOL) ce $(AS)
-	@$(MPTOOL) ce $(QMAKE)
-	@$(MPTOOL) ce $(MOC)
-	@$(MPTOOL) ce $(GDB)
-	@$(MPTOOL) ce python3
-	@$(MPTOOL) ce $(CPPCHECK)
-	@$(MPTOOL) ce $(INSTALL)
-	@$(MPTOOL) ce $(ASTYLE)
-	@for f in $(LIB); do               \
-		${MPTOOL} cl ${CC} $${f};      \
-	done                               \
-	
 list-info: 
 	@echo -e $(MSG_PROJECT)
 	@echo "Target:     $(TARGET)"
@@ -575,21 +527,10 @@ list-defs:
 	done        
 
 
-list-installinfo:
-	@echo -e $(MSG_INSTALL_INFO)
-	@echo "Install dir:   $(INSTALL_DIR)"
-	@echo "Install user:  $(INSTALL_USER)"
-	@echo "Install group: $(INSTALL_GROUP)"
-
 
 info: list-info list-includes list-defs list-flags list-ldflags list-installinfo ## Print information about project
 
 files: list-src ## List source files
 
-gccversion :    ## Display compiler version
-	@$(CC) --version
-	
-
-	
 # Listing of phony targets.
 .PHONY : all clean gccversion build begin finished end elf lss sym archive edit help backup list-src list-flags newproj run install
