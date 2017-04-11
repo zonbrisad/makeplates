@@ -630,6 +630,8 @@ clean:  ## Remove all build files
 	@$(REMOVE) $(OUTDIR)/$(TARGET).eep
 	@$(REMOVE) $(OUTDIR)/$(TARGET).cof
 	@$(REMOVE) $(OBJS)
+	echo $(LST)
+	@$(REMOVE) $(LST)
 	@$(REMOVE) $(TESTTARGET)
 	@$(REMOVEDIR) .dep
 	@$(REMOVEDIR) $(BUILDDIR)	

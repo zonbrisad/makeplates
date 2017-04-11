@@ -73,7 +73,11 @@ CDEFS = DEBUGPRINT   \
 ADEFS = 
 
 # C++ Macro definitions
-CPPDEFS = 
+CPPDEFS = QT_NO_DEBUG \
+          QT_GUI_LIB \
+				  QT_CORE_LIB \
+					QT_SHARED   
+
 
 # Debug information --------------------------------------------------------- 
 # 0 = no debug information 
@@ -156,14 +160,15 @@ CPPFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void 
 #CPPFLAGS += -Wsign-compare
 #CPPFLAGS += -Wundef
 #CPPFLAGS += -Werror              # All warnings will be treated as errors
+CPPFLAGS += -fPIC
 
 # Library compiler flags C++ ------------------------------------------------
 #CPPFLAGS += $(shell pkg-config --cflags glib-2.0)
 #CPPFLAGS += $(shell pkg-config --cflags gthread-2.0)
 #CPPFLAGS += $(shell pkg-config --cflags lua5.1)
 #CPPFLAGS += $(shell pkg-config --cflags sqlite3)
-CFLAGS += $(shell pkg-config --cflags Qt5Core)
-CFLAGS += $(shell pkg-config --cflags Qt5Gui)
+CPPFLAGS += $(shell pkg-config --cflags Qt5Core)
+CPPFLAGS += $(shell pkg-config --cflags Qt5Gui)
 
 # Assembler Options ---------------------------------------------------------
 #  -Wa,...:   tell GCC to pass this to the assembler.

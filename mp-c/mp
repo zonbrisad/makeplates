@@ -68,9 +68,14 @@ install-local() { ##C MPT Install makeplate localy for easy creating new project
   echo -e "Installing makeplates locally"
   mkdir -p ${MPT_INSTALL_DIR}
 	make clean
+	
+	# Remove everything in destination folder
+	rm -rf ${MPT_INSTALL_DIR}/*
+	
+	# Copy files 
 	cp -rf ${scriptPath}/* ${MPT_INSTALL_DIR}/.
 	
-	ln -fs ${MPT_INSTALL_DIR}/makeplate ~/bin/makeplate 
+	ln -fs ${MPT_INSTALL_DIR}/mp ~/bin/mp
 	rm -f ${MPT_INSTALL_DIR}/MPT
 }
 
