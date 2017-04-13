@@ -132,7 +132,8 @@ CFLAGS += -O$(OPT)                             # Optimisation level
 CFLAGS += -std=$(CSTANDARD)                    # C standard
 CFLAGS += $(patsubst %,-I%,$(INCLUDE))         # Include directories 
 CFLAGS += $(patsubst %,-D%,$(CDEFS))           # Macro definitions
-CFLAGS += -Wa,-adhlns=$(<:%.c=$(OBJDIR)/%.lst) # Generate assembler listing
+#CFLAGS += -Wa,-adhlns=$(<:%.c=$(OBJDIR)/%.lst) # Generate assembler listing
+CFLAGS += -Wa,-adhlns=$(<:$(SRCDIR)/%.c=$(BUILDDIR)/%.lst) # Generate assembler listing
 
 # Compiler Tuning C ---------------------------------------------------------
 CFLAGS += -funsigned-char
@@ -173,7 +174,8 @@ CPPFLAGS += -O$(OPT)                               # Optimisation level
 CPPFLAGS += -std=$(CPPSTANDARD)                    # C++ standard
 CPPFLAGS += $(patsubst %,-I%,$(INCLUDE))           # Include directories 
 CPPFLAGS += $(patsubst %,-D%,$(CPPDEFS))           # Macro definitions
-CPPFLAGS += -Wa,-adhlns=$(<:%.cpp=$(OBJDIR)/%.lst) # Generate assembler listing
+#CPPFLAGS += -Wa,-adhlns=$(<:%.cpp=$(OBJDIR)/%.lst) # Generate assembler listing
+CPPFLAGS += -Wa,-adhlns=$(<:$(SRCDIR)/%.c=$(BUILDDIR)/%.lst) # Generate assembler listing
 
 # Compiler Tuning C++ -------------------------------------------------------
 CPPFLAGS += -funsigned-char
@@ -326,8 +328,16 @@ E_ON_MAGENTA   = \033[45m
 E_ON_CYAN      = \033[46m
 E_ON_WHITE     = \033[47m
 
+# ANSI Text attributes
+E_ATTR_BOLD=\e[1m
+E_ATTR_LOWI=\e[2m
+E_ATTR_UNDERLINE=\e[4m
+E_ATTR_BLINK=\e[5m
+E_ATTR_REVERSE=\e[7m
+
+# System color definitions
 C_OK=$(E_BR_GREEN)
-C_WARNING=$(E_BR_YELLOW)
+C_WARNING=$(E_BR_YELLOW)$(E_ATTR_UNDERLINE)
 C_ERROR=$(E_BR_RED)
 C_FILE=$(E_BR_CYAN)
 C_DIR=$(E_CYAN)
@@ -460,7 +470,7 @@ ALLOBJS = $(OBJS) $(TOBJS)
 
 
 # Define all listing files.
-LST = $(patsubst src/%.c, $(BUILDDIR)/%.lst, $(SRC)) $(patsubst src/%.cpp, $(BUILDDIR)/%.lst, $(CPPSRC)) $(patsubst src/%.S, $(BUILDDIR)/%.lst, $(ASRC))
+LST = $(patsubst src/%.c, $(OBJDIR)/%.lst, $(SRC)) $(patsubst src/%.cpp, $(OBJDIR)/%.lst, $(CPPSRC)) $(patsubst src/%.S, $(OBJDIR)/%.lst, $(ASRC))
 
 # Default target.
 all:	begin build finished end
@@ -622,6 +632,7 @@ clean:  ## Remove all build files
 	@$(REMOVE) $(OUTDIR)/$(TARGET).eep
 	@$(REMOVE) $(OUTDIR)/$(TARGET).cof
 	@$(REMOVE) $(OBJS)
+	@$(REMOVE) $(LST)
 	@$(REMOVE) $(TESTTARGET)
 	@$(REMOVEDIR) .dep
 	@$(REMOVEDIR) $(BUILDDIR)	

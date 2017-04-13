@@ -87,7 +87,8 @@ GMainLoop   *mLoop1;
 GMainLoop   *mLoop2;
 GAsyncQueue *queue1;
 
-struct termios orig_termios;
+struct termios orig_termios_stdin;
+struct termios orig_termios_stdout;
 
 // Code -------------------------------------------------------------------
 
@@ -822,13 +823,25 @@ void ttySetup() {
     struct termios new_termios;
 
     /* take two copies - one for now, one for later */
-    tcgetattr(STDIN_FILENO, &orig_termios);
-    memcpy(&new_termios, &orig_termios, sizeof(new_termios));
+    tcgetattr(STDIN_FILENO, &orig_termios_stdin);
+    memcpy(&new_termios, &orig_termios_stdin, sizeof(new_termios));
 
-    new_termios.c_lflag &= ~(ICANON | ECHO);
+    new_termios.c_lflag &= ~(ICANON | ECHO   /* | ECHONL  | ISIG | IEXTEN */);
+    //new_termios_p->c_cflag &= ~(CSIZE | PARENB);
+    //new_termios.c_lflag &= ~OPOST;
+    new_termios.c_oflag = 0;
+
     //cfmakeraw(&new_termios);
 
     tcsetattr(STDIN_FILENO, TCSANOW, &new_termios);
+
+
+    tcgetattr(STDOUT_FILENO, &orig_termios_stdout);
+    memcpy(&new_termios, &orig_termios_stdout, sizeof(new_termios));
+    new_termios.c_oflag = 0;
+    new_termios.c_lflag &= ~(ECHO | ICANON );
+    tcsetattr(STDOUT_FILENO, TCSANOW, &new_termios);
+
 }
 
 void stdinTest() {
@@ -836,6 +849,7 @@ void stdinTest() {
     pid_t childPid;
 
     printf("Stdin test\n");
+
 
     ttySetup();
 
@@ -857,8 +871,33 @@ void stdinTest() {
 }
 
 void cli_in(int ch) {
+	static int pos=0;
+	char *str;
+	char buf[16];
+	printf("%d", ch);
+	tcflush(stdout,TCIOFLUSH);
+		if (ch=='q') {
+			exit(0);
+		}
+
+	switch (ch) {
+		case NO_CHAR:     break;
+		case ARROW_UP:    break;
+		case ARROW_DOWN:  break;
+		case ARROW_LEFT:
+			if (pos>0) {
+			  str = E_CUR_BACK;
+			  pos--;
+			}
+			break;
+		case ARROW_RIGHT:
+			break;
+		default: break;
+	}
+
+
     //putc('a', STDOUT_FILENO);
-    printf("a");
+    //printf(str);
 }
 
 static gboolean stdin_in_cli (GIOChannel *gio, GIOCondition condition, gpointer data) {
@@ -869,6 +908,7 @@ static gboolean stdin_in_cli (GIOChannel *gio, GIOCondition condition, gpointer 
     char buf[32];
     int ch;
 
+
     if (condition & G_IO_IN) {
         ret = g_io_channel_read_chars (gio, buf, 1, &len, &err);
 
@@ -878,11 +918,12 @@ static gboolean stdin_in_cli (GIOChannel *gio, GIOCondition condition, gpointer 
             //printChar(buf[0]);
 
             ch = getCharX(buf[0]);
-
-            if (ch != NO_CHAR) {
-                //printf("%s\n", char2Str(ch));
-                cli_in(ch);
-            }
+            //printf("b %x\n", ch);
+            cli_in(ch);
+//            if (ch != NO_CHAR) {
+//                //printf("%s\n", char2Str(ch));
+//                cli_in(ch);
+//            }
 
 
         }
@@ -900,6 +941,8 @@ static gboolean stdin_in_cli (GIOChannel *gio, GIOCondition condition, gpointer 
 void cliTest() {
     GIOChannel *channel;
     printf("CLI test\n");
+    //fprintf(stdout, "Stdout\n");
+    //fprintf(stdin, "Stdin\n");
 
     ttySetup();
 
@@ -918,9 +961,7 @@ void cliTest() {
     }
 
     g_main_loop_run(mLoop1);
-
 }
-
 
 
 int main(int argc, char *argv[]) {

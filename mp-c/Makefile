@@ -70,9 +70,6 @@ CDEFS = DEBUGPRINT   \
         ERRORPRINT   \
         INFOPRINT   
 
-# ASM  Macro definitions
-ADEFS = 
-
 # C++ Macro definitions
 CPPDEFS = 
 
@@ -93,7 +90,8 @@ CFLAGS += -O$(OPT)                             # Optimisation level
 CFLAGS += -std=$(CSTANDARD)                    # C standard
 CFLAGS += $(patsubst %,-I%,$(INCLUDE))         # Include directories 
 CFLAGS += $(patsubst %,-D%,$(CDEFS))           # Macro definitions
-CFLAGS += -Wa,-adhlns=$(<:%.c=$(OBJDIR)/%.lst) # Generate assembler listing
+#CFLAGS += -Wa,-adhlns=$(<:%.c=$(OBJDIR)/%.lst) # Generate assembler listing
+CFLAGS += -Wa,-adhlns=$(<:$(SRCDIR)/%.c=$(BUILDDIR)/%.lst) # Generate assembler listing
 
 # Compiler Tuning C ---------------------------------------------------------
 CFLAGS += -funsigned-char
@@ -130,10 +128,11 @@ CFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void po
 # Compiler Options C++ ------------------------------------------------------
 CPPFLAGS = -g$(DEBUG)                              # Debugging information
 CPPFLAGS += -O$(OPT)                               # Optimisation level
-CPPFLAGS += -std=$(CPPSTANDARD)                      # C standard
+CPPFLAGS += -std=$(CPPSTANDARD)                    # C++ standard
 CPPFLAGS += $(patsubst %,-I%,$(INCLUDE))           # Include directories 
 CPPFLAGS += $(patsubst %,-D%,$(CPPDEFS))           # Macro definitions
-CPPFLAGS += -Wa,-adhlns=$(<:%.cpp=$(OBJDIR)/%.lst) # Generate assembler listing
+#CPPFLAGS += -Wa,-adhlns=$(<:%.cpp=$(OBJDIR)/%.lst) # Generate assembler listing
+CPPFLAGS += -Wa,-adhlns=$(<:$(SRCDIR)/%.c=$(BUILDDIR)/%.lst) # Generate assembler listing
 
 # Compiler Tuning C++ -------------------------------------------------------
 CPPFLAGS += -funsigned-char
@@ -165,26 +164,6 @@ CPPFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void 
 #CPPFLAGS += $(shell pkg-config --cflags lua5.1)
 #CPPFLAGS += $(shell pkg-config --cflags sqlite3)
 
-
-# Assembler Options ---------------------------------------------------------
-#  -Wa,...:   tell GCC to pass this to the assembler.
-#  -adhlns:   create listing
-#  -gstabs:   have the assembler create line number information; note that
-#             for use in COFF files, additional information about filenames
-#             and function names needs to be present in the assembler source
-#             files -- see avr-libc docs [FIXME: not yet described there]
-#  -listing-cont-lines: Sets the maximum number of continuation lines of hex 
-#       dump that will be displayed for a given single line of source input.
-ASFLAGS =  $(patsubst %,-D%,$(ADEFS))
-ASFLAGS += -Wa,-adhlns=$(<:%.S=$(OBJDIR)/%.lst),-gstabs,--listing-cont-lines=100
-
-# Linker Options ------------------------------------------------------------
-#  -Wl,...:     tell GCC to pass this to linker.
-#    -Map:      create map file
-#    --cref:    add cross reference to  map file
-LDFLAGS = -Wl,-Map=$(OUTDIR)/$(TARGET).map,--cref
-LDFLAGS += $(EXTMEMOPTS)
-LDFLAGS += -g
 
 #
 # Platform specific options
@@ -283,6 +262,14 @@ E_ON_MAGENTA   = \033[45m
 E_ON_CYAN      = \033[46m
 E_ON_WHITE     = \033[47m
 
+# ANSI Text attributes
+E_ATTR_BOLD=\e[1m
+E_ATTR_LOWI=\e[2m
+E_ATTR_UNDERLINE=\e[4m
+E_ATTR_BLINK=\e[5m
+E_ATTR_REVERSE=\e[7m
+
+# System color definitions
 C_OK=$(E_BR_GREEN)
 C_WARNING=$(E_BR_YELLOW)
 C_ERROR=$(E_BR_RED)
@@ -371,8 +358,6 @@ GENDEPFLAGS = -MMD -MP -MF .dep/$(@F).d
 # Add target processor to flags.
 ALL_CFLAGS   =  -I. $(CFLAGS) $(GENDEPFLAGS)
 ALL_CPPFLAGS =  -I. -x c++ $(CPPFLAGS) $(GENDEPFLAGS)
-ALL_ASFLAGS  =  -I. -x assembler-with-cpp $(ASFLAGS)
-
 
 # Filter out C sources
 CSRC_1 = $(patsubst $(SRCDIR)/%.cpp,  , $(SRC) $(LSRC))
@@ -382,19 +367,14 @@ CSRC   = $(patsubst $(SRCDIR)/%.S,    , $(CSRC_1))
 CPPSRC_1 = $(patsubst $(SRCDIR)/%.c,  , $(SRC) $(LSRC))
 CPPSRC   = $(patsubst $(SRCDIR)/%.S,  , $(CPPSRC_1))
 
-# Filter out Assembler sources
-ASRC_1 = $(patsubst $(SRCDIR)/%.c,    , $(SRC) $(LSRC))
-ASRC   = $(patsubst $(SRCDIR)/%.cpp,  , $(ASRC_1))
-
 # Define all object files.
 COBJS    = $(patsubst $(SRCDIR)/%.c,   $(BUILDDIR)/%.o, $(CSRC)) 
 CPPOBJS  = $(patsubst $(SRCDIR)/%.cpp, $(BUILDDIR)/%.o, $(CPPSRC))
-AOBJS    = $(patsubst $(SRCDIR)/%.S,   $(BUILDDIR)/%.o, $(ASRC))
 
-OBJS    = $(COBJS) $(CPPOBJS) $(AOBJS)
+OBJS    = $(COBJS) $(CPPOBJS) 
 
 # Define all listing files.
-LST = $(patsubst src/%.c, $(BUILDDIR)/%.lst, $(SRC)) $(patsubst src/%.cpp, $(BUILDDIR)/%.lst, $(CPPSRC)) $(patsubst src/%.S, $(BUILDDIR)/%.lst, $(ASRC))
+LST = $(patsubst src/%.c, $(OBJDIR)/%.lst, $(SRC)) $(patsubst src/%.cpp, $(OBJDIR)/%.lst, $(CPPSRC)) $(patsubst src/%.S, $(OBJDIR)/%.lst, $(ASRC))
 
 # Default target.
 all:	begin build finished end
@@ -473,11 +453,6 @@ $(CPPOBJS): $(BUILDDIR)/%.o : src/%.cpp
 	@echo -e $< $(F_SOURCE)
 	@$(CPP) -c $(ALL_CPPFLAGS) $< -o $@ 2>&1  $(CPP_FILTER)
 	
-# Assemble: create object files from assembler source files.
-$(OBJDIR)/%.o : %.S
-	@echo -e $(MSG_ASSEMBLING) "$(C_FILE)" $< "$(E_END)"
-	@$(CC) -c $(ALL_ASFLAGS) $< -o $@
-
 # Compile: create assembler files from C source files.
 $(OBJDIR)/%.s : %.c
 	@$(CC) -S $(ALL_CFLAGS) $< -o $@
@@ -526,9 +501,11 @@ clean:  ## Remove all build files
 	@$(REMOVE) $(OUTDIR)/$(TARGET).eep
 	@$(REMOVE) $(OUTDIR)/$(TARGET).cof
 	@$(REMOVE) $(OBJS)
+	@$(REMOVE) $(LST)
 	@$(REMOVEDIR) .dep
 	@$(REMOVEDIR) $(BUILDDIR)	
 	@find . -name "*~" -delete
+	@find . -name "*.orig" -delete
 
 
 archive: ## Make a tar archive of the source code
@@ -609,10 +586,7 @@ edit:   ## Open source and makefile in editor
 	@$(EDITOR) Makefile $(SRC)
 
 run:    ## Run application
-	@output/$(TARGET)
-
-debug:  ## Debug application
-
+	@$(OUTDIR)/$(TARGET)
 
 # Include the dependency files.
 -include $(shell mkdir .dep 2>/dev/null) $(wildcard .dep/*)

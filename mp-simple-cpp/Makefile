@@ -1,7 +1,7 @@
 # Hey Emacs, this is a -*- makefile -*-
 #----------------------------------------------------------------------------
 # 
-# Makeplate example project
+# Makeplate simple C++ project
 #
 # author: Peter Malmberg <peter.malmberg@gmail.com>
 #
@@ -11,30 +11,17 @@
 # >make help 
 #----------------------------------------------------------------------------
 
-# Target platform
-# linux win32 avr arm osx
-TARGET_PLATFORM = linux
-
-# Project Licence (GPL, GPLv2, MIT, BSD, Apache, etc.) 
-LICENCE = GPLv2
-
 # Target file name (without extension).
-TARGET = QTTest
+TARGET = makeplate
 
 # List C source files here. (C dependencies are automatically generated.)
 SRC = 
 
 # List C++ source files here. (C dependencies are automatically generated.)
-CPPSRC = src/main.cpp
-
-# List Assembler source files here.
-#     Make them always end in a capital .S.  
-ASRC =
+CPPSRC = main.cpp 
 
 # Include directories
-INCLUDE = inc \
-          src \
-
+INCLUDE = 
 
 # Libraries to link
 LIB   = -lm 
@@ -43,9 +30,6 @@ LIB   = -lm
 #LIB += $(shell pkg-config --libs ncurses)
 #LIB += $(shell pkg-config --libs lua5.1)
 #LIB += $(shell pkg-config --libs sqlite3)
-LIB += $(shell pkg-config --libs Qt5Core)
-LIB += $(shell pkg-config --libs Qt5Gui)
-
 
 # Object files directory
 #     To put object files in current directory, use a dot (.), do NOT make
@@ -53,7 +37,7 @@ LIB += $(shell pkg-config --libs Qt5Gui)
 OBJDIR = .
 
 # Output directory
-OUTDIR = output
+OUTDIR = .
 
 # Optimization level, can be [0, 1, 2, 3, s]. 
 #     0 = turn off optimization. s = optimize for size.
@@ -61,23 +45,14 @@ OPT = 2
 
 # Compiler flag to set the C Standard level.
 # [ gnu99 gnu11 c++98 c++03 c++11 c++14 ] 
-CSTANDARD = c++11
+CSTANDARD   = gnu99
+CPPSTANDARD = c++11
 
 # C Macro definitions
-CDEFS = DEBUGPRINT   \
-        WARNINGPRINT \
-        ERRORPRINT   \
-        INFOPRINT   
-
-# ASM  Macro definitions
-ADEFS = 
+CDEFS = 
 
 # C++ Macro definitions
-CPPDEFS = QT_NO_DEBUG \
-          QT_GUI_LIB \
-				  QT_CORE_LIB \
-					QT_SHARED   
-
+CPPDEFS = 
 
 # Debug information --------------------------------------------------------- 
 # 0 = no debug information 
@@ -129,10 +104,11 @@ CFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void po
 #CFLAGS += $(shell pkg-config --cflags lua5.1)
 #CFLAGS += $(shell pkg-config --cflags sqlite3)
 
+
 # Compiler Options C++ ------------------------------------------------------
 CPPFLAGS = -g$(DEBUG)                              # Debugging information
 CPPFLAGS += -O$(OPT)                               # Optimisation level
-CPPFLAGS += -std=$(CSTANDARD)                      # C standard
+CPPFLAGS += -std=$(CPPSTANDARD)                    # C++ standard
 CPPFLAGS += $(patsubst %,-I%,$(INCLUDE))           # Include directories 
 CPPFLAGS += $(patsubst %,-D%,$(CPPDEFS))           # Macro definitions
 CPPFLAGS += -Wa,-adhlns=$(<:%.cpp=$(OBJDIR)/%.lst) # Generate assembler listing
@@ -160,42 +136,20 @@ CPPFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void 
 #CPPFLAGS += -Wsign-compare
 #CPPFLAGS += -Wundef
 #CPPFLAGS += -Werror              # All warnings will be treated as errors
-CPPFLAGS += -fPIC
 
 # Library compiler flags C++ ------------------------------------------------
 #CPPFLAGS += $(shell pkg-config --cflags glib-2.0)
 #CPPFLAGS += $(shell pkg-config --cflags gthread-2.0)
 #CPPFLAGS += $(shell pkg-config --cflags lua5.1)
 #CPPFLAGS += $(shell pkg-config --cflags sqlite3)
-CPPFLAGS += $(shell pkg-config --cflags Qt5Core)
-CPPFLAGS += $(shell pkg-config --cflags Qt5Gui)
 
-# Assembler Options ---------------------------------------------------------
-#  -Wa,...:   tell GCC to pass this to the assembler.
-#  -adhlns:   create listing
-#  -gstabs:   have the assembler create line number information; note that
-#             for use in COFF files, additional information about filenames
-#             and function names needs to be present in the assembler source
-#             files -- see avr-libc docs [FIXME: not yet described there]
-#  -listing-cont-lines: Sets the maximum number of continuation lines of hex 
-#       dump that will be displayed for a given single line of source input.
-ASFLAGS =  $(patsubst %,-D%,$(ADEFS))
-ASFLAGS += -Wa,-adhlns=$(<:%.S=$(OBJDIR)/%.lst),-gstabs,--listing-cont-lines=100
-
-# Linker Options ------------------------------------------------------------
-#  -Wl,...:     tell GCC to pass this to linker.
-#    -Map:      create map file
-#    --cref:    add cross reference to  map file
-LDFLAGS = -Wl,-Map=$(OUTDIR)/$(TARGET).map,--cref
-LDFLAGS += $(EXTMEMOPTS)
-LDFLAGS += -g
 
 #
 # Platform specific options
 #============================================================================
 
 # Linux options -------------------------------------------------------------
-ifeq ($(TARGET_PLATFORM), linux)
+#ifeq ($(TARGET_PLATFORM), linux)
 
 # Target filename
 TRGFILE=$(OUTDIR)/$(TARGET)
@@ -206,20 +160,7 @@ TCHAIN_BASE=/usr/bin
 # Toolchain prefix 
 TCHAIN_PREFIX=
 
-endif
-# Windows options -----------------------------------------------------------
-ifeq ($(TARGET_PLATFORM), win32)
-
-# Target filename
-TRGFILE=$(OUTDIR)/$(TARGET).exe
-
-# Toolchain base directory
-TCHAIN_BASE=/usr/bin
-
-# Toolchain prefix 
-TCHAIN_PREFIX=
-
-endif
+#endif
 
 #
 # Tool settings
@@ -236,17 +177,15 @@ MKDIR     = mkdir -p
 SED       = sed
 MOC       = moc
 QMAKE     = qmake
-CTEMPLATE = python3 tools/ctemplate.py
-BIN2ARRAY = python3 tools/bin2array.py
-MPTOOL    = tools/mkptools
 CPPCHECK  = cppcheck
 INSTALL   = install
 ASTYLE    = astyle
+DOXYGEN   = doxygen
 
 TCHAIN = $(TCHAIN_BASE)/$(TCHAIN_PREFIX)
 
 CC        = ${TCHAIN}gcc
-PP        = ${TCHAIN}g++
+CPP       = ${TCHAIN}g++
 OBJCOPY   = ${TCHAIN}objcopy
 OBJDUMP   = ${TCHAIN}objdump
 SIZE      = ${TCHAIN}size
@@ -286,13 +225,24 @@ E_ON_MAGENTA   = \033[45m
 E_ON_CYAN      = \033[46m
 E_ON_WHITE     = \033[47m
 
+# ANSI Text attributes
+E_ATTR_BOLD=\e[1m
+E_ATTR_LOWI=\e[2m
+E_ATTR_UNDERLINE=\e[4m
+E_ATTR_BLINK=\e[5m
+E_ATTR_REVERSE=\e[7m
+
+# System color definitions
 C_OK=$(E_BR_GREEN)
-C_ERROR=$(E_BR_RED)
 C_WARNING=$(E_BR_YELLOW)
+C_ERROR=$(E_BR_RED)
 C_FILE=$(E_BR_CYAN)
+C_DIR=$(E_CYAN)
 C_NOTE=$(E_BR_GREEN)
 C_MSG=$(E_BR_GREEN)
 C_ACTION=$(E_BR_MAGENTA)
+C_VALUE=$(E_WHITE)$(E_ON_BLUE)
+C_IDENTIFIER=$(E_WHITE)
 
 # Messages ------------------------------------------------------------------
 MSG_LINE             = "$(E_WHITE)------------------------------------------------------------------$(E_END)"
@@ -300,7 +250,7 @@ MSG_BEGIN            = "${E_WHITE}-------------------------------- Begin -------
 MSG_END              = "${E_WHITE}-------------------------------- End -----------------------------${E_END}"
 MSG_ERRORS_NONE      = "${C_OK}Errors: none ${E_END}"
 MSG_LINKING          = "${C_ACTION}Linking:${E_END}"
-MSG_COMPILING        = "${C_ACTION}Compiling C:${E_END}"
+MSG_COMPILING        = "${C_ACTION}Compiling C:  ${E_END}"
 MSG_COMPILING_CPP    = "${C_ACTION}Compiling C++:${E_END}"
 MSG_ASSEMBLING       = "${C_ACTION}Assembling:${E_END}"
 MSG_CLEANING         = "$(C_ACTION)Cleaning project:$(E_END)"
@@ -322,7 +272,7 @@ MSG_BACKUP           = "${E_BR_GREEN}Making incremental backup of project:${E_EN
 MSG_SRC              = "${C_MSG}Source files $(E_GREEN)-----------------------------------------------------${E_END}"
 MSG_FLAGS            = "${C_MSG}Compiler Flags $(E_GREEN)---------------------------------------------------${E_END}"
 MSG_LINKER           = "${C_MSG}Linker Flags $(E_GREEN)-----------------------------------------------------${E_END}"
-MSG_PROJECT          = "${C_MSG}Project info $(E_GREEN)-----------------------------------------------------${E_END}"	
+MSG_PROJECT          = "${C_MSG}Project info $(E_GREEN)-----------------------------------------------------${E_END}"
 MSG_INCLUDES         = "${C_MSG}Include directories $(E_GREEN)----------------------------------------------${E_END}"
 MSG_DEFS             = "${C_MSG}Macro definitions $(E_GREEN)------------------------------------------------${E_END}"
 MSG_INSTALL_INFO     = "${C_MSG}Install settings $(E_GREEN)-------------------------------------------------${E_END}"
@@ -330,30 +280,30 @@ MSG_INSTALLING       = "${C_ACTION}Installing:   ${E_END}"
 MSG_BUILDING         = "$(C_ACTION)Building:     "
 	
 # Compiler output colorizer filter ------------------------------------------
-
+F_SOURCE=| sed -e "s/\(.*\/\)\(.*\)/$$(printf "$(C_DIR)")\1$$(printf "$(C_FILE)")\2$$(printf "$(E_END)")/"
 F_INF="s/In function/$$(printf "$(E_BR_GREEN)")&$$(printf "$(E_END)")/i"
-FF_INF="s/^.*In function/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
+F_NOTE="s/note:/$$(printf "$(C_NOTE)")&$$(printf "$(E_END)")/i"
+F_WARNING="s/warning:/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_ERROR="s/error:/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
 F_FATAL_ERROR="s/fatal error:/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
-F_WARNING="s/warning:/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
-F_NOTE="s/note:/$$(printf "$(C_NOTE)")&$$(printf "$(E_END)")/i"
-FF_ERROR="s/^.*error:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
-FF_WARNING="s/^.*warning:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
-FF_NOTE="s/^.*note:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
 F_WARNING1="s/defined but not used/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_WARNING2="s/unused variable/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_WARNING3="s/may be used uninitialized in this function/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_WARNING4="s/implicit declaration of function/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_WARNING5="s/value computed is not used/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
-F_BRACKET="s/\[-W.*\]/$$(printf "$(E_GREEN)")&$$(printf "$(E_END)")/g"
-#XX="s/\[[^][]*\]/$$(printf "$(E_BR_BLUE)")&$$(printf "$(E_END)")/i"
-#YY="s/\'[^][]*\'/$$(printf "$(E_BR_GREEN)")&$$(printf "$(E_END)")/i"
-C_FILTER   = | sed -ru -e $(F_FATAL_ERROR) -e $(F_ERROR) -e $(FF_ERROR)     \
-                       -e $(F_WARNING) -e $(FF_WARNING)                     \
-                       -e $(F_WARNING1) -e $(F_WARNING2) -e $(F_WARNING3)   \
-                       -e $(F_WARNING4) -e $(F_WARNING5)                    \
-                       -e $(F_NOTE) -e $(FF_NOTE)                           \
-                       -e $(F_INF) -e $(FF_INF) -e $(F_BRACKET)
+F_BRACKET="s/\[\(.*\)\]/[$$(printf "$(E_GREEN)")\1$$(printf "$(E_END)")]/"	
+F_VARIABLE="s/\‘\(.*\)[\’\‘]/'$$(printf "$(C_IDENTIFIER)")\1$$(printf "$(E_END)")'/g"
+F_FILE="s/[^: ]*/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/"
+#F_FILE="s/\(.*\/\)\(.*\):/$$(printf "$(C_DIR)")\1$$(printf "$(C_FILE)")\2$$(printf "$(E_END)"):/1"
+F_ROWNR="s/:\([0-9]*\):\([0-9]*\):/:$$(printf "$(C_VALUE)")\1$$(printf "$(E_END)"):$$(printf "$(C_VALUE)")\2$$(printf "$(E_END)"):/"
+
+C_FILTER   = | sed -u -e $(F_BRACKET) -e $(F_FILE) -e $(F_ROWNR)          \
+                      -e $(F_INF) -e $(F_NOTE)                            \
+ 	                  -e $(F_WARNING) -e $(F_ERROR) -e $(F_FATAL_ERROR)   \
+                      -e $(F_WARNING1) -e $(F_WARNING2) -e $(F_WARNING3)  \
+                      -e $(F_WARNING4) -e $(F_WARNING5)                   \
+                      -e $(F_VARIABLE)
+
 CPP_FILTER = $(C_FILTER)
 
 LD_ERROR1="s/undefined reference/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
@@ -405,7 +355,7 @@ eep: $(OUTDIR)/$(TARGET).eep
 # Eye candy.
 begin:
 	@echo -e $(MSG_BEGIN)
-	@echo -e ${MSG_BUILDING}"$(E_BR_GREEN)$(TARGET) $(E_END)"
+	@echo -e ${MSG_BUILDING}" $(E_BR_GREEN)$(TARGET) $(E_END)"
  
 end:
 	@echo
@@ -413,39 +363,35 @@ end:
 	
 finished:
 	@echo
-#	@echo -e $(MSG_ERRORS_NONE)
 
-# Display compiler version information.
-gccversion :  ## Display compiler version
-	@$(CC) --version
 
 # Link target
 #.SECONDARY : $(TARGET)
 .PRECIOUS : $(OBJS)
 $(TRGFILE): $(OBJS) $(OUTDIR)
-	@echo 
-	@echo -e $(MSG_LINKING)"\n             $(C_FILE)" $@ "$(E_END)"
-	@$(PP) $(ALL_CFLAGS) $(OBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)
+	@echo -en "\n"$(MSG_LINKING)"\n               "
+	@echo -e $@ $(F_SOURCE)
+	@$(CC) $(ALL_CFLAGS) $(OBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)
 	
 # Create extended listing file/disassambly from ELF output file.
 # using objdump testing: option -C
 %.lss:	$(TRGFILE)
-	@echo
-	@echo -e $(MSG_EXTENDED_LISTING) "\n             $(C_FILE)" $@ "$(E_END)"
+	@echo -en "\n"$(MSG_EXTENDED_LISTING) "\n               "
+	@echo -e $@ $(F_SOURCE)
 	@$(OBJDUMP) -h -S -C -r $< > $@
 	
 # Create a symbol table from ELF output file.
 %.sym: $(TRGFILE)
-	@echo
-	@echo -e $(MSG_SYMBOL_TABLE) "\n             $(C_FILE)" $@ "$(E_END)"
+	@echo -en "\n"${MSG_SYMBOL_TABLE}"\n               "
+	@echo -e $@ $(F_SOURCE)
 	@$(NM) -n $< > $@
 
 # Create hex file from ELF output file.
 %.hex: $(TRGFILE)
 	@echo
-	@echo -e $(MSG_HEX_FILE) "\n             $(C_FILE)" $@ "$(E_END)"
+	@echo -e $(MSG_HEX_FILE) "\n               $(C_FILE)" $@ "$(E_END)"
 	@$(OBJCOPY) -O ihex $< $@
-	
+
 # Compile: create object files from C source files.
 $(OBJDIR)/%.o : %.c
 	@echo -e $(MSG_COMPILING) "$(C_FILE)" $< "$(E_END)"
@@ -455,11 +401,10 @@ $(OBJDIR)/%.o : %.c
 $(OBJDIR)/%.o : %.cpp
 	@echo
 	@echo -e $(MSG_COMPILING_CPP) "$(C_FILE)" $< "$(E_END)"
-	@$(PP) -c $(ALL_CPPFLAGS) $< -o $@ 2>&1  $(CPP_FILTER)
+	@$(CC) -c $(ALL_CPPFLAGS) $< -o $@ 2>&1  $(CPP_FILTER)
 	
 # Assemble: create object files from assembler source files.
 $(OBJDIR)/%.o : %.S
-	@echo
 	@echo -e $(MSG_ASSEMBLING) "$(C_FILE)" $< "$(E_END)"
 	@$(CC) -c $(ALL_ASFLAGS) $< -o $@
 
@@ -471,26 +416,19 @@ $(OBJDIR)/%.s : %.c
 $(OBJDIR)/%.s : %.cpp
 	@$(CC) -S $(ALL_CPPFLAGS) $< -o $@
 
-# Generate cc from h via Qt's Meta Object Compiler, rule to change postfix
-%.moc.cc: %.h
-	$(MOC) $(INCDIRS) $< -o $@
-
 # Create output dir
 $(OUTDIR):
 	@$(MKDIR) $@
 
+# Create build dir
+$(BUILDDIR):
+	@$(MKDIR) $@
+
+# Print information about target binary 
 size: $(TRGFILE)
 	@echo
 	@echo -e $(MSG_SIZE_AFTER)
 	@$(SIZE) $(TRGFILE)
-
-
-# 
-# Debug rules
-#============================================================================
-debug: ## Debug program
-	@$(GDB) $(TRGFILE) 
-
 	
 #
 # Various utility rules	
@@ -509,132 +447,19 @@ clean:  ## Remove all build files
 	@$(REMOVE) $(OUTDIR)/$(TARGET).bin
 	@$(REMOVE) $(OUTDIR)/$(TARGET).eep
 	@$(REMOVE) $(OUTDIR)/$(TARGET).cof
-	@$(REMOVEDIR) .dep
 	@$(REMOVE) $(OBJS)
-	@find . -name *~ -delete
+	@$(REMOVE) $(LST)
+	@$(REMOVEDIR) .dep
+	@$(REMOVEDIR) $(BUILDDIR)	
+	@find . -name "*~" -delete
+	@find . -name "*.orig" -delete
 
-
-archive: ## Make a tar archive of the source code
-	@echo
-	@echo -e $(MSG_ARCHIVING)
-	@$(eval DT=$(shell date +"%Y%m%d-%H%M%S"))
-	@$(MKDIR) archive
-	@tar -cvzf archive/$(TARGET)_${DT}.tar.gz *  \
-		--exclude='archive'  \
-		--exclude='backup'   \
-		--exclude='output'   \
-		--exclude='*.a'      \
-		--exclude='*.o'      \
-		--exclude='*.ko'     \
-		--exclude='*.obj'    \
-		--exclude='*.a'      \
-		--exclude='*.la'     \
-		--exclude='*.lo'     \
-		--exclude='*.slo'    \
-		--exclude='*.lib'    \
-		--exclude='*.so'     \
-		--exclude='*.so*'    \
-		--exclude='.dep'     \
-		--exclude='.svn'     \
-		--exclude='.git'     \
-		--exclude='*.elf'    \
-		--exclude='*.hex'    \
-		--exclude='*.bin'    \
-		--exclude='*.exe'    \
-		--exclude='*.sym'    \
-		--exclude='*.lss'    \
-		--exclude='*.map'    \
-		--exclude='*.app'    \
-		--exclude='*.i*86'   \
-		--exclude='*.x86_64' \
-		--exclude='*~'       \
-		--exclude="*.old"    \
-		--exclude="*.tmp"    \
-
-# Backup directory
-BACKUP_DIR=backup
-
-# Nr of backups
-BACKUPS=100
-
-backup: ## Make an incremental backup
-	@echo
-	@echo -e $(MSG_BACKUP)
-	@$(MKDIR) $(BACKUP_DIR)
-  # remove oldest backup
-	@$(RM) -rf $(BACKUP_DIR)/backup_$(BACKUPS) 
-  # rotate backups 
-	@for ((x=$(BACKUPS);x>0;x--)); do                 \
-	  bdir=$(BACKUP_DIR)/backup_`expr $${x} - 1` ;    \
-	  # check if directory exist before renameing  it \
-	  if [ -d $${bdir} ]; then                        \
-	    mv -f $${bdir}  $(BACKUP_DIR)/backup_$${x} ;  \
-	  fi ;                                            \
-	done 
-	@rsync --archive             \
-	      --delete               \
-				--relative             \
-				--exclude="backup"     \
-				--exclude="archive"    \
-				--exclude="output"     \
-				--exclude="*.o"        \
-				--exclude=".git"       \
-				--exclude=".svn"       \
-				--exclude="*~"         \
-				--exclude="*.old"      \
-				--exclude="*.tmp"      \	
-				--link-dest=$(CURDIR)/$(BACKUP_DIR)/backup_1 \
-				.                      \
-				$(BACKUP_DIR)/backup_0 
-
-
-edit:   ## Open source and makefile in editor
-	@$(EDITOR) Makefile $(SRC)
 
 run:    ## Run application
-	@output/$(TARGET)
-
-debug:  ## Debug application
-
+	@$(OUTDIR)/$(TARGET)
 
 # Include the dependency files.
 -include $(shell mkdir .dep 2>/dev/null) $(wildcard .dep/*)
-
-
-# Project options -----------------------------------------------------------
-
-newfile:  ## Create a new C file
-	@${CTEMPLATE} --newc --dir src --author "$(AUTHOR)" --licence "$(LICENCE)"
-
-newclass:  ## Create a new C++ class
-	@${CTEMPLATE} --newclass --dir src --author "$(AUTHOR)" --licence "$(LICENCE)"	
-		
-#newproj:  ## Create a new project
-#	@${PROJECT} newproj
-
-
-# Install options -----------------------------------------------------------
-
-# Install directory
-INSTALL_DIR      = ~/bin
-
-# Owner of binary
-INSTALL_OWNER    = $${USER}
-
-# Group owner of binary
-# #INSTALL_GROUP    = $${USER}
-INSTALL_GROUP    = users
-
-# Install options
-INSTALL_OPTIONS =  --owner ${INSTALL_OWNER}
-INSTALL_OPTIONS += --group ${INSTALL_GROUP}
-INSTALL_OPTIONS += -D
-INSTALL_OPTIONS += --preserve-timestamps
-#INSTALL_OPTIONS += --verbose
-
-install: $(TRGFILE) ## Install program
-	@echo -e $(MSG_INSTALLING) "$(E_BR_GREEN)$(TARGET) $(E_END)"
-	@${INSTALL} ${INSTALL_OPTIONS} $(TRGFILE) ${INSTALL_DIR}
 
 #
 # Help information
@@ -676,28 +501,6 @@ list-ldflags: ## List linker flags
 	  echo $${f} ;             \
 	done                       \
 
-	@for f in $(LIB); do  \
-	  echo  $${f};        \
-	done                  \
-
-
-check: ## Check if tools and libraries are present 
-	@$(MPTOOL) ce $(CC)
-	@$(MPTOOL) ce $(OBJCOPY)
-	@$(MPTOOL) ce $(OBJDUMP)
-	@$(MPTOOL) ce $(SIZE)
-	@$(MPTOOL) ce $(AR)
-	@$(MPTOOL) ce $(NM)
-	@$(MPTOOL) ce $(AS)
-	@$(MPTOOL) ce $(QMAKE)
-	@$(MPTOOL) ce $(MOC)
-	@$(MPTOOL) ce python3
-	@$(MPTOOL) ce $(CPPCHECK)
-	@$(MPTOOL) ce $(INSTALL)
-	@for f in $(LIB); do               \
-		${MPTOOL} cl ${CC} $${f};      \
-	done                               \
-	
 list-info: 
 	@echo -e $(MSG_PROJECT)
 	@echo "Target:     $(TARGET)"
@@ -732,125 +535,10 @@ list-defs:
 	done        
 
 
-list-installinfo:
-	@echo -e $(MSG_INSTALL_INFO)
-	@echo "Install dir:   $(INSTALL_DIR)"
-	@echo "Install user:  $(INSTALL_USER)"
-	@echo "Install group: $(INSTALL_GROUP)"
-
 
 info: list-info list-includes list-defs list-flags list-ldflags list-installinfo ## Print information about project
 
 files: list-src ## List source files
-	
-#
-# Personal settings
-#============================================================================
 
-# Only for default settings. Change value in settings.mk
-AUTHOR=Your Name <your.name@yourdomain.org>
-EDITOR=jed
-US:=$$USER
-#PERSONAL=personal_$${USER}.mk
-PERSONAL=personal.mk
-
-# Include some external settings
-# If file does not exist it will be generated.
-include  ${PERSONAL}
-
-$(PERSONAL):	# Create a settings file
-	@echo "#" > ${PERSONAL}
-	@echo "# This file is for personal settings only." >> ${PERSONAL}
-	@echo "#" >> ${PERSONAL}
-	@echo "EDITOR=${EDITOR}" >> ${PERSONAL}
-	@echo "AUTHOR=${AUTHOR}" >> ${PERSONAL}
-
-
-
-#
-# CppCheck static code analysis
-#============================================================================
-.PHONY: ccheck acheck
-
-ccheck: ## Static code analysis using cppcheck(errors only)
-	@$(CPPCHECK) --inline-suppr $(SRC) 
-
-acheck: ## Static code analysis using cppcheck(all warnings)
-	@$(CPPCHECK) --inline-suppr --enable=all $(SRC) 
-
-#
-# Artistic Style (astyle) Format source code to a standard
-#============================================================================
-.PHONY: astyle
-
-TABSIZE=4
-
-# Bracket style options
-AST  = --style=java
-
-# Tab options
-AST += --indent=spaces=$(TABSIZE)
-
-# Indentation options
-AST += --indent-switches
-AST += --indent-cases
-#AST += --indent-preproc-cond
-AST += --indent-col1-comments
-AST += --max-instatement-indent=40
- 
-# C++ specific indentation
-AST += --indent-modifiers
-
-
-# Padding options
-AST += --break-blocks
-AST += --pad-oper
-#AST += --pad-comma
-AST += --pad-header
-AST += --align-pointer=name
-AST += --align-reference=name 
-
-# Formatting options
-AST += --add-brackets 
-AST += --convert-tabs
-
-# Other options
-AST += --lineend=linux
-#AST += --recursive
-#AST += --exclude=
-AST +=--preserve-date
-
-PSRCH = $(PSRC:%.c=%.h) 
-
-astyle: ## Format source to conform to a standard
-#	@$(ASTYLE) $(AST) $(PSRC) $(PSRCH)
-	@$(ASTYLE) $(AST) src/*.cpp src/*.h
-#
-# splint static code analysis
-#============================================================================
-.PHONY: splint
-
-SO  = +posixlib
-#SO += +posixstrictlib
-#SO += -warnposix
-#SO += -preproc
-
-splint: ## Static code analysis
-	splint $(SO) -Isrc -Isrc/lua-5.2.3/src  src/main.c
-
-
-#
-# GProf profiling tool
-#============================================================================
-.PHONY: prof
-
-PROF = -a
-PROG += -b
-
-prof:  run ## Run code profiling
-	gprof $(PROF) $(TRGFILE) gmon.out 
-
-
-	
 # Listing of phony targets.
 .PHONY : all clean gccversion build begin finished end elf lss sym archive edit help backup list-src list-flags newproj run install
