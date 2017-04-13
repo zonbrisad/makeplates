@@ -621,10 +621,7 @@ edit:   ## Open source and makefile in editor
 	@$(EDITOR) Makefile $(SRC)
 
 run:    ## Run application
-	@output/$(TARGET)
-
-debug:  ## Debug application
-
+	@$(OUTDIR)/$(TARGET)
 
 # Include the dependency files.
 -include $(shell mkdir .dep 2>/dev/null) $(wildcard .dep/*)
