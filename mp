@@ -64,18 +64,45 @@ tdist() { ##C MPT Distribute tools to example projects
   toolsDistribute tools/mkptools	
 }
 
+
+# Install single makeplate
+#
+# arg1 source makeplate to be installed
+# arg2 destination
+installMp() {
+  cd ${1}
+	make clean
+	cd -
+  cp -rf $1  ${2}/.
+}
+
 #
 # arg1 install dir
 # arg2 symbolic link dir
 #
 mpInstall() {
 
+  # Create dir
 	mkdir -p ${1}
-
-	cp -rf ${scriptPath}/mp-c      ${1}/.
-	cp -rf ${scriptPath}/mp-simple ${1}/.
-	cp -rf ${scriptPath}/mp        ${1}/mp
 	
+	# Remove conents if existing
+	cp -rf ${1}/*
+
+  # Install makeplates
+	installMp ${scriptPath}/mp-c          ${1}/.
+	installMp ${scriptPath}/mp-cpp        ${1}/.
+	installMp ${scriptPath}/mp-simple-c   ${1}/.
+	installMp ${scriptPath}/mp-simple-cpp ${1}/.
+#	installMp ${scriptPath}/mp            ${1}/mp
+	
+#	cp -rf ${scriptPath}/mp-c          ${1}/.
+#	cp -rf ${scriptPath}/mp-cpp        ${1}/.
+#	cp -rf ${scriptPath}/mp-simple-c   ${1}/.
+#	cp -rf ${scriptPath}/mp-simple-cpp ${1}/.
+	cp -rf ${scriptPath}/mp            ${1}/mp
+	
+ 	
+	# Create symlink
 	ln -fs ${1}/mp ${2}
 	rm -f ${1}/MPT
 }
@@ -93,19 +120,37 @@ install-local() { ##C MPT Install makeplates localy for easy creating new projec
 }
 
 clean() { ##C MPT Clean out old files
-	find . -name "*~" -delete
+	find . -name "*~"     -delete
 	find . -name "*.orig" -delete
 }
 
-new() { ##C NEW Create a new standard makeplate project
+installPlate() {
+  
+  rm -rf ${1}/*
+  cp -rf ${1}/* .
+}
+
+newC() { ##C NEW Create a new standard C makeplate project
   echo -e "Creating new makeplate project"
   cp -rf ${scriptPath}/${MPT_DIR}/mp-c/* .
 }
 
-newSimple() { ##C NEW Create a new simple makeplate C project
-  echo -e "Creating new simple makeplate project"
-  cp -rf ${scriptPath}/${MPT_DIR}/mp-simple/* .  
+newCpp() { ##C NEW Create a new standard C++ makeplate project
+  echo -e "Creating new makeplate project"
+  cp -rf ${scriptPath}/${MPT_DIR}/mp-cpp/* .
 }
+
+newSC() { ##C NEW Create a new simple C makeplate project
+  echo -e "Creating new simple makeplate project"
+  cp -rf ${scriptPath}/${MPT_DIR}/mp-simple-c/* .  
+}
+
+newSCpp() { ##C NEW Create a new simple C++ makeplate project
+  echo -e "Creating new simple makeplate project"
+  cp -rf ${scriptPath}/${MPT_DIR}/mp-simple-cpp/* .  
+}
+
+
 #--------------------------------------------------------------------- 
 # Bashplate settings
 #---------------------------------------------------------------------
