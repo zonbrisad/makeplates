@@ -23,7 +23,10 @@ TARGET = avrtest
 
 # List C, C++ and assembler source files here. (C/C++ dependencies are automatically generated.)
 SRC = src/main.c \
-      src/avrsimul.c
+      src/avrsimul.c \
+			src/uart.c  \
+			src/twimaster.c \
+#			src/lcd.c
 
 # List C, C++ and assembler library/3rd partry source files here. (C/C++ dependencies are automatically generated.)
 LSRC =
@@ -221,7 +224,7 @@ endif
 
 ifeq ($(TARGET_PLATFORM), avr)
 # MCU name
-MCU = atmega328
+MCU = atmega328p
 
 # Processor frequency.
 # Some common values:
@@ -308,6 +311,7 @@ MPTOOL    = tools/mkptools
 CPPCHECK  = cppcheck
 INSTALL   = install
 ASTYLE    = astyle
+DOXYGEN   = doxygen
 
 TCHAIN = $(TCHAIN_BASE)/$(TCHAIN_PREFIX)
 
@@ -353,12 +357,15 @@ E_ON_CYAN      = \033[46m
 E_ON_WHITE     = \033[47m
 
 C_OK=$(E_BR_GREEN)
-C_ERROR=$(E_BR_RED)
 C_WARNING=$(E_BR_YELLOW)
+C_ERROR=$(E_BR_RED)
 C_FILE=$(E_BR_CYAN)
+C_DIR=$(E_CYAN)
 C_NOTE=$(E_BR_GREEN)
 C_MSG=$(E_BR_GREEN)
 C_ACTION=$(E_BR_MAGENTA)
+C_VALUE=$(E_WHITE)$(E_ON_BLUE)
+C_IDENTIFIER=$(E_WHITE)
 
 # Messages ------------------------------------------------------------------
 MSG_LINE             = "$(E_WHITE)------------------------------------------------------------------$(E_END)"
@@ -396,30 +403,30 @@ MSG_INSTALLING       = "${C_ACTION}Installing:   ${E_END}"
 MSG_BUILDING         = "$(C_ACTION)Building:     "
 	
 # Compiler output colorizer filter ------------------------------------------
-
+F_SOURCE=| sed -e "s/\(.*\/\)\(.*\)/$$(printf "$(C_DIR)")\1$$(printf "$(C_FILE)")\2$$(printf "$(E_END)")/"
 F_INF="s/In function/$$(printf "$(E_BR_GREEN)")&$$(printf "$(E_END)")/i"
-FF_INF="s/^.*In function/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
+F_NOTE="s/note:/$$(printf "$(C_NOTE)")&$$(printf "$(E_END)")/i"
+F_WARNING="s/warning:/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_ERROR="s/error:/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
 F_FATAL_ERROR="s/fatal error:/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
-F_WARNING="s/warning:/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
-F_NOTE="s/note:/$$(printf "$(C_NOTE)")&$$(printf "$(E_END)")/i"
-FF_ERROR="s/^.*error:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
-FF_WARNING="s/^.*warning:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
-FF_NOTE="s/^.*note:/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/i"
 F_WARNING1="s/defined but not used/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_WARNING2="s/unused variable/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_WARNING3="s/may be used uninitialized in this function/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_WARNING4="s/implicit declaration of function/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
 F_WARNING5="s/value computed is not used/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
-F_BRACKET="s/\[-W.*\]/$$(printf "$(E_GREEN)")&$$(printf "$(E_END)")/g"
-#XX="s/\[[^][]*\]/$$(printf "$(E_BR_BLUE)")&$$(printf "$(E_END)")/i"
-#YY="s/\'[^][]*\'/$$(printf "$(E_BR_GREEN)")&$$(printf "$(E_END)")/i"
-C_FILTER   = | sed -ru -e $(F_FATAL_ERROR) -e $(F_ERROR) -e $(FF_ERROR)     \
-                       -e $(F_WARNING) -e $(FF_WARNING)                     \
-                       -e $(F_WARNING1) -e $(F_WARNING2) -e $(F_WARNING3)   \
-                       -e $(F_WARNING4) -e $(F_WARNING5)                    \
-                       -e $(F_NOTE) -e $(FF_NOTE)                           \
-                       -e $(F_INF) -e $(FF_INF) -e $(F_BRACKET)
+F_BRACKET="s/\[\(.*\)\]/[$$(printf "$(E_GREEN)")\1$$(printf "$(E_END)")]/"	
+F_VARIABLE="s/\‘\(.*\)[\’\‘]/'$$(printf "$(C_IDENTIFIER)")\1$$(printf "$(E_END)")'/g"
+F_FILE="s/[^: ]*/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/"
+#F_FILE="s/\(.*\/\)\(.*\):/$$(printf "$(C_DIR)")\1$$(printf "$(C_FILE)")\2$$(printf "$(E_END)"):/1"
+F_ROWNR="s/:\([0-9]*\):\([0-9]*\):/:$$(printf "$(C_VALUE)")\1$$(printf "$(E_END)"):$$(printf "$(C_VALUE)")\2$$(printf "$(E_END)"):/"
+
+C_FILTER   = | sed -u -e $(F_BRACKET) -e $(F_FILE) -e $(F_ROWNR)          \
+                      -e $(F_INF) -e $(F_NOTE)                            \
+ 	                  -e $(F_WARNING) -e $(F_ERROR) -e $(F_FATAL_ERROR)   \
+                      -e $(F_WARNING1) -e $(F_WARNING2) -e $(F_WARNING3)  \
+                      -e $(F_WARNING4) -e $(F_WARNING5)                   \
+                      -e $(F_VARIABLE)
+
 CPP_FILTER = $(C_FILTER)
 
 LD_ERROR1="s/undefined reference/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
@@ -487,7 +494,7 @@ eep: $(OUTDIR)/$(TARGET).eep
 # Eye candy.
 begin:
 	@echo -e $(MSG_BEGIN)
-	@echo -e ${MSG_BUILDING}"  $(E_BR_GREEN)$(TARGET) $(E_END)"
+	@echo -e ${MSG_BUILDING}" $(E_BR_GREEN)$(TARGET) $(E_END)"
  
 end:
 	@echo
@@ -501,39 +508,42 @@ finished:
 #.SECONDARY : $(TARGET)
 .PRECIOUS : $(OBJS)
 $(TRGFILE): $(OBJS) $(OUTDIR)
-	@echo 
-	@echo -e $(MSG_LINKING)"\n               $(C_FILE)" $@ "$(E_END)"
-	@$(CPP) $(ALL_CFLAGS) $(OBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)
+	@echo -en "\n"$(MSG_LINKING)"\n               "
+	@echo -e $@ $(F_SOURCE)
+	@$(CC) $(ALL_CFLAGS) $(OBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)
 	
 # Create extended listing file/disassambly from ELF output file.
 # using objdump testing: option -C
 %.lss:	$(TRGFILE)
-	@echo
-	@echo -e $(MSG_EXTENDED_LISTING) "\n               $(C_FILE)" $@ "$(E_END)"
+	@echo -en "\n"$(MSG_EXTENDED_LISTING) "\n               "
+	@echo -e $@ $(F_SOURCE)
 	@$(OBJDUMP) -h -S -z $< > $@
 	
 # Create a symbol table from ELF output file.
 %.sym: $(TRGFILE)
-	@echo
-	@echo -e $(MSG_SYMBOL_TABLE) "\n               $(C_FILE)" $@ "$(E_END)"
+	@echo -en "\n"${MSG_SYMBOL_TABLE}"\n               "
+	@echo -e $@ $(F_SOURCE)
 	@$(NM) -n $< > $@
 
 # Create hex file from ELF output file.
 %.hex: $(TRGFILE)
 	@echo
-	@echo -e $(MSG_HEX_FILE) "\n               $(C_FILE)" $@ "$(E_END)"
+	@echo -en $(MSG_HEX_FILE) "\n               "
+	@echo -e $@ $(F_SOURCE)
 	@$(OBJCOPY) -O $(FORMAT) -R .eeprom -R .fuse -R .lock -R .signature $< $@
 
 # Compile: create object files from C source files.
 $(COBJS): $(BUILDDIR)/%.o : src/%.c
 	@$(MKDIR) $(@D)                                       # Create directory for object file
-	@echo -e $(MSG_COMPILING) "$(C_FILE)" $< "$(E_END)"
+	@echo -en $(MSG_COMPILING)" "
+	@echo -e $< $(F_SOURCE)
 	@$(CC) -c $(ALL_CFLAGS) $< -o $@ 2>&1  $(C_FILTER)
 
 # Compile: create object files from C++ source files.
 $(CPPOBJS): $(BUILDDIR)/%.o : src/%.cpp
 	@$(MKDIR) $(@D)                                       # Create directory for object file
-	@echo -e $(MSG_COMPILING_CPP) "$(C_FILE)" $< "$(E_END)"
+	@echo -en $(MSG_COMPILING_CPP)" " 
+	@echo -e $< $(F_SOURCE)
 	@$(CPP) -c $(ALL_CPPFLAGS) $< -o $@ 2>&1  $(CPP_FILTER)
 	
 # Assemble: create object files from assembler source files.
@@ -562,7 +572,8 @@ extcoff: $(TRGFILE)
 
 %.eep: $(TRGFILE)
 	@echo
-	@echo -e $(MSG_EEPROM)"\n             $(E_BR_CYAN)" $@ "$(E_END)"
+	@echo -en $(MSG_EEPROM)"\n               "
+	@echo -e $@ $(F_SOURCE)
 	@$(OBJCOPY) -j .eeprom --set-section-flags=.eeprom="alloc,load" \
 	--change-section-lma .eeprom=0 --no-change-warnings -O $(FORMAT) $< $@ || exit 0
 
@@ -570,6 +581,10 @@ extcoff: $(TRGFILE)
 
 # Create output dir
 $(OUTDIR):
+	@$(MKDIR) $@
+
+# Create build dir
+$(BUILDDIR):
 	@$(MKDIR) $@
 
 # Print information about target binary 
@@ -764,6 +779,14 @@ list-ldflags: ## List linker flags
 	  echo $${f} ;             \
 	done                       \
 
+list-objs: ## List objects 
+	@echo -e $(MSG_INCLUDES)
+	@export IFS=" "
+	@for f in $(OBJS); do   \
+	  echo $${f} ;             \
+	done        
+
+
 check: ## Check if tools and libraries are present 
 	@$(MPTOOL) ce $(CC)
 	@$(MPTOOL) ce $(OBJCOPY)
@@ -860,11 +883,21 @@ $(PERSONAL):	# Create a settings file
 #============================================================================
 .PHONY: ccheck acheck
 
+# Filter rules to colorize output from cppcheck (eye candy)
+F_CPPC_FILE="s/\[\(.*\):\(.*\)\]/[$$(printf "$(C_FILE)")\1$$(printf "$(E_END)"):\2]/i"
+F_CPPC_ROWNR="s/:\([0-9]*\)\]/:$$(printf "$(C_VALUE)")\1$$(printf "$(E_END)")]/"
+F_CPPC_VAR="s/'\(.*\)'/'$$(printf "$(C_IDENTIFIER)")\1$$(printf "$(E_END)")'/g"
+F_CPPC_STYLE="s/style/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
+F_CPPC_PORTABILITY="s/portability/$$(printf "$(C_CYAN)")&$$(printf "$(E_END)")/i"
+F_CPPC_ERROR="s/error/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
+F_CPPC_CHECK="s/\(Checking \)\(.*\)/$$(printf "$(C_ACTION)")\1$$(printf "$(E_END)")$$(printf "$(C_FILE)")\2$$(printf "$(E_END)")/i"	
+CPPCHECK_FILTER   = 2>&1 | sed -u -e $(F_CPPC_ROWNR) -e $(F_CPPC_FILE) -e $(F_CPPC_STYLE) -e $(F_CPPC_ERROR) -e $(F_CPPC_PORTABILITY) -e $(F_CPPC_VAR)  -e $(F_CPPC_CHECK)
+
 ccheck: ## Static code analysis using cppcheck(errors only)
-	@$(CPPCHECK) --inline-suppr $(SRC) 
+	@$(CPPCHECK) --inline-suppr $(SRC)  $(CPPCHECK_FILTER)
 
 acheck: ## Static code analysis using cppcheck(all warnings)
-	@$(CPPCHECK) --inline-suppr --enable=all $(SRC) 
+	@$(CPPCHECK) --inline-suppr --enable=all $(SRC) $(CPPCHECK_FILTER)
 
 #
 # Artistic Style (astyle) Format source code to a standard
@@ -921,10 +954,11 @@ AVRDUDE = avrdude
 # Type: avrdude -c ?
 # to get a full listing.
 #
-AVRDUDE_PROGRAMMER = stk500v2
+#AVRDUDE_PROGRAMMER = stk500v2
+AVRDUDE_PROGRAMMER = arduino
  
 # com1 = serial port. Use lpt1 to connect to parallel port.
-AVRDUDE_PORT = com1    # programmer connected to serial device
+AVRDUDE_PORT = /dev/ttyUSB3    # programmer connected to serial device
 
 AVRDUDE_BITRATE = 57600 
  
