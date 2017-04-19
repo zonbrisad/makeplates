@@ -10,6 +10,8 @@
 //#include <QDebug>
 #include <QtCore>
 #include <QtGui>
+#include <QApplication>
+#include <QLabel>
 
 
 /*
@@ -63,7 +65,6 @@ int main( int argc, char **argv ) {
 		 QLabel label("Hello, world!");
 		 label.show();
 		 return app.exec();
-	}
-	
-	
 }
+	
+

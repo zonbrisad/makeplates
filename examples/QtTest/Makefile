@@ -38,14 +38,17 @@ INCLUDE = inc \
 
 # Libraries to link
 LIB   = -lm 
-#LIB += $(shell pkg-config --libs glib-2.0)
-#LIB += $(shell pkg-config --libs gthread-2.0)
-#LIB += $(shell pkg-config --libs ncurses)
-#LIB += $(shell pkg-config --libs lua5.1)
-#LIB += $(shell pkg-config --libs sqlite3)
-LIB += $(shell pkg-config --libs Qt5Core)
-LIB += $(shell pkg-config --libs Qt5Gui)
+LIB  += -lpthread
 
+# Libraries to use in pkg-config system
+PKGLIBS  = Qt5Core 
+PKGLIBS += Qt5Gui 
+PKGLIBS += Qt5Widgets
+PKGLIBS += glib-2.0
+PKGLIBS += gthread-2.0
+PKGLIBS += ncurses
+PKGLIBS += lua5.1
+PKGLIBS += sqlite3
 
 # Object files directory
 #     To put object files in current directory, use a dot (.), do NOT make
@@ -73,11 +76,7 @@ CDEFS = DEBUGPRINT   \
 ADEFS = 
 
 # C++ Macro definitions
-CPPDEFS = QT_NO_DEBUG \
-          QT_GUI_LIB \
-				  QT_CORE_LIB \
-					QT_SHARED   
-
+CPPDEFS =
 
 # Debug information --------------------------------------------------------- 
 # 0 = no debug information 
@@ -124,10 +123,8 @@ CFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void po
 #CFLAGS += -Werror               # All warnings will be treated as errors
 
 # Library compiler flags C --------------------------------------------------
-#CFLAGS += $(shell pkg-config --cflags glib-2.0)
-#CFLAGS += $(shell pkg-config --cflags gthread-2.0)
-#CFLAGS += $(shell pkg-config --cflags lua5.1)
-#CFLAGS += $(shell pkg-config --cflags sqlite3)
+CFLAGS += $(foreach X, $(PKGLIBS), $(shell pkg-config --cflags $(X)) )
+
 
 # Compiler Options C++ ------------------------------------------------------
 CPPFLAGS = -g$(DEBUG)                              # Debugging information
@@ -140,11 +137,12 @@ CPPFLAGS += -Wa,-adhlns=$(<:%.cpp=$(OBJDIR)/%.lst) # Generate assembler listing
 # Compiler Tuning C++ -------------------------------------------------------
 CPPFLAGS += -funsigned-char
 CPPFLAGS += -funsigned-bitfields
-CPPFLAGS += -fpack-struct
+#CPPFLAGS += -fpack-struct
 CPPFLAGS += -fshort-enums
 CPPFLAGS += -fno-exceptions
 #CPPFLAGS += -mshort-calls
-#CPPFLAGS += -fno-unit-at-a-time
+CPPFLAGS += -fno-unit-at-a-time
+CPPFLAGS += -fPIC                  # Position independet code
 
 # Compiler Warnings C++ -----------------------------------------------------
 CPPFLAGS += -Wall                  # Standard warnings
@@ -160,15 +158,16 @@ CPPFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void 
 #CPPFLAGS += -Wsign-compare
 #CPPFLAGS += -Wundef
 #CPPFLAGS += -Werror              # All warnings will be treated as errors
-CPPFLAGS += -fPIC
 
 # Library compiler flags C++ ------------------------------------------------
-#CPPFLAGS += $(shell pkg-config --cflags glib-2.0)
-#CPPFLAGS += $(shell pkg-config --cflags gthread-2.0)
-#CPPFLAGS += $(shell pkg-config --cflags lua5.1)
-#CPPFLAGS += $(shell pkg-config --cflags sqlite3)
-CPPFLAGS += $(shell pkg-config --cflags Qt5Core)
-CPPFLAGS += $(shell pkg-config --cflags Qt5Gui)
+CPPFLAGS += $(foreach X, $(PKGLIBS), $(shell pkg-config --cflags $(X)) )
+
+# Qt Specific
+#CPPFLAGS += -pipe
+#CPPFLAGS += -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB
+#CPPFLAGS += -isystem /usr/include/x86_64-linux-gnu/qt5 -isystem /usr/include/x86_64-linux-gnu/qt5/QtWidgets -isystem /usr/include/x86_64-linux-gnu/qt5/QtGui -isystem /usr/include/x86_64-linux-gnu/qt5/QtCore
+#CPPFLAGS += -Iobjs -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++-64
+
 
 # Assembler Options ---------------------------------------------------------
 #  -Wa,...:   tell GCC to pass this to the assembler.
@@ -189,6 +188,10 @@ ASFLAGS += -Wa,-adhlns=$(<:%.S=$(OBJDIR)/%.lst),-gstabs,--listing-cont-lines=100
 LDFLAGS = -Wl,-Map=$(OUTDIR)/$(TARGET).map,--cref
 LDFLAGS += $(EXTMEMOPTS)
 LDFLAGS += -g
+
+#LDFLAGS += -L/usr/X11R6/lib64
+#LDFLAGS += -m64  -lQt5Widgets
+LDFLAGS += $(foreach X, $(PKGLIBS), $(shell pkg-config --libs $(X)) )
 
 #
 # Platform specific options
@@ -425,7 +428,7 @@ gccversion :  ## Display compiler version
 $(TRGFILE): $(OBJS) $(OUTDIR)
 	@echo 
 	@echo -e $(MSG_LINKING)"\n             $(C_FILE)" $@ "$(E_END)"
-	@$(PP) $(ALL_CFLAGS) $(OBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)
+	@$(PP) $(OBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)
 	
 # Create extended listing file/disassambly from ELF output file.
 # using objdump testing: option -C
