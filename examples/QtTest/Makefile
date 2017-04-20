@@ -22,7 +22,8 @@ LICENCE = GPLv2
 TARGET = QtTest
 
 # List C, C++ and assembler source files here. (C/C++ dependencies are automatically generated.)
-SRC = src/main.cpp
+SRC = src/main.cpp       \
+      src/MainWindow.cpp
 
 
 # List C, C++ and assembler library/3rd partry source files here. (C/C++ dependencies are automatically generated.)
