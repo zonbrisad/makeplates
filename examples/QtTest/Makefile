@@ -176,9 +176,6 @@ CPPFLAGS += $(foreach X, $(PKGLIBS), $(shell pkg-config --cflags $(X)) )
 LDFLAGS = -Wl,-Map=$(OUTDIR)/$(TARGET).map,--cref
 LDFLAGS += $(EXTMEMOPTS)
 LDFLAGS += -g
-
-#LDFLAGS += -L/usr/X11R6/lib64
-#LDFLAGS += -m64  -lQt5Widgets
 LDFLAGS += $(foreach X, $(PKGLIBS), $(shell pkg-config --libs $(X)) )
 
 #

@@ -352,8 +352,8 @@
  102              		.section	.note.GNU-stack,"",@progbits
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 main.cpp
-     /tmp/cc9LDoiC.s:12     .text.startup:0000000000000000 main
-     /tmp/cc9LDoiC.s:3      .rodata.str1.1:0000000000000000 .LC0
+     /tmp/ccgJVJPB.s:12     .text.startup:0000000000000000 main
+     /tmp/ccgJVJPB.s:3      .rodata.str1.1:0000000000000000 .LC0
 
 UNDEFINED SYMBOLS
 _GLOBAL_OFFSET_TABLE_

@@ -137,11 +137,12 @@ CPPFLAGS += -Wa,-adhlns=$(<:$(SRCDIR)/%.c=$(BUILDDIR)/%.lst) # Generate assemble
 # Compiler Tuning C++ -------------------------------------------------------
 CPPFLAGS += -funsigned-char
 CPPFLAGS += -funsigned-bitfields
-CPPFLAGS += -fpack-struct
+#CPPFLAGS += -fpack-struct
 CPPFLAGS += -fshort-enums
 CPPFLAGS += -fno-exceptions
 #CPPFLAGS += -mshort-calls
 #CPPFLAGS += -fno-unit-at-a-time
+#CPPFLAGS += -fPIC                  # Position independet code
 
 # Compiler Warnings C++ -----------------------------------------------------
 CPPFLAGS += -Wall                  # Standard warnings

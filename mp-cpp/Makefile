@@ -165,6 +165,15 @@ CPPFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void 
 #CPPFLAGS += $(shell pkg-config --cflags sqlite3)
 
 
+# Linker Options ------------------------------------------------------------
+#  -Wl,...:     tell GCC to pass this to linker.
+#    -Map:      create map file
+#    --cref:    add cross reference to  map file
+LDFLAGS = -Wl,-Map=$(OUTDIR)/$(TARGET).map,--cref
+LDFLAGS += $(EXTMEMOPTS)
+LDFLAGS += -g
+#LDFLAGS += $(foreach X, $(PKGLIBS), $(shell pkg-config --libs $(X)) )
+
 #
 # Platform specific options
 #============================================================================
