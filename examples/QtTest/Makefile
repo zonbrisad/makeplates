@@ -25,6 +25,18 @@ TARGET = QtTest
 SRC = src/main.cpp       \
       src/MainWindow.cpp
 
+MOCS = src/MainWindow.h 
+
+MOCSRC = $(patsubst %.h,%_moc.cpp,$(MOCS))           # Generate moc source files
+SRC += $(MOCSRC)
+# #MOCOBJS = $(foreach f, $(MOCS),  $(basename $f).cpp )
+
+#CFLAGS += -Wa,-adhlns=$(<:$(SRCDIR)/%.c=$(BUILDDIR)/%.lst) # Generate assembler listing
+#LST = $(patsubst src/%.c, $(OBJDIR)/%.lst, $(CSRC)) $(patsubst src/%.cpp, $(OBJDIR)/%.lst, $(CPPSRC))
+#LDFLAGS += $(patsubst %,-L%,$(INCLUDE))
+#CFLAGS += $(foreach X, $(PKGLIBS), $(shell pkg-config --cflags $(X)) )
+# 
+#moc: $(MOCSRC)
 
 # List C, C++ and assembler library/3rd partry source files here. (C/C++ dependencies are automatically generated.)
 LSRC =	
@@ -131,7 +143,7 @@ CFLAGS += $(foreach X, $(PKGLIBS), $(shell pkg-config --cflags $(X)) )
 CPPFLAGS = -g$(DEBUG)                              # Debugging information
 CPPFLAGS += -O$(OPT)                               # Optimisation level
 CPPFLAGS += -std=$(CPPSTANDARD)                    # C++ standard
-CPPFLAGS += $(patsubst %,-I%,$(INCLUDE))           # Include directories 
+CPPFLAGS += $(patsubst %,-I%,$(INCLUDE))           # Include directories
 CPPFLAGS += $(patsubst %,-D%,$(CPPDEFS))           # Macro definitions
 CPPFLAGS += -Wa,-adhlns=$(<:$(SRCDIR)/%.cpp=$(BUILDDIR)/%.lst) # Generate assembler listing
 
@@ -320,6 +332,7 @@ MSG_FLASH            = "${C_ACTION}Creating load file for Flash:${E_END}"
 MSG_EEPROM           = "${C_ACTION}Creating load file for EEPROM:${E_END}"
 MSG_COFF             = "${C_ACTION}Converting to AVR COFF:${E_END}"
 MSG_EXTENDED_COFF    = "${C_ACTION}Converting to AVR Extended COFF:${E_END}"
+MSG_MOC              = "${C_ACTION}Creating MOC file:${E_END}"	
 MSG_BACKUP           = "${E_BR_GREEN}Making incremental backup of project:${E_END}"
 MSG_SRC              = "${C_MSG}Source files $(E_GREEN)-----------------------------------------------------${E_END}"
 MSG_FLAGS            = "${C_MSG}Compiler Flags $(E_GREEN)---------------------------------------------------${E_END}"
@@ -432,8 +445,8 @@ finished:
 .PRECIOUS : $(OBJS)
 $(TRGFILE): $(OBJS) $(OUTDIR)
 	@echo -en "\n"$(MSG_LINKING)"\n               "
-	@echo -e $@ $(F_SOURCE)
-	@$(CC) $(ALL_CFLAGS) $(OBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)
+	@echo -e $@ $(F_SOURCE) 
+	@$(CPP) $(ALL_CFLAGS) $(OBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)
 	
 # Create extended listing file/disassambly from ELF output file.
 # using objdump testing: option -C
@@ -477,8 +490,11 @@ $(OBJDIR)/%.s : %.cpp
 	@$(CC) -S $(ALL_CPPFLAGS) $< -o $@
 
 # Generate cc from h via Qt's Meta Object Compiler, rule to change postfix
-%.moc.cc: %.h
-	$(MOC) $(INCDIRS) $< -o $@
+#%_moc.cc: %.h
+$(MOCSRC): %_moc.cpp : %.h 	
+	@echo -en $(MSG_MOC) "\n               "
+	@echo -e $@ $(F_SOURCE)
+	@$(MOC) $(INCDIRS) $< -o $@
 
 # Create output dir
 $(OUTDIR):
@@ -521,6 +537,7 @@ clean:  ## Remove all build files
 	@$(REMOVE) $(OUTDIR)/$(TARGET).cof
 	@$(REMOVE) $(OBJS)
 	@$(REMOVE) $(LST)
+	@$(REMOVE) $(MOCSRC)
 	@$(REMOVEDIR) .dep
 	@$(REMOVEDIR) $(BUILDDIR)	
 	@find . -name "*~" -delete
