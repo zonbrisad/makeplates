@@ -19,7 +19,7 @@ TARGET_PLATFORM = linux
 LICENCE = GPLv2
 
 # Target file name (without extension).
-TARGET = QTTest
+TARGET = QtTest
 
 # List C, C++ and assembler source files here. (C/C++ dependencies are automatically generated.)
 SRC = src/main.cpp
@@ -132,7 +132,7 @@ CPPFLAGS += -O$(OPT)                               # Optimisation level
 CPPFLAGS += -std=$(CPPSTANDARD)                    # C++ standard
 CPPFLAGS += $(patsubst %,-I%,$(INCLUDE))           # Include directories 
 CPPFLAGS += $(patsubst %,-D%,$(CPPDEFS))           # Macro definitions
-CPPFLAGS += -Wa,-adhlns=$(<:$(SRCDIR)/%.c=$(BUILDDIR)/%.lst) # Generate assembler listing
+CPPFLAGS += -Wa,-adhlns=$(<:$(SRCDIR)/%.cpp=$(BUILDDIR)/%.lst) # Generate assembler listing
 
 # Compiler Tuning C++ -------------------------------------------------------
 CPPFLAGS += -funsigned-char
@@ -175,6 +175,7 @@ CPPFLAGS += $(foreach X, $(PKGLIBS), $(shell pkg-config --cflags $(X)) )
 #    --cref:    add cross reference to  map file
 LDFLAGS = -Wl,-Map=$(OUTDIR)/$(TARGET).map,--cref
 LDFLAGS += $(EXTMEMOPTS)
+LDFLAGS += $(patsubst %,-L%,$(INCLUDE))
 LDFLAGS += -g
 LDFLAGS += $(foreach X, $(PKGLIBS), $(shell pkg-config --libs $(X)) )
 
@@ -387,7 +388,7 @@ CPPOBJS  = $(patsubst $(SRCDIR)/%.cpp, $(BUILDDIR)/%.o, $(CPPSRC))
 OBJS    = $(COBJS) $(CPPOBJS) 
 
 # Define all listing files.
-LST = $(patsubst src/%.c, $(OBJDIR)/%.lst, $(SRC)) $(patsubst src/%.cpp, $(OBJDIR)/%.lst, $(CPPSRC)) $(patsubst src/%.S, $(OBJDIR)/%.lst, $(ASRC))
+LST = $(patsubst src/%.c, $(OBJDIR)/%.lst, $(CSRC)) $(patsubst src/%.cpp, $(OBJDIR)/%.lst, $(CPPSRC))
 
 # Default target.
 all:	begin build finished end

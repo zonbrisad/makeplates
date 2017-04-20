@@ -89,7 +89,6 @@ CFLAGS += -O$(OPT)                             # Optimisation level
 CFLAGS += -std=$(CSTANDARD)                    # C standard
 CFLAGS += $(patsubst %,-I%,$(INCLUDE))         # Include directories 
 CFLAGS += $(patsubst %,-D%,$(CDEFS))           # Macro definitions
-#CFLAGS += -Wa,-adhlns=$(<:%.c=$(OBJDIR)/%.lst) # Generate assembler listing
 CFLAGS += -Wa,-adhlns=$(<:$(SRCDIR)/%.c=$(BUILDDIR)/%.lst) # Generate assembler listing
 
 # Compiler Tuning C ---------------------------------------------------------
@@ -130,8 +129,7 @@ CPPFLAGS += -O$(OPT)                               # Optimisation level
 CPPFLAGS += -std=$(CPPSTANDARD)                    # C++ standard
 CPPFLAGS += $(patsubst %,-I%,$(INCLUDE))           # Include directories 
 CPPFLAGS += $(patsubst %,-D%,$(CPPDEFS))           # Macro definitions
-#CPPFLAGS += -Wa,-adhlns=$(<:%.cpp=$(OBJDIR)/%.lst) # Generate assembler listing
-CPPFLAGS += -Wa,-adhlns=$(<:$(SRCDIR)/%.c=$(BUILDDIR)/%.lst) # Generate assembler listing
+CPPFLAGS += -Wa,-adhlns=$(<:$(SRCDIR)/%.cpp=$(BUILDDIR)/%.lst) # Generate assembler listing
 
 # Compiler Tuning C++ -------------------------------------------------------
 CPPFLAGS += -funsigned-char
@@ -383,7 +381,7 @@ CPPOBJS  = $(patsubst $(SRCDIR)/%.cpp, $(BUILDDIR)/%.o, $(CPPSRC))
 OBJS    = $(COBJS) $(CPPOBJS) 
 
 # Define all listing files.
-LST = $(patsubst src/%.c, $(OBJDIR)/%.lst, $(SRC)) $(patsubst src/%.cpp, $(OBJDIR)/%.lst, $(CPPSRC)) $(patsubst src/%.S, $(OBJDIR)/%.lst, $(ASRC))
+LST = $(patsubst src/%.c, $(OBJDIR)/%.lst, $(CSRC)) $(patsubst src/%.cpp, $(OBJDIR)/%.lst, $(CPPSRC))
 
 # Default target.
 all:	begin build finished end
