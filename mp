@@ -46,6 +46,12 @@ else
   NEW=1
 fi
 
+# Local install dir
+MP_LOCALDIR=~/bin
+
+# system wide install dir
+MP_SYSDIR=/usr/local/bin
+
 #---------------------------------------------------------------------
 # User defined functions
 #---------------------------------------------------------------------
@@ -67,14 +73,30 @@ tdist() { ##C MPT Distribute tools to example projects
 
 # Install single makeplate
 #
-# arg1 source makeplate to be installed
-# arg2 destination
+# arg1 source directory 
+# arg2 destination directory
+# arg3 makeplate
+#
 installMp() {
-  cd ${1}
+
+  # First remove all possible object files etc.
+  cd ${1}/${3}
 	make clean
 	cd -
-  cp -rf $1  ${2}/.
+	
+	# Copy makeplate
+  cp -rf ${1}/${3}  ${2}/.
+	
+	
+#	if [ -f ${2}/${3}/tools ]; do 
+#	fi
+	# Remove symbolic link
+	rm -f ${2}/${3}/tools
+	
+	# Copy tools to project
+	cp -rf ${2}/tools ${2}/${3}/.
 }
+
 
 #
 # arg1 install dir
@@ -86,20 +108,18 @@ mpInstall() {
 	mkdir -p ${1}
 	
 	# Remove conents if existing
-	cp -rf ${1}/*
+	#rm -rf ${1}/*
+	remove
+
+	cp -rf ${scriptPath}/mp      ${1}/.
+	cp -rf ${scriptPath}/tools   ${1}/.	
+
 
   # Install makeplates
-	installMp ${scriptPath}/mp-c          ${1}/.
-	installMp ${scriptPath}/mp-cpp        ${1}/.
-	installMp ${scriptPath}/mp-simple-c   ${1}/.
-	installMp ${scriptPath}/mp-simple-cpp ${1}/.
-#	installMp ${scriptPath}/mp            ${1}/mp
-	
-#	cp -rf ${scriptPath}/mp-c          ${1}/.
-#	cp -rf ${scriptPath}/mp-cpp        ${1}/.
-#	cp -rf ${scriptPath}/mp-simple-c   ${1}/.
-#	cp -rf ${scriptPath}/mp-simple-cpp ${1}/.
-	cp -rf ${scriptPath}/mp            ${1}/mp
+	installMp ${scriptPath}  ${1}  mp-c 
+	installMp ${scriptPath}  ${1}  mp-cpp
+	installMp ${scriptPath}  ${1}  mp-simple-c
+	installMp ${scriptPath}  ${1}  mp-simple-cpp
 	
  	
 	# Create symlink
@@ -107,6 +127,15 @@ mpInstall() {
 	rm -f ${1}/MPT
 }
 
+remove() { ## Remove makplates installation
+  rm -rf ${MP_LOCALDIR}/${MPT_DIR}
+	rm -rf ${MP_SYSDIR}/${MPT_DIR}
+	
+	rm -rf ${MP_LOCALDIR}/mp
+	rm -rf ${MP_SYSDIR}/mp
+	
+	
+}
 
 install() { ##C MPT Install makeplates on system
   assertRoot
