@@ -25,18 +25,13 @@ TARGET = QtTest
 SRC = src/main.cpp       \
       src/MainWindow.cpp
 
+# List of .h/.cpp files to generate moc data from (Qt)
 MOCS = src/MainWindow.h 
 
-MOCSRC = $(patsubst %.h,%_moc.cpp,$(MOCS))           # Generate moc source files
-SRC += $(MOCSRC)
-# #MOCOBJS = $(foreach f, $(MOCS),  $(basename $f).cpp )
 
-#CFLAGS += -Wa,-adhlns=$(<:$(SRCDIR)/%.c=$(BUILDDIR)/%.lst) # Generate assembler listing
-#LST = $(patsubst src/%.c, $(OBJDIR)/%.lst, $(CSRC)) $(patsubst src/%.cpp, $(OBJDIR)/%.lst, $(CPPSRC))
-#LDFLAGS += $(patsubst %,-L%,$(INCLUDE))
-#CFLAGS += $(foreach X, $(PKGLIBS), $(shell pkg-config --cflags $(X)) )
-# 
-#moc: $(MOCSRC)
+# List of Qt .ui(user interface) files
+UI  = 
+
 
 # List C, C++ and assembler library/3rd partry source files here. (C/C++ dependencies are automatically generated.)
 LSRC =	
@@ -53,6 +48,8 @@ LIB  += -lpthread
 PKGLIBS  = Qt5Core 
 PKGLIBS += Qt5Gui 
 PKGLIBS += Qt5Widgets
+#PKGLIBS += Qt5SerialPort
+#PKGLIBS += Qt5Network
 #PKGLIBS += glib-2.0
 #PKGLIBS += gthread-2.0
 #PKGLIBS += ncurses
@@ -223,28 +220,36 @@ TCHAIN_PREFIX=
 
 endif
 
+
+# Qt stuff -----------------------------------------------------------------
+MOCSRC = $(patsubst %.h,%_moc.cpp,$(MOCS))      # Generate moc source files
+SRC += $(MOCSRC)
+#UIH = $(patsubst ui/%.ui, ui/%_ui.h, $(UI) )   # Generate UI header files
+UIH = $(patsubst src/%.ui, src/ui_%.h, $(UI) )          # Generate UI header files
+
 #
 # Tool settings
 #============================================================================
 
 # Define programs and commands ----------------------------------------------
 SHELL     = bash
+WINSHELL  = cmd
 REMOVE    = rm -f
 REMOVEDIR = rm -rf
 COPY      = cp -f 
 MOVE      = mv -f
-WINSHELL  = cmd
 MKDIR     = mkdir -p
-SED       = sed
-MOC       = moc
-QMAKE     = qmake
-CTEMPLATE = python3 tools/ctemplate.py
-BIN2ARRAY = python3 tools/bin2array.py
-MPTOOL    = tools/mkptools
+SED       = sed              # stream editor program
+MOC       = moc              # Qt meta object compiler
+QMAKE     = qmake            # Qt make program
+UIC       = uic              # Qt resource file compiler
+CTEMPLATE = python3 tools/ctemplate.py # C/C++ template tool
+BIN2ARRAY = python3 tools/bin2array.py # Binary to array tool
+MPTOOL    = tools/mkptools   # Makeplate tools
 CPPCHECK  = cppcheck
 INSTALL   = install
-ASTYLE    = astyle
-DOXYGEN   = doxygen
+ASTYLE    = astyle           # Code beatyfier
+DOXYGEN   = doxygen          # Code documetation program
 
 TCHAIN = $(TCHAIN_BASE)/$(TCHAIN_PREFIX)
 
@@ -332,7 +337,8 @@ MSG_FLASH            = "${C_ACTION}Creating load file for Flash:${E_END}"
 MSG_EEPROM           = "${C_ACTION}Creating load file for EEPROM:${E_END}"
 MSG_COFF             = "${C_ACTION}Converting to AVR COFF:${E_END}"
 MSG_EXTENDED_COFF    = "${C_ACTION}Converting to AVR Extended COFF:${E_END}"
-MSG_MOC              = "${C_ACTION}Creating MOC file:${E_END}"	
+MSG_MOC              = "${C_ACTION}Creating MOC file:${E_END}"
+MSG_UI               = "${C_ACTION}Generating UI header:${E_END}"
 MSG_BACKUP           = "${E_BR_GREEN}Making incremental backup of project:${E_END}"
 MSG_SRC              = "${C_MSG}Source files $(E_GREEN)-----------------------------------------------------${E_END}"
 MSG_FLAGS            = "${C_MSG}Compiler Flags $(E_GREEN)---------------------------------------------------${E_END}"
@@ -443,7 +449,7 @@ finished:
 # Link target
 #.SECONDARY : $(TARGET)
 .PRECIOUS : $(OBJS)
-$(TRGFILE): $(OBJS) $(OUTDIR)
+$(TRGFILE): $(UIH) $(OBJS) $(OUTDIR)
 	@echo -en "\n"$(MSG_LINKING)"\n               "
 	@echo -e $@ $(F_SOURCE) 
 	@$(CPP) $(ALL_CFLAGS) $(OBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)
@@ -489,12 +495,19 @@ $(OBJDIR)/%.s : %.c
 $(OBJDIR)/%.s : %.cpp
 	@$(CC) -S $(ALL_CPPFLAGS) $< -o $@
 
-# Generate cc from h via Qt's Meta Object Compiler, rule to change postfix
-#%_moc.cc: %.h
+
+# Qt Meta Object Compiler target
 $(MOCSRC): %_moc.cpp : %.h 	
 	@echo -en $(MSG_MOC) "\n               "
 	@echo -e $@ $(F_SOURCE)
 	@$(MOC) $(INCDIRS) $< -o $@
+
+# Qt user interface header file generation target
+$(UIH): src/ui_%.h: src/%.ui
+	@echo -en $(MSG_UI) "\n               "
+	@echo -e $@  $(F_SOURCE)  
+	@$(UIC) $(INCDIRS) $< -o $@
+
 
 # Create output dir
 $(OUTDIR):
@@ -538,6 +551,7 @@ clean:  ## Remove all build files
 	@$(REMOVE) $(OBJS)
 	@$(REMOVE) $(LST)
 	@$(REMOVE) $(MOCSRC)
+	@$(REMOVE) $(UIH)
 	@$(REMOVEDIR) .dep
 	@$(REMOVEDIR) $(BUILDDIR)	
 	@find . -name "*~" -delete

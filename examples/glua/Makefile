@@ -74,13 +74,20 @@ INCLUDE = inc \
           src/Unity/src
 
 # Libraries to link
-LIB  = -lm 
-LIB += $(shell pkg-config --libs glib-2.0)
-LIB += $(shell pkg-config --libs gthread-2.0)
-LIB += $(shell pkg-config --libs gio-2.0)
-#LIB += $(shell pkg-config --libs ncurses)
-#LIB += $(shell pkg-config --libs lua5.1)
-#LIB += $(shell pkg-config --libs sqlite3)
+LIB   = -lm 
+#LIB  += -lpthread
+
+# Libraries to use in pkg-config system
+#PKGLIBS  = Qt5Core 
+#PKGLIBS += Qt5Gui 
+#PKGLIBS += Qt5Widgets
+#PKGLIBS += Qt5SerialPort
+#PKGLIBS += Qt5Network
+PKGLIBS += glib-2.0
+PKGLIBS += gthread-2.0
+#PKGLIBS += ncurses
+#PKGLIBS += lua5.1
+#PKGLIBS += sqlite3
 
 # Object files directory
 #     To put object files in current directory, use a dot (.), do NOT make
@@ -132,7 +139,6 @@ CFLAGS += -O$(OPT)                             # Optimisation level
 CFLAGS += -std=$(CSTANDARD)                    # C standard
 CFLAGS += $(patsubst %,-I%,$(INCLUDE))         # Include directories 
 CFLAGS += $(patsubst %,-D%,$(CDEFS))           # Macro definitions
-#CFLAGS += -Wa,-adhlns=$(<:%.c=$(OBJDIR)/%.lst) # Generate assembler listing
 CFLAGS += -Wa,-adhlns=$(<:$(SRCDIR)/%.c=$(BUILDDIR)/%.lst) # Generate assembler listing
 
 # Compiler Tuning C ---------------------------------------------------------
@@ -161,12 +167,7 @@ CFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void po
 #CFLAGS += -Werror               # All warnings will be treated as errors
 
 # Library compiler flags C --------------------------------------------------
-CFLAGS += $(shell pkg-config --cflags glib-2.0)
-CFLAGS += $(shell pkg-config --cflags gthread-2.0)
-CFLAGS += $(shell pkg-config --cflags gio-2.0)
-#CFLAGS += $(shell pkg-config --cflags lua5.1)
-#CFLAGS += $(shell pkg-config --cflags sqlite3)
-
+CFLAGS += $(foreach X, $(PKGLIBS), $(shell pkg-config --cflags $(X)) )
 
 # Compiler Options C++ ------------------------------------------------------
 CPPFLAGS = -g$(DEBUG)                              # Debugging information
@@ -174,17 +175,17 @@ CPPFLAGS += -O$(OPT)                               # Optimisation level
 CPPFLAGS += -std=$(CPPSTANDARD)                    # C++ standard
 CPPFLAGS += $(patsubst %,-I%,$(INCLUDE))           # Include directories 
 CPPFLAGS += $(patsubst %,-D%,$(CPPDEFS))           # Macro definitions
-#CPPFLAGS += -Wa,-adhlns=$(<:%.cpp=$(OBJDIR)/%.lst) # Generate assembler listing
-CPPFLAGS += -Wa,-adhlns=$(<:$(SRCDIR)/%.c=$(BUILDDIR)/%.lst) # Generate assembler listing
+CPPFLAGS += -Wa,-adhlns=$(<:$(SRCDIR)/%.cpp=$(BUILDDIR)/%.lst) # Generate assembler listing
 
 # Compiler Tuning C++ -------------------------------------------------------
 CPPFLAGS += -funsigned-char
 CPPFLAGS += -funsigned-bitfields
-CPPFLAGS += -fpack-struct
+#CPPFLAGS += -fpack-struct
 CPPFLAGS += -fshort-enums
 CPPFLAGS += -fno-exceptions
 #CPPFLAGS += -mshort-calls
 #CPPFLAGS += -fno-unit-at-a-time
+#CPPFLAGS += -fPIC                  # Position independet code
 
 # Compiler Warnings C++ -----------------------------------------------------
 CPPFLAGS += -Wall                  # Standard warnings
@@ -202,23 +203,8 @@ CPPFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void 
 #CPPFLAGS += -Werror              # All warnings will be treated as errors
 
 # Library compiler flags C++ ------------------------------------------------
-CPPFLAGS += $(shell pkg-config --cflags glib-2.0)
-CPPFLAGS += $(shell pkg-config --cflags gthread-2.0)
-#CPPFLAGS += $(shell pkg-config --cflags lua5.1)
-#CPPFLAGS += $(shell pkg-config --cflags sqlite3)
+CPPFLAGS += $(foreach X, $(PKGLIBS), $(shell pkg-config --cflags $(X)) )
 
-
-# Assembler Options ---------------------------------------------------------
-#  -Wa,...:   tell GCC to pass this to the assembler.
-#  -adhlns:   create listing
-#  -gstabs:   have the assembler create line number information; note that
-#             for use in COFF files, additional information about filenames
-#             and function names needs to be present in the assembler source
-#             files -- see avr-libc docs [FIXME: not yet described there]
-#  -listing-cont-lines: Sets the maximum number of continuation lines of hex 
-#       dump that will be displayed for a given single line of source input.
-ASFLAGS =  $(patsubst %,-D%,$(ADEFS))
-ASFLAGS += -Wa,-adhlns=$(<:%.S=$(OBJDIR)/%.lst),-gstabs,--listing-cont-lines=100
 
 # Linker Options ------------------------------------------------------------
 #  -Wl,...:     tell GCC to pass this to linker.
@@ -228,6 +214,7 @@ LDFLAGS = -Wl,-Map=$(OUTDIR)/$(TARGET).map,--cref
 LDFLAGS += $(EXTMEMOPTS)
 LDFLAGS += $(patsubst %,-L%,$(INCLUDE))
 LDFLAGS += -g
+LDFLAGS += $(foreach X, $(PKGLIBS), $(shell pkg-config --libs $(X)) )
 
 #
 # Platform specific options
@@ -268,22 +255,23 @@ endif
 
 # Define programs and commands ----------------------------------------------
 SHELL     = bash
+WINSHELL  = cmd
 REMOVE    = rm -f
 REMOVEDIR = rm -rf
 COPY      = cp -f 
 MOVE      = mv -f
-WINSHELL  = cmd
 MKDIR     = mkdir -p
-SED       = sed
-MOC       = moc
-QMAKE     = qmake
-CTEMPLATE = python3 tools/ctemplate.py
-BIN2ARRAY = python3 tools/bin2array.py
-MPTOOL    = tools/mkptools
+SED       = sed              # stream editor program
+MOC       = moc              # Qt meta object compiler
+QMAKE     = qmake            # Qt make program
+UIC       = uic              # Qt resource file compiler
+CTEMPLATE = python3 tools/ctemplate.py # C/C++ template tool
+BIN2ARRAY = python3 tools/bin2array.py # Binary to array tool
+MPTOOL    = tools/mkptools   # Makeplate tools
 CPPCHECK  = cppcheck
 INSTALL   = install
-ASTYLE    = astyle
-DOXYGEN   = doxygen
+ASTYLE    = astyle           # Code beatyfier
+DOXYGEN   = doxygen          # Code documetation program
 
 TCHAIN = $(TCHAIN_BASE)/$(TCHAIN_PREFIX)
 
@@ -371,6 +359,8 @@ MSG_FLASH            = "${C_ACTION}Creating load file for Flash:${E_END}"
 MSG_EEPROM           = "${C_ACTION}Creating load file for EEPROM:${E_END}"
 MSG_COFF             = "${C_ACTION}Converting to AVR COFF:${E_END}"
 MSG_EXTENDED_COFF    = "${C_ACTION}Converting to AVR Extended COFF:${E_END}"
+MSG_MOC              = "${C_ACTION}Creating MOC file:${E_END}"
+MSG_UI               = "${C_ACTION}Generating UI header:${E_END}"
 MSG_BACKUP           = "${E_BR_GREEN}Making incremental backup of project:${E_END}"
 MSG_SRC              = "${C_MSG}Source files $(E_GREEN)-----------------------------------------------------${E_END}"
 MSG_FLAGS            = "${C_MSG}Compiler Flags $(E_GREEN)---------------------------------------------------${E_END}"
@@ -424,8 +414,6 @@ GENDEPFLAGS = -MMD -MP -MF .dep/$(@F).d
 # Add target processor to flags.
 ALL_CFLAGS   =  -I. $(CFLAGS) $(GENDEPFLAGS)
 ALL_CPPFLAGS =  -I. -x c++ $(CPPFLAGS) $(GENDEPFLAGS)
-ALL_ASFLAGS  =  -I. -x assembler-with-cpp $(ASFLAGS)
-
 
 # Filter out C sources
 CSRC_1 = $(patsubst $(SRCDIR)/%.cpp,  , $(SRC) $(LSRC))
@@ -435,16 +423,11 @@ CSRC   = $(patsubst $(SRCDIR)/%.S,    , $(CSRC_1))
 CPPSRC_1 = $(patsubst $(SRCDIR)/%.c,  , $(SRC) $(LSRC))
 CPPSRC   = $(patsubst $(SRCDIR)/%.S,  , $(CPPSRC_1))
 
-# Filter out Assembler sources
-ASRC_1 = $(patsubst $(SRCDIR)/%.c,    , $(SRC) $(LSRC))
-ASRC   = $(patsubst $(SRCDIR)/%.cpp,  , $(ASRC_1))
-
 # Define all object files.
 COBJS    = $(patsubst $(SRCDIR)/%.c,   $(BUILDDIR)/%.o, $(CSRC)) 
 CPPOBJS  = $(patsubst $(SRCDIR)/%.cpp, $(BUILDDIR)/%.o, $(CPPSRC))
-AOBJS    = $(patsubst $(SRCDIR)/%.S,   $(BUILDDIR)/%.o, $(ASRC))
 
-OBJS    = $(COBJS) $(CPPOBJS) $(AOBJS)
+OBJS    = $(COBJS) $(CPPOBJS) 
 
 
 # Filter out C sources
@@ -470,7 +453,7 @@ ALLOBJS = $(OBJS) $(TOBJS)
 
 
 # Define all listing files.
-LST = $(patsubst src/%.c, $(OBJDIR)/%.lst, $(SRC)) $(patsubst src/%.cpp, $(OBJDIR)/%.lst, $(CPPSRC)) $(patsubst src/%.S, $(OBJDIR)/%.lst, $(ASRC))
+LST = $(patsubst src/%.c, $(OBJDIR)/%.lst, $(CSRC)) $(patsubst src/%.cpp, $(OBJDIR)/%.lst, $(CPPSRC))
 
 # Default target.
 all:	begin build finished end
@@ -486,7 +469,7 @@ nocolor:
 # Build with no color filter on compiler output
 # Useful for Netbeans, Eclipse builds etc. 
 #	
-nc: nocolor all   ## Build with no color on compiler output
+nc: nocolor all   ## Build with no color filter on compiler output
 
 
 #prof: cflags+=-pg all
@@ -587,11 +570,6 @@ $(CPPOBJS): $(BUILDDIR)/%.o : src/%.cpp
 	@echo -e $< $(F_SOURCE)
 	@$(CPP) -c $(ALL_CPPFLAGS) $< -o $@ 2>&1  $(CPP_FILTER)
 	
-# Assemble: create object files from assembler source files.
-$(OBJDIR)/%.o : %.S
-	@echo -e $(MSG_ASSEMBLING) "$(C_FILE)" $< "$(E_END)"
-	@$(CC) -c $(ALL_ASFLAGS) $< -o $@
-
 # Compile: create assembler files from C source files.
 $(OBJDIR)/%.s : %.c
 	@$(CC) -S $(ALL_CFLAGS) $< -o $@
@@ -599,6 +577,20 @@ $(OBJDIR)/%.s : %.c
 # Compile: create assembler files from C++ source files.
 $(OBJDIR)/%.s : %.cpp
 	@$(CC) -S $(ALL_CPPFLAGS) $< -o $@
+
+
+# Qt Meta Object Compiler target
+$(MOCSRC): %_moc.cpp : %.h 	
+	@echo -en $(MSG_MOC) "\n               "
+	@echo -e $@ $(F_SOURCE)
+	@$(MOC) $(INCDIRS) $< -o $@
+
+# Qt user interface header file generation target
+$(UIH): src/ui_%.h: src/%.ui
+	@echo -en $(MSG_UI) "\n               "
+	@echo -e $@  $(F_SOURCE)  
+	@$(UIC) $(INCDIRS) $< -o $@
+
 
 # Create output dir
 $(OUTDIR):
@@ -718,7 +710,7 @@ edit:   ## Open source and makefile in editor
 	@$(EDITOR) Makefile $(SRC)
 
 run:    ## Run application
-	@output/$(TARGET)
+	@$(OUTDIR)/$(TARGET)
 
 debug:  ## Debug application
 
