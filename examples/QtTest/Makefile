@@ -45,6 +45,7 @@ LIB   = -lm
 #LIB += $(shell pkg-config --libs sqlite3)
 LIB += $(shell pkg-config --libs Qt5Core)
 LIB += $(shell pkg-config --libs Qt5Gui)
+LIB += $(shell pkg-config --libs Qt5Widgets)
 
 
 # Object files directory
@@ -140,7 +141,7 @@ CPPFLAGS += -Wa,-adhlns=$(<:%.cpp=$(OBJDIR)/%.lst) # Generate assembler listing
 # Compiler Tuning C++ -------------------------------------------------------
 CPPFLAGS += -funsigned-char
 CPPFLAGS += -funsigned-bitfields
-CPPFLAGS += -fpack-struct
+#CPPFLAGS += -fpack-struct
 CPPFLAGS += -fshort-enums
 CPPFLAGS += -fno-exceptions
 #CPPFLAGS += -mshort-calls
@@ -169,6 +170,7 @@ CPPFLAGS += -fPIC
 #CPPFLAGS += $(shell pkg-config --cflags sqlite3)
 CPPFLAGS += $(shell pkg-config --cflags Qt5Core)
 CPPFLAGS += $(shell pkg-config --cflags Qt5Gui)
+CPPFLAGS += $(shell pkg-config --cflags Qt5Widgets)
 
 # Assembler Options ---------------------------------------------------------
 #  -Wa,...:   tell GCC to pass this to the assembler.
