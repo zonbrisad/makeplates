@@ -474,7 +474,7 @@ $(CPPOBJS): $(BUILDDIR)/%.o : src/%.cpp
 	@$(MKDIR) $(@D)                                       # Create directory for object file
 	@echo -en $(MSG_COMPILING_CPP)" " 
 	@echo -e $< $(F_SOURCE)
-	@$(CPP) -c $(ALL_CPPFLAGS) $< -o $@ 2>&1  $(CPP_FILTER)
+	$(CPP) -c $(ALL_CPPFLAGS) $< -o $@ 2>&1  $(CPP_FILTER)
 	
 # Assemble: create object files from assembler source files.
 $(OBJDIR)/%.o : %.S

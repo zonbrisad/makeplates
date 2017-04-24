@@ -31,15 +31,23 @@ LSRC =
 # Include directories
 INCLUDE = inc \
           src \
-#					Unity/src
+#          Unity/src
 
 # Libraries to link
 LIB   = -lm 
-#LIB += $(shell pkg-config --libs glib-2.0)
-#LIB += $(shell pkg-config --libs gthread-2.0)
-#LIB += $(shell pkg-config --libs ncurses)
-#LIB += $(shell pkg-config --libs lua5.1)
-#LIB += $(shell pkg-config --libs sqlite3)
+#LIB  += -lpthread
+
+# Libraries to use in pkg-config system
+#PKGLIBS  = Qt5Core 
+#PKGLIBS += Qt5Gui 
+#PKGLIBS += Qt5Widgets
+#PKGLIBS += Qt5SerialPort
+#PKGLIBS += Qt5Network
+#PKGLIBS += glib-2.0
+#PKGLIBS += gthread-2.0
+#PKGLIBS += ncurses
+#PKGLIBS += lua5.1
+#PKGLIBS += sqlite3
 
 # Object files directory
 #     To put object files in current directory, use a dot (.), do NOT make
@@ -90,7 +98,6 @@ CFLAGS += -O$(OPT)                             # Optimisation level
 CFLAGS += -std=$(CSTANDARD)                    # C standard
 CFLAGS += $(patsubst %,-I%,$(INCLUDE))         # Include directories 
 CFLAGS += $(patsubst %,-D%,$(CDEFS))           # Macro definitions
-#CFLAGS += -Wa,-adhlns=$(<:%.c=$(OBJDIR)/%.lst) # Generate assembler listing
 CFLAGS += -Wa,-adhlns=$(<:$(SRCDIR)/%.c=$(BUILDDIR)/%.lst) # Generate assembler listing
 
 # Compiler Tuning C ---------------------------------------------------------
@@ -119,11 +126,7 @@ CFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void po
 #CFLAGS += -Werror               # All warnings will be treated as errors
 
 # Library compiler flags C --------------------------------------------------
-#CFLAGS += $(shell pkg-config --cflags glib-2.0)
-#CFLAGS += $(shell pkg-config --cflags gthread-2.0)
-#CFLAGS += $(shell pkg-config --cflags lua5.1)
-#CFLAGS += $(shell pkg-config --cflags sqlite3)
-
+CFLAGS += $(foreach X, $(PKGLIBS), $(shell pkg-config --cflags $(X)) )
 
 # Compiler Options C++ ------------------------------------------------------
 CPPFLAGS = -g$(DEBUG)                              # Debugging information
@@ -131,17 +134,17 @@ CPPFLAGS += -O$(OPT)                               # Optimisation level
 CPPFLAGS += -std=$(CPPSTANDARD)                    # C++ standard
 CPPFLAGS += $(patsubst %,-I%,$(INCLUDE))           # Include directories 
 CPPFLAGS += $(patsubst %,-D%,$(CPPDEFS))           # Macro definitions
-#CPPFLAGS += -Wa,-adhlns=$(<:%.cpp=$(OBJDIR)/%.lst) # Generate assembler listing
-CPPFLAGS += -Wa,-adhlns=$(<:$(SRCDIR)/%.c=$(BUILDDIR)/%.lst) # Generate assembler listing
+CPPFLAGS += -Wa,-adhlns=$(<:$(SRCDIR)/%.cpp=$(BUILDDIR)/%.lst) # Generate assembler listing
 
 # Compiler Tuning C++ -------------------------------------------------------
 CPPFLAGS += -funsigned-char
 CPPFLAGS += -funsigned-bitfields
-CPPFLAGS += -fpack-struct
+#CPPFLAGS += -fpack-struct
 CPPFLAGS += -fshort-enums
 CPPFLAGS += -fno-exceptions
 #CPPFLAGS += -mshort-calls
 #CPPFLAGS += -fno-unit-at-a-time
+#CPPFLAGS += -fPIC                  # Position independet code
 
 # Compiler Warnings C++ -----------------------------------------------------
 CPPFLAGS += -Wall                  # Standard warnings
@@ -159,11 +162,18 @@ CPPFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void 
 #CPPFLAGS += -Werror              # All warnings will be treated as errors
 
 # Library compiler flags C++ ------------------------------------------------
-#CPPFLAGS += $(shell pkg-config --cflags glib-2.0)
-#CPPFLAGS += $(shell pkg-config --cflags gthread-2.0)
-#CPPFLAGS += $(shell pkg-config --cflags lua5.1)
-#CPPFLAGS += $(shell pkg-config --cflags sqlite3)
+CPPFLAGS += $(foreach X, $(PKGLIBS), $(shell pkg-config --cflags $(X)) )
 
+
+# Linker Options ------------------------------------------------------------
+#  -Wl,...:     tell GCC to pass this to linker.
+#    -Map:      create map file
+#    --cref:    add cross reference to  map file
+LDFLAGS = -Wl,-Map=$(OUTDIR)/$(TARGET).map,--cref
+LDFLAGS += $(EXTMEMOPTS)
+LDFLAGS += $(patsubst %,-L%,$(INCLUDE))
+LDFLAGS += -g
+LDFLAGS += $(foreach X, $(PKGLIBS), $(shell pkg-config --libs $(X)) )
 
 #
 # Platform specific options
@@ -196,28 +206,35 @@ TCHAIN_PREFIX=
 
 endif
 
+
+# Qt stuff -----------------------------------------------------------------
+MOCSRC = $(patsubst %.h,%_moc.cpp,$(MOCS))      # Generate moc source files
+SRC += $(MOCSRC)
+UIH = $(patsubst src/%.ui, src/ui_%.h, $(UI) )  # Generate UI header files
+
 #
 # Tool settings
 #============================================================================
 
 # Define programs and commands ----------------------------------------------
 SHELL     = bash
+WINSHELL  = cmd
 REMOVE    = rm -f
 REMOVEDIR = rm -rf
 COPY      = cp -f 
 MOVE      = mv -f
-WINSHELL  = cmd
 MKDIR     = mkdir -p
-SED       = sed
-MOC       = moc
-QMAKE     = qmake
-CTEMPLATE = python3 tools/ctemplate.py
-BIN2ARRAY = python3 tools/bin2array.py
-MPTOOL    = tools/mkptools
+SED       = sed              # stream editor program
+MOC       = moc              # Qt meta object compiler
+QMAKE     = qmake            # Qt make program
+UIC       = uic              # Qt resource file compiler
+CTEMPLATE = python3 tools/ctemplate.py # C/C++ template tool
+BIN2ARRAY = python3 tools/bin2array.py # Binary to array tool
+MPTOOL    = tools/mkptools   # Makeplate tools
 CPPCHECK  = cppcheck
 INSTALL   = install
-ASTYLE    = astyle
-DOXYGEN   = doxygen
+ASTYLE    = astyle           # Code beatyfier
+DOXYGEN   = doxygen          # Code documetation program
 
 TCHAIN = $(TCHAIN_BASE)/$(TCHAIN_PREFIX)
 
@@ -305,7 +322,9 @@ MSG_FLASH            = "${C_ACTION}Creating load file for Flash:${E_END}"
 MSG_EEPROM           = "${C_ACTION}Creating load file for EEPROM:${E_END}"
 MSG_COFF             = "${C_ACTION}Converting to AVR COFF:${E_END}"
 MSG_EXTENDED_COFF    = "${C_ACTION}Converting to AVR Extended COFF:${E_END}"
-MSG_BACKUP           = "${E_BR_GREEN}Making incremental backup of project:${E_END}"
+MSG_MOC              = "${C_ACTION}Creating MOC file:${E_END}"
+MSG_UI               = "${C_ACTION}Generating UI header:${E_END}"
+MSG_BACKUP           = "${C_ACTION}Making incremental backup of project:${E_END}"
 MSG_SRC              = "${C_MSG}Source files $(E_GREEN)-----------------------------------------------------${E_END}"
 MSG_FLAGS            = "${C_MSG}Compiler Flags $(E_GREEN)---------------------------------------------------${E_END}"
 MSG_LINKER           = "${C_MSG}Linker Flags $(E_GREEN)-----------------------------------------------------${E_END}"
@@ -374,7 +393,7 @@ CPPOBJS  = $(patsubst $(SRCDIR)/%.cpp, $(BUILDDIR)/%.o, $(CPPSRC))
 OBJS    = $(COBJS) $(CPPOBJS) 
 
 # Define all listing files.
-LST = $(patsubst src/%.c, $(OBJDIR)/%.lst, $(SRC)) $(patsubst src/%.cpp, $(OBJDIR)/%.lst, $(CPPSRC)) $(patsubst src/%.S, $(OBJDIR)/%.lst, $(ASRC))
+LST = $(patsubst src/%.c, $(OBJDIR)/%.lst, $(CSRC)) $(patsubst src/%.cpp, $(OBJDIR)/%.lst, $(CPPSRC)) $(patsubst src/%.S, $(OBJDIR)/%.lst, $(ASRC))
 
 # Default target.
 all:	begin build finished end
@@ -387,7 +406,7 @@ nocolor:
 # Build with no color filter on compiler output
 # Useful for Netbeans, Eclipse builds etc. 
 #	
-nc: nocolor all   ## Build with no color on compiler output
+nc: nocolor all   ## Build with no color filter on compiler output
 
 
 build: elf lss sym size
@@ -461,6 +480,20 @@ $(OBJDIR)/%.s : %.c
 $(OBJDIR)/%.s : %.cpp
 	@$(CC) -S $(ALL_CPPFLAGS) $< -o $@
 
+
+# Qt Meta Object Compiler target
+$(MOCSRC): %_moc.cpp : %.h 	
+	@echo -en $(MSG_MOC) "\n               "
+	@echo -e $@ $(F_SOURCE)
+	@$(MOC) $(INCDIRS) $< -o $@
+
+# Qt user interface header file generation target
+$(UIH): src/ui_%.h: src/%.ui
+	@echo -en $(MSG_UI) "\n               "
+	@echo -e $@  $(F_SOURCE)  
+	@$(UIC) $(INCDIRS) $< -o $@
+
+
 # Create output dir
 $(OUTDIR):
 	@$(MKDIR) $@
@@ -502,21 +535,27 @@ clean:  ## Remove all build files
 	@$(REMOVE) $(OUTDIR)/$(TARGET).cof
 	@$(REMOVE) $(OBJS)
 	@$(REMOVE) $(LST)
+	@$(REMOVE) $(MOCSRC)
+	@$(REMOVE) $(UIH)
 	@$(REMOVEDIR) .dep
 	@$(REMOVEDIR) $(BUILDDIR)	
 	@find . -name "*~" -delete
 	@find . -name "*.orig" -delete
 
 
+# Directory where to store archives
+ARCHIVEDIR = archive
+
 archive: ## Make a tar archive of the source code
 	@echo
 	@echo -e $(MSG_ARCHIVING)
 	@$(eval DT=$(shell date +"%Y%m%d-%H%M%S"))
-	@$(MKDIR) archive
-	@tar -cvzf archive/$(TARGET)_${DT}.tar.gz *  \
-		--exclude='archive'  \
-		--exclude='backup'   \
-		--exclude='output'   \
+	@$(MKDIR) $(ARCHIVEDIR)
+	@tar -cvzf $(ARCHIVEDIR)/$(TARGET)_${DT}.tar.gz *  \
+		--exclude='$(ARCHIVEDIR)' \
+		--exclude='$(BACKUP_DIR)' \
+		--exclude='$(OUTDIR)'     \
+		--exclude='$(BUILDDIR)'   \
 		--exclude='*.a'      \
 		--exclude='*.o'      \
 		--exclude='*.ko'     \
@@ -548,7 +587,7 @@ archive: ## Make a tar archive of the source code
 # Backup directory
 BACKUP_DIR=backup
 
-# Nr of backups
+# Max number of backups
 BACKUPS=100
 
 backup: ## Make an incremental backup
@@ -565,18 +604,12 @@ backup: ## Make an incremental backup
 	    mv -f $${bdir}  $(BACKUP_DIR)/backup_$${x} ;  \
 	  fi ;                                            \
 	done 
-	@rsync --archive             \
-	      --delete               \
-				--relative             \
-				--exclude="backup"     \
-				--exclude="archive"    \
-				--exclude="output"     \
-				--exclude="*.o"        \
-				--exclude=".git"       \
-				--exclude=".svn"       \
-				--exclude="*~"         \
-				--exclude="*.old"      \
-				--exclude="*.tmp"      \	
+	@rsync --archive                 \
+	      --delete                  \
+				--relative                \
+				--exclude="$(BACKUP_DIR)" \
+				--exclude="$(ARCHIVEDIR)" \
+				--exclude="$(OUTDIR)"     \
 				--link-dest=$(CURDIR)/$(BACKUP_DIR)/backup_1 \
 				.                      \
 				$(BACKUP_DIR)/backup_0 

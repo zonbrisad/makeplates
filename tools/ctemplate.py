@@ -80,15 +80,32 @@ def addCppSentinelEnd(file):
 def addMethod(file, className, methodName): 
   file.write(className+"::"+methodName+"() {\n")
   file.write("\n}\n\n")
-  
+
 
 def addClass(file, className):
   file.write("class "+className+" {\n")
   file.write("    public:\n")    
   file.write("      "+className+"();\n")
   file.write("}\n")
-     
- 
+
+def addInclude(file, includeFile):  
+  file.write("#include <"+includeFile+">\n")  
+    
+def addCIncludes(file):
+  addInclude(file, "stdio.h")
+  addInclude(file, "stdlib.h")
+  addInclude(file, "sys/types.h")
+  addInclude(file, "unistd.h")
+  addInclude(file, "signal.h")
+  addInclude(file, "string.h")
+  addInclude(file, "errno.h")
+  
+def addMain(file):
+  file.write("int main(int argc, char *argv[]) {\n\n")
+  file.write("  return 0;\n")    
+  file.write("}\n")
+  
+
 def newFile(dir, fileName):
   # Open files to be generated
   try:

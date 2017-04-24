@@ -46,6 +46,12 @@ else
   NEW=1
 fi
 
+# Local install dir
+MP_LOCALDIR=~/bin
+
+# system wide install dir
+MP_SYSDIR=/usr/local/bin
+
 #---------------------------------------------------------------------
 # User defined functions
 #---------------------------------------------------------------------
@@ -53,28 +59,47 @@ fi
 
 toolsDistribute() { 
   cp -f "$1" ${scriptPath}/../examples/glib/tools/.
-	cp -f "$1" ${scriptPath}/../examples/glua/tools/.
-	cp -f "$1" ${scriptPath}/../examples/avr/tools/.
-	cp -f "$1" ${scriptPath}/../examples/STM32/tools/.
+  cp -f "$1" ${scriptPath}/../examples/glua/tools/.
+  cp -f "$1" ${scriptPath}/../examples/avr/tools/.
+  cp -f "$1" ${scriptPath}/../examples/STM32/tools/.
 }
 
 tdist() { ##C MPT Distribute tools to example projects
   toolsDistribute tools/ctemplate.py
-	toolsDistribute tools/bin2array.py
+  toolsDistribute tools/bin2array.py
   toolsDistribute tools/mkptools	
 }
 
 
 # Install single makeplate
 #
-# arg1 source makeplate to be installed
-# arg2 destination
+# arg1 source directory 
+# arg2 destination directory
+# arg3 makeplate
+#
 installMp() {
-  cd ${1}
-	make clean
-	cd -
-  cp -rf $1  ${2}/.
+
+  # First remove all possible object files etc.
+  cd ${1}/${3}
+  make clean
+  cd -
+	
+  # Copy makeplate
+  mkdir -p ${2}
+  cp -rf ${1}/${3}  ${2}/.
+	
+
+  # Check if tools link exists	
+  if [ -f ${2}/${3}/tools ]; then 
+  
+    # Remove symbolic link
+    rm -f ${2}/${3}/tools
+	
+    # Copy tools to project
+    cp -rf ${2}/tools ${2}/${3}/.
+  fi
 }
+
 
 #
 # arg1 install dir
@@ -83,49 +108,45 @@ installMp() {
 mpInstall() {
 
   # Create dir
-	mkdir -p ${1}
+  mkdir -p ${1}
 	
-	# Remove conents if existing
-	cp -rf ${1}/*
+  cp -rf ${scriptPath}/mp      ${1}/.
+  cp -rf ${scriptPath}/tools   ${1}/.	
 
   # Install makeplates
-	installMp ${scriptPath}/mp-c          ${1}/.
-	installMp ${scriptPath}/mp-cpp        ${1}/.
-	installMp ${scriptPath}/mp-simple-c   ${1}/.
-	installMp ${scriptPath}/mp-simple-cpp ${1}/.
-#	installMp ${scriptPath}/mp            ${1}/mp
-	
-#	cp -rf ${scriptPath}/mp-c          ${1}/.
-#	cp -rf ${scriptPath}/mp-cpp        ${1}/.
-#	cp -rf ${scriptPath}/mp-simple-c   ${1}/.
-#	cp -rf ${scriptPath}/mp-simple-cpp ${1}/.
-	cp -rf ${scriptPath}/mp            ${1}/mp
+  installMp ${scriptPath}  ${1}  mp-c 
+  installMp ${scriptPath}  ${1}  mp-cpp
+  installMp ${scriptPath}  ${1}  mp-simple-c
+  installMp ${scriptPath}  ${1}  mp-simple-cpp
 	
  	
-	# Create symlink
-	ln -fs ${1}/mp ${2}
-	rm -f ${1}/MPT
+  # Create symlink
+  ln -fs ${1}/mp ${2}
+  rm -f ${1}/MPT
 }
 
 
 install() { ##C MPT Install makeplates on system
   assertRoot
-	echo -e "Installing makeplates"
-	mpInstall /usr/local/bin/makeplate_files  /usr/local/bin/
+  echo -e "Installing makeplates"
+  rm -rf ${MP_SYSDIR}/${MPT_DIR}
+  rm -rf ${MP_SYSDIR}/mp	
+  mpInstall /usr/local/bin/makeplate_files  /usr/local/bin/
 }
 
 install-local() { ##C MPT Install makeplates localy for easy creating new projects
   echo -e "Installing makeplates locally"
-	mpInstall ~/bin/makeplate_files  ~/bin/
+  rm -rf ${MP_LOCALDIR}/${MPT_DIR}
+  rm -rf ${MP_LOCALDIR}/mp
+  mpInstall ~/bin/makeplate_files  ~/bin/
 }
 
 clean() { ##C MPT Clean out old files
-	find . -name "*~"     -delete
-	find . -name "*.orig" -delete
+  find . -name "*~"     -delete
+  find . -name "*.orig" -delete
 }
 
 installPlate() {
-  
   rm -rf ${1}/*
   cp -rf ${1}/* .
 }
