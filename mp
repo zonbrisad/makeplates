@@ -59,14 +59,14 @@ MP_SYSDIR=/usr/local/bin
 
 toolsDistribute() { 
   cp -f "$1" ${scriptPath}/../examples/glib/tools/.
-	cp -f "$1" ${scriptPath}/../examples/glua/tools/.
-	cp -f "$1" ${scriptPath}/../examples/avr/tools/.
-	cp -f "$1" ${scriptPath}/../examples/STM32/tools/.
+  cp -f "$1" ${scriptPath}/../examples/glua/tools/.
+  cp -f "$1" ${scriptPath}/../examples/avr/tools/.
+  cp -f "$1" ${scriptPath}/../examples/STM32/tools/.
 }
 
 tdist() { ##C MPT Distribute tools to example projects
   toolsDistribute tools/ctemplate.py
-	toolsDistribute tools/bin2array.py
+  toolsDistribute tools/bin2array.py
   toolsDistribute tools/mkptools	
 }
 
@@ -81,20 +81,23 @@ installMp() {
 
   # First remove all possible object files etc.
   cd ${1}/${3}
-	make clean
-	cd -
+  make clean
+  cd -
 	
-	# Copy makeplate
+  # Copy makeplate
+  mkdir -p ${2}
   cp -rf ${1}/${3}  ${2}/.
 	
+
+  # Check if tools link exists	
+  if [ -f ${2}/${3}/tools ]; then 
+  
+    # Remove symbolic link
+    rm -f ${2}/${3}/tools
 	
-#	if [ -f ${2}/${3}/tools ]; do 
-#	fi
-	# Remove symbolic link
-	rm -f ${2}/${3}/tools
-	
-	# Copy tools to project
-	cp -rf ${2}/tools ${2}/${3}/.
+    # Copy tools to project
+    cp -rf ${2}/tools ${2}/${3}/.
+  fi
 }
 
 
@@ -105,56 +108,45 @@ installMp() {
 mpInstall() {
 
   # Create dir
-	mkdir -p ${1}
+  mkdir -p ${1}
 	
-	# Remove conents if existing
-	#rm -rf ${1}/*
-	remove
-
-	cp -rf ${scriptPath}/mp      ${1}/.
-	cp -rf ${scriptPath}/tools   ${1}/.	
-
+  cp -rf ${scriptPath}/mp      ${1}/.
+  cp -rf ${scriptPath}/tools   ${1}/.	
 
   # Install makeplates
-	installMp ${scriptPath}  ${1}  mp-c 
-	installMp ${scriptPath}  ${1}  mp-cpp
-	installMp ${scriptPath}  ${1}  mp-simple-c
-	installMp ${scriptPath}  ${1}  mp-simple-cpp
+  installMp ${scriptPath}  ${1}  mp-c 
+  installMp ${scriptPath}  ${1}  mp-cpp
+  installMp ${scriptPath}  ${1}  mp-simple-c
+  installMp ${scriptPath}  ${1}  mp-simple-cpp
 	
  	
-	# Create symlink
-	ln -fs ${1}/mp ${2}
-	rm -f ${1}/MPT
+  # Create symlink
+  ln -fs ${1}/mp ${2}
+  rm -f ${1}/MPT
 }
 
-remove() { ## Remove makplates installation
-  rm -rf ${MP_LOCALDIR}/${MPT_DIR}
-	rm -rf ${MP_SYSDIR}/${MPT_DIR}
-	
-	rm -rf ${MP_LOCALDIR}/mp
-	rm -rf ${MP_SYSDIR}/mp
-	
-	
-}
 
 install() { ##C MPT Install makeplates on system
   assertRoot
-	echo -e "Installing makeplates"
-	mpInstall /usr/local/bin/makeplate_files  /usr/local/bin/
+  echo -e "Installing makeplates"
+  rm -rf ${MP_SYSDIR}/${MPT_DIR}
+  rm -rf ${MP_SYSDIR}/mp	
+  mpInstall /usr/local/bin/makeplate_files  /usr/local/bin/
 }
 
 install-local() { ##C MPT Install makeplates localy for easy creating new projects
   echo -e "Installing makeplates locally"
-	mpInstall ~/bin/makeplate_files  ~/bin/
+  rm -rf ${MP_LOCALDIR}/${MPT_DIR}
+  rm -rf ${MP_LOCALDIR}/mp
+  mpInstall ~/bin/makeplate_files  ~/bin/
 }
 
 clean() { ##C MPT Clean out old files
-	find . -name "*~"     -delete
-	find . -name "*.orig" -delete
+  find . -name "*~"     -delete
+  find . -name "*.orig" -delete
 }
 
 installPlate() {
-  
   rm -rf ${1}/*
   cp -rf ${1}/* .
 }
