@@ -151,6 +151,8 @@ installPlate() {
   cp -rf ${1}/* .
 }
 
+
+
 newC() { ##C NEW Create a new standard C makeplate project
   echo -e "Creating new makeplate project"
   cp -rf ${scriptPath}/${MPT_DIR}/mp-c/* .
