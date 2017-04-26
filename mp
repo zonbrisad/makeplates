@@ -82,6 +82,8 @@ installMp() {
   # First remove all possible object files etc.
   cd ${1}/${3}
   make clean
+	rm -rf backup
+	rm -rf archive
   cd -
 	
   # Copy makeplate
@@ -90,7 +92,7 @@ installMp() {
 	
 
   # Check if tools link exists	
-  if [ -f ${2}/${3}/tools ]; then 
+  if [ -L ${2}/${3}/tools ]; then 
   
     # Remove symbolic link
     rm -f ${2}/${3}/tools
@@ -121,7 +123,7 @@ mpInstall() {
 	
  	
   # Create symlink
-  ln -fs ${1}/mp ${2}
+  ln -s ${1}/mp ${2}
   rm -f ${1}/MPT
 }
 
@@ -153,24 +155,64 @@ installPlate() {
 
 
 
+#
+# Ask yes/no question
+#
+# arg1 question text
+# arg2 result variable name
+#
+bpQuestionDy() {  ##D Ask yes/no question default yes 
+  local __result=$2
+  while true; do
+	  read -p "${1}"" [Y/n]>" yn
+    case $yn in
+	    [Yy]* ) eval $__result='y'; break;;
+			[Nn]* ) eval $__result='n'; break;;
+			""    ) eval $__result='y'; break;;
+			* ) echo "Please answer yes or no.";;
+		esac
+	done 	
+}
+
+
+
+qtest() { ## Question test 
+  bpQuestionDy "Create subdirectory?" res
+	if [ $res == 'y' ]; then
+	  echo "Creating directory"
+	fi
+	#echo $res
+}
+
+createProject() {
+  echo -e ${1}
+	read -p "Project name>" pn
+	bpQuestionDy "Create subdirectory?" res
+	if [ ${res} == 'y' ]; then
+	  echo "Creating directory"
+		mkdir -p ${pn}
+		cp -rf ${2}/* ${pn}/.
+	else
+		cp -rf ${2}/* .
+	fi
+	
+}
+
+
 newC() { ##C NEW Create a new standard C makeplate project
-  echo -e "Creating new makeplate project"
-  cp -rf ${scriptPath}/${MPT_DIR}/mp-c/* .
+  createProject "Creating new makeplate C project" ${scriptPath}/${MPT_DIR}/mp-c 
 }
 
 newCpp() { ##C NEW Create a new standard C++ makeplate project
-  echo -e "Creating new makeplate project"
-  cp -rf ${scriptPath}/${MPT_DIR}/mp-cpp/* .
+  createProject  "Creating new makeplate C++ project" ${scriptPath}/${MPT_DIR}/mp-cpp
 }
 
 newSC() { ##C NEW Create a new simple C makeplate project
-  echo -e "Creating new simple makeplate project"
-  cp -rf ${scriptPath}/${MPT_DIR}/mp-simple-c/* .  
+  createProject "Creating new simple makeplate C project"  ${scriptPath}/${MPT_DIR}/mp-simple-c
 }
 
 newSCpp() { ##C NEW Create a new simple C++ makeplate project
-  echo -e "Creating new simple makeplate project"
-  cp -rf ${scriptPath}/${MPT_DIR}/mp-simple-cpp/* .  
+  createProject "Creating new simple makeplate C++ project" ${scriptPath}/${MPT_DIR}/mp-simple-cpp
 }
 
 
