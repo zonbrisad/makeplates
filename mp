@@ -175,15 +175,6 @@ bpQuestionDy() {  ##D Ask yes/no question default yes
 }
 
 
-
-qtest() { ## Question test 
-  bpQuestionDy "Create subdirectory?" res
-	if [ $res == 'y' ]; then
-	  echo "Creating directory"
-	fi
-	#echo $res
-}
-
 createProject() {
   echo -e ${1}
 	read -p "Project name>" pn
