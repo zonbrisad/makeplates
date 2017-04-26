@@ -66,7 +66,7 @@ OUTDIR = output
 #     0 = turn off optimization. s = optimize for size.
 OPT = 2
 
-# Compiler flag to set the C Standard level.
+# Compiler flag to set the C and C++ Standard level.
 # [ gnu99 gnu11 c++98 c++03 c++11 c++14 ] 
 CSTANDARD   = gnu99
 CPPSTANDARD = c++11
@@ -104,6 +104,9 @@ CFLAGS += -funsigned-char
 #CFLAGS += -funsigned-bitfields
 #CFLAGS += -fpack-struct
 #CFLAGS += -fshort-enums
+CFLAGS += -Wall
+#CFLAGS += -Wstrict-prototypes
+#CFLAGS += -mshort-calls
 #CFLAGS += -fno-unit-at-a-time
 #CFLAGS += -mshort-calls
 
@@ -317,7 +320,7 @@ MSG_COFF             = "${C_ACTION}Converting to AVR COFF:${E_END}"
 MSG_EXTENDED_COFF    = "${C_ACTION}Converting to AVR Extended COFF:${E_END}"
 MSG_MOC              = "${C_ACTION}Creating MOC file:${E_END}"
 MSG_UI               = "${C_ACTION}Generating UI header:${E_END}"
-MSG_BACKUP           = "${E_BR_GREEN}Making incremental backup of project:${E_END}"
+MSG_BACKUP           = "${C_ACTION}Making incremental backup of project:${E_END}"
 MSG_SRC              = "${C_MSG}Source files $(E_GREEN)-----------------------------------------------------${E_END}"
 MSG_FLAGS            = "${C_MSG}Compiler Flags $(E_GREEN)---------------------------------------------------${E_END}"
 MSG_LINKER           = "${C_MSG}Linker Flags $(E_GREEN)-----------------------------------------------------${E_END}"
@@ -343,7 +346,6 @@ F_WARNING5="s/value computed is not used/$$(printf "$(C_WARNING)")&$$(printf "$(
 F_BRACKET="s/\[\(.*\)\]/[$$(printf "$(E_GREEN)")\1$$(printf "$(E_END)")]/"	
 F_VARIABLE="s/\‘\(.*\)[\’\‘]/'$$(printf "$(C_IDENTIFIER)")\1$$(printf "$(E_END)")'/g"
 F_FILE="s/[^: ]*/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/"
-#F_FILE="s/\(.*\/\)\(.*\):/$$(printf "$(C_DIR)")\1$$(printf "$(C_FILE)")\2$$(printf "$(E_END)"):/1"
 F_ROWNR="s/:\([0-9]*\):\([0-9]*\):/:$$(printf "$(C_VALUE)")\1$$(printf "$(E_END)"):$$(printf "$(C_VALUE)")\2$$(printf "$(E_END)"):/"
 
 C_FILTER   = | sed -u -e $(F_BRACKET) -e $(F_FILE) -e $(F_ROWNR)          \
@@ -430,7 +432,7 @@ finished:
 $(TRGFILE): $(OBJS) $(OUTDIR)
 	@echo -en "\n"$(MSG_LINKING)"\n               "
 	@echo -e $@ $(F_SOURCE)
-	@$(CC) $(ALL_CFLAGS) $(OBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)
+	@$(CPP) $(ALL_CFLAGS) $(OBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)
 	
 # Create extended listing file/disassambly from ELF output file.
 # using objdump testing: option -C
@@ -528,21 +530,27 @@ clean:  ## Remove all build files
 	@$(REMOVE) $(OUTDIR)/$(TARGET).cof
 	@$(REMOVE) $(OBJS)
 	@$(REMOVE) $(LST)
+	@$(REMOVE) $(MOCSRC)
+	@$(REMOVE) $(UIH)
 	@$(REMOVEDIR) .dep
 	@$(REMOVEDIR) $(BUILDDIR)	
 	@find . -name "*~" -delete
 	@find . -name "*.orig" -delete
 
 
+# Directory where to store archives
+ARCHIVEDIR = archive
+
 archive: ## Make a tar archive of the source code
 	@echo
 	@echo -e $(MSG_ARCHIVING)
 	@$(eval DT=$(shell date +"%Y%m%d-%H%M%S"))
-	@$(MKDIR) archive
-	@tar -cvzf archive/$(TARGET)_${DT}.tar.gz *  \
-		--exclude='archive'  \
-		--exclude='backup'   \
-		--exclude='output'   \
+	@$(MKDIR) $(ARCHIVEDIR)
+	@tar -cvzf $(ARCHIVEDIR)/$(TARGET)_${DT}.tar.gz *  \
+		--exclude='$(ARCHIVEDIR)' \
+		--exclude='$(BACKUP_DIR)' \
+		--exclude='$(OUTDIR)'     \
+		--exclude='$(BUILDDIR)'   \
 		--exclude='*.a'      \
 		--exclude='*.o'      \
 		--exclude='*.ko'     \
@@ -574,7 +582,7 @@ archive: ## Make a tar archive of the source code
 # Backup directory
 BACKUP_DIR=backup
 
-# Nr of backups
+# Max number of backups
 BACKUPS=100
 
 backup: ## Make an incremental backup
@@ -591,18 +599,12 @@ backup: ## Make an incremental backup
 	    mv -f $${bdir}  $(BACKUP_DIR)/backup_$${x} ;  \
 	  fi ;                                            \
 	done 
-	@rsync --archive             \
-	      --delete               \
-				--relative             \
-				--exclude="backup"     \
-				--exclude="archive"    \
-				--exclude="output"     \
-				--exclude="*.o"        \
-				--exclude=".git"       \
-				--exclude=".svn"       \
-				--exclude="*~"         \
-				--exclude="*.old"      \
-				--exclude="*.tmp"      \	
+	@rsync --archive                 \
+	      --delete                  \
+				--relative                \
+				--exclude="$(BACKUP_DIR)" \
+				--exclude="$(ARCHIVEDIR)" \
+				--exclude="$(OUTDIR)"     \
 				--link-dest=$(CURDIR)/$(BACKUP_DIR)/backup_1 \
 				.                      \
 				$(BACKUP_DIR)/backup_0 
@@ -626,7 +628,7 @@ newfile:  ## Create a new C file
 newclass:  ## Create a new C++ class
 	@${CTEMPLATE} --newclass --dir src --author "$(AUTHOR)" --licence "$(LICENCE)"	
 		
-#newproj:  ## Create a new project
+#newproj:  # Create a new project
 #	@${PROJECT} newproj
 
 
