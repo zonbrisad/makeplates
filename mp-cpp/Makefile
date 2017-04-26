@@ -104,11 +104,10 @@ CFLAGS += -funsigned-char
 #CFLAGS += -funsigned-bitfields
 #CFLAGS += -fpack-struct
 #CFLAGS += -fshort-enums
-CFLAGS += -Wall
-#CFLAGS += -Wstrict-prototypes
 #CFLAGS += -mshort-calls
 #CFLAGS += -fno-unit-at-a-time
 #CFLAGS += -mshort-calls
+#CFLAGS += -fPIC                  # Position independet code
 
 # Compiler Warnings C -------------------------------------------------------
 CFLAGS += -Wall                  # Standard warnings
@@ -207,6 +206,12 @@ TCHAIN_BASE=/usr/bin
 TCHAIN_PREFIX=
 
 endif
+
+
+# Qt stuff -----------------------------------------------------------------
+MOCSRC = $(patsubst %.h,%_moc.cpp,$(MOCS))      # Generate moc source files
+SRC += $(MOCSRC)
+UIH = $(patsubst src/%.ui, src/ui_%.h, $(UI) )  # Generate UI header files
 
 #
 # Tool settings

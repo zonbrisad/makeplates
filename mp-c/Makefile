@@ -44,7 +44,7 @@ LIB   = -lm
 #PKGLIBS += Qt5Network
 #PKGLIBS += glib-2.0
 #PKGLIBS += gthread-2.0
-#PKGLIBS += ncurses
+PKGLIBS += ncurses
 #PKGLIBS += lua5.1
 #PKGLIBS += sqlite3
 
@@ -66,7 +66,7 @@ OUTDIR = output
 #     0 = turn off optimization. s = optimize for size.
 OPT = 2
 
-# Compiler flag to set the C Standard level.
+# Compiler flag to set the C and C++ Standard level.
 # [ gnu99 gnu11 c++98 c++03 c++11 c++14 ] 
 CSTANDARD   = gnu99
 CPPSTANDARD = c++11
@@ -104,11 +104,10 @@ CFLAGS += -funsigned-char
 #CFLAGS += -funsigned-bitfields
 #CFLAGS += -fpack-struct
 #CFLAGS += -fshort-enums
-CFLAGS += -Wall
-#CFLAGS += -Wstrict-prototypes
 #CFLAGS += -mshort-calls
 #CFLAGS += -fno-unit-at-a-time
 #CFLAGS += -mshort-calls
+#CFLAGS += -fPIC                  # Position independet code
 
 # Compiler Warnings C -------------------------------------------------------
 CFLAGS += -Wall                  # Standard warnings
@@ -438,7 +437,7 @@ finished:
 $(TRGFILE): $(OBJS) $(OUTDIR)
 	@echo -en "\n"$(MSG_LINKING)"\n               "
 	@echo -e $@ $(F_SOURCE)
-	@$(CC) $(ALL_CFLAGS) $(OBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)
+	@$(CPP) $(ALL_CFLAGS) $(OBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)
 	
 # Create extended listing file/disassambly from ELF output file.
 # using objdump testing: option -C

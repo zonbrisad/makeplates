@@ -43,7 +43,7 @@ OUTDIR = .
 #     0 = turn off optimization. s = optimize for size.
 OPT = 2
 
-# Compiler flag to set the C Standard level.
+# Compiler flag to set the C and C++ Standard level.
 # [ gnu99 gnu11 c++98 c++03 c++11 c++14 ] 
 CSTANDARD   = gnu99
 CPPSTANDARD = c++11
@@ -78,8 +78,10 @@ CFLAGS += -funsigned-char
 #CFLAGS += -funsigned-bitfields
 #CFLAGS += -fpack-struct
 #CFLAGS += -fshort-enums
+#CFLAGS += -mshort-calls
 #CFLAGS += -fno-unit-at-a-time
 #CFLAGS += -mshort-calls
+#CFLAGS += -fPIC                  # Position independet code
 
 # Compiler Warnings C -------------------------------------------------------
 CFLAGS += -Wall                  # Standard warnings
@@ -121,17 +123,16 @@ CPPFLAGS += -fshort-enums
 CPPFLAGS += -fno-exceptions
 #CPPFLAGS += -mshort-calls
 #CPPFLAGS += -fno-unit-at-a-time
+#CPPFLAGS += -fPIC                  # Position independet code
 
 # Compiler Warnings C++ -----------------------------------------------------
 CPPFLAGS += -Wall                  # Standard warnings
 CPPFLAGS += -Wextra                # Some extra warnings
 CPPFLAGS += -Wmissing-braces 
 CPPFLAGS += -Wmissing-declarations # Warn if global function is not declared
-CPPFLAGS += -Wmissing-prototypes   # if a function is missing its prototype
-CPPFLAGS += -Wstrict-prototypes    # non correct prototypes i.e. void fun() => void fun(void) 
 CPPFLAGS += -Wredundant-decls      # Warn if something is declared more than ones
 CPPFLAGS += -Wunreachable-code     # if code is not used
-CPPFLAGS += -Wshadow               # if local variable has same name as global
+#CPPFLAGS += -Wshadow               # if local variable has same name as global (problematic?)
 CPPFLAGS += -Wformat=2             # check printf and scanf for problems
 #CPPFLAGS += -Wno-format-nonliteral # 
 CPPFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void pointer
@@ -145,6 +146,16 @@ CPPFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void 
 #CPPFLAGS += $(shell pkg-config --cflags lua5.1)
 #CPPFLAGS += $(shell pkg-config --cflags sqlite3)
 
+
+# Linker Options ------------------------------------------------------------
+#  -Wl,...:     tell GCC to pass this to linker.
+#    -Map:      create map file
+#    --cref:    add cross reference to  map file
+LDFLAGS = -Wl,-Map=$(OUTDIR)/$(TARGET).map,--cref
+LDFLAGS += $(EXTMEMOPTS)
+LDFLAGS += $(patsubst %,-L%,$(INCLUDE))
+LDFLAGS += -g
+LDFLAGS += $(foreach X, $(PKGLIBS), $(shell pkg-config --libs $(X)) )
 
 #
 # Platform specific options
@@ -170,19 +181,23 @@ TCHAIN_PREFIX=
 
 # Define programs and commands ----------------------------------------------
 SHELL     = bash
+WINSHELL  = cmd
 REMOVE    = rm -f
 REMOVEDIR = rm -rf
 COPY      = cp -f 
 MOVE      = mv -f
-WINSHELL  = cmd
 MKDIR     = mkdir -p
-SED       = sed
-MOC       = moc
-QMAKE     = qmake
+SED       = sed              # stream editor program
+MOC       = moc              # Qt meta object compiler
+QMAKE     = qmake            # Qt make program
+UIC       = uic              # Qt resource file compiler
+CTEMPLATE = python3 tools/ctemplate.py # C/C++ template tool
+BIN2ARRAY = python3 tools/bin2array.py # Binary to array tool
+MPTOOL    = tools/mkptools   # Makeplate tools
 CPPCHECK  = cppcheck
 INSTALL   = install
-ASTYLE    = astyle
-DOXYGEN   = doxygen
+ASTYLE    = astyle           # Code beatyfier
+DOXYGEN   = doxygen          # Code documetation program
 
 TCHAIN = $(TCHAIN_BASE)/$(TCHAIN_PREFIX)
 
@@ -270,7 +285,9 @@ MSG_FLASH            = "${C_ACTION}Creating load file for Flash:${E_END}"
 MSG_EEPROM           = "${C_ACTION}Creating load file for EEPROM:${E_END}"
 MSG_COFF             = "${C_ACTION}Converting to AVR COFF:${E_END}"
 MSG_EXTENDED_COFF    = "${C_ACTION}Converting to AVR Extended COFF:${E_END}"
-MSG_BACKUP           = "${E_BR_GREEN}Making incremental backup of project:${E_END}"
+MSG_MOC              = "${C_ACTION}Creating MOC file:${E_END}"
+MSG_UI               = "${C_ACTION}Generating UI header:${E_END}"
+MSG_BACKUP           = "${C_ACTION}Making incremental backup of project:${E_END}"
 MSG_SRC              = "${C_MSG}Source files $(E_GREEN)-----------------------------------------------------${E_END}"
 MSG_FLAGS            = "${C_MSG}Compiler Flags $(E_GREEN)---------------------------------------------------${E_END}"
 MSG_LINKER           = "${C_MSG}Linker Flags $(E_GREEN)-----------------------------------------------------${E_END}"
@@ -296,7 +313,6 @@ F_WARNING5="s/value computed is not used/$$(printf "$(C_WARNING)")&$$(printf "$(
 F_BRACKET="s/\[\(.*\)\]/[$$(printf "$(E_GREEN)")\1$$(printf "$(E_END)")]/"	
 F_VARIABLE="s/\‘\(.*\)[\’\‘]/'$$(printf "$(C_IDENTIFIER)")\1$$(printf "$(E_END)")'/g"
 F_FILE="s/[^: ]*/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/"
-#F_FILE="s/\(.*\/\)\(.*\):/$$(printf "$(C_DIR)")\1$$(printf "$(C_FILE)")\2$$(printf "$(E_END)"):/1"
 F_ROWNR="s/:\([0-9]*\):\([0-9]*\):/:$$(printf "$(C_VALUE)")\1$$(printf "$(E_END)"):$$(printf "$(C_VALUE)")\2$$(printf "$(E_END)"):/"
 
 C_FILTER   = | sed -u -e $(F_BRACKET) -e $(F_FILE) -e $(F_ROWNR)          \
@@ -342,7 +358,7 @@ nocolor:
 # Build with no color filter on compiler output
 # Useful for Netbeans, Eclipse builds etc. 
 #	
-nc: nocolor all   ## Build with no color on compiler output
+nc: nocolor all   ## Build with no color filter on compiler output
 
 
 build: elf lss sym size
@@ -373,7 +389,7 @@ finished:
 $(TRGFILE): $(OBJS) $(OUTDIR)
 	@echo -en "\n"$(MSG_LINKING)"\n               "
 	@echo -e $@ $(F_SOURCE)
-	@$(CC) $(ALL_CFLAGS) $(OBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)
+	@$(CPP) $(ALL_CFLAGS) $(OBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)
 	
 # Create extended listing file/disassambly from ELF output file.
 # using objdump testing: option -C
@@ -451,6 +467,8 @@ clean:  ## Remove all build files
 	@$(REMOVE) $(OUTDIR)/$(TARGET).cof
 	@$(REMOVE) $(OBJS)
 	@$(REMOVE) $(LST)
+	@$(REMOVE) $(MOCSRC)
+	@$(REMOVE) $(UIH)
 	@$(REMOVEDIR) .dep
 	@$(REMOVEDIR) $(BUILDDIR)	
 	@find . -name "*~" -delete
