@@ -248,6 +248,7 @@ AR        = ${TCHAIN}ar rcs
 NM        = ${TCHAIN}nm
 AS        = ${TCHAIN}as
 GDB       = ${TCHAIN}gdb
+STRIP     = ${TCHAIN}strip
 
 #
 # Message/Filter settings
@@ -304,6 +305,7 @@ MSG_LINE             = "$(E_WHITE)----------------------------------------------
 MSG_BEGIN            = "${E_WHITE}-------------------------------- Begin ---------------------------${E_END}"
 MSG_END              = "${E_WHITE}-------------------------------- End -----------------------------${E_END}"
 MSG_ERRORS_NONE      = "${C_OK}Errors: none ${E_END}"
+MSG_STRIP            = "${C_ACTION}Striping:${E_END}"
 MSG_LINKING          = "${C_ACTION}Linking:${E_END}"
 MSG_COMPILING        = "${C_ACTION}Compiling C:  ${E_END}"
 MSG_COMPILING_CPP    = "${C_ACTION}Compiling C++:${E_END}"
@@ -508,6 +510,9 @@ size: $(TRGFILE)
 	@echo -e $(MSG_SIZE_AFTER)
 	@$(SIZE) $(TRGFILE)
 
+strip: $(TRGFILE) ## Strip target binary from symbols
+	@echo -e $(MSG_STRIP)
+	@$(STRIP) $(TRGFILE)
 
 # 
 # Debug rules
