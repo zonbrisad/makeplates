@@ -1,4 +1,5 @@
-#/usr/bin/python3
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 # -----------------------------------------------------------------------
 # 
 # C/C++ template generator
@@ -8,26 +9,56 @@
 # Date:   2016-02-19
 # Version: 0.2
 # Python:  >=3
+# Licence: MIT
 # 
 # -----------------------------------------------------------------------
 # History
 #
 # Todo 
 #
+# Imports -------------------------------------------------------------------
 
+import sys
+import os 
+import traceback
 import logging
 import argparse
 from datetime import datetime, date, time
 
-#
-# Settings
-# -----------------------------------------------------------------------
+# Settings ------------------------------------------------------------------
 
 
-#
-# Code
-# -----------------------------------------------------------------------
+AppName     = "pyplate"
+AppVersion  = "0.1"
+AppLicence  = "MIT"
+AppAuthor   = "Peter Malmberg <peter.malmnerg@gmail.com>"
 
+# Uncomment to use logfile
+#LogFile     = "pyplate.log"
+
+# Code ----------------------------------------------------------------------
+def query_yn(question, default="yes"):
+    valid = {"yes": True, "y": True, "ye": True, "no": False, "n": False}
+    if default is None:
+        prompt = " [y/n] "
+    elif default == "yes":
+        prompt = " [Y/n] "
+    elif default == "no":
+        prompt = " [y/N] "
+    else:
+        raise ValueError("invalid default answer: '%s'" % default)
+    
+    while True:
+        sys.stdout.write(question + prompt)
+        choice = input().lower()
+        if default is not None and choice == '':
+            return valid[default]
+        elif choice in valid:
+            return valid[choice]
+        else:
+            sys.stdout.write("Please respond with 'yes' or 'no' (or 'y' or 'n').\n")
+
+            
 def addHeader(file, fileName, brief, date, author, licence):
     file.write( 
     "/**\n"
@@ -92,14 +123,25 @@ def addInclude(file, includeFile):
   file.write("#include <"+includeFile+">\n")  
     
 def addCIncludes(file):
-  addInclude(file, "stdio.h")
-  addInclude(file, "stdlib.h")
-  addInclude(file, "sys/types.h")
-  addInclude(file, "unistd.h")
-  addInclude(file, "signal.h")
-  addInclude(file, "string.h")
-  addInclude(file, "errno.h")
+    addInclude(file, "stdio.h")
+    addInclude(file, "stdlib.h")
+    addInclude(file, "sys/types.h")
+    addInclude(file, "unistd.h")
+    addInclude(file, "signal.h")
+    addInclude(file, "string.h")
+    addInclude(file, "errno.h")
   
+def addGTKIncludes(file):
+    addInclude(file, "gtk/gtk.h")
+  
+def addQtIncludes(file):
+    addInclude(file, "QApplication")
+    addInclude(file, "QDebug")
+    addInclude(file, "QMainWindow")
+    addInclude(file, "QPushbutton")
+    addInclude(file, "QLabel")
+#    addInclude(file, "QtCore/QCoreApplication")
+        
 def addMain(file):
   file.write("int main(int argc, char *argv[]) {\n\n")
   file.write("  return 0;\n")    
@@ -120,7 +162,8 @@ def askInfo(module):
     print("Creating new "+module)
     fName = input("Enter "+module+" name(no extention:>")
     brief = input("Enter brief description:> ")
-    date = datetime.now().strftime("%Y-%m-%d")
+    
+    date = datetime.now().strftime("%Y-%m-%d")    
     return fName, brief, date
   
 def newModule(dir, author, licence):
@@ -128,6 +171,11 @@ def newModule(dir, author, licence):
     # ask for some information
     fName, brief, date = askInfo("C module")
 
+    main = query_yn("Add main() function", "no")
+    if (main):
+        gtk= query_yn("GTK project", "no")
+    
+    
     fileNameC = fName + ".c"
     fileNameH = fName + ".h"
 
@@ -140,12 +188,19 @@ def newModule(dir, author, licence):
 
     addSection(fileC, "Includes")
     
+    if (main):
+        addCincludes(fileC)
+    
     fileC.write("#include \""+fileNameH+"\"\n\n");
     
     addSection(fileC, "Macros")
     addSection(fileC, "Variables")
     addSection(fileC, "Prototypes")
     addSection(fileC, "Code")    
+
+    if (main):
+        addMain(fileC)
+
     
     # Populate H file
     addHeader(fileH, fileNameH, brief, date, author, licence)
@@ -159,6 +214,8 @@ def newModule(dir, author, licence):
     addCppSentinelEnd(fileH)
     addSentinelEnd(fileH)
  
+    
+    
     # Close down files
     fileC.close()
     fileH.close()
@@ -204,11 +261,53 @@ def newClass(dir, author, licence):
     fileC.close()
     fileH.close()
 
+def printInfo():
+    print("Script name    " + AppName)
+    print("Script version " + AppVersion)
+    print("Script path    " + os.path.realpath(__file__))
 
-    
-if __name__ == "__main__":
+lasse="""
+    signal(SIGINT, sigInt);
+    signal(SIGHUP, sigHup);
+
+  
+
+// GTK Glade --------------------------------------------------------------------
+
+    gtk_init(&argc, &argv);
+
+    builder = gtk_builder_new();
+    gtk_builder_add_from_file (builder, "gtkTest.glade", NULL);
+
+    window = GTK_WIDGET(gtk_builder_get_object(builder, "window2"));
+    gtk_builder_connect_signals(builder, NULL);
+
+    //g_object_unref(builder);
+
+    GtkWidget *w;
+    GtkTextIter iter;
+    w = gtk_builder_get_object(builder, "textview2");
+    //gtk_text_view_set_buffer(w, buf);
+    buf = gtk_text_view_get_buffer(w);
+    gtk_text_buffer_get_iter_at_offset(buf, &iter, 0);
+    gtk_text_buffer_insert(buf, &iter, "Kalle", -1);
+"""
+
+qtExample="""
+    QApplication app(argc, argv);
+    MainWindow w;
+    w.show();
+         
+    return app.exec();
+"""
+
+
+
+print(lasse)
+
+def main():
     logging.basicConfig(level=logging.DEBUG)
-
+    
     # options parsing
     parser = argparse.ArgumentParser(description="C/C++ template generator")
     parser.add_argument("--newc",     action="store_true", help="Create a new C and H file set")
@@ -231,3 +330,19 @@ if __name__ == "__main__":
     if args.newcpp:
         print("To be implemented.")
         exit
+
+    exit    
+
+if __name__ == "__main__":
+    try:
+        main()
+        sys.exit(0)
+    except KeyboardInterrupt as e: # Ctrl-C
+        raise e
+    except SystemExit as e:        # sys.exit()
+        raise e
+    except Exception as e:
+        print('ERROR, UNEXPECTED EXCEPTION')
+        print(str(e))
+        traceback.print_exc()
+        os._exit(1)
