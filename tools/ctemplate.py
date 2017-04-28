@@ -27,11 +27,10 @@ from datetime import datetime, date, time
 
 # Settings ------------------------------------------------------------------
 
-
-AppName     = "pyplate"
-AppVersion  = "0.1"
+AppName     = "ctemplate"
+AppVersion  = "0.2"
 AppLicence  = "MIT"
-AppAuthor   = "Peter Malmberg <peter.malmnerg@gmail.com>"
+AppAuthor   = "Peter Malmberg <peter.malmberg@gmail.com>"
 
 # Uncomment to use logfile
 #LogFile     = "pyplate.log"
@@ -73,7 +72,6 @@ def addHeader(file, fileName, brief, date, author, licence):
     " *---------------------------------------------------------------------------\n"
     " */\n\n")
  
-
 def addSection(file, desc):
     line = '-' * (71 - len(desc))
     file.write("// " + desc + " " + line + "\n\n")
@@ -85,12 +83,10 @@ def addSection2(file, desc):
     " *------------------------------------------------------------------\n" \
     " */\n\n") 
     
-
 def addSentinelBegin(file, sentinel):
     file.write(                     \
     "#ifndef "+sentinel+"_H\n"      \
     "#define "+sentinel+"_H\n\n") 
-
     
 def addSentinelEnd(file):
     file.write("#endif\n\n")
@@ -107,11 +103,9 @@ def addCppSentinelEnd(file):
     "} //end brace for extern \"C\"\n" \
     "#endif\n")
   
-
 def addMethod(file, className, methodName): 
   file.write(className+"::"+methodName+"() {\n")
   file.write("\n}\n\n")
-
 
 def addClass(file, className):
   file.write("class "+className+" {\n")
@@ -136,11 +130,11 @@ def addGTKIncludes(file):
   
 def addQtIncludes(file):
     addInclude(file, "QApplication")
+    addInclude(file, "QCoreApplication")
     addInclude(file, "QDebug")
     addInclude(file, "QMainWindow")
     addInclude(file, "QPushbutton")
     addInclude(file, "QLabel")
-#    addInclude(file, "QtCore/QCoreApplication")
         
 def addMain(file):
   file.write("int main(int argc, char *argv[]) {\n\n")
@@ -166,17 +160,28 @@ def askInfo(module):
     date = datetime.now().strftime("%Y-%m-%d")    
     return fName, brief, date
   
-def newModule(dir, author, licence):
+def newCModule(dir, author, licence):
+    newModule(dir, author, licence, "c")
+
+def newCppModule(dir, author, licence):
+    newModule(dir, author, licence, "cpp")
+
+def newModule(dir, author, licence, lan):
     
     # ask for some information
     fName, brief, date = askInfo("C module")
 
     main = query_yn("Add main() function", "no")
-    if (main):
-        gtk= query_yn("GTK project", "no")
+
     
+    if main and lan="c":
+        gtkMain = query_yn("GTK project", "no")
+
+    if main and lan="cpp":    
+        qtMain = query_yn("Qt project", "no")
+        
     
-    fileNameC = fName + ".c"
+    fileNameC = fName + "."+lan
     fileNameH = fName + ".h"
 
     # Open files to be generated
@@ -189,8 +194,9 @@ def newModule(dir, author, licence):
     addSection(fileC, "Includes")
     
     if (main):
-        addCincludes(fileC)
-    
+        addCIncludes(fileC)
+
+        
     fileC.write("#include \""+fileNameH+"\"\n\n");
     
     addSection(fileC, "Macros")
@@ -198,9 +204,13 @@ def newModule(dir, author, licence):
     addSection(fileC, "Prototypes")
     addSection(fileC, "Code")    
 
-    if (main):
-        addMain(fileC)
-
+    
+    if (gtkMain):
+        fileC.write(gtkMainExample)
+    else:
+        if (main):
+            fileC.write(mainExample)
+        
     
     # Populate H file
     addHeader(fileH, fileNameH, brief, date, author, licence)
@@ -214,8 +224,6 @@ def newModule(dir, author, licence):
     addCppSentinelEnd(fileH)
     addSentinelEnd(fileH)
  
-    
-    
     # Close down files
     fileC.close()
     fileH.close()
@@ -266,11 +274,55 @@ def printInfo():
     print("Script version " + AppVersion)
     print("Script path    " + os.path.realpath(__file__))
 
-lasse="""
+
+
+
+def main():
+    logging.basicConfig(level=logging.DEBUG)
+    
+    # options parsing
+    parser = argparse.ArgumentParser(description="Makeplate C/C++ template generator")
+    parser.add_argument("--newc",     action="store_true", help="Create a new C and H file set")
+    parser.add_argument("--newcpp",   action="store_true", help="Create a new C++ and H file set")
+    parser.add_argument("--newclass", action="store_true", help="Create a new C++ class")
+    parser.add_argument("--newQt",    action="store_true", help="Create a new Qt project")
+    parser.add_argument("--newgtk",   action="store_true", help="Create a new GTK project")
+    parser.add_argument("--licence",  type=str,            help="Licence of new file", default="")
+    parser.add_argument("--author",   type=str,            help="Author of file",      default="")
+    parser.add_argument("--dir",      type=str,            help="Directory where to store file",  default=".")
+    
+    args = parser.parse_args()
+    
+    if args.newc:
+        newCModule(args.dir, args.author, args.licence)
+        exit(0)
+        
+    if args.newclass:
+        newClass(args.dir, args.author, args.licence)
+        exit(0)
+        
+    if args.newcpp:
+        newCppModule(args.dir, args.author, args.licence)
+        exit(0)
+
+    if args.newgtk:
+        newCppModule(args.dir, args.author, args.licence)
+        exit(0)
+
+    if args.newQt:
+        newCppModule(args.dir, args.author, args.licence)
+        exit(0)
+        
+    exit(0)    
+
+    
+gtkMainExample="""
+
+int main(int argc, char *argv[]) {
+ 
     signal(SIGINT, sigInt);
     signal(SIGHUP, sigHup);
 
-  
 
 // GTK Glade --------------------------------------------------------------------
 
@@ -291,48 +343,39 @@ lasse="""
     buf = gtk_text_view_get_buffer(w);
     gtk_text_buffer_get_iter_at_offset(buf, &iter, 0);
     gtk_text_buffer_insert(buf, &iter, "Kalle", -1);
+    
+    return 0;
+}
 """
 
-qtExample="""
-    QApplication app(argc, argv);
-    MainWindow w;
-    w.show();
+mainExample="""
+int main(int argc, char *argv[]) {
+        
+    return 0;
+}
+"""
+
+qtCoreMainExample="""
+int main(int argc, char *argv[]) {
+ 
+    QCoreApplication app(argc, argv);
          
     return app.exec();
+}
 """
 
-
-
-print(lasse)
-
-def main():
-    logging.basicConfig(level=logging.DEBUG)
+qtMainExample="""
+int main(int argc, char *argv[]) {
+ 
+    QApplication app(argc, argv);
+//    MainWindow w;
+//    w.show();
+         
+    return app.exec();
+}
+"""
     
-    # options parsing
-    parser = argparse.ArgumentParser(description="C/C++ template generator")
-    parser.add_argument("--newc",     action="store_true", help="Create a new C and H file set")
-    parser.add_argument("--newcpp",   action="store_true", help="Create a new C++ and H file set")
-    parser.add_argument("--newclass", action="store_true", help="Create a new C++ class")
-    parser.add_argument("--licence",  type=str,            help="Licence of new file", default="")
-    parser.add_argument("--author",   type=str,            help="Author of file",      default="")
-    parser.add_argument("--dir",      type=str,            help="Directory where to store file",  default=".")
     
-    args = parser.parse_args()
-    
-    if args.newc:
-        newModule(args.dir, args.author, args.licence)
-        exit
-        
-    if args.newclass:
-        newClass(args.dir, args.author, args.licence)
-        exit
-        
-    if args.newcpp:
-        print("To be implemented.")
-        exit
-
-    exit    
-
 if __name__ == "__main__":
     try:
         main()
@@ -346,3 +389,5 @@ if __name__ == "__main__":
         print(str(e))
         traceback.print_exc()
         os._exit(1)
+
+        
