@@ -207,6 +207,11 @@ newSCpp() { ##C NEW Create a new simple C++ makeplate project
 }
 
 
+newModule() { ## Create new C module
+  ${scriptPath}/tools/ctemplate.py
+}
+
+
 #--------------------------------------------------------------------- 
 # Bashplate settings
 #---------------------------------------------------------------------
