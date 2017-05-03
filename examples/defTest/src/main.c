@@ -35,6 +35,66 @@ void sigHup(int sig);
 // Code -------------------------------------------------------------------
 
 
+void escapeFilter(char *str) {
+  int i;
+	int len;
+	len = strlen(str);
+
+}
+
+S2S fgColors[] = {
+	{ E_BLACK,      "Black"    },
+	{ E_RED,        "Red"      },
+	{ E_GREEN,      "Green"    },
+	{ E_YELLOW,     "Yellow"   },
+	{ E_BLUE ,      "Blue"     }, 
+	{ E_MAGENTA,    "Magenta"  },
+	{ E_CYAN,       "Cyan"     },   
+	{ E_GRAY,       "Gray"     },   
+	{ E_DARKGRAY,   "Darkgray" },
+	{ E_BR_RED,     "Br Red"     },  
+	{ E_BR_GREEN,   "Br Green"   },
+	{ E_BR_YELLOW,  "Br Yellow"  },
+	{ E_BR_BLUE,    "Br Blue"    },   
+	{ E_BR_MAGENTA, "Br Magenta" }, 
+	{ E_BR_CYAN,    "Br Cyan"    },    
+	{ E_WHITE,      "White"          },      
+	{ S2S_END } 
+};
+
+S2S bgColors[] = {
+  { E_ON_BLACK,   "Black"   },  
+  { E_ON_RED,     "Red"     },   
+  { E_ON_GREEN,   "Green"   }, 
+  { E_ON_YELLOW,  "Yellow"  },
+  { E_ON_BLUE,    "Blue"    },  
+  { E_ON_MAGENTA, "Magenta" },
+  { E_ON_CYAN,    "Cyan"    },   
+  { E_ON_WHITE,   "White"   },  
+	{ S2S_END } 
+};
+
+
+void colorTest(void) {
+	int i, j;
+	
+	
+	for (j=0; j<S2S_len(bgColors);j++) {
+		for (i=0; i<S2S_len(fgColors);i++) {
+			printf("%s%s %s "E_END, bgColors[j].key, fgColors[i].key, fgColors[i].val);
+		}
+		printf("\n");
+	}
+	
+	printf("\n");
+	printf(E_ATTR_BOLD"Bolt text\n"E_END);
+	printf(E_ATTR_LOWI"Low intensity text\n"E_END);
+	printf(E_ATTR_UNDERLINE"Underline text\n"E_END);
+	printf(E_ATTR_REVERSE"Reverse text\n"E_END);
+	
+	printf("\n");
+}
+
 void sigInt(int sig) {
 	UNUSED(sig);
 	
@@ -64,9 +124,12 @@ int main(int argc, char *argv[]) {
 	
 	signal(SIGINT, sigInt);
 	signal(SIGHUP, sigHup);
+
 	
 	printf("\nMakeplate linux C example.\n\n\n");
 
+	colorTest();
+	
 	INFOPRINT("Information printout\n");
 	
 	DEBUGPRINT("Debug printout\n");
@@ -76,7 +139,6 @@ int main(int argc, char *argv[]) {
 	ERRORPRINT("Error printout\n");
 	
 	DEBUG_DO(printf("Debug do\n"));
-	
 	
 	i = 0;
 	
@@ -88,18 +150,13 @@ int main(int argc, char *argv[]) {
 	BIT_CLEAR(i,4);
 	printf("Var i = %2x\n", i);
 
-	
+	printf("Size of I2S db = %d\n", I2S_len(numbersDb));
 	for (i=1;i<=4;i++) {
 		printf("I2S test %d  =  %s\n", i, I2S_getString(numbersDb, i));
 	}
 	
 	I2S_setString(numbersDb, 4, "Fourth");
 	printf("I2S test %d  =  %s\n", 4, I2S_getString(numbersDb, 4));
-	
-	
-	printf("Use CTRL-C to stop program\n");
-	while(1) {
-	}
 	
 	return 0;
 }

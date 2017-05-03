@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 #include <sys/types.h>
 
 
@@ -164,6 +165,7 @@
 #define E_OK            "\033[0;32m"
 #define E_WARN          "\033[33;01m"
 #define E_ERROR         "\033[31;01m"
+
 #define E_BLACK         "\033[0;300m"
 #define E_RED           "\033[0;31m"
 #define E_GREEN         "\033[0;32m"
@@ -181,17 +183,26 @@
 #define E_BR_CYAN       "\033[1;36m"
 #define E_WHITE         "\033[1;37m"
 
-#define E_ON_BLACK      "\33[40"
-#define E_ON_RED        "\33[41"
-#define E_ON_GREEN      "\33[42"
-#define E_ON_YELLOW     "\33[43"
-#define E_ON_BLUE       "\33[44"
-#define E_ON_MAGENTA    "\33[45"
-#define E_ON_CYAN       "\33[46"
-#define E_ON_WHITE      "\33[1;47"
+#define E_ON_BLACK      "\033[40m"
+#define E_ON_RED        "\033[41m"
+#define E_ON_GREEN      "\033[42m"
+#define E_ON_YELLOW     "\033[43m"
+#define E_ON_BLUE       "\033[44m"
+#define E_ON_MAGENTA    "\033[45m"
+#define E_ON_CYAN       "\033[46m"
+#define E_ON_WHITE      "\033[1;47m"
+
+// ANSI Text attributes
+#define E_ATTR_BOLD      "\e[1m"
+#define E_ATTR_LOWI      "\e[2m"
+#define E_ATTR_UNDERLINE "\e[4m"
+#define E_ATTR_BLINK     "\e[5m"
+#define E_ATTR_REVERSE   "\e[7m"
+
 
 #define E_END           "\033[0m"
 #define E_CLEAR         "\033[2J"
+#define E_RESET         "\033c"
 
 #define E_WONR "\33[1;47\033[1;31m"
 
@@ -291,15 +302,11 @@
 #define UNUSED(p)         UNUSED_PARAM(p)
 
 
-
-
 // I2S ----------------------------------------------------------------------
 
-
-#define I2S_STRLEN 16
-#define I2S_LAST 0xFFFFFFFF
+#define I2S_STRLEN 32
+#define I2S_LAST (int)0xFFFFFFFF
 #define I2S_END I2S_LAST, ""
-
 
 typedef struct {
 	int  val;
@@ -308,16 +315,28 @@ typedef struct {
 
 
 int I2S_findIdx(I2S *db, int val);
+int I2S_findIdxStr(I2S *db, char *str);
 char *I2S_getString(I2S *db, int val);
 void I2S_setString(I2S *db, int val, char *str);
 int I2S_last(I2S *db);	
 int I2S_first(I2S *db);
-
+int I2S_len(I2S *db);
 
 int I2S_findIdx(I2S *db, int val) {
 	int i=0;
 	while (db[i].val != I2S_LAST) {
 		if (db[i].val==val) {
+			return i;
+		}
+		i++;
+	}
+	return -1;
+}
+
+int I2S_findIdxStr(I2S *db, char *str) {
+	int i=0;
+	while (db[i].val != I2S_LAST) {
+		if (!strncmp(db[i].str, str, I2S_STRLEN)) {
 			return i;
 		}
 		i++;
@@ -347,18 +366,78 @@ void I2S_setString(I2S *db, int val, char *str) {
 	}
 }
 
-int I2S_last(I2S *db) {
-	int i = 0;
+int I2S_len(I2S *db) {
+	int i=0;
+	
 	while (db[i].val != I2S_LAST) {
 		i++;
 	}
-	return i-1;
+	return i;
+}
+
+int I2S_last(I2S *db) {
+  return I2S_len(db) - 1;
 }
 
 int I2S_first(I2S *db) {
 	UNUSED(db);
 	return 0;
 }
+
+
+// S2S ----------------------------------------------------------------------
+
+#define S2S_STRLEN 32
+//#define S2S_LAST (int)0xFFFFFFFF
+#define S2S_END "", ""
+
+typedef struct {
+	char key[S2S_STRLEN];
+	char val[S2S_STRLEN];
+} S2S;
+
+int S2S_findIdx(S2S *db, char *key);
+int S2S_findIdxStr(S2S *db, char *str);
+char *S2S_getValue(S2S *db, char *key);
+void S2S_setValue(S2S *db, char *key, char *str);
+int S2S_last(S2S *db);	
+int S2S_first(S2S *db);
+int S2S_len(S2S *db);
+
+
+int S2S_findIdx(S2S *db, char *key) {
+	int i = 0;
+	while (strncmp(db[i].key, "",  S2S_STRLEN)) {
+		if (!strncmp(db[i].key, key, S2S_STRLEN)) {
+			return i;
+		}
+		
+		i++;
+	}
+	return -1;
+}
+
+int S2S_len(S2S *db) {
+	int i=0;
+	
+	while (strncmp(db[i].key, "",  S2S_STRLEN)) {
+		i++;
+	}
+	return i;
+}
+
+
+char *S2S_getValue(S2S *db, char *key) {
+	int i;
+	i = S2S_findIdx(db, key);
+	
+	if (i != -1) {
+		return db[i].val;
+	}
+	return NULL;
+}
+
+
 
 #endif	/* DEF_H */
 
