@@ -22,8 +22,8 @@ LICENCE = GPLv2
 TARGET = makeplate
 
 # List C, C++ and assembler source files here. (C/C++ dependencies are automatically generated.)
-SRC = src/main.c 
-#      Unity/src/unity.c
+SRC = src/main.c   \
+      src/pmutil.c
 
 # List C, C++ and assembler library/3rd partry source files here. (C/C++ dependencies are automatically generated.)
 LSRC =	

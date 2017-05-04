@@ -21,6 +21,7 @@
 #include <errno.h>
 
 #include "def.h"
+#include "pmutil.h"
 
 // Defines ----------------------------------------------------------------
 
