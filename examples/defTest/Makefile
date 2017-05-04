@@ -22,8 +22,9 @@ LICENCE = GPLv2
 TARGET = makeplate
 
 # List C, C++ and assembler source files here. (C/C++ dependencies are automatically generated.)
-SRC = src/main.c   \
-      src/pmutil.c
+SRC = src/main.c        \
+      src/pmutil.c      \
+			src/Unity/src/unity.c
 
 # List C, C++ and assembler library/3rd partry source files here. (C/C++ dependencies are automatically generated.)
 LSRC =	
@@ -31,7 +32,7 @@ LSRC =
 # Include directories
 INCLUDE = inc \
           src \
-#          Unity/src
+          src/Unity/src 
 
 # Libraries to link
 LIB   = -lm 
@@ -296,6 +297,7 @@ C_NOTE=$(E_BR_GREEN)
 C_MSG=$(E_BR_GREEN)
 C_ACTION=$(E_BR_MAGENTA)
 C_VALUE=$(E_WHITE)$(E_ON_BLUE)
+#C_VALUE=$(E_BLACK)$(E_ON_CYAN)
 C_IDENTIFIER=$(E_WHITE)
 
 # Messages ------------------------------------------------------------------
@@ -408,6 +410,11 @@ nocolor:
 #	
 nc: nocolor all   ## Build with no color filter on compiler output
 
+#test: ALL_CFLAGS   += -DUNIT_TEST
+#test: ALL_CPPFLAGS += -DUNIT_TEST
+#test: SRC += src/Unity/src/unity.c
+#test: OBJS += build/Unity/src/unity.o
+#test: all 
 
 build: elf lss sym size
 
@@ -864,7 +871,7 @@ AST +=--preserve-date
 PSRCH = $(PSRC:%.c=%.h) 
 
 astyle: ## Format source to conform to a standard
-	@$(ASTYLE) $(AST) src/*.c src/*.cpp src/*.h
+	@$(ASTYLE) $(AST) src/*.c src/*.h
 
 	
 # Listing of phony targets.

@@ -11,7 +11,7 @@
  */
 
 #ifndef DEF_RPI_H_
-#define	DEF_RPI_H_
+#define DEF_RPI_H_
 
 
 // Raspberry PI -------------------------------------------------------------
@@ -22,7 +22,7 @@
 // Raspberry PI Pinouts -----------------------------------------------------
 
 /*
-  Raspberry Pi B 
+  Raspberry Pi B
   Rev 1
 
                        +-----------+
@@ -42,7 +42,7 @@
                        +-----------+
 
 
-	Raspberry Pi A/B 
+    Raspberry Pi A/B
   Rev 2
 
                        +-----------+
@@ -62,7 +62,7 @@
                        +-----------+
 
 
-	Raspberry Pi B+ 
+    Raspberry Pi B+
 
                        +-----------+
                3.3V    |  [1]  [2] |  5V
@@ -86,10 +86,10 @@
                GPIO 26 | [37] [38] |  GPIO 20
                GND     | [39] [40] |  GPIO 21
                        +-----------+
- 
+
 */
 
 
 
-#endif	/* DEF_H */
+#endif  /* DEF_H */
 

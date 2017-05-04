@@ -27,26 +27,26 @@ extern "C" {
 
 #define S2S_STRLEN 32
 #define S2S_END "", ""
-	
-		
+
+
 // Typedefs ---------------------------------------------------------------
 
 typedef struct {
-	  int  val;
-	  char str[I2S_STRLEN];
+    int  val;
+    char str[I2S_STRLEN];
 } I2S;
 
 typedef struct {
-	  char key[S2S_STRLEN];
-	  char val[S2S_STRLEN];
+    char key[S2S_STRLEN];
+    char val[S2S_STRLEN];
 } S2S;
 
-		
+
 // Variables --------------------------------------------------------------
 
 // Prototypes -------------------------------------------------------------
 
-	
+
 int I2S_findIdx(I2S *db, int val);
 int I2S_findIdxStr(I2S *db, char *str);
 char *I2S_getString(I2S *db, int val);
@@ -55,7 +55,7 @@ int I2S_last(I2S *db);
 int I2S_first(I2S *db);
 int I2S_len(I2S *db);
 
-	
+
 
 
 int S2S_findIdx(S2S *db, char *key);
@@ -66,9 +66,9 @@ int S2S_last(S2S *db);
 int S2S_first(S2S *db);
 int S2S_len(S2S *db);
 
-	
-	
-	
+
+
+
 #ifdef __cplusplus
 } //end brace for extern "C"
 #endif
