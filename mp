@@ -21,7 +21,7 @@
 #set -v
 
 # Exit script when a command fails. Append ||true if error is expected
-set -o errexit # || true
+#set -o errexit # || true
 # Exit script when undeclared variable is used
 #set -o nounset
 # Exit script when pipe fails
@@ -189,7 +189,6 @@ createProject() {
 	
 }
 
-
 newC() { ##C NEW Create a new standard C makeplate project
   createProject "Creating new makeplate C project" ${scriptPath}/${MPT_DIR}/mp-c 
 }
@@ -206,16 +205,28 @@ newSCpp() { ##C NEW Create a new simple C++ makeplate project
   createProject "Creating new simple makeplate C++ project" ${scriptPath}/${MPT_DIR}/mp-simple-cpp
 }
 
+# check for local version of mp and execute it
+preCheck() {
+echo XXX $0 $1 $2 $3
+	# Check if local dir contains MPT
+  if [ -f ${PWD}/MPT ]; then
+	  if [ $(dirname $0) != "." ]; then
+#		   ./mp "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8" "$9" "${10}"
+			 ./mp 
+			 bpExit 
+		fi		
+  fi
+}
 
 #--------------------------------------------------------------------- 
 # Bashplate settings
 #---------------------------------------------------------------------
 
 # Script version info
-VERSION="1.00"
+VERSION="1.01"
 
 ##V Bashplate version
-BPVERSION="1.10"   
+BPVERSION="1.11"   
 
 ##V Usage info
 USAGE="Usage: ${scriptName} command [option]" 
@@ -228,6 +239,18 @@ DESC="Help tool for makeplate project"
 
 ##V Default command (uncomment to use a default command )
 DEFAULT=help
+
+##V Function to be executed before every other cmd except DEFAULT function
+#PRECMDHOOK=
+
+##V Function to be executed after every other function except DEFAULT function
+#POSTCMDHOOK=
+
+##V Pre script hook, execute this function before every command
+PREHOOK=preCheck
+
+##V Post script hook, execute this function before every command
+#POSTHOOK=
 
 ##V Programs that are required to run the script (uncomment to use)
 #REQUIRED_PROGRAMS=(ls mv kalle)
@@ -264,6 +287,12 @@ bpCleanUp() { ##D Cleanup function
 
 bpExit() { ##D Function for safely exiting script
   bpCleanUp
+	
+	# execute postscript hook if existing
+	if [ -n "$POSTHOOK" ]; then
+    ${POSTHOOK}
+	fi
+	
   exit
 }
 
@@ -579,18 +608,12 @@ vhelp() { ##D Print internal variable information
 #  echo $lines
 }
 
-version() { ## Print version information
-  echo "$VERSION"
+imeld() { ##D Run meld file compare with local installed bashplate
+  meld ${scriptPath}/${scriptName} ~/bin/bashplate_files/bashplate
 }
 
-# Check if a number of required programs are available on the system
-requiredPrograms() {
-  if [ -n "${REQUIRED_PROGRAMS}" ]; then
-    for p in ${REQUIRED_PROGRAMS[@]}; do
-	    hash "$p" 2>&- || \
-	    { echo -e >&2 "${E_ERROR}Required program \"$p\" not installed.${E_END}"; exit 1; }
-	  done
-	fi
+version() { ## Print version information
+  echo "$VERSION"
 }
 
 # Runs a function in this file as a command
@@ -611,17 +634,17 @@ runCommand() {
     if [ "$command" == "$1" ]; then
       
       
-      # execute prefunction if existing
-      if [ -n "$PREFUNCTION" ]; then
-        ${PREFUNCTION}
+      # execute pre command hook  if existing
+      if [ -n "$PRECMDHOOK" ]; then
+        ${PRECMDHOOK}
       fi
       
       # execute command
       ${command} "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8" "$9" "${10}"
       
-      # execute postfunction if existing
-      if [ -n "$POSTFUNCTION" ]; then
-        ${POSTFUNCTION}
+			# execute post command hook  if existing
+      if [ -n "$POSTCMDHOOK" ]; then
+        ${POSTCMDHOOK}
       fi      
       bpExit
     fi
@@ -643,11 +666,19 @@ trap  signalTerm SIGTERM
 
 bpArguments=$#
 
+echo $0 "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8" "$9" "${10}"
+
+# execute prescript hook if existing
+if [ -n "$PREHOOK" ]; then
+  ${PREHOOK} "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8" "$9" "${10}"
+fi
+
 # Run command parser
 runCommand "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8" "$9" "${10}"
 
+
 # Exit cleanly
-bpExit
+bpExit 
 
 
 ##-

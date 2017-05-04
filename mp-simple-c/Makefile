@@ -560,5 +560,72 @@ info: list-info list-includes list-defs list-flags list-ldflags list-installinfo
 
 files: list-src ## List source files
 
+#
+# CppCheck static code analysis
+#============================================================================
+.PHONY: ccheck acheck
+
+# Filter rules to colorize output from cppcheck (eye candy)
+F_CPPC_FILE="s/\[\(.*\):\(.*\)\]/[$$(printf "$(C_FILE)")\1$$(printf "$(E_END)"):\2]/i"
+F_CPPC_ROWNR="s/:\([0-9]*\)\]/:$$(printf "$(C_VALUE)")\1$$(printf "$(E_END)")]/"
+F_CPPC_VAR="s/'\(.*\)'/'$$(printf "$(C_IDENTIFIER)")\1$$(printf "$(E_END)")'/g"
+F_CPPC_STYLE="s/style/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
+F_CPPC_PORTABILITY="s/portability/$$(printf "$(C_CYAN)")&$$(printf "$(E_END)")/i"
+F_CPPC_ERROR="s/error/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
+F_CPPC_CHECK="s/\(Checking \)\(.*\)/$$(printf "$(C_ACTION)")\1$$(printf "$(E_END)")$$(printf "$(C_FILE)")\2$$(printf "$(E_END)")/i"	
+CPPCHECK_FILTER   = 2>&1 | sed -u -e $(F_CPPC_ROWNR) -e $(F_CPPC_FILE) -e $(F_CPPC_STYLE) -e $(F_CPPC_ERROR) -e $(F_CPPC_PORTABILITY) -e $(F_CPPC_VAR)  -e $(F_CPPC_CHECK)
+
+ccheck: ## Static code analysis using cppcheck(errors only)
+	@$(CPPCHECK) --inline-suppr $(SRC)  $(CPPCHECK_FILTER)
+
+acheck: ## Static code analysis using cppcheck(all warnings)
+	@$(CPPCHECK) --inline-suppr --enable=all $(SRC) $(CPPCHECK_FILTER)
+
+#
+# Artistic Style (astyle) Format source code to a standard
+#============================================================================
+.PHONY: astyle
+
+TABSIZE=4
+
+# Bracket style options
+AST  = --style=java
+
+# Tab options
+AST += --indent=spaces=$(TABSIZE)
+
+# Indentation options
+AST += --indent-switches
+AST += --indent-cases
+#AST += --indent-preproc-cond
+AST += --indent-col1-comments
+AST += --max-instatement-indent=40
+ 
+# C++ specific indentation
+AST += --indent-modifiers
+
+# Padding options
+AST += --break-blocks
+AST += --pad-oper
+#AST += --pad-comma
+AST += --pad-header
+AST += --align-pointer=name
+AST += --align-reference=name 
+
+# Formatting options
+AST += --add-brackets 
+AST += --convert-tabs
+
+# Other options
+AST += --lineend=linux
+#AST += --recursive
+#AST += --exclude=
+AST +=--preserve-date
+
+PSRCH = $(PSRC:%.c=%.h) 
+
+astyle: ## Format source to conform to a standard
+	@$(ASTYLE) $(AST) src/*.c src/*.cpp src/*.h
+
 # Listing of phony targets.
 .PHONY : all clean gccversion build begin finished end elf lss sym archive edit help backup list-src list-flags newproj run install

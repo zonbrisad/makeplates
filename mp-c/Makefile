@@ -1,7 +1,7 @@
 # Hey Emacs, this is a -*- makefile -*-
 #----------------------------------------------------------------------------
 # 
-# Makeplate example project
+# Makeplate example makefile
 #
 # author: Peter Malmberg <peter.malmberg@gmail.com>
 #
@@ -15,15 +15,14 @@
 # linux win32 avr arm osx
 TARGET_PLATFORM = linux
 
-# Project Licence (GPL, GPLv2, MIT, BSD, Apache, etc.) 
-LICENCE = GPLv2
+# Project License (GPL, GPLv2, MIT, BSD, Apache, etc.) 
+LICENSE = GPLv2
 
 # Target file name (without extension).
 TARGET = makeplate
 
 # List C, C++ and assembler source files here. (C/C++ dependencies are automatically generated.)
 SRC = src/main.c 
-
 
 # List C, C++ and assembler library/3rd partry source files here. (C/C++ dependencies are automatically generated.)
 LSRC =	
@@ -633,10 +632,10 @@ run:    ## Run application
 # Project options -----------------------------------------------------------
 
 newfile:  ## Create a new C file
-	@${CTEMPLATE} --newc --dir src --author "$(AUTHOR)" --licence "$(LICENCE)"
+	@${CTEMPLATE} --newc --dir src --author "$(AUTHOR)" --license "$(LICENSE)"
 
 newclass:  ## Create a new C++ class
-	@${CTEMPLATE} --newclass --dir src --author "$(AUTHOR)" --licence "$(LICENCE)"	
+	@${CTEMPLATE} --newclass --dir src --author "$(AUTHOR)" --license "$(LICENSE)"	
 		
 #newproj:  # Create a new project
 #	@${PROJECT} newproj
@@ -736,7 +735,7 @@ list-info:
 	@echo -e $(MSG_PROJECT)
 	@echo "Target:     $(TARGET)"
 	@echo "Platform:   $(TARGET_PLATFORM)"
-	@echo "Licence:    $(LICENCE)"
+	@echo "Licence:    $(LICENSE)"
 	@echo "Outdir:     $(OUTDIR)"
 	@echo "C standard: $(CSTANDARD)"
 	@echo "MCU:        $(MCU)"
@@ -881,9 +880,9 @@ astyle: ## Format source to conform to a standard
 #============================================================================
 mpType=mp-c
 
-utools: # Update tools from installed tools
+utools: # Update tools from locally installed tools
 	@echo -e "${C_ACTION}Updating makeplate tools${E_END}"
 	@$(COPY) ~/bin/makeplate_files/tools/* tools/.
 
-meld: # Meld with installed 
+meld: # Meld Makefile with locally installed makefile
 	@meld ~/bin/makeplate_files/${mpType}/Makefile  Makefile

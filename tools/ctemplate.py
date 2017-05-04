@@ -58,7 +58,7 @@ def query_yn(question, default="yes"):
             sys.stdout.write("Please respond with 'yes' or 'no' (or 'y' or 'n').\n")
 
             
-def addHeader(file, fileName, brief, date, author, licence):
+def addHeader(file, fileName, brief, date, author, license):
     file.write( 
     "/**\n"
     " *---------------------------------------------------------------------------\n"
@@ -67,7 +67,7 @@ def addHeader(file, fileName, brief, date, author, licence):
     " * @file    "+fileName+"\n"
     " * @author  "+author+"\n"
     " * @date    "+date+"\n"
-    " * @licence "+licence+"\n"
+    " * @license "+license+"\n"
     " *\n"
     " *---------------------------------------------------------------------------\n"
     " */\n\n")
@@ -174,12 +174,15 @@ def newModule(dir, author, licence, lan):
     main = query_yn("Add main() function", "no")
 
     
-    if main and lan="c":
+    if main and lan=="c":
         gtkMain = query_yn("GTK project", "no")
-
-    if main and lan="cpp":    
-        qtMain = query_yn("Qt project", "no")
+    else:
+        gtkMain = 0
         
+    if main and lan=="cpp":    
+        qtMain = query_yn("Qt project", "no")
+    else:
+        qtMain = 0
     
     fileNameC = fName + "."+lan
     fileNameH = fName + ".h"
@@ -287,30 +290,33 @@ def main():
     parser.add_argument("--newclass", action="store_true", help="Create a new C++ class")
     parser.add_argument("--newQt",    action="store_true", help="Create a new Qt project")
     parser.add_argument("--newgtk",   action="store_true", help="Create a new GTK project")
-    parser.add_argument("--licence",  type=str,            help="Licence of new file", default="")
+ 
+    parser.add_argument("--license",  type=str,            help="Licence of new file", default="")
     parser.add_argument("--author",   type=str,            help="Author of file",      default="")
     parser.add_argument("--dir",      type=str,            help="Directory where to store file",  default=".")
+#    parser.add_argument("--header",   type=str,            help="External header file",  default="headerExample")
     
+        
     args = parser.parse_args()
     
     if args.newc:
-        newCModule(args.dir, args.author, args.licence)
+        newCModule(args.dir, args.author, args.license)
         exit(0)
         
     if args.newclass:
-        newClass(args.dir, args.author, args.licence)
+        newClass(args.dir, args.author, args.license)
         exit(0)
         
     if args.newcpp:
-        newCppModule(args.dir, args.author, args.licence)
+        newCppModule(args.dir, args.author, args.license)
         exit(0)
 
     if args.newgtk:
-        newCppModule(args.dir, args.author, args.licence)
+        newCppModule(args.dir, args.author, args.license)
         exit(0)
 
     if args.newQt:
-        newCppModule(args.dir, args.author, args.licence)
+        newCppModule(args.dir, args.author, args.license)
         exit(0)
         
     exit(0)    
@@ -374,7 +380,22 @@ int main(int argc, char *argv[]) {
     return app.exec();
 }
 """
-    
+
+headerExample="""
+/**
+ *---------------------------------------------------------------------------
+ * @brief   __brief__
+ *
+ * @file    __fileName__
+ * @author  __author__
+ * @date    __date__
+ * @license __license__
+ *
+ *---------------------------------------------------------------------------
+ *
+ */
+"""
+
     
 if __name__ == "__main__":
     try:
