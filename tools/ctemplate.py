@@ -59,19 +59,17 @@ def query_yn(question, default="yes"):
 
             
 def addHeader(file, fileName, brief, date, author, license):
-    file.write( 
-    "/**\n"
-    " *---------------------------------------------------------------------------\n"
-    " * @brief   "+brief+"\n"
-    " *\n"
-    " * @file    "+fileName+"\n"
-    " * @author  "+author+"\n"
-    " * @date    "+date+"\n"
-    " * @license "+license+"\n"
-    " *\n"
-    " *---------------------------------------------------------------------------\n"
-    " */\n\n")
- 
+    header = headerExample
+    
+    header = header.replace("__FILENAME__", fileName )
+    header = header.replace("__BRIEF__",    brief    )
+    header = header.replace("__DATE__",     date     )
+    header = header.replace("__AUTHOR__",   author   )
+    header = header.replace("__LICENSE__",  license  )
+    
+    file.write(header)
+
+    
 def addSection(file, desc):
     line = '-' * (71 - len(desc))
     file.write("// " + desc + " " + line + "\n\n")
@@ -198,7 +196,6 @@ def newModule(dir, author, licence, lan):
     
     if (main):
         addCIncludes(fileC)
-
         
     fileC.write("#include \""+fileNameH+"\"\n\n");
     
@@ -206,7 +203,6 @@ def newModule(dir, author, licence, lan):
     addSection(fileC, "Variables")
     addSection(fileC, "Prototypes")
     addSection(fileC, "Code")    
-
     
     if (gtkMain):
         fileC.write(gtkMainExample)
@@ -214,7 +210,7 @@ def newModule(dir, author, licence, lan):
         if (main):
             fileC.write(mainExample)
         
-    
+
     # Populate H file
     addHeader(fileH, fileNameH, brief, date, author, licence)
     addSentinelBegin(fileH, fName.upper())
@@ -278,8 +274,6 @@ def printInfo():
     print("Script path    " + os.path.realpath(__file__))
 
 
-
-
 def main():
     logging.basicConfig(level=logging.DEBUG)
     
@@ -290,15 +284,14 @@ def main():
     parser.add_argument("--newclass", action="store_true", help="Create a new C++ class")
     parser.add_argument("--newQt",    action="store_true", help="Create a new Qt project")
     parser.add_argument("--newgtk",   action="store_true", help="Create a new GTK project")
- 
-    parser.add_argument("--license",  type=str,            help="Licence of new file", default="")
+    parser.add_argument("--license",  type=str,            help="License of new file", default="")
     parser.add_argument("--author",   type=str,            help="Author of file",      default="")
     parser.add_argument("--dir",      type=str,            help="Directory where to store file",  default=".")
 #    parser.add_argument("--header",   type=str,            help="External header file",  default="headerExample")
     
         
     args = parser.parse_args()
-    
+
     if args.newc:
         newCModule(args.dir, args.author, args.license)
         exit(0)
@@ -321,6 +314,20 @@ def main():
         
     exit(0)    
 
+headerExample="""/**
+ *---------------------------------------------------------------------------
+ * @brief   __BRIEF__
+ *
+ * @file    __FILENAME__
+ * @author  __AUTHOR__
+ * @date    __DATE__
+ * @license __LICENSE__
+ *
+ *---------------------------------------------------------------------------
+ *
+ *
+ */
+"""    
     
 gtkMainExample="""
 
