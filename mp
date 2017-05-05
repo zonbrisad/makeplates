@@ -56,21 +56,6 @@ MP_SYSDIR=/usr/local/bin
 # User defined functions
 #---------------------------------------------------------------------
 
-
-toolsDistribute() { 
-  cp -f "$1" ${scriptPath}/../examples/glib/tools/.
-  cp -f "$1" ${scriptPath}/../examples/glua/tools/.
-  cp -f "$1" ${scriptPath}/../examples/avr/tools/.
-  cp -f "$1" ${scriptPath}/../examples/STM32/tools/.
-}
-
-tdist() { ##C MPT Distribute tools to example projects
-  toolsDistribute tools/ctemplate.py
-  toolsDistribute tools/bin2array.py
-  toolsDistribute tools/mkptools	
-}
-
-
 # Install single makeplate
 #
 # arg1 source directory 
