@@ -431,7 +431,6 @@ finished:
 
 
 # Link target
-#.SECONDARY : $(TARGET)
 .PRECIOUS : $(OBJS)
 $(TRGFILE): $(OBJS) $(OUTDIR)
 	@echo -en "\n"$(MSG_LINKING)"\n               "
@@ -454,7 +453,8 @@ $(TRGFILE): $(OBJS) $(OUTDIR)
 # Create hex file from ELF output file.
 %.hex: $(TRGFILE)
 	@echo
-	@echo -e $(MSG_HEX_FILE) "\n               $(C_FILE)" $@ "$(E_END)"
+	@echo -en $(MSG_HEX_FILE) "\n               "
+	@echo -e $@ $(F_SOURCE)
 	@$(OBJCOPY) -O ihex $< $@
 
 # Compile: create object files from C source files.
