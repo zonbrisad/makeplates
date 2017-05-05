@@ -61,12 +61,6 @@ LSRC =		src/lua-5.2.3/src/lstrlib.c \
 			src/lua-5.2.3/src/liolib.c \
 			src/lua-5.2.3/src/ldblib.c \
 
-
-TSRC = src/main.c        \
-        src/gp_log.c      \
-        src/luaConf.c  \
-        src/Unity/src/unity.c
-  
 # Include directories
 INCLUDE = inc \
           src \
