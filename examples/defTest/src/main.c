@@ -127,17 +127,26 @@ void setUp(void) {
 void tearDown(void) {
 }
 
+
 void I2S_tests() {
 	int i;
 	TEST_ASSERT_EQUAL_INT(4, I2S_len(numbersDb));
 	TEST_ASSERT_EQUAL_STRING("Last", I2S_getString(numbersDb, 4));
+	TEST_ASSERT_EQUAL_INT(2, I2S_findIdx(numbersDb, 3));
+	TEST_ASSERT_EQUAL_INT(2, I2S_findIdxStr(numbersDb, "Third"));
 	
 	I2S_setString(numbersDb, 4, "Nisse");
 	TEST_ASSERT_EQUAL_STRING("Nisse", I2S_getString(numbersDb, 4));
 }
 
+int ia[] = { 12, 33, 54, 11, 412, -443 };
+
+int ix[] = { 44, 33, 54, 11, 412, -443 };
+
 void S2S_tests() {
 	TEST_ASSERT_EQUAL_INT(12,12);
+	ia[0] = 44;
+	TEST_ASSERT_EQUAL_INT_ARRAY( ix,  ia, 6);
 
 }
 
@@ -147,7 +156,6 @@ void unitTest(void) {
 	RUN_TEST(I2S_tests);
 	RUN_TEST(S2S_tests);
 	return UNITY_END();
-
 }
 
 

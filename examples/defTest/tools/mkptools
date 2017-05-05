@@ -75,6 +75,18 @@ ce() { ## Check if file exists
 	fi
 }
 
+ce2() { ## Check if file exists inverted printout
+  bn=$(basename $2)
+  cmd=$(command -v $2)
+	if [ $? -ne 0 ]; then
+		printf "${E_BR_RED}N/A${E_END}  %-30s$\n" "${bn}"
+	else
+		dn=$(dirname ${cmd})
+		printf "${E_BR_GREEN}Ok${E_END} %-30s\n" "${bn}" "$dn"
+	fi
+}
+
+
 cl() { ## Check if library exists
   CC=$2
 	LIB=$3
