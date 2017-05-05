@@ -36,26 +36,6 @@ AppAuthor   = "Peter Malmberg <peter.malmberg@gmail.com>"
 #LogFile     = "pyplate.log"
 
 # Code ----------------------------------------------------------------------
-def query_yn(question, default="yes"):
-    valid = {"yes": True, "y": True, "ye": True, "no": False, "n": False}
-    if default is None:
-        prompt = " [y/n] "
-    elif default == "yes":
-        prompt = " [Y/n] "
-    elif default == "no":
-        prompt = " [y/N] "
-    else:
-        raise ValueError("invalid default answer: '%s'" % default)
-    
-    while True:
-        sys.stdout.write(question + prompt)
-        choice = input().lower()
-        if default is not None and choice == '':
-            return valid[default]
-        elif choice in valid:
-            return valid[choice]
-        else:
-            sys.stdout.write("Please respond with 'yes' or 'no' (or 'y' or 'n').\n")
 
             
 def addHeader(file, fileName, brief, date, author, license):
@@ -274,6 +254,24 @@ def printInfo():
     print("Script path    " + os.path.realpath(__file__))
 
 
+    
+def newProject(dir, author, license):
+    print(scriptPath)
+    print(mpPath)
+ 
+#    projName = input("Enter project name:> ")
+#    subDir = query_yn("Create subdirectory?", "yes")
+    
+    lan = query_list("Enter language", [ "C", "C++" ], "C")
+    return 
+    if subDir:
+        os.mkdir(projName)
+    
+        
+# Absolute path to script itself        
+scriptPath = os.path.abspath(os.path.dirname(sys.argv[0]))
+mpPath     = scriptPath+"/.."    
+
 def main():
     logging.basicConfig(level=logging.DEBUG)
     
@@ -284,6 +282,7 @@ def main():
     parser.add_argument("--newclass", action="store_true", help="Create a new C++ class")
     parser.add_argument("--newQt",    action="store_true", help="Create a new Qt project")
     parser.add_argument("--newgtk",   action="store_true", help="Create a new GTK project")
+    parser.add_argument("--newproj",  action="store_true", help="Create a new Makeplate project")
     parser.add_argument("--license",  type=str,            help="License of new file", default="")
     parser.add_argument("--author",   type=str,            help="Author of file",      default="")
     parser.add_argument("--dir",      type=str,            help="Directory where to store file",  default=".")
@@ -311,9 +310,54 @@ def main():
     if args.newQt:
         newCppModule(args.dir, args.author, args.license)
         exit(0)
+
+    if args.newproj:
+        newProject(args.dir, args.author, args.license)
+        exit(0)
+    
         
     exit(0)    
 
+    
+def query_list(question, db, default="yes"):
+    prompt = " >"
+
+    #print(db)
+    while 1:
+        sys.stdout.write(question + prompt)
+        choice = input().lower()
+        print(choice)
+        for x in db:
+            if (x.lower()==choice):
+                return x
+            
+        print("\nPlease resplond with: ")
+        for c in db:
+            print("  "+c)
+            
+    
+def query_yn(question, default="yes"):
+    valid = {"yes": True, "y": True, "ye": True, "no": False, "n": False}
+    if default is None:
+        prompt = " [y/n] "
+    elif default == "yes":
+        prompt = " [Y/n] "
+    elif default == "no":
+        prompt = " [y/N] "
+    else:
+        raise ValueError("invalid default answer: '%s'" % default)
+    
+    while True:
+        sys.stdout.write(question + prompt)
+        choice = input().lower()
+        if default is not None and choice == '':
+            return valid[default]
+        elif choice in valid:
+            return valid[choice]
+        else:
+            sys.stdout.write("Please respond with 'yes' or 'no' (or 'y' or 'n').\n")
+    
+    
 headerExample="""/**
  *---------------------------------------------------------------------------
  * @brief   __BRIEF__

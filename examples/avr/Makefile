@@ -54,7 +54,7 @@ OUTDIR = output
 #     0 = turn off optimization. s = optimize for size.
 OPT = s
 
-# Compiler flag to set the C Standard level.
+# Compiler flag to set the C and C++ Standard level.
 # [ gnu99 gnu11 c++98 c++03 c++11 c++14 ] 
 CSTANDARD   = gnu99
 CPPSTANDARD = c++11
@@ -85,18 +85,17 @@ CFLAGS += -O$(OPT)                             # Optimisation level
 CFLAGS += -std=$(CSTANDARD)                    # C standard
 CFLAGS += $(patsubst %,-I%,$(INCLUDE))         # Include directories 
 CFLAGS += $(patsubst %,-D%,$(CDEFS))           # Macro definitions
-CFLAGS += -Wa,-adhlns=$(<:$(SRCDIR)/%.c=$(BUILDDIR)/%.lst) # Generate assembler listing
+CFLAGS += -Wa,-adhlns=$(<:%.c=$(BUILDDIR)/%.lst) # Generate assembler listing
 
 # Compiler Tuning C ---------------------------------------------------------
 CFLAGS += -funsigned-char
 #CFLAGS += -funsigned-bitfields
 #CFLAGS += -fpack-struct
 #CFLAGS += -fshort-enums
-CFLAGS += -Wall
-#CFLAGS += -Wstrict-prototypes
 #CFLAGS += -mshort-calls
 #CFLAGS += -fno-unit-at-a-time
 #CFLAGS += -mshort-calls
+#CFLAGS += -fPIC                  # Position independet code
 
 # Compiler Warnings C -------------------------------------------------------
 CFLAGS += -Wall                  # Standard warnings
@@ -124,7 +123,7 @@ CPPFLAGS += -O$(OPT)                               # Optimisation level
 CPPFLAGS += -std=$(CPPSTANDARD)                    # C++ standard
 CPPFLAGS += $(patsubst %,-I%,$(INCLUDE))           # Include directories 
 CPPFLAGS += $(patsubst %,-D%,$(CPPDEFS))           # Macro definitions
-CPPFLAGS += -Wa,-adhlns=$(<:$(SRCDIR)/%.cpp=$(BUILDDIR)/%.lst) # Generate assembler listing
+CPPFLAGS += -Wa,-adhlns=$(<:%.cpp=$(BUILDDIR)/%.lst) # Generate assembler listing
 
 # Compiler Tuning C++ -------------------------------------------------------
 CPPFLAGS += -funsigned-char
@@ -151,6 +150,8 @@ CPPFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void 
 #CPPFLAGS += -Wundef
 #CPPFLAGS += -Werror              # All warnings will be treated as errors
 
+# Library compiler flags C++ ------------------------------------------------
+CPPFLAGS += $(foreach X, $(PKGLIBS), $(shell pkg-config --cflags $(X)) )
 
 
 # Assembler Options ---------------------------------------------------------
@@ -306,6 +307,7 @@ REMOVE    = rm -f
 REMOVEDIR = rm -rf
 COPY      = cp -f 
 MOVE      = mv -f
+
 MKDIR     = mkdir -p
 SED       = sed              # stream editor program
 MOC       = moc              # Qt meta object compiler
@@ -447,7 +449,7 @@ CPP_FILTER = $(C_FILTER)
 LD_ERROR1="s/undefined reference/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
 LD_ERROR2="s/No such file or directory/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
 LD_FILTER = | sed -ru -e $(LD_ERROR1) -e $(LD_ERROR2)
-	
+
 #
 # Build rules	
 #============================================================================
@@ -463,26 +465,26 @@ ALL_ASFLAGS  =  -I. -x assembler-with-cpp $(ASFLAGS)
 
 
 # Filter out C sources
-CSRC_1 = $(patsubst $(SRCDIR)/%.cpp,  , $(SRC) $(LSRC))
-CSRC   = $(patsubst $(SRCDIR)/%.S,    , $(CSRC_1))
+CSRC_1 = $(patsubst %.cpp,  , $(SRC) $(LSRC))
+CSRC   = $(patsubst %.S,    , $(CSRC_1))
 
 # Filter out C++ sources
-CPPSRC_1 = $(patsubst $(SRCDIR)/%.c,  , $(SRC) $(LSRC))
-CPPSRC   = $(patsubst $(SRCDIR)/%.S,  , $(CPPSRC_1))
+CPPSRC_1 = $(patsubst %.c,  , $(SRC) $(LSRC))
+CPPSRC   = $(patsubst %.S,  , $(CPPSRC_1))
 
 # Filter out Assembler sources
 ASRC_1 = $(patsubst $(SRCDIR)/%.c,    , $(SRC) $(LSRC))
 ASRC   = $(patsubst $(SRCDIR)/%.cpp,  , $(ASRC_1))
 
 # Define all object files.
-COBJS    = $(patsubst $(SRCDIR)/%.c,   $(BUILDDIR)/%.o, $(CSRC)) 
-CPPOBJS  = $(patsubst $(SRCDIR)/%.cpp, $(BUILDDIR)/%.o, $(CPPSRC))
-AOBJS    = $(patsubst $(SRCDIR)/%.S,   $(BUILDDIR)/%.o, $(ASRC))
+COBJS    = $(patsubst %.c,   $(BUILDDIR)/%.o, $(CSRC))
+CPPOBJS  = $(patsubst %.cpp, $(BUILDDIR)/%.o, $(CPPSRC))
+AOBJS    = $(patsubst %.S,   $(BUILDDIR)/%.o, $(ASRC))
 
 OBJS    = $(COBJS) $(CPPOBJS) $(AOBJS)
 
 # Define all listing files.
-LST = $(patsubst src/%.c, $(OBJDIR)/%.lst, $(CSRC)) $(patsubst src/%.cpp, $(OBJDIR)/%.lst, $(CPPSRC)) $(patsubst src/%.S, $(OBJDIR)/%.lst, $(ASRC))
+LST = $(patsubst %.c, $(OBJDIR)/%.lst, $(CSRC)) $(patsubst %.cpp, $(OBJDIR)/%.lst, $(CPPSRC)) $(patsubst %.S, $(OBJDIR)/%.lst, $(ASRC))
 
 # Default target.
 all:	begin build finished end
@@ -490,7 +492,7 @@ all:	begin build finished end
 # Remove colorfilter
 nocolor:
 	$(eval C_FILTER:= )
-	
+
 #
 # Build with no color filter on compiler output
 # Useful for Netbeans, Eclipse builds etc. 
@@ -548,7 +550,7 @@ $(TRGFILE): $(OBJS) $(OUTDIR)
 	@$(OBJCOPY) -O $(FORMAT) -R .eeprom -R .fuse -R .lock -R .signature $< $@
 
 # Compile: create object files from C source files.
-$(COBJS): $(BUILDDIR)/%.o : src/%.c
+$(COBJS): $(BUILDDIR)/%.o : %.c
 	@$(MKDIR) $(@D)                                       # Create directory for object file
 	@echo -en $(MSG_COMPILING)" "
 	@echo -e $< $(F_SOURCE)
@@ -608,6 +610,9 @@ size: $(TRGFILE)
 	@echo -e $(MSG_SIZE_AFTER)
 	@$(SIZE) --mcu=$(MCU) --format=avr $(TRGFILE)
 
+strip: $(TRGFILE) ## Strip target binary from symbols
+	@echo -e $(MSG_STRIP)
+	@$(STRIP) $(TRGFILE)
 
 
 	
@@ -984,25 +989,6 @@ AVRDUDE_WRITE_FLASH = -U flash:w:$(OUTDIR)/$(TARGET).hex:i
 # see avrdude manual.
 #AVRDUDE_ERASE_COUNTER = -y
 
-# Uncomment the following if you do /not/ wish a verification to be
-# performed after programming the device.
-#AVRDUDE_NO_VERIFY = -V
-
-# Increase verbosity level.  Please use this when submitting bug
-# reports about avrdude. See <http://savannah.nongnu.org/projects/avrdude>
-# to submit bug reports.
-AVRDUDE_VERBOSE = -v -v
- 
-AVRDUDE_FLAGS = -p $(MCU) -P $(AVRDUDE_PORT) -c $(AVRDUDE_PROGRAMMER) -b ${AVRDUDE_BITRATE} -D
-AVRDUDE_FLAGS += $(AVRDUDE_NO_VERIFY)
-AVRDUDE_FLAGS += $(AVRDUDE_VERBOSE)
-AVRDUDE_FLAGS += $(AVRDUDE_ERASE_COUNTER)
-
-
-# Program the device.
-program: $(TARGET).hex # $(TARGET).eep
-	$(AVRDUDE) $(AVRDUDE_FLAGS) $(AVRDUDE_WRITE_FLASH) # $(AVRDUDE_WRITE_EEPROM)
- 
 #
 # AVR simulator
 #============================================================================
@@ -1013,3 +999,15 @@ sim:  ## Run AVR simulator
 	
 # Listing of phony targets.
 .PHONY : all clean gccversion build begin finished end elf lss sym archive edit help backup list-src list-flags newproj run install
+
+#
+# Makeplate internal targets
+#============================================================================
+mpType=mp-c
+
+utools: # Update tools from installed tools
+	@echo -e "${C_ACTION}Updating makeplate tools${E_END}"
+	@$(COPY) ~/bin/makeplate_files/tools/* tools/.
+
+meld: # Meld with installed 
+	@meld ~/bin/makeplate_files/${mpType}/Makefile  Makefile

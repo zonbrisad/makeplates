@@ -24,7 +24,7 @@ TARGET = makeplate
 # List C, C++ and assembler source files here. (C/C++ dependencies are automatically generated.)
 SRC = src/main.c        \
       src/pmutil.c      \
-			src/Unity/src/unity.c
+      Unity/src/unity.c
 
 # List C, C++ and assembler library/3rd partry source files here. (C/C++ dependencies are automatically generated.)
 LSRC =	
@@ -32,7 +32,7 @@ LSRC =
 # Include directories
 INCLUDE = inc \
           src \
-          src/Unity/src 
+          Unity/src 
 
 # Libraries to link
 LIB   = -lm 
@@ -55,9 +55,6 @@ LIB   = -lm
 #     this an empty or blank macro!
 OBJDIR = .
 
-# Source code directory
-SRCDIR=src
-
 # Build directory
 BUILDDIR=build
 
@@ -68,7 +65,7 @@ OUTDIR = output
 #     0 = turn off optimization. s = optimize for size.
 OPT = 2
 
-# Compiler flag to set the C Standard level.
+# Compiler flag to set the C and C++ Standard level.
 # [ gnu99 gnu11 c++98 c++03 c++11 c++14 ] 
 CSTANDARD   = gnu99
 CPPSTANDARD = c++11
@@ -99,15 +96,17 @@ CFLAGS += -O$(OPT)                             # Optimisation level
 CFLAGS += -std=$(CSTANDARD)                    # C standard
 CFLAGS += $(patsubst %,-I%,$(INCLUDE))         # Include directories 
 CFLAGS += $(patsubst %,-D%,$(CDEFS))           # Macro definitions
-CFLAGS += -Wa,-adhlns=$(<:$(SRCDIR)/%.c=$(BUILDDIR)/%.lst) # Generate assembler listing
+CFLAGS += -Wa,-adhlns=$(<:%.c=$(BUILDDIR)/%.lst) # Generate assembler listing
 
 # Compiler Tuning C ---------------------------------------------------------
 CFLAGS += -funsigned-char
 #CFLAGS += -funsigned-bitfields
 #CFLAGS += -fpack-struct
 #CFLAGS += -fshort-enums
+#CFLAGS += -mshort-calls
 #CFLAGS += -fno-unit-at-a-time
 #CFLAGS += -mshort-calls
+#CFLAGS += -fPIC                  # Position independet code
 
 # Compiler Warnings C -------------------------------------------------------
 CFLAGS += -Wall                  # Standard warnings
@@ -135,7 +134,7 @@ CPPFLAGS += -O$(OPT)                               # Optimisation level
 CPPFLAGS += -std=$(CPPSTANDARD)                    # C++ standard
 CPPFLAGS += $(patsubst %,-I%,$(INCLUDE))           # Include directories 
 CPPFLAGS += $(patsubst %,-D%,$(CPPDEFS))           # Macro definitions
-CPPFLAGS += -Wa,-adhlns=$(<:$(SRCDIR)/%.cpp=$(BUILDDIR)/%.lst) # Generate assembler listing
+CPPFLAGS += -Wa,-adhlns=$(<:%.cpp=$(BUILDDIR)/%.lst) # Generate assembler listing
 
 # Compiler Tuning C++ -------------------------------------------------------
 CPPFLAGS += -funsigned-char
@@ -248,6 +247,7 @@ AR        = ${TCHAIN}ar rcs
 NM        = ${TCHAIN}nm
 AS        = ${TCHAIN}as
 GDB       = ${TCHAIN}gdb
+STRIP     = ${TCHAIN}strip
 
 #
 # Message/Filter settings
@@ -305,6 +305,7 @@ MSG_LINE             = "$(E_WHITE)----------------------------------------------
 MSG_BEGIN            = "${E_WHITE}-------------------------------- Begin ---------------------------${E_END}"
 MSG_END              = "${E_WHITE}-------------------------------- End -----------------------------${E_END}"
 MSG_ERRORS_NONE      = "${C_OK}Errors: none ${E_END}"
+MSG_STRIP            = "${C_ACTION}Striping:${E_END}"
 MSG_LINKING          = "${C_ACTION}Linking:${E_END}"
 MSG_COMPILING        = "${C_ACTION}Compiling C:  ${E_END}"
 MSG_COMPILING_CPP    = "${C_ACTION}Compiling C++:${E_END}"
@@ -352,7 +353,6 @@ F_WARNING5="s/value computed is not used/$$(printf "$(C_WARNING)")&$$(printf "$(
 F_BRACKET="s/\[\(.*\)\]/[$$(printf "$(E_GREEN)")\1$$(printf "$(E_END)")]/"	
 F_VARIABLE="s/\‘\(.*\)[\’\‘]/'$$(printf "$(C_IDENTIFIER)")\1$$(printf "$(E_END)")'/g"
 F_FILE="s/[^: ]*/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/"
-#F_FILE="s/\(.*\/\)\(.*\):/$$(printf "$(C_DIR)")\1$$(printf "$(C_FILE)")\2$$(printf "$(E_END)"):/1"
 F_ROWNR="s/:\([0-9]*\):\([0-9]*\):/:$$(printf "$(C_VALUE)")\1$$(printf "$(E_END)"):$$(printf "$(C_VALUE)")\2$$(printf "$(E_END)"):/"
 
 C_FILTER   = | sed -u -e $(F_BRACKET) -e $(F_FILE) -e $(F_ROWNR)          \
@@ -381,21 +381,21 @@ ALL_CFLAGS   =  -I. $(CFLAGS) $(GENDEPFLAGS)
 ALL_CPPFLAGS =  -I. -x c++ $(CPPFLAGS) $(GENDEPFLAGS)
 
 # Filter out C sources
-CSRC_1 = $(patsubst $(SRCDIR)/%.cpp,  , $(SRC) $(LSRC))
-CSRC   = $(patsubst $(SRCDIR)/%.S,    , $(CSRC_1))
+CSRC_1 = $(patsubst %.cpp,  , $(SRC) $(LSRC))
+CSRC   = $(patsubst %.S,    , $(CSRC_1))
 
 # Filter out C++ sources
-CPPSRC_1 = $(patsubst $(SRCDIR)/%.c,  , $(SRC) $(LSRC))
-CPPSRC   = $(patsubst $(SRCDIR)/%.S,  , $(CPPSRC_1))
+CPPSRC_1 = $(patsubst %.c,  , $(SRC) $(LSRC))
+CPPSRC   = $(patsubst %.S,  , $(CPPSRC_1))
 
 # Define all object files.
-COBJS    = $(patsubst $(SRCDIR)/%.c,   $(BUILDDIR)/%.o, $(CSRC)) 
-CPPOBJS  = $(patsubst $(SRCDIR)/%.cpp, $(BUILDDIR)/%.o, $(CPPSRC))
+COBJS    = $(patsubst %.c,   $(BUILDDIR)/%.o, $(CSRC))
+CPPOBJS  = $(patsubst %.cpp, $(BUILDDIR)/%.o, $(CPPSRC))
 
 OBJS    = $(COBJS) $(CPPOBJS) 
 
 # Define all listing files.
-LST = $(patsubst src/%.c, $(OBJDIR)/%.lst, $(CSRC)) $(patsubst src/%.cpp, $(OBJDIR)/%.lst, $(CPPSRC)) $(patsubst src/%.S, $(OBJDIR)/%.lst, $(ASRC))
+LST = $(patsubst %.c, $(OBJDIR)/%.lst, $(CSRC)) $(patsubst %.cpp, $(OBJDIR)/%.lst, $(CPPSRC)) $(patsubst %.S, $(OBJDIR)/%.lst, $(ASRC))
 
 # Default target.
 all:	begin build finished end
@@ -403,7 +403,7 @@ all:	begin build finished end
 # Remove colorfilter
 nocolor:
 	$(eval C_FILTER:= )
-	
+
 #
 # Build with no color filter on compiler output
 # Useful for Netbeans, Eclipse builds etc. 
@@ -444,7 +444,7 @@ finished:
 $(TRGFILE): $(OBJS) $(OUTDIR)
 	@echo -en "\n"$(MSG_LINKING)"\n               "
 	@echo -e $@ $(F_SOURCE)
-	@$(CC) $(ALL_CFLAGS) $(OBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)
+	@$(CPP) $(ALL_CFLAGS) $(OBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)
 	
 # Create extended listing file/disassambly from ELF output file.
 # using objdump testing: option -C
@@ -466,7 +466,7 @@ $(TRGFILE): $(OBJS) $(OUTDIR)
 	@$(OBJCOPY) -O ihex $< $@
 
 # Compile: create object files from C source files.
-$(COBJS): $(BUILDDIR)/%.o : src/%.c
+$(COBJS): $(BUILDDIR)/%.o : %.c
 	@$(MKDIR) $(@D)                                       # Create directory for object file
 	@echo -en $(MSG_COMPILING)" "
 	@echo -e $< $(F_SOURCE)
@@ -515,6 +515,9 @@ size: $(TRGFILE)
 	@echo -e $(MSG_SIZE_AFTER)
 	@$(SIZE) $(TRGFILE)
 
+strip: $(TRGFILE) ## Strip target binary from symbols
+	@echo -e $(MSG_STRIP)
+	@$(STRIP) $(TRGFILE)
 
 # 
 # Debug rules
@@ -787,7 +790,7 @@ gccversion :    ## Display compiler version
 #============================================================================
 
 # Only for default settings. Change value in settings.mk
-AUTHOR=Your Name <your.name@yourdomain.org>
+AUTHOR=Peter Malmberg <peter.malmberg@gmail.com>
 EDITOR=jed
 US:=$$USER
 #PERSONAL=personal_$${USER}.mk
@@ -876,3 +879,16 @@ astyle: ## Format source to conform to a standard
 	
 # Listing of phony targets.
 .PHONY : all clean gccversion build begin finished end elf lss sym archive edit help backup list-src list-flags newproj run install
+
+
+#
+# Makeplate internal targets
+#============================================================================
+mpType=mp-c
+
+utools: # Update tools from installed tools
+	@echo -e "${C_ACTION}Updating makeplate tools${E_END}"
+	@$(COPY) ~/bin/makeplate_files/tools/* tools/.
+
+meld: # Meld with installed 
+	@meld ~/bin/makeplate_files/${mpType}/Makefile  Makefile

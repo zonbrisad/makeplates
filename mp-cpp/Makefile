@@ -53,9 +53,6 @@ LIB   = -lm
 #     this an empty or blank macro!
 OBJDIR = .
 
-# Source code directory
-SRCDIR=src
-
 # Build directory
 BUILDDIR=build
 
@@ -97,7 +94,7 @@ CFLAGS += -O$(OPT)                             # Optimisation level
 CFLAGS += -std=$(CSTANDARD)                    # C standard
 CFLAGS += $(patsubst %,-I%,$(INCLUDE))         # Include directories 
 CFLAGS += $(patsubst %,-D%,$(CDEFS))           # Macro definitions
-CFLAGS += -Wa,-adhlns=$(<:$(SRCDIR)/%.c=$(BUILDDIR)/%.lst) # Generate assembler listing
+CFLAGS += -Wa,-adhlns=$(<:%.c=$(BUILDDIR)/%.lst) # Generate assembler listing
 
 # Compiler Tuning C ---------------------------------------------------------
 CFLAGS += -funsigned-char
@@ -106,7 +103,6 @@ CFLAGS += -funsigned-char
 #CFLAGS += -fshort-enums
 #CFLAGS += -mshort-calls
 #CFLAGS += -fno-unit-at-a-time
-#CFLAGS += -mshort-calls
 #CFLAGS += -fPIC                  # Position independet code
 
 # Compiler Warnings C -------------------------------------------------------
@@ -135,7 +131,7 @@ CPPFLAGS += -O$(OPT)                               # Optimisation level
 CPPFLAGS += -std=$(CPPSTANDARD)                    # C++ standard
 CPPFLAGS += $(patsubst %,-I%,$(INCLUDE))           # Include directories 
 CPPFLAGS += $(patsubst %,-D%,$(CPPDEFS))           # Macro definitions
-CPPFLAGS += -Wa,-adhlns=$(<:$(SRCDIR)/%.cpp=$(BUILDDIR)/%.lst) # Generate assembler listing
+CPPFLAGS += -Wa,-adhlns=$(<:%.cpp=$(BUILDDIR)/%.lst) # Generate assembler listing
 
 # Compiler Tuning C++ -------------------------------------------------------
 CPPFLAGS += -funsigned-char
@@ -248,6 +244,7 @@ AR        = ${TCHAIN}ar rcs
 NM        = ${TCHAIN}nm
 AS        = ${TCHAIN}as
 GDB       = ${TCHAIN}gdb
+STRIP     = ${TCHAIN}strip
 
 #
 # Message/Filter settings
@@ -304,6 +301,7 @@ MSG_LINE             = "$(E_WHITE)----------------------------------------------
 MSG_BEGIN            = "${E_WHITE}-------------------------------- Begin ---------------------------${E_END}"
 MSG_END              = "${E_WHITE}-------------------------------- End -----------------------------${E_END}"
 MSG_ERRORS_NONE      = "${C_OK}Errors: none ${E_END}"
+MSG_STRIP            = "${C_ACTION}Striping:${E_END}"
 MSG_LINKING          = "${C_ACTION}Linking:${E_END}"
 MSG_COMPILING        = "${C_ACTION}Compiling C:  ${E_END}"
 MSG_COMPILING_CPP    = "${C_ACTION}Compiling C++:${E_END}"
@@ -379,21 +377,21 @@ ALL_CFLAGS   =  -I. $(CFLAGS) $(GENDEPFLAGS)
 ALL_CPPFLAGS =  -I. -x c++ $(CPPFLAGS) $(GENDEPFLAGS)
 
 # Filter out C sources
-CSRC_1 = $(patsubst $(SRCDIR)/%.cpp,  , $(SRC) $(LSRC))
-CSRC   = $(patsubst $(SRCDIR)/%.S,    , $(CSRC_1))
+CSRC_1 = $(patsubst %.cpp,  , $(SRC) $(LSRC))
+CSRC   = $(patsubst %.S,    , $(CSRC_1))
 
 # Filter out C++ sources
-CPPSRC_1 = $(patsubst $(SRCDIR)/%.c,  , $(SRC) $(LSRC))
-CPPSRC   = $(patsubst $(SRCDIR)/%.S,  , $(CPPSRC_1))
+CPPSRC_1 = $(patsubst %.c,  , $(SRC) $(LSRC))
+CPPSRC   = $(patsubst %.S,  , $(CPPSRC_1))
 
 # Define all object files.
-COBJS    = $(patsubst $(SRCDIR)/%.c,   $(BUILDDIR)/%.o, $(CSRC)) 
-CPPOBJS  = $(patsubst $(SRCDIR)/%.cpp, $(BUILDDIR)/%.o, $(CPPSRC))
+COBJS    = $(patsubst %.c,   $(BUILDDIR)/%.o, $(CSRC))
+CPPOBJS  = $(patsubst %.cpp, $(BUILDDIR)/%.o, $(CPPSRC))
 
 OBJS    = $(COBJS) $(CPPOBJS) 
 
 # Define all listing files.
-LST = $(patsubst src/%.c, $(OBJDIR)/%.lst, $(CSRC)) $(patsubst src/%.cpp, $(OBJDIR)/%.lst, $(CPPSRC))
+LST = $(patsubst %.c, $(OBJDIR)/%.lst, $(CSRC)) $(patsubst %.cpp, $(OBJDIR)/%.lst, $(CPPSRC)) $(patsubst %.S, $(OBJDIR)/%.lst, $(ASRC))
 
 # Default target.
 all:	begin build finished end
@@ -401,7 +399,7 @@ all:	begin build finished end
 # Remove colorfilter
 nocolor:
 	$(eval C_FILTER:= )
-	
+
 #
 # Build with no color filter on compiler output
 # Useful for Netbeans, Eclipse builds etc. 
@@ -432,7 +430,6 @@ finished:
 
 
 # Link target
-#.SECONDARY : $(TARGET)
 .PRECIOUS : $(OBJS)
 $(TRGFILE): $(OBJS) $(OUTDIR)
 	@echo -en "\n"$(MSG_LINKING)"\n               "
@@ -459,14 +456,14 @@ $(TRGFILE): $(OBJS) $(OUTDIR)
 	@$(OBJCOPY) -O ihex $< $@
 
 # Compile: create object files from C source files.
-$(COBJS): $(BUILDDIR)/%.o : src/%.c
+$(COBJS): $(BUILDDIR)/%.o : %.c
 	@$(MKDIR) $(@D)                                       # Create directory for object file
 	@echo -en $(MSG_COMPILING)" "
 	@echo -e $< $(F_SOURCE)
 	@$(CC) -c $(ALL_CFLAGS) $< -o $@ 2>&1  $(C_FILTER)
 
 # Compile: create object files from C++ source files.
-$(CPPOBJS): $(BUILDDIR)/%.o : src/%.cpp
+$(CPPOBJS): $(BUILDDIR)/%.o : %.cpp
 	@$(MKDIR) $(@D)                                       # Create directory for object file
 	@echo -en $(MSG_COMPILING_CPP)" " 
 	@echo -e $< $(F_SOURCE)
@@ -508,6 +505,9 @@ size: $(TRGFILE)
 	@echo -e $(MSG_SIZE_AFTER)
 	@$(SIZE) $(TRGFILE)
 
+strip: $(TRGFILE) ## Strip target binary from symbols
+	@echo -e $(MSG_STRIP)
+	@$(STRIP) $(TRGFILE)
 
 # 
 # Debug rules

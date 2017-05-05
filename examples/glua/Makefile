@@ -61,12 +61,6 @@ LSRC =		src/lua-5.2.3/src/lstrlib.c \
 			src/lua-5.2.3/src/liolib.c \
 			src/lua-5.2.3/src/ldblib.c \
 
-
-TSRC = src/main.c        \
-        src/gp_log.c      \
-        src/luaConf.c  \
-        src/Unity/src/unity.c
-  
 # Include directories
 INCLUDE = inc \
           src \
@@ -93,9 +87,6 @@ PKGLIBS += gthread-2.0
 #     To put object files in current directory, use a dot (.), do NOT make
 #     this an empty or blank macro!
 OBJDIR = .
-
-# Source code directory
-SRCDIR=src
 
 # Build directory
 BUILDDIR=build
@@ -139,7 +130,7 @@ CFLAGS += -O$(OPT)                             # Optimisation level
 CFLAGS += -std=$(CSTANDARD)                    # C standard
 CFLAGS += $(patsubst %,-I%,$(INCLUDE))         # Include directories 
 CFLAGS += $(patsubst %,-D%,$(CDEFS))           # Macro definitions
-CFLAGS += -Wa,-adhlns=$(<:$(SRCDIR)/%.c=$(BUILDDIR)/%.lst) # Generate assembler listing
+CFLAGS += -Wa,-adhlns=$(<:%.c=$(BUILDDIR)/%.lst) # Generate assembler listing
 
 # Compiler Tuning C ---------------------------------------------------------
 CFLAGS += -funsigned-char
@@ -175,7 +166,7 @@ CPPFLAGS += -O$(OPT)                               # Optimisation level
 CPPFLAGS += -std=$(CPPSTANDARD)                    # C++ standard
 CPPFLAGS += $(patsubst %,-I%,$(INCLUDE))           # Include directories 
 CPPFLAGS += $(patsubst %,-D%,$(CPPDEFS))           # Macro definitions
-CPPFLAGS += -Wa,-adhlns=$(<:$(SRCDIR)/%.cpp=$(BUILDDIR)/%.lst) # Generate assembler listing
+CPPFLAGS += -Wa,-adhlns=$(<:%.cpp=$(BUILDDIR)/%.lst) # Generate assembler listing
 
 # Compiler Tuning C++ -------------------------------------------------------
 CPPFLAGS += -funsigned-char
@@ -248,6 +239,12 @@ TCHAIN_BASE=/usr/bin
 TCHAIN_PREFIX=
 
 endif
+
+
+# Qt stuff -----------------------------------------------------------------
+MOCSRC = $(patsubst %.h,%_moc.cpp,$(MOCS))      # Generate moc source files
+SRC += $(MOCSRC)
+UIH = $(patsubst src/%.ui, src/ui_%.h, $(UI) )  # Generate UI header files
 
 #
 # Tool settings
@@ -361,7 +358,7 @@ MSG_COFF             = "${C_ACTION}Converting to AVR COFF:${E_END}"
 MSG_EXTENDED_COFF    = "${C_ACTION}Converting to AVR Extended COFF:${E_END}"
 MSG_MOC              = "${C_ACTION}Creating MOC file:${E_END}"
 MSG_UI               = "${C_ACTION}Generating UI header:${E_END}"
-MSG_BACKUP           = "${E_BR_GREEN}Making incremental backup of project:${E_END}"
+MSG_BACKUP           = "${C_ACTION}Making incremental backup of project:${E_END}"
 MSG_SRC              = "${C_MSG}Source files $(E_GREEN)-----------------------------------------------------${E_END}"
 MSG_FLAGS            = "${C_MSG}Compiler Flags $(E_GREEN)---------------------------------------------------${E_END}"
 MSG_LINKER           = "${C_MSG}Linker Flags $(E_GREEN)-----------------------------------------------------${E_END}"
@@ -416,44 +413,21 @@ ALL_CFLAGS   =  -I. $(CFLAGS) $(GENDEPFLAGS)
 ALL_CPPFLAGS =  -I. -x c++ $(CPPFLAGS) $(GENDEPFLAGS)
 
 # Filter out C sources
-CSRC_1 = $(patsubst $(SRCDIR)/%.cpp,  , $(SRC) $(LSRC))
-CSRC   = $(patsubst $(SRCDIR)/%.S,    , $(CSRC_1))
+CSRC_1 = $(patsubst %.cpp,  , $(SRC) $(LSRC))
+CSRC   = $(patsubst %.S,    , $(CSRC_1))
 
 # Filter out C++ sources
-CPPSRC_1 = $(patsubst $(SRCDIR)/%.c,  , $(SRC) $(LSRC))
-CPPSRC   = $(patsubst $(SRCDIR)/%.S,  , $(CPPSRC_1))
+CPPSRC_1 = $(patsubst %.c,  , $(SRC) $(LSRC))
+CPPSRC   = $(patsubst %.S,  , $(CPPSRC_1))
 
 # Define all object files.
-COBJS    = $(patsubst $(SRCDIR)/%.c,   $(BUILDDIR)/%.o, $(CSRC)) 
-CPPOBJS  = $(patsubst $(SRCDIR)/%.cpp, $(BUILDDIR)/%.o, $(CPPSRC))
+COBJS    = $(patsubst %.c,   $(BUILDDIR)/%.o, $(CSRC))
+CPPOBJS  = $(patsubst %.cpp, $(BUILDDIR)/%.o, $(CPPSRC))
 
 OBJS    = $(COBJS) $(CPPOBJS) 
 
-
-# Filter out C sources
-TCSRC_1 = $(patsubst $(SRCDIR)/%.cpp,  , $(TSRC) $(LSRC))
-TCSRC   = $(patsubst $(SRCDIR)/%.S,    , $(TCSRC_1))
-
-# Filter out C++ sources
-TCPPSRC_1 = $(patsubst $(SRCDIR)/%.c,  , $(TSRC) $(LSRC))
-TCPPSRC   = $(patsubst $(SRCDIR)/%.S,  , $(TCPPSRC_1))
-
-# Filter out Assembler sources
-TASRC_1 = $(patsubst $(SRCDIR)/%.c,    , $(TSRC) $(LSRC))
-TASRC   = $(patsubst $(SRCDIR)/%.cpp,  , $(TASRC_1))
-
-# Define all object files.
-TCOBJS    = $(patsubst $(SRCDIR)/%.c,   $(BUILDDIR)/%.o, $(TCSRC)) 
-TCPPOBJS  = $(patsubst $(SRCDIR)/%.cpp, $(BUILDDIR)/%.o, $(TCPPSRC))
-TAOBJS    = $(patsubst $(SRCDIR)/%.S,   $(BUILDDIR)/%.o, $(TASRC))
-
-TOBJS    = $(TCOBJS) $(TCPPOBJS) $(TAOBJS)
-
-ALLOBJS = $(OBJS) $(TOBJS)
-
-
 # Define all listing files.
-LST = $(patsubst src/%.c, $(OBJDIR)/%.lst, $(CSRC)) $(patsubst src/%.cpp, $(OBJDIR)/%.lst, $(CPPSRC))
+LST = $(patsubst %.c, $(OBJDIR)/%.lst, $(CSRC)) $(patsubst %.cpp, $(OBJDIR)/%.lst, $(CPPSRC)) $(patsubst %.S, $(OBJDIR)/%.lst, $(ASRC))
 
 # Default target.
 all:	begin build finished end
@@ -464,7 +438,7 @@ test:  buildtest  ## Build inittest target
 # Remove colorfilter
 nocolor:
 	$(eval C_FILTER:= )
-	
+
 #
 # Build with no color filter on compiler output
 # Useful for Netbeans, Eclipse builds etc. 
@@ -525,12 +499,6 @@ $(TRGFILE): $(OBJS) $(OUTDIR)
 	@echo -e $@ $(F_SOURCE)
 	@$(CC) $(ALL_CFLAGS) $(OBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)
 	
-.PRECIOUS : $(TOBJS)	
-$(TESTTARGET): $(TOBJS) $(OUTDIR)
-	@echo 
-	@echo -e $(MSG_LINKING)"\n               $(C_FILE)" $@ "$(E_END)"
-	@$(CC) $(ALL_CFLAGS) $(TOBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)
-		
 # Create extended listing file/disassambly from ELF output file.
 # using objdump testing: option -C
 %.lss:	$(TRGFILE)
@@ -551,13 +519,7 @@ $(TESTTARGET): $(TOBJS) $(OUTDIR)
 	@$(OBJCOPY) -O ihex $< $@
 
 # Compile: create object files from C source files.
-#$(COBJS): $(BUILDDIR)/%.o : src/%.c
-#	@$(MKDIR) $(@D)                                       # Create directory for object file
-#	@echo -e $(MSG_COMPILING) "$(C_FILE)" $< "$(E_END)"
-#	@$(CC) -c $(ALL_CFLAGS) $< -o $@ 2>&1  $(C_FILTER)
-	
-# Compile: create object files from C source files.
-$(ALLOBJS): $(BUILDDIR)/%.o : src/%.c
+$(COBJS): $(BUILDDIR)/%.o : %.c
 	@$(MKDIR) $(@D)                                       # Create directory for object file
 	@echo -en $(MSG_COMPILING)" "
 	@echo -e $< $(F_SOURCE)
@@ -626,21 +588,27 @@ clean:  ## Remove all build files
 	@$(REMOVE) $(OBJS)
 	@$(REMOVE) $(LST)
 	@$(REMOVE) $(TESTTARGET)
+	@$(REMOVE) $(MOCSRC)
+	@$(REMOVE) $(UIH)
 	@$(REMOVEDIR) .dep
 	@$(REMOVEDIR) $(BUILDDIR)	
 	@find . -name "*~" -delete
 	@find . -name "*.orig" -delete
 
 
+# Directory where to store archives
+ARCHIVEDIR = archive
+
 archive: ## Make a tar archive of the source code
 	@echo
 	@echo -e $(MSG_ARCHIVING)
 	@$(eval DT=$(shell date +"%Y%m%d-%H%M%S"))
-	@$(MKDIR) archive
-	@tar -cvzf archive/$(TARGET)_${DT}.tar.gz *  \
-		--exclude='archive'  \
-		--exclude='backup'   \
-		--exclude='output'   \
+	@$(MKDIR) $(ARCHIVEDIR)
+	@tar -cvzf $(ARCHIVEDIR)/$(TARGET)_${DT}.tar.gz *  \
+		--exclude='$(ARCHIVEDIR)' \
+		--exclude='$(BACKUP_DIR)' \
+		--exclude='$(OUTDIR)'     \
+		--exclude='$(BUILDDIR)'   \
 		--exclude='*.a'      \
 		--exclude='*.o'      \
 		--exclude='*.ko'     \
@@ -672,7 +640,7 @@ archive: ## Make a tar archive of the source code
 # Backup directory
 BACKUP_DIR=backup
 
-# Nr of backups
+# Max number of backups
 BACKUPS=100
 
 backup: ## Make an incremental backup
@@ -689,18 +657,12 @@ backup: ## Make an incremental backup
 	    mv -f $${bdir}  $(BACKUP_DIR)/backup_$${x} ;  \
 	  fi ;                                            \
 	done 
-	@rsync --archive             \
-	      --delete               \
-				--relative             \
-				--exclude="backup"     \
-				--exclude="archive"    \
-				--exclude="output"     \
-				--exclude="*.o"        \
-				--exclude=".git"       \
-				--exclude=".svn"       \
-				--exclude="*~"         \
-				--exclude="*.old"      \
-				--exclude="*.tmp"      \	
+	@rsync --archive                 \
+	      --delete                  \
+				--relative                \
+				--exclude="$(BACKUP_DIR)" \
+				--exclude="$(ARCHIVEDIR)" \
+				--exclude="$(OUTDIR)"     \
 				--link-dest=$(CURDIR)/$(BACKUP_DIR)/backup_1 \
 				.                      \
 				$(BACKUP_DIR)/backup_0 
