@@ -1,12 +1,12 @@
 /**
  * -----------------------------------------------------------------
  * @file  def.h
- * @brief Some common definitions.
+ * @brief Makeplate common definitions file.
  *
  *
  * @author Peter Malmberg <peter.malmberg@gmail.com>
  *
- * Licence MIT
+ * License MIT
  * -----------------------------------------------------------------
  */
 
@@ -218,27 +218,6 @@
 #define E_SHOW_CURSOR "\033[?25h"     // show cursor
 
 
-#define BLACK(s)        E_BLACK        s E_END
-#define RED(s)          E_RED          s E_END
-#define GREEN(s)        E_GREEN        s E_END
-#define YELLOW(s)       E_YELLOW       s E_END
-#define BLUE(s)         E_BLUE         s E_END
-#define MAGENTA(s)      E_MAGENTA      s E_END
-#define CYAN(s)         E_CYAN         s E_END
-#define GRAY(s)         E_GRAY         s E_END
-#define DARKGRAY(s)     E_DARKGRAY     s E_END
-#define BR_RED(s)       E_BR_RED       s E_END
-#define BR_GREEN(s)     E_BR_GREEN     s E_END
-#define BR_YELLOW(s)    E_BR_YELLOW    s E_END
-#define BR_BLUE(s)      E_BR_BLUE      s E_END
-#define BR_MAGENTA(s)   E_BR_MAGENTA   s E_END
-#define BR_CYAN(s)      E_BR_CYAN      s E_END
-#define WHITE(s)        E_WHITE        s E_END
-
-#define CUR_RETURN() printf(E_CUR_RETURN);         // return to column 0
-#define CLEAR()      printf(E_CLEAR)
-
-
 // Debugging ----------------------------------------------------------------
 
 // Filename without path
@@ -298,9 +277,15 @@
 
 // Misc ---------------------------------------------------------------------
 
-#define UNUSED_PARAM(p)     (void)p
+// For removing unused variable/parameter warning from compiler output
+#define UNUSED_PARAM(p)		(void)p
 #define UNUSED(p)         UNUSED_PARAM(p)
 
 
-#endif  /* DEF_H */
+// Create a string from a definition
+#define STRINGIZE2(s) #s
+#define STRINGIZE(s) STRINGIZE2(s)
+
+
+#endif	/* DEF_H */
 
