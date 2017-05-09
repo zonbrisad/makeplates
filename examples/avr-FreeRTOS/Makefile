@@ -5,7 +5,12 @@
 #
 # author: Peter Malmberg <peter.malmberg@gmail.com>
 #
-#  
+# License: MIT
+#----------------------------------------------------------------------------
+# This file is part of the makeplates project.
+# Git checkout:
+# https://github.com/zonbrisad/makeplates.git
+# 
 #----------------------------------------------------------------------------
 # On command line:
 # >make help 
@@ -170,7 +175,6 @@ CPPFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void 
 #CPPFLAGS += -Werror              # All warnings will be treated as errors
 
 
-
 # Assembler Options ---------------------------------------------------------
 #  -Wa,...:   tell GCC to pass this to the assembler.
 #  -adhlns:   create listing
@@ -193,14 +197,15 @@ LDFLAGS += $(patsubst %,-L%,$(INCLUDE))
 LDFLAGS += -g
 
 
+# Misc settings -------------------------------------------------------------
 MPFLAGS  = -DLICENSE=$(LICENSE)
 MPFLAGS += -DTARGET=$(TARGET)
 MPFLAGS += -DVERSION=$(VERSION)
-
  
 CFLAGS   += $(MPFLAGS)
 CPPFLAGS += $(MPFLAGS)
 ASFLAGS  += $(MPFLAGS)
+
 #
 # Platform specific options
 #============================================================================
@@ -223,10 +228,13 @@ CPPFLAGS += $(foreach X, $(PKGLIBS), $(shell pkg-config --cflags $(X)) )
 LDFLAGS  += $(foreach X, $(PKGLIBS), $(shell pkg-config --libs $(X)) )
 
 # Size flags ----------------------------------------------------------------
-SIZEFLAGS = --mcu=$(MCU) --format=avr
+SIZEFLAGS = --format=berkley  # format = {sysv|berkeley}
 
 # objdump flags -------------------------------------------------------------
-ODFLAGS = -h -S -C -r
+ODFLAGS  = -h  # Display the contents of the section headers  
+ODFLAGS += -S  # Intermix source code with disassembly
+ODFLAGS += -C  #
+ODFLAGS += -r  # Display the relocation entries in the file
 
 # Output format. (can be srec, ihex, binary) --------------------------------
 FORMAT = ihex
@@ -627,9 +635,9 @@ finished:
 # Linking targets from object files
 .PRECIOUS : $(OBJS)
 $(TRGFILE): $(OBJS) $(OUTDIR)
-	@echo -en "\n"$(MSG_LINKING)"\n               "
-	@echo -e $@ $(F_SOURCE)
-	@$(CC) $(ALL_CFLAGS) $(OBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)
+	@echo -en "\n"$(MSG_LINKING)"       "
+	@echo -e $@ $(F_SOURCE) 
+	@$(CPP) $(ALL_CFLAGS) $(OBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)
 	
 # Create extended listing file/disassambly from ELF output file.
 # using objdump testing: option -C
@@ -659,7 +667,7 @@ $(COBJS): $(BUILDDIR)/%.o : %.c
 	@$(CC) -c $(ALL_CFLAGS) $< -o $@ 2>&1  $(C_FILTER)
 
 # Compile: create object files from C++ source files.
-$(CPPOBJS): $(BUILDDIR)/%.o : src/%.cpp
+$(CPPOBJS): $(BUILDDIR)/%.o : %.cpp
 	@$(MKDIR) $(@D)                                       # Create directory for object file
 	@echo -en $(MSG_COMPILING_CPP)" " 
 	@echo -e $< $(F_SOURCE)
