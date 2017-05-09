@@ -315,7 +315,7 @@ def main():
         newProject(args.dir, args.author, args.license)
         exit(0)
     
-        
+    parser.print_help()
     exit(0)    
 
     
