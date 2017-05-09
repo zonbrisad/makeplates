@@ -15,8 +15,8 @@
 # linux win32 avr arm osx
 TARGET_PLATFORM = linux
 
-# Project Licence (GPL, GPLv2, MIT, BSD, Apache, etc.) 
-LICENCE = GPLv2
+# Project License (GPL, GPLv2, MIT, BSD, Apache, etc.) 
+LICENSE = GPLv2
 
 # Target file name (without extension).
 TARGET = makeplate
@@ -330,6 +330,7 @@ MSG_FLAGS            = "${C_MSG}Compiler Flags $(E_GREEN)-----------------------
 MSG_LINKER           = "${C_MSG}Linker Flags $(E_GREEN)-----------------------------------------------------${E_END}"
 MSG_PROJECT          = "${C_MSG}Project info $(E_GREEN)-----------------------------------------------------${E_END}"
 MSG_INCLUDES         = "${C_MSG}Include directories $(E_GREEN)----------------------------------------------${E_END}"
+MSG_OBJECTS          = "${C_MSG}Object files $(E_GREEN)-----------------------------------------------------${E_END}"	
 MSG_DEFS             = "${C_MSG}Macro definitions $(E_GREEN)------------------------------------------------${E_END}"
 MSG_INSTALL_INFO     = "${C_MSG}Install settings $(E_GREEN)-------------------------------------------------${E_END}"
 MSG_INSTALLING       = "${C_ACTION}Installing:   ${E_END}"
@@ -630,10 +631,10 @@ run:    ## Run application
 # Project options -----------------------------------------------------------
 
 newfile:  ## Create a new C file
-	@${CTEMPLATE} --newc --dir src --author "$(AUTHOR)" --licence "$(LICENCE)"
+	@${CTEMPLATE} --newc --dir src --author "$(AUTHOR)" --license "$(LICENSE)"
 
 newclass:  ## Create a new C++ class
-	@${CTEMPLATE} --newclass --dir src --author "$(AUTHOR)" --licence "$(LICENCE)"	
+	@${CTEMPLATE} --newclass --dir src --author "$(AUTHOR)" --license "$(LICENSE)"	
 		
 #newproj:  # Create a new project
 #	@${PROJECT} newproj
@@ -703,10 +704,10 @@ list-ldflags: ## List linker flags
 	done                       \
 
 list-objs: ## List objects 
-	@echo -e $(MSG_INCLUDES)
+	@echo -e $(MSG_OBJECTS)
 	@export IFS=" "
 	@for f in $(OBJS); do   \
-	  echo $${f} ;             \
+	  echo $${f} ;          \
 	done        
 
 
@@ -733,7 +734,7 @@ list-info:
 	@echo -e $(MSG_PROJECT)
 	@echo "Target:     $(TARGET)"
 	@echo "Platform:   $(TARGET_PLATFORM)"
-	@echo "Licence:    $(LICENCE)"
+	@echo "License:    $(LICENSE)"
 	@echo "Outdir:     $(OUTDIR)"
 	@echo "C standard: $(CSTANDARD)"
 	@echo "MCU:        $(MCU)"
@@ -871,7 +872,6 @@ astyle: ## Format source to conform to a standard
 	
 # Listing of phony targets.
 .PHONY : all clean gccversion build begin finished end elf lss sym archive edit help backup list-src list-flags newproj run install
-
 
 #
 # Makeplate internal targets

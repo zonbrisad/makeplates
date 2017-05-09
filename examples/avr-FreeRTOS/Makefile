@@ -15,40 +15,43 @@
 # linux win32 avr arm osx
 TARGET_PLATFORM = avr
 
-# Project Licence (GPL, GPLv2, MIT, BSD, Apache, etc.) 
-LICENCE = GPLv2
+# Project License (GPL, GPLv2, MIT, BSD, Apache, etc.) 
+LICENSE = GPLv2
+
+# Program Version
+VERSION = 0.1
 
 # Target file name (without extension).
 TARGET = main
 
-# List C source files here. (C dependencies are automatically generated.)
+# List C, C++ and assembler source files here. (C/C++ dependencies are automatically generated.)
 SRC = src/$(TARGET).c \
-      FreeRTOS/Source/croutine.c \
-      FreeRTOS/Source/queue.c \
-      FreeRTOS/Source/event_groups.c \
-      FreeRTOS/Source/tasks.c \
-      FreeRTOS/Source/list.c   \
-      FreeRTOS/Source/timers.c \
-      FreeRTOS/Source/portable/GCC/ATMega323/port.c \
-      FreeRTOS/Source/portable/MemMang/heap_1.c
+      src/avrsimul.c 
 
 # List C, C++ and assembler library/3rd partry source files here. (C/C++ dependencies are automatically generated.)
-LSRC =
+LSRC = \
+      FreeRTOSv9.0.0/FreeRTOS/Source/croutine.c \
+      FreeRTOSv9.0.0/FreeRTOS/Source/queue.c \
+      FreeRTOSv9.0.0/FreeRTOS/Source/event_groups.c \
+      FreeRTOSv9.0.0/FreeRTOS/Source/tasks.c \
+      FreeRTOSv9.0.0/FreeRTOS/Source/list.c   \
+      FreeRTOSv9.0.0/FreeRTOS/Source/timers.c \
+      FreeRTOSv9.0.0/FreeRTOS/Source/portable/GCC/ATMega323/port.c \
+      FreeRTOSv9.0.0/FreeRTOS/Source/portable/MemMang/heap_1.c
 
 # Include directories
 INCLUDE = inc \
           src \
-          FreeRTOS/Source/include \
-          FreeRTOS/Source/portable/GCC/ATMega323
+          FreeRTOSv9.0.0/FreeRTOS/Source/include \
+          FreeRTOSv9.0.0/FreeRTOS/Source/portable/GCC/ATMega323
+
+# Libraries to link
 LIB  = 
 
 # Object files directory
 #     To put object files in current directory, use a dot (.), do NOT make
 #     this an empty or blank macro!
 OBJDIR = .
-
-# Source code directory
-SRCDIR=src
 
 # Build directory
 BUILDDIR=build
@@ -86,6 +89,8 @@ ADEFS =
 
 # C++ Macro definitions
 CPPDEFS = 
+
+
 
 # Debug information --------------------------------------------------------- 
 # 0 = no debug information 
@@ -164,9 +169,8 @@ CPPFLAGS += -Wformat=2             # check printf and scanf for problems
 #CPPFLAGS += -Wno-format-nonliteral # 
 CPPFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void pointer
 #CPPFLAGS += -Wsign-compare
-CPPFLAGS += -Wa,-adhlns=$(<:%.cpp=$(OBJDIR)/%.lst)
-CPPFLAGS += $(patsubst %,-I%,$(INCLUDE))
-#CPPFLAGS += $(CSTANDARD)
+#CPPFLAGS += -Wundef
+#CPPFLAGS += -Werror              # All warnings will be treated as errors
 
 
 
@@ -180,7 +184,7 @@ CPPFLAGS += $(patsubst %,-I%,$(INCLUDE))
 #  -listing-cont-lines: Sets the maximum number of continuation lines of hex 
 #       dump that will be displayed for a given single line of source input.
 ASFLAGS =  $(patsubst %,-D%,$(ADEFS))
-ASFLAGS += -Wa,-adhlns=$(<:%.S=$(OBJDIR)/%.lst),-gstabs,--listing-cont-lines=100
+ASFLAGS += -Wa,-adhlns=$(<:%.S=$(BUILDDIR)/%.lst),-gstabs,--listing-cont-lines=100
 
 # Linker Options ------------------------------------------------------------
 #  -Wl,...:     tell GCC to pass this to linker.
@@ -189,7 +193,17 @@ ASFLAGS += -Wa,-adhlns=$(<:%.S=$(OBJDIR)/%.lst),-gstabs,--listing-cont-lines=100
 LDFLAGS = -Wl,-Map=$(OUTDIR)/$(TARGET).map,--cref
 LDFLAGS += $(EXTMEMOPTS)
 LDFLAGS += $(patsubst %,-L%,$(INCLUDE))
+LDFLAGS += -g
 
+
+MPFLAGS  = -DLICENSE=$(LICENSE)
+MPFLAGS += -DTARGET=$(TARGET)
+MPFLAGS += -DVERSION=$(VERSION)
+
+ 
+CFLAGS   += $(MPFLAGS)
+CPPFLAGS += $(MPFLAGS)
+ASFLAGS  += $(MPFLAGS)
 #
 # Platform specific options
 #============================================================================
@@ -323,7 +337,6 @@ REMOVE    = rm -f
 REMOVEDIR = rm -rf
 COPY      = cp -f 
 MOVE      = mv -f
-
 MKDIR     = mkdir -p
 SED       = sed              # stream editor program
 MOC       = moc              # Qt meta object compiler
@@ -348,6 +361,7 @@ AR        = ${TCHAIN}ar rcs
 NM        = ${TCHAIN}nm
 AS        = ${TCHAIN}as
 GDB       = ${TCHAIN}gdb
+STRIP     = ${TCHAIN}strip
 
 #
 # Message/Filter settings
@@ -404,6 +418,7 @@ MSG_LINE             = "$(E_WHITE)----------------------------------------------
 MSG_BEGIN            = "${E_WHITE}-------------------------------- Begin ---------------------------${E_END}"
 MSG_END              = "${E_WHITE}-------------------------------- End -----------------------------${E_END}"
 MSG_ERRORS_NONE      = "${C_OK}Errors: none ${E_END}"
+MSG_STRIP            = "${C_ACTION}Striping:${E_END}"
 MSG_LINKING          = "${C_ACTION}Linking:${E_END}"
 MSG_COMPILING        = "${C_ACTION}Compiling C:  ${E_END}"
 MSG_COMPILING_CPP    = "${C_ACTION}Compiling C++:${E_END}"
@@ -431,6 +446,7 @@ MSG_FLAGS            = "${C_MSG}Compiler Flags $(E_GREEN)-----------------------
 MSG_LINKER           = "${C_MSG}Linker Flags $(E_GREEN)-----------------------------------------------------${E_END}"
 MSG_PROJECT          = "${C_MSG}Project info $(E_GREEN)-----------------------------------------------------${E_END}"
 MSG_INCLUDES         = "${C_MSG}Include directories $(E_GREEN)----------------------------------------------${E_END}"
+MSG_OBJECTS          = "${C_MSG}Object files $(E_GREEN)-----------------------------------------------------${E_END}"	
 MSG_DEFS             = "${C_MSG}Macro definitions $(E_GREEN)------------------------------------------------${E_END}"
 MSG_INSTALL_INFO     = "${C_MSG}Install settings $(E_GREEN)-------------------------------------------------${E_END}"
 MSG_INSTALLING       = "${C_ACTION}Installing:   ${E_END}"
@@ -465,7 +481,7 @@ CPP_FILTER = $(C_FILTER)
 LD_ERROR1="s/undefined reference/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
 LD_ERROR2="s/No such file or directory/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
 LD_FILTER = | sed -ru -e $(LD_ERROR1) -e $(LD_ERROR2)
-
+	
 #
 # Build rules	
 #============================================================================
@@ -489,8 +505,8 @@ CPPSRC_1 = $(patsubst %.c,  , $(SRC) $(LSRC))
 CPPSRC   = $(patsubst %.S,  , $(CPPSRC_1))
 
 # Filter out Assembler sources
-ASRC_1 = $(patsubst $(SRCDIR)/%.c,    , $(SRC) $(LSRC))
-ASRC   = $(patsubst $(SRCDIR)/%.cpp,  , $(ASRC_1))
+ASRC_1 = $(patsubst %.c,    , $(SRC) $(LSRC))
+ASRC   = $(patsubst %.cpp,  , $(ASRC_1))
 
 # Define all object files.
 COBJS    = $(patsubst %.c,   $(BUILDDIR)/%.o, $(CSRC))
@@ -538,7 +554,6 @@ finished:
 
 
 # Link target
-#.SECONDARY : $(TARGET)
 .PRECIOUS : $(OBJS)
 $(TRGFILE): $(OBJS) $(OUTDIR)
 	@echo -en "\n"$(MSG_LINKING)"\n               "
@@ -593,6 +608,7 @@ $(OBJDIR)/%.s : %.c
 $(OBJDIR)/%.s : %.cpp
 	@$(CC) -S $(ALL_CPPFLAGS) $< -o $@
 
+# Atmel AVR specific targets
 coff: $(TRGFILE)
 	@echo
 	@echo -e $(MSG_COFF)"\n             $(E_BR_CYAN)" $(TARGET).cof "$(E_END)"
@@ -742,10 +758,10 @@ edit:   ## Open source and makefile in editor
 # Project options -----------------------------------------------------------
 
 newfile:  ## Create a new C file
-	@${CTEMPLATE} --newc --dir src --author "$(AUTHOR)" --licence "$(LICENCE)"
+	@${CTEMPLATE} --newc --dir src --author "$(AUTHOR)" --license "$(LICENSE)"
 
 newclass:  ## Create a new C++ class
-	@${CTEMPLATE} --newclass --dir src --author "$(AUTHOR)" --licence "$(LICENCE)"	
+	@${CTEMPLATE} --newclass --dir src --author "$(AUTHOR)" --license "$(LICENSE)"	
 		
 #newproj:  # Create a new project
 #	@${PROJECT} newproj
@@ -815,10 +831,10 @@ list-ldflags: ## List linker flags
 	done                       \
 
 list-objs: ## List objects 
-	@echo -e $(MSG_INCLUDES)
+	@echo -e $(MSG_OBJECTS)
 	@export IFS=" "
 	@for f in $(OBJS); do   \
-	  echo $${f} ;             \
+	  echo $${f} ;          \
 	done        
 
 
@@ -845,7 +861,7 @@ list-info:
 	@echo -e $(MSG_PROJECT)
 	@echo "Target:     $(TARGET)"
 	@echo "Platform:   $(TARGET_PLATFORM)"
-	@echo "Licence:    $(LICENCE)"
+	@echo "License:    $(LICENSE)"
 	@echo "Outdir:     $(OUTDIR)"
 	@echo "C standard: $(CSTANDARD)"
 	@echo "MCU:        $(MCU)"
@@ -978,7 +994,7 @@ AST +=--preserve-date
 PSRCH = $(PSRC:%.c=%.h) 
 
 astyle: ## Format source to conform to a standard
-	@$(ASTYLE) $(AST) src/*.c src/*.cpp src/*.h
+	@$(ASTYLE) $(AST) src/*.c src/*.h
 #
 # Avrdude settings 
 # ----------------------------------------------------------

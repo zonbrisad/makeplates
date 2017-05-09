@@ -5,13 +5,13 @@
  * @file    main.c
  * @author  Peter Malmberg <peter.malmberg@gmail.com>
  * @date    2016-10-24
- * @licence GPLv2
+ * @license GPLv2
  *
  *---------------------------------------------------------------------------
  */
 
 // Includes ---------------------------------------------------------------
-// 
+
 #include <stdio.h>
 #include <avr/interrupt.h>
 #include <util/delay.h>
