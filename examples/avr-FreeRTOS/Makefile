@@ -90,8 +90,6 @@ ADEFS =
 # C++ Macro definitions
 CPPDEFS = 
 
-
-
 # Debug information --------------------------------------------------------- 
 # 0 = no debug information 
 # 1 = minimal debug information
@@ -116,7 +114,6 @@ CFLAGS += -funsigned-char
 #CFLAGS += -funsigned-bitfields
 #CFLAGS += -fpack-struct
 #CFLAGS += -fshort-enums
-#CFLAGS += -mshort-calls
 #CFLAGS += -fno-unit-at-a-time
 #CFLAGS += -mshort-calls
 #CFLAGS += -fPIC                  # Position independet code
@@ -220,7 +217,25 @@ TCHAIN_BASE=/usr/bin
 # Toolchain prefix 
 TCHAIN_PREFIX=
 
+# Handle pkg-config libraries -----------------------------------------------
+CFLAGS   += $(foreach X, $(PKGLIBS), $(shell pkg-config --cflags $(X)) )
+CPPFLAGS += $(foreach X, $(PKGLIBS), $(shell pkg-config --cflags $(X)) )
+LDFLAGS  += $(foreach X, $(PKGLIBS), $(shell pkg-config --libs $(X)) )
+
+# Size flags ----------------------------------------------------------------
+SIZEFLAGS = --mcu=$(MCU) --format=avr
+
+# objdump flags -------------------------------------------------------------
+ODFLAGS = -h -S -C -r
+
+# Output format. (can be srec, ihex, binary) --------------------------------
+FORMAT = ihex
+
+# object copy flags ---------------------------------------------------------
+OCFLAGS = -O $(FORMAT) 
+
 endif
+
 # Windows options -----------------------------------------------------------
 ifeq ($(TARGET_PLATFORM), win32)
 
@@ -267,22 +282,32 @@ MCU = atmega2560
 #  1000000  1843200  2000000 3686400 4000000 7372800 8000000 11059200 14745600
 F_CPU = 8000000
 
+CDEFS   += F_CPU=$(F_CPU)UL
+ADEFS   += F_CPU=$(F_CPU)UL
+CPPDEFS += F_CPU=$(F_CPU)UL
+
+# 
 CFLAGS   += -mmcu=$(MCU)
 CPPFLAGS += -mmcu=$(MCU)
 ASFLAGS  += -mmcu=$(MCU)
 
+# Size flags
+SIZEFLAGS = --mcu=$(MCU) --format=avr
+
+# objdump flags
+ODFLAGS = -h -S -z
+
 # Output format. (can be srec, ihex, binary)
 FORMAT = ihex
+
+# object copy flags
+OCFLAGS = -O $(FORMAT) -R .eeprom -R .fuse -R .lock -R .signature
 
 # Debugging format.
 #     Native formats for AVR-GCC's -g are dwarf-2 [default] or stabs.
 #     AVR Studio 4.10 requires dwarf-2.
 #     AVR [Extended] COFF format requires stabs, plus an avr-objcopy run.
 DEBUG = dwarf-2
-
-CDEFS   += F_CPU=$(F_CPU)UL
-ADEFS   += F_CPU=$(F_CPU)UL
-CPPDEFS += F_CPU=$(F_CPU)UL
 
 # Toolchain base directory
 TCHAIN_BASE=/usr/bin
@@ -325,6 +350,60 @@ EXTRALIBDIRS =
 LDFLAGS += $(PRINTF_LIB) $(SCANF_LIB) $(MATH_LIB)
 
 endif
+
+#
+# Atmel AVR specific targets
+#============================================================================
+coff: $(TRGFILE)
+	@echo
+	@echo -e $(MSG_COFF)"\n             $(E_BR_CYAN)" $(TARGET).cof "$(E_END)"
+	$(COFFCONVERT) -O coff-avr $< $(TARGET).cof
+
+extcoff: $(TRGFILE)
+	@echo
+	@echo -e $(MSG_EXTENDED_COFF)"\n             $(E_BR_CYAN)" $(TARGET).cof "$(E_END)"
+	@$(COFFCONVERT) -O coff-ext-avr $< $(TARGET).cof
+
+%.eep: $(TRGFILE)
+	@echo
+	@echo -en $(MSG_EEPROM)"\n               "
+	@echo -e $@ $(F_SOURCE)
+	@$(OBJCOPY) -j .eeprom --set-section-flags=.eeprom="alloc,load" \
+	--change-section-lma .eeprom=0 --no-change-warnings -O $(FORMAT) $< $@ || exit 0
+
+#
+# Avrdude settings 
+# ----------------------------------------------------------
+.PHONY: program
+	
+AVRDUDE = avrdude	
+# Programming hardware
+# Type: avrdude -c ?
+# to get a full listing.
+#
+#AVRDUDE_PROGRAMMER = stk500v2
+AVRDUDE_PROGRAMMER = arduino
+ 
+# com1 = serial port. Use lpt1 to connect to parallel port.
+AVRDUDE_PORT = /dev/ttyUSB3    # programmer connected to serial device
+
+AVRDUDE_BITRATE = 57600 
+ 
+AVRDUDE_WRITE_FLASH = -U flash:w:$(OUTDIR)/$(TARGET).hex:i
+#AVRDUDE_WRITE_EEPROM = -U eeprom:w:$(TARGET).eep
+  
+# Uncomment the following if you want avrdude's erase cycle counter.
+# Note that this counter needs to be initialized first using -Yn,
+# see avrdude manual.
+#AVRDUDE_ERASE_COUNTER = -y
+
+#
+# AVR simulator
+#============================================================================
+.PHONY: sim
+
+sim:  ## Run AVR simulator 
+	simulavr -d $(MCU) -F $(F_CPU) --file $(TRGFILE) -W 0x20,- -R 0x22,- -T exit --irqstatistic
 
 #
 # Tool settings
@@ -521,15 +600,9 @@ LST = $(patsubst %.c, $(OBJDIR)/%.lst, $(CSRC)) $(patsubst %.cpp, $(OBJDIR)/%.ls
 # Default target.
 all:	begin build finished end
 
-# Remove colorfilter
-nocolor:
-	$(eval C_FILTER:= )
+nc: C_FILTER:= 
+nc: all   ## Build with no color filter on compiler output
 
-#
-# Build with no color filter on compiler output
-# Useful for Netbeans, Eclipse builds etc. 
-#	
-nc: nocolor all   ## Build with no color filter on compiler output
 
 build: elf hex eep lss sym size
 
@@ -540,7 +613,6 @@ hex: $(OUTDIR)/$(TARGET).hex
 bin: $(OUTDIR)/$(TARGET).bin
 eep: $(OUTDIR)/$(TARGET).eep
 
-# Eye candy.
 begin:
 	@echo -e $(MSG_BEGIN)
 	@echo -e ${MSG_BUILDING}" $(E_BR_GREEN)$(TARGET) $(E_END)"
@@ -552,8 +624,7 @@ end:
 finished:
 	@echo
 
-
-# Link target
+# Linking targets from object files
 .PRECIOUS : $(OBJS)
 $(TRGFILE): $(OBJS) $(OUTDIR)
 	@echo -en "\n"$(MSG_LINKING)"\n               "
@@ -565,7 +636,7 @@ $(TRGFILE): $(OBJS) $(OUTDIR)
 %.lss:	$(TRGFILE)
 	@echo -en "\n"$(MSG_EXTENDED_LISTING) "\n               "
 	@echo -e $@ $(F_SOURCE)
-	@$(OBJDUMP) -h -S -z $< > $@
+	@$(OBJDUMP) $(ODFLAGS) $< > $@
 	
 # Create a symbol table from ELF output file.
 %.sym: $(TRGFILE)
@@ -578,7 +649,7 @@ $(TRGFILE): $(OBJS) $(OUTDIR)
 	@echo
 	@echo -en $(MSG_HEX_FILE) "\n               "
 	@echo -e $@ $(F_SOURCE)
-	@$(OBJCOPY) -O $(FORMAT) -R .eeprom -R .fuse -R .lock -R .signature $< $@
+	@$(OBJCOPY) $(OCFLAGS) $< $@
 
 # Compile: create object files from C source files.
 $(COBJS): $(BUILDDIR)/%.o : %.c
@@ -608,26 +679,6 @@ $(OBJDIR)/%.s : %.c
 $(OBJDIR)/%.s : %.cpp
 	@$(CC) -S $(ALL_CPPFLAGS) $< -o $@
 
-# Atmel AVR specific targets
-coff: $(TRGFILE)
-	@echo
-	@echo -e $(MSG_COFF)"\n             $(E_BR_CYAN)" $(TARGET).cof "$(E_END)"
-	$(COFFCONVERT) -O coff-avr $< $(TARGET).cof
-
-extcoff: $(TRGFILE)
-	@echo
-	@echo -e $(MSG_EXTENDED_COFF)"\n             $(E_BR_CYAN)" $(TARGET).cof "$(E_END)"
-	@$(COFFCONVERT) -O coff-ext-avr $< $(TARGET).cof
-
-%.eep: $(TRGFILE)
-	@echo
-	@echo -en $(MSG_EEPROM)"\n               "
-	@echo -e $@ $(F_SOURCE)
-	@$(OBJCOPY) -j .eeprom --set-section-flags=.eeprom="alloc,load" \
-	--change-section-lma .eeprom=0 --no-change-warnings -O $(FORMAT) $< $@ || exit 0
-
-
-
 # Create output dir
 $(OUTDIR):
 	@$(MKDIR) $@
@@ -640,7 +691,7 @@ $(BUILDDIR):
 size: $(TRGFILE)
 	@echo
 	@echo -e $(MSG_SIZE_AFTER)
-	@$(SIZE) --mcu=$(MCU) --format=avr $(TRGFILE)
+	@$(SIZE) $(SIZEFLAGS) $(TRGFILE)
 
 strip: $(TRGFILE) ## Strip target binary from symbols
 	@echo -e $(MSG_STRIP)
@@ -995,39 +1046,7 @@ PSRCH = $(PSRC:%.c=%.h)
 
 astyle: ## Format source to conform to a standard
 	@$(ASTYLE) $(AST) src/*.c src/*.h
-#
-# Avrdude settings 
-# ----------------------------------------------------------
-.PHONY: program
-	
-AVRDUDE = avrdude	
-# Programming hardware
-# Type: avrdude -c ?
-# to get a full listing.
-#
-#AVRDUDE_PROGRAMMER = stk500v2
-AVRDUDE_PROGRAMMER = arduino
- 
-# com1 = serial port. Use lpt1 to connect to parallel port.
-AVRDUDE_PORT = /dev/ttyUSB3    # programmer connected to serial device
 
-AVRDUDE_BITRATE = 57600 
- 
-AVRDUDE_WRITE_FLASH = -U flash:w:$(OUTDIR)/$(TARGET).hex:i
-#AVRDUDE_WRITE_EEPROM = -U eeprom:w:$(TARGET).eep
-  
-# Uncomment the following if you want avrdude's erase cycle counter.
-# Note that this counter needs to be initialized first using -Yn,
-# see avrdude manual.
-#AVRDUDE_ERASE_COUNTER = -y
-
-#
-# AVR simulator
-#============================================================================
-.PHONY: sim
-
-sim:  ## Run AVR simulator 
-	simulavr -d $(MCU) -F $(F_CPU) --file $(TRGFILE) -W 0x20,- -R 0x22,- -T exit --irqstatistic
 	
 # Listing of phony targets.
 .PHONY : all clean gccversion build begin finished end elf lss sym archive edit help backup list-src list-flags newproj run install

@@ -159,13 +159,13 @@ void unitTest(void) {
 }
 
 
-#define SOMETEXT  This_is_some_text
+//#define SOMETEXT  This_is_some_text
 
 void defTest(void) {
 	int unusedVariable;
 	
 	UNUSED(unusedVariable);
-	printf("MACRO to text: %s\n", STRINGIFY(SOMETEXT));
+	//printf("MACRO to text: %s\n", STRINGIFY(SOMETEXT));
 	
 }
 
