@@ -80,6 +80,9 @@
 #undef  CLAMP
 #define CLAMP(x, low, high)  (((x) > (high)) ? (high) : (((x) < (low)) ? (low) : (x)))
 
+#undef  isWithin
+#define isWithin(val, min, max) ((val>=min) && (val<=max))
+
 #ifndef NULL
 #define NULL            (void)0
 #endif

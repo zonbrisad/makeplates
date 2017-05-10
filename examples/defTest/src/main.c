@@ -148,6 +148,11 @@ void S2S_tests() {
 	ia[0] = 44;
 	TEST_ASSERT_EQUAL_INT_ARRAY( ix,  ia, 6);
 
+	TEST_ASSERT_TRUE(isWithin( 5, -10, 10));
+	TEST_ASSERT_TRUE(isWithin(-5, -10, 10));
+	TEST_ASSERT_FALSE(isWithin( 11, -10, 10));
+	TEST_ASSERT_FALSE(isWithin(-11, -10, 10));
+	
 }
 
 void unitTest(void) {

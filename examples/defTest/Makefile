@@ -191,7 +191,7 @@ CPPFLAGS += $(foreach X, $(PKGLIBS), $(shell pkg-config --cflags $(X)) )
 LDFLAGS  += $(foreach X, $(PKGLIBS), $(shell pkg-config --libs $(X)) )
 
 # Size flags
-SIZEFLAGS = --mcu=$(MCU) --format=avr
+SIZEFLAGS = 
 
 # objdump flags
 ODFLAGS = -h -S -C -r
