@@ -83,6 +83,9 @@
 #undef  isWithin
 #define isWithin(val, min, max) ((val>=min) && (val<=max))
 
+#undef  isOutside
+#define isOutside(val, min, max) (!isWithin(val, min, max))
+
 #ifndef NULL
 #define NULL            (void)0
 #endif

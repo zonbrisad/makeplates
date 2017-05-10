@@ -46,11 +46,14 @@ else
   NEW=1
 fi
 
-# Local install dir
+# Local install directory
 MP_LOCALDIR=~/bin
 
-# system wide install dir
+# system wide install directory
 MP_SYSDIR=/usr/local/bin
+
+# Settings directory
+MP_CONFIG_DIR=~/.config/makeplates
 
 #---------------------------------------------------------------------
 # User defined functions
@@ -87,6 +90,23 @@ installMp() {
   fi
 }
 
+# Create a directory if it does not exist
+mpCreateDir() {
+ if [ ! -d $1 ]; then
+		 mkdir -p $1
+	fi
+}
+
+mpConfigDir() { ## testing
+  mpCreateDir ${MP_CONFIG_DIR}
+#	mpCreateDir ${MP_CONFIG_DIR}/3r
+#	mpCreateDir ${MP_CONFIG_DIR}
+}
+
+ls3() {  ## List 3d party libraries
+  ls -1 3dparty
+#	ls -1 ${MP_CONDIG_DIR}
+}
 
 #
 # arg1 install dir
@@ -98,7 +118,8 @@ mpInstall() {
   mkdir -p ${1}
 	
   cp -rf ${scriptPath}/mp      ${1}/.
-  cp -rf ${scriptPath}/tools   ${1}/.	
+  cp -rf ${scriptPath}/tools   ${1}/.
+	cp -rf ${scriptPath}/3dparty ${1}/.
 
   # Install makeplates
   installMp ${scriptPath}  ${1}  mp-c 
