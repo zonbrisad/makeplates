@@ -13,7 +13,9 @@
 // Includes ---------------------------------------------------------------
 
 #include <stdio.h>
+#include <stdbool.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <unistd.h>
 #include <string.h>
 #include <sys/types.h>
@@ -22,43 +24,120 @@
 #ifndef DEF_H_
 #define DEF_H_
 
+
+
+// Types ------------------------------------------------------------------
+#ifndef bool
+typedef uint8_t bool;
+#endif
+
+typedef signed char         schar;
+typedef unsigned char       uchar;
+typedef unsigned int        uint;
+typedef unsigned short      ushort;
+typedef unsigned long       ulong;
+
+
+#ifndef false
+#define false 0
+#endif
+
+#ifndef true
+#define true 1
+#endif
+
+
+#ifndef ulong
+#define ulong uint32_t
+#endif
+ 
+
 // Type min/max -------------------------------------------------------------
 
-#ifndef MAXCHAR
-#define MAXCHAR         255
+#ifndef MINSCHAR
+#define MINSCHAR       ((schar)(-MAXSCHAR - 1))   ///< Signed character min value.
 #endif
-
-#ifndef MAXUCHAR
-#define MAXUCHAR        255
-#endif
-
 #ifndef MAXSCHAR
-#define MAXSCHAR        127
+#define MAXSCHAR       ((schar)127)               ///< Signed character max value.
 #endif
 
-#ifndef MAXINT
-#define MAXINT          32767
+#ifndef MINUCHAR
+#define MINUCHAR       ((uchar)0)                 ///< Unsigned character min value.
+#endif
+#ifndef MAXUCHAR
+#define MAXUCHAR       ((uchar)255)               ///< Unsigned character max value.
 #endif
 
-#ifndef MAXUINT
-#define MAXUINT         65535
+#ifndef MINCHAR
+#define MINCHAR        ((char)0)                  ///< Character min value (assuming unsigned).
+#endif
+#ifndef MAXCHAR
+#define MAXCHAR        ((char)255)                ///< Character max value (assuming unsigned).
 #endif
 
+#ifndef MINSSHORT
+#define MINSSHORT      ((short)(-MAXSSHORT - 1))  ///< Signed short integer min value.
+#endif
+#ifndef MAXSSHORT
+#define MAXSSHORT      ((short)32767)             ///< Signed short integer max value.
+#endif
+
+#ifndef MINUSHORT
+#define MINUSHORT      ((ushort)0)                ///< Unsigned short integer min value.
+#endif
+#ifndef MAXUSHORT
+#define MAXUSHORT      ((ushort)65535)            ///< Unsigned short integer max value.
+#endif
+
+#ifndef MINSHORT
+#define MINSHORT       ((short)(-MAXSHORT - 1))   ///< Short integer min value.
+#endif
+#ifndef MAXSHORT
+#define MAXSHORT       ((short)32767)             ///< Short integer max value.
+#endif
+
+#ifndef MINSINT
+#define MINSINT        ((int)(-MAXSINT - 1))      ///< Signed integer min value.
+#endif
 #ifndef MAXSINT
-#define MAXSINT         32767
+#define MAXSINT        ((int)2147483647)          ///< Signed integer max value.
 #endif
 
-#ifndef MAXLONG
-#define MAXLONG         2147483647
+#ifndef MINUINT
+#define MINUINT        ((uint)0)                  ///< Unsigned integer min value.
+#endif
+#ifndef MAXUINT
+#define MAXUINT        ((uint)4294967295)         ///< Unsigned integer max value.
 #endif
 
-#ifndef MAXULONG
-#define MAXULONG        4294967295
+#ifndef MININT
+#define MININT         ((int)(-MAXINT - 1))       ///< Integer min value.
+#endif
+#ifndef MAXINT
+#define MAXINT         ((int)2147483647)          ///< Integer max value.
 #endif
 
+#ifndef MINSLONG
+#define MINSLONG       ((long)(-MAXSLONG - 1L))   ///< Signed long integer min value.
+#endif
 #ifndef MAXSLONG
-#define MAXSLONG        2147483647
+#define MAXSLONG       ((long)2147483647)         ///< Signed long integer max value.
 #endif
+
+#ifndef MINULONG
+#define MINULONG       ((ulong)0)                 ///< Unsigned long integer min value.
+#endif
+#ifndef MAXULONG
+#define MAXULONG       ((ulong)4294967295)        ///< Unsigned long integer max value.
+#endif
+
+#ifndef MINLONG
+#define MINLONG        ((long)(-MAXLONG - 1L))    ///< Long integer min value.
+#endif
+#ifndef MAXLONG
+#define MAXLONG        ((long)2147483647)         ///< Long integer max value.
+#endif
+
 
 #ifndef FALSE
 #define FALSE   (0)
@@ -279,6 +358,22 @@
 #define INFOPRINT_COND(cond, _fmt, ...)
 #define INFO_DO(f)
 #endif
+
+#ifdef FATALPRINT
+#undef FATALPRINT
+#define FATALSTR  "\n\n\n"E_BR_RED"############### FATAL ERROR ###############"E_WHITE"%4d"E_BR_CYAN" %-25s"E_END": "
+#define FATALPRINT(_fmt, ...) DEBUGPRINT2(INFOSTR _fmt, WHEREARG, ##__VA_ARGS__)
+#define FATALPRINT_COND(cond, _fmt, ...) if (cond) DEBUGPRINT2(FATALSTR _fmt, WHEREARG, ##__VA_ARGS__)
+#define FATAL_DO(f) f
+#else
+#
+#define FATALPRINT(_fmt, ...)
+#define FATALPRINT_COND(cond, _fmt, ...)
+#define FATAL_DO(f)
+#endif
+
+
+
 
 
 // Misc ---------------------------------------------------------------------
