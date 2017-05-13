@@ -186,19 +186,19 @@ CFLAGS   += $(foreach X, $(PKGLIBS), $(shell pkg-config --cflags $(X)) )
 CPPFLAGS += $(foreach X, $(PKGLIBS), $(shell pkg-config --cflags $(X)) )
 LDFLAGS  += $(foreach X, $(PKGLIBS), $(shell pkg-config --libs $(X)) )
 
-# Size flags
+# Size flags ----------------------------------------------------------------
 SIZEFLAGS = --format=berkley  # format = {sysv|berkeley}
 
-# objdump flags
+# objdump flags -------------------------------------------------------------
 ODFLAGS  = -h  # Display the contents of the section headers  
 ODFLAGS += -S  # Intermix source code with disassembly
 ODFLAGS += -C  #
 ODFLAGS += -r  # Display the relocation entries in the file
 
-# Output format. (can be srec, ihex, binary)
+# Output format. (can be srec, ihex, binary) --------------------------------
 FORMAT = ihex
 
-# objectcopy flags
+# object copy flags ---------------------------------------------------------
 OCFLAGS = -O $(FORMAT) 
 
 endif

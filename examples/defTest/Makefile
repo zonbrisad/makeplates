@@ -914,9 +914,9 @@ astyle: ## Format source to conform to a standard
 #============================================================================
 mpType=mp-c
 
-utools: # Update tools from installed tools
+utools: # Update tools from locally installed tools
 	@echo -e "${C_ACTION}Updating makeplate tools${E_END}"
 	@$(COPY) ~/bin/makeplate_files/tools/* tools/.
 
-meld: # Meld with installed 
+meld: # Meld Makefile with locally installed makefile
 	@meld ~/bin/makeplate_files/${mpType}/Makefile  Makefile
