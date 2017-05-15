@@ -101,7 +101,6 @@ CFLAGS += -funsigned-char
 #CFLAGS += -funsigned-bitfields
 #CFLAGS += -fpack-struct
 #CFLAGS += -fshort-enums
-#CFLAGS += -mshort-calls
 #CFLAGS += -fno-unit-at-a-time
 #CFLAGS += -mshort-calls
 #CFLAGS += -fPIC                  # Position independet code
