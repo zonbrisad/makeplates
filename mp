@@ -160,7 +160,6 @@ installPlate() {
 }
 
 
-
 #
 # Ask yes/no question
 #
@@ -195,10 +194,10 @@ createProject() {
 	
 }
 
+NEW=1
+##CN- NEW Project cmds
 
-##N- Kalle
-
-##C- NEW
+##CN- NEW Kalle
 
 newC() { ##C NEW Create a new standard C makeplate project
   createProject "Creating new makeplate C project" ${scriptPath}/${MPT_DIR}/mp-c 
@@ -575,15 +574,24 @@ printCondLine() {
   fi
 }
 
-##N- Kalle
 printNamedLine() {
-  name=$(echo "$1" | sed -s 's/^.*##N-//' | awk '{print $1}')
-	bpTextLineC $C "${E_GRAY}" "${E_GRAY}"
+  #name=$(echo "$1" | sed -s 's/^.*##N-//' | awk '{print $1}')
+	name=$(echo "$1" | sed -e 's/^.*##N-//' -e 's/^[ \t]*//' )
+	bpTextLineC $name "${E_BLUE}" "${E_GREEN}"
 }
 
 
-SSSS=1
-##K- SSSS asdfasdfasdf
+printCondNamedLine() {
+  help_line=$1
+  C=$(echo "$1" | sed -s 's/^.*##CN-//' | awk '{print $1}')
+	#name=$(echo "$1" | sed -s 's/^.*##CN-//' | awk '{print $2}')
+	name=$(echo "$help_line" | sed -e 's/^.*'"$C"'//' -e 's/^[ \t]*//' )
+  eval "D=\$$C"
+  if [ -n "$D" ]; then
+     printLine
+		 bpTextLineC $name "${E_BLUE}" "${E_GREEN}"
+  fi
+}
 
 help() { ## Print this help information
   echo "$USAGE"
@@ -596,11 +604,12 @@ help() { ## Print this help information
   help_lines=$(grep -h '##' "$0" | grep -v grep | grep -v '##D' | grep -v '##V' | grep -v '\*##C' | grep -v '\*##C-' |  grep -v '\"##' |  grep -v '##N-//' | grep -v help_line | grep -v printLine)
   for help_line in ${help_lines[@]} ; do
     case "$help_line" in
-      *"##-"*)  printLine ;;
-			*"##K-"*) printCondLine    "$help_line" ;;
-			*"##N-"*) printNamedLine   "$help_line" ;;
-      *"##C"*)  printCondCommand "$help_line" ;;
-      *"##"*)   printCommand     "$help_line" '##' ;;
+      *"##-"*)   printLine ;;
+			*"##C-"*)  printCondLine       "$help_line" ;;
+			*"##N-"*)  printNamedLine      "$help_line" ;;
+			*"##CN-"*) printCondNamedLine  "$help_line" ;;
+      *"##C"*)   printCondCommand    "$help_line" ;;
+      *"##"*)    printCommand        "$help_line" '##' ;;
       *)    
       ;;   
     esac
