@@ -40,17 +40,23 @@ scriptName=$(basename "$0")
 MPT_DIR=makeplate_files
 MPT_INSTALL_DIR=~/bin/${MPT_DIR}
 
+# Check if MPT file exists
 if [ -e ${scriptPath}/MPT ]; then
   MPT=1
 else
   NEW=1
 fi
 
-# Local install dir
+# Local install directory
 MP_LOCALDIR=~/bin
 
-# system wide install dir
+# system wide install directory
 MP_SYSDIR=/usr/local/bin
+
+# Settings directory
+MP_CONFIG_DIR=~/.config/makeplates
+
+MP_3DPARTY_DIR=${scriptPath}/3dparty
 
 #---------------------------------------------------------------------
 # User defined functions
@@ -87,6 +93,20 @@ installMp() {
   fi
 }
 
+# Create a directory if it does not exist
+mpCreateDir() {
+ if [ ! -d $1 ]; then
+		 mkdir -p $1
+	fi
+}
+
+mpConfigDir() { ## testing
+  mpCreateDir ${MP_CONFIG_DIR}
+#	mpCreateDir ${MP_CONFIG_DIR}/3r
+#	mpCreateDir ${MP_CONFIG_DIR}
+}
+
+
 
 #
 # arg1 install dir
@@ -98,7 +118,8 @@ mpInstall() {
   mkdir -p ${1}
 	
   cp -rf ${scriptPath}/mp      ${1}/.
-  cp -rf ${scriptPath}/tools   ${1}/.	
+  cp -rf ${scriptPath}/tools   ${1}/.
+	cp -rf ${scriptPath}/3dparty ${1}/.
 
   # Install makeplates
   installMp ${scriptPath}  ${1}  mp-c 
@@ -113,7 +134,7 @@ mpInstall() {
 }
 
 
-install() { ##C MPT Install makeplates on system
+install() { #C MPT Install makeplates on system
   assertRoot
   echo -e "Installing makeplates"
   rm -rf ${MP_SYSDIR}/${MPT_DIR}
@@ -174,6 +195,14 @@ createProject() {
 	
 }
 
+<<<<<<< HEAD
+=======
+
+##N- Kalle
+
+##C- NEW
+
+>>>>>>> fb0c280f2781ae6705620f645a6f85b93a0ce448
 newC() { ##C NEW Create a new standard C makeplate project
   createProject "Creating new makeplate C project" ${scriptPath}/${MPT_DIR}/mp-c 
 }
@@ -190,6 +219,7 @@ newSCpp() { ##C NEW Create a new simple C++ makeplate project
   createProject "Creating new simple makeplate C++ project" ${scriptPath}/${MPT_DIR}/mp-simple-cpp
 }
 
+<<<<<<< HEAD
 # check for local version of mp and execute it
 preCheck() {
 echo XXX $0 $1 $2 $3
@@ -204,7 +234,24 @@ echo XXX $0 $1 $2 $3
 }
 
 newModule() { ## Create new C module
+=======
+newModule() { ##C NEW Create new C module
+>>>>>>> fb0c280f2781ae6705620f645a6f85b93a0ce448
   ${scriptPath}/tools/ctemplate.py
+}
+
+
+list() {  ##C NEW List 3d party libraries
+  ls -1 3dparty
+}
+
+eInstall() { ##C NEW Install 3d party library
+  if [ -d ${MP_3DPARTY_DIR}/${2} ]; then
+	  cp -rf ${MP_3DPARTY_DIR}/${2} .
+		bpOk "Module \"${2}\" installed"
+	else
+	  bpError "Module \"${2}\" does not exist"
+	fi
 }
 
 
@@ -347,6 +394,7 @@ E_SHOW="\e[?25h"          # Show cursor
 E_END="\e[m"              # Clear Attributes
 
 # Message colors
+E_OK=$E_BR_GREEN
 E_INFO=$E_BR_CYAN
 E_WARNING=$E_BR_YELLOW
 E_ERROR=$E_BR_RED
@@ -360,9 +408,21 @@ EX_OK=0            # successful termination
 
 ##-
 
-# Print a divider row
-printLine() { ##D Print a line  
-  echo -e "${E_BOLD_WHITE}------------------------------------------------------------------------------${E_END}"
+# Print text with row
+#
+# arg1 text to be printed
+# arg2 text color
+# arg3 line color
+# arg4 middle character
+# arg5 line character
+bpPrintLineC() { ##D Print text with adjusted line after with selectable colors
+  len1=${#1}
+	len4=${#4}
+	
+	echo -en ${2}${1}${4}${3}
+	l=$((${COLUMNS} - ${len1} - ${len4} - 3 ))
+	seq -s${5} ${l}|tr -d '[:digit:]'
+	echo -en ${E_END} 
 }
 
 # Print text with row
@@ -371,11 +431,14 @@ printLine() { ##D Print a line
 # arg2 text color
 # arg3 line color
 bpTextLineC() { ##D Print text with adjusted line after with selectable colors
-  len=${#1}
-	echo -en ${2}${1}" "${3}
-	l=$((${COLUMNS} - ${len} - 3 ))
-	seq -s_ ${l}|tr -d '[:digit:]'
-	echo -e ${E_END} 
+  bpPrintLineC $1 $2 $3 " " "-"
+	return
+}
+
+
+# Print a divider row
+printLine() { ##D Print a line  
+	bpPrintLineC "" "${E_GRAY}" "${E_GRAY}" "" "-" 
 }
 
 
@@ -437,6 +500,12 @@ log() { ##C LOGFILE View logfile
     bpInfo "Logging is not activated"
     exit
   fi
+}
+
+
+bpOk() { ##D Success message 
+  bpLog "[Ok] $1"
+  echo -e "[${E_OK}Ok${E_END}] $1"
 }
 
 bpInfo() { ##D Info message 
@@ -535,6 +604,25 @@ printCondCommand() {
   fi
 }
 
+printCondLine() {
+  help_line=$1
+  C=$(echo "$1" | sed -s 's/^.*##C-//' | awk '{print $1}')
+  eval "D=\$$C"
+  if [ -n "$D" ]; then
+     printLine
+  fi
+}
+
+##N- Kalle
+printNamedLine() {
+  name=$(echo "$1" | sed -s 's/^.*##N-//' | awk '{print $1}')
+	bpTextLineC $C "${E_GRAY}" "${E_GRAY}"
+}
+
+
+SSSS=1
+##K- SSSS asdfasdfasdf
+
 help() { ## Print this help information
   echo "$USAGE"
   echo -e "$DESC"
@@ -543,14 +631,14 @@ help() { ## Print this help information
   printLine
   IFS=$'\n'
   SC=$1
-  help_lines=$(grep -h '##' "$0" | grep -v grep | grep -v '##D' | grep -v '##V' | grep -v '\*##C' |  grep -v '\"##' | grep -v help_line | grep -v printLine)
+  help_lines=$(grep -h '##' "$0" | grep -v grep | grep -v '##D' | grep -v '##V' | grep -v '\*##C' | grep -v '\*##C-' |  grep -v '\"##' |  grep -v '##N-//' | grep -v help_line | grep -v printLine)
   for help_line in ${help_lines[@]} ; do
-#	for help_line in "${help_lines}" ; do
-#  for help_line in "${help_lines[@]}" ; do
     case "$help_line" in
-      *"##-"*) printLine ;;
-      *"##C"*) printCondCommand "$help_line" ;;
-      *"##"*)   printCommand "$help_line" '##' ;;
+      *"##-"*)  printLine ;;
+			*"##K-"*) printCondLine    "$help_line" ;;
+			*"##N-"*) printNamedLine   "$help_line" ;;
+      *"##C"*)  printCondCommand "$help_line" ;;
+      *"##"*)   printCommand     "$help_line" '##' ;;
       *)    
       ;;   
     esac

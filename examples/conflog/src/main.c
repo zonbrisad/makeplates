@@ -22,6 +22,8 @@
 #include "gp_log.h"
 #include "Def.h"
 
+#include "conflog.h"
+
 /**
  * Defines
  *---------------------------------------------------------------------------
@@ -147,9 +149,6 @@ void sig_usr1(int sig) {
   printf("Signal USR1\n");
 
 }
-
-
-
 
 
 void infoTest() {

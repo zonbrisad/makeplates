@@ -66,8 +66,6 @@ int simpleSQL(sqlite3 *db, char *sql) {
 	return res;
 }
 
-
-
 int tableExists(sqlite3 *db, char *tableName) {
 	char sql[64];
 	int rc;

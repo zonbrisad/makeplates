@@ -1,9 +1,9 @@
 # Hey Emacs, this is a -*- makefile -*-
 #----------------------------------------------------------------------------
 # 
-# Makeplate glib example program
+# Makeplate conflog example program
 #
-# author: Peter Malmberg <peter.malmberg@gmail.com>
+# Author: Peter Malmberg <peter.malmberg@gmail.com>
 #
 #  
 #----------------------------------------------------------------------------
@@ -32,8 +32,6 @@ LSRC =
 # Include directories
 INCLUDE = inc \
           src \
-
-XDIR=$(shell pwd)
 
 # Libraries to link
 LIB   = -lm 
@@ -85,7 +83,11 @@ CPPDEFS =
 # 1 = minimal debug information
 # 2 = normal debug information 
 # 3 = maximal debug information
+<<<<<<< HEAD
 DEBUG=3
+=======
+DEBUG=0
+>>>>>>> fb0c280f2781ae6705620f645a6f85b93a0ce448
 
 #
 # Compiler and Linker options
@@ -113,8 +115,13 @@ CFLAGS += -Wall                  # Standard warnings
 CFLAGS += -Wextra                # Some extra warnings
 CFLAGS += -Wmissing-braces 
 CFLAGS += -Wmissing-declarations # Warn if global function is not declared
+<<<<<<< HEAD
 #CFLAGS += -Wmissing-prototypes   # if a function is missing its prototype
 #CFLAGS += -Wstrict-prototypes    # non correct prototypes i.e. void fun() => void fun(void) 
+=======
+CFLAGS += -Wmissing-prototypes   # if a function is missing its prototype
+CFLAGS += -Wstrict-prototypes    # non correct prototypes i.e. void fun() => void fun(void) 
+>>>>>>> fb0c280f2781ae6705620f645a6f85b93a0ce448
 CFLAGS += -Wredundant-decls      # Warn if something is declared more than ones
 CFLAGS += -Wunreachable-code     # if code is not used
 CFLAGS += -Wshadow               # if local variable has same name as global
@@ -142,6 +149,10 @@ CPPFLAGS += -funsigned-bitfields
 #CPPFLAGS += -fpack-struct
 CPPFLAGS += -fshort-enums
 CPPFLAGS += -fno-exceptions
+<<<<<<< HEAD
+=======
+
+>>>>>>> fb0c280f2781ae6705620f645a6f85b93a0ce448
 #CPPFLAGS += -mshort-calls
 #CPPFLAGS += -fno-unit-at-a-time
 #CPPFLAGS += -fPIC                  # Position independet code
@@ -161,9 +172,12 @@ CPPFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void 
 #CPPFLAGS += -Wundef
 #CPPFLAGS += -Werror              # All warnings will be treated as errors
 
+<<<<<<< HEAD
 # Library compiler flags C++ ------------------------------------------------
 CPPFLAGS += $(foreach X, $(PKGLIBS), $(shell pkg-config --cflags $(X)) )
 
+=======
+>>>>>>> fb0c280f2781ae6705620f645a6f85b93a0ce448
 
 # Linker Options ------------------------------------------------------------
 #  -Wl,...:     tell GCC to pass this to linker.
@@ -174,6 +188,7 @@ LDFLAGS += $(EXTMEMOPTS)
 LDFLAGS += $(patsubst %,-L%,$(INCLUDE))
 LDFLAGS += -g
 LDFLAGS += $(foreach X, $(PKGLIBS), $(shell pkg-config --libs $(X)) )
+
 
 #
 # Platform specific options
@@ -191,7 +206,25 @@ TCHAIN_BASE=/usr/bin
 # Toolchain prefix 
 TCHAIN_PREFIX=
 
+# Handle pkg-config libraries -----------------------------------------------
+CFLAGS   += $(foreach X, $(PKGLIBS), $(shell pkg-config --cflags $(X)) )
+CPPFLAGS += $(foreach X, $(PKGLIBS), $(shell pkg-config --cflags $(X)) )
+LDFLAGS  += $(foreach X, $(PKGLIBS), $(shell pkg-config --libs $(X)) )
+
+# Size flags
+SIZEFLAGS = 
+
+# objdump flags
+ODFLAGS = -h -S -C -r
+
+# Output format. (can be srec, ihex, binary)
+FORMAT = ihex
+
+# object copy flags
+OCFLAGS = -O $(FORMAT) 
+
 endif
+
 # Windows options -----------------------------------------------------------
 ifeq ($(TARGET_PLATFORM), win32)
 
@@ -289,7 +322,11 @@ E_ATTR_REVERSE=\e[7m
 
 # System color definitions
 C_OK=$(E_BR_GREEN)
+<<<<<<< HEAD
 C_WARNING=$(E_BR_YELLOW)$(E_ATTR_UNDERLINE)
+=======
+C_WARNING=$(E_BR_YELLOW)
+>>>>>>> fb0c280f2781ae6705620f645a6f85b93a0ce448
 C_ERROR=$(E_BR_RED)
 C_FILE=$(E_BR_CYAN)
 C_DIR=$(E_CYAN)
@@ -332,6 +369,7 @@ MSG_FLAGS            = "${C_MSG}Compiler Flags $(E_GREEN)-----------------------
 MSG_LINKER           = "${C_MSG}Linker Flags $(E_GREEN)-----------------------------------------------------${E_END}"
 MSG_PROJECT          = "${C_MSG}Project info $(E_GREEN)-----------------------------------------------------${E_END}"
 MSG_INCLUDES         = "${C_MSG}Include directories $(E_GREEN)----------------------------------------------${E_END}"
+MSG_OBJECTS          = "${C_MSG}Object files $(E_GREEN)-----------------------------------------------------${E_END}"	
 MSG_DEFS             = "${C_MSG}Macro definitions $(E_GREEN)------------------------------------------------${E_END}"
 MSG_INSTALL_INFO     = "${C_MSG}Install settings $(E_GREEN)-------------------------------------------------${E_END}"
 MSG_INSTALLING       = "${C_ACTION}Installing:   ${E_END}"
@@ -387,11 +425,30 @@ CSRC   = $(patsubst %.S,    , $(CSRC_1))
 CPPSRC_1 = $(patsubst %.c,  , $(SRC) $(LSRC))
 CPPSRC   = $(patsubst %.S,  , $(CPPSRC_1))
 
+
+# Filter out C sources
+CSRC_1 = $(patsubst %.cpp,  , $(SRC) $(LSRC))
+CSRC   = $(patsubst %.S,    , $(CSRC_1))
+
+# Filter out C++ sources
+CPPSRC_1 = $(patsubst %.c,  , $(SRC) $(LSRC))
+CPPSRC   = $(patsubst %.S,  , $(CPPSRC_1))
+
+# Filter out Assembler sources
+ASRC_1 = $(patsubst %.c,    , $(SRC) $(LSRC))
+ASRC   = $(patsubst %.cpp,  , $(ASRC_1))
+
 # Define all object files.
 COBJS    = $(patsubst %.c,   $(BUILDDIR)/%.o, $(CSRC))
 CPPOBJS  = $(patsubst %.cpp, $(BUILDDIR)/%.o, $(CPPSRC))
+<<<<<<< HEAD
 
 OBJS    = $(COBJS) $(CPPOBJS) 
+=======
+AOBJS    = $(patsubst %.S,   $(BUILDDIR)/%.o, $(ASRC))
+
+OBJS    = $(COBJS) $(CPPOBJS) $(AOBJS)
+>>>>>>> fb0c280f2781ae6705620f645a6f85b93a0ce448
 
 # Define all listing files.
 LST = $(patsubst %.c, $(OBJDIR)/%.lst, $(CSRC)) $(patsubst %.cpp, $(OBJDIR)/%.lst, $(CPPSRC)) $(patsubst %.S, $(OBJDIR)/%.lst, $(ASRC))
@@ -399,6 +456,7 @@ LST = $(patsubst %.c, $(OBJDIR)/%.lst, $(CSRC)) $(patsubst %.cpp, $(OBJDIR)/%.ls
 # Default target.
 all:	begin build finished end
 
+<<<<<<< HEAD
 # Remove colorfilter
 nocolor:
 	$(eval C_FILTER:= )
@@ -408,7 +466,16 @@ nocolor:
 # Useful for Netbeans, Eclipse builds etc. 
 #	
 nc: nocolor all   ## Build with no color filter on compiler output
+=======
+nc: C_FILTER:= 
+nc: all   ## Build with no color filter on compiler output
+>>>>>>> fb0c280f2781ae6705620f645a6f85b93a0ce448
 
+#test: ALL_CFLAGS   += -DUNIT_TEST
+#test: ALL_CPPFLAGS += -DUNIT_TEST
+#test: SRC += src/Unity/src/unity.c
+#test: OBJS += build/Unity/src/unity.o
+#test: all 
 
 build: elf lss sym size
 
@@ -419,7 +486,6 @@ hex: $(OUTDIR)/$(TARGET).hex
 bin: $(OUTDIR)/$(TARGET).bin
 eep: $(OUTDIR)/$(TARGET).eep
 
-# Eye candy.
 begin:
 	@echo -e $(MSG_BEGIN)
 	@echo -e ${MSG_BUILDING}" $(E_BR_GREEN)$(TARGET) $(E_END)"
@@ -431,12 +497,20 @@ end:
 finished:
 	@echo
 
+<<<<<<< HEAD
 
 # Link target
 .PRECIOUS : $(OBJS)
 $(TRGFILE): $(OBJS) $(OUTDIR)
 	@echo -en "\n"$(MSG_LINKING)"       "
 	@echo -e $@ $(F_SOURCE) 
+=======
+# Linking targets from object files
+.PRECIOUS : $(OBJS)
+$(TRGFILE): $(OBJS) $(OUTDIR)
+	@echo -en "\n"$(MSG_LINKING)"\n               "
+	@echo -e $@ $(F_SOURCE)
+>>>>>>> fb0c280f2781ae6705620f645a6f85b93a0ce448
 	@$(CPP) $(ALL_CFLAGS) $(OBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)
 	
 # Create extended listing file/disassambly from ELF output file.
@@ -444,7 +518,11 @@ $(TRGFILE): $(OBJS) $(OUTDIR)
 %.lss:	$(TRGFILE)
 	@echo -en "\n"$(MSG_EXTENDED_LISTING) "\n               "
 	@echo -e $@ $(F_SOURCE)
+<<<<<<< HEAD
 	@$(OBJDUMP) -h -S -C -r $< > $@
+=======
+	@$(OBJDUMP) $(ODFLAGS) $< > $@
+>>>>>>> fb0c280f2781ae6705620f645a6f85b93a0ce448
 	
 # Create a symbol table from ELF output file.
 %.sym: $(TRGFILE)
@@ -457,7 +535,11 @@ $(TRGFILE): $(OBJS) $(OUTDIR)
 	@echo
 	@echo -en $(MSG_HEX_FILE) "\n               "
 	@echo -e $@ $(F_SOURCE)
+<<<<<<< HEAD
 	@$(OBJCOPY) -O ihex $< $@
+=======
+	@$(OBJCOPY) $(OCFLAGS) $< $@
+>>>>>>> fb0c280f2781ae6705620f645a6f85b93a0ce448
 
 # Compile: create object files from C source files.
 $(COBJS): $(BUILDDIR)/%.o : %.c
@@ -467,7 +549,11 @@ $(COBJS): $(BUILDDIR)/%.o : %.c
 	@$(CC) -c $(ALL_CFLAGS) $< -o $@ 2>&1  $(C_FILTER)
 
 # Compile: create object files from C++ source files.
+<<<<<<< HEAD
 $(CPPOBJS): $(BUILDDIR)/%.o : %.cpp
+=======
+$(CPPOBJS): $(BUILDDIR)/%.o : src/%.cpp
+>>>>>>> fb0c280f2781ae6705620f645a6f85b93a0ce448
 	@$(MKDIR) $(@D)                                       # Create directory for object file
 	@echo -en $(MSG_COMPILING_CPP)" " 
 	@echo -e $< $(F_SOURCE)
@@ -507,12 +593,43 @@ $(BUILDDIR):
 size: $(TRGFILE)
 	@echo
 	@echo -e $(MSG_SIZE_AFTER)
+<<<<<<< HEAD
 	@$(SIZE) $(TRGFILE)
+=======
+	@$(SIZE) $(SIZEFLAGS) $(TRGFILE)
+>>>>>>> fb0c280f2781ae6705620f645a6f85b93a0ce448
 
 strip: $(TRGFILE) ## Strip target binary from symbols
 	@echo -e $(MSG_STRIP)
 	@$(STRIP) $(TRGFILE)
 
+<<<<<<< HEAD
+=======
+
+# 
+# Qt5 Specific objects and targets
+#============================================================================
+
+# Qt objects ----------------------------------------------------------------
+MOCSRC = $(patsubst %.h,%_moc.cpp,$(MOCS))         # Generate moc source files
+SRC   += $(MOCSRC)
+UIH    = $(patsubst src/%.ui, src/ui_%.h, $(UI) )  # Generate UI header files
+
+
+# Qt Meta Object Compiler target --------------------------------------------
+$(MOCSRC): %_moc.cpp : %.h 	
+	@echo -en $(MSG_MOC) "\n               "
+	@echo -e $@ $(F_SOURCE)
+	@$(MOC) $(INCDIRS) $< -o $@
+
+# Qt user interface header file generation target ---------------------------
+$(UIH): src/ui_%.h: src/%.ui
+	@echo -en $(MSG_UI) "\n               "
+	@echo -e $@  $(F_SOURCE)  
+	@$(UIC) $(INCDIRS) $< -o $@
+
+
+>>>>>>> fb0c280f2781ae6705620f645a6f85b93a0ce448
 # 
 # Debug rules
 #============================================================================
@@ -545,7 +662,13 @@ clean:  ## Remove all build files
 	@$(REMOVEDIR) $(BUILDDIR)	
 	@find . -name "*~" -delete
 	@find . -name "*.orig" -delete
+<<<<<<< HEAD
 
+=======
+>>>>>>> fb0c280f2781ae6705620f645a6f85b93a0ce448
+
+# Directory where to store archives
+ARCHIVEDIR = archive
 
 # Directory where to store archives
 ARCHIVEDIR = archive
@@ -624,9 +747,12 @@ edit:   ## Open source and makefile in editor
 
 run:    ## Run application
 	@$(OUTDIR)/$(TARGET)
+<<<<<<< HEAD
 
 debug:  ## Debug application
 
+=======
+>>>>>>> fb0c280f2781ae6705620f645a6f85b93a0ce448
 
 # Include the dependency files.
 -include $(shell mkdir .dep 2>/dev/null) $(wildcard .dep/*)
@@ -708,10 +834,17 @@ list-ldflags: ## List linker flags
 	done                       \
 
 list-objs: ## List objects 
+<<<<<<< HEAD
 	@echo -e $(MSG_INCLUDES)
 	@export IFS=" "
 	@for f in $(OBJS); do   \
 	  echo $${f} ;             \
+=======
+	@echo -e $(MSG_OBJECTS)
+	@export IFS=" "
+	@for f in $(OBJS); do   \
+	  echo $${f} ;          \
+>>>>>>> fb0c280f2781ae6705620f645a6f85b93a0ce448
 	done        
 
 
@@ -738,7 +871,11 @@ list-info:
 	@echo -e $(MSG_PROJECT)
 	@echo "Target:     $(TARGET)"
 	@echo "Platform:   $(TARGET_PLATFORM)"
+<<<<<<< HEAD
 	@echo "Licence:    $(LICENSE)"
+=======
+	@echo "License:    $(LICENSE)"
+>>>>>>> fb0c280f2781ae6705620f645a6f85b93a0ce448
 	@echo "Outdir:     $(OUTDIR)"
 	@echo "C standard: $(CSTANDARD)"
 	@echo "MCU:        $(MCU)"
@@ -833,6 +970,7 @@ acheck: ## Static code analysis using cppcheck(all warnings)
 .PHONY: astyle
 
 TABSIZE=4
+<<<<<<< HEAD
 
 # Bracket style options
 AST  = --style=java
@@ -893,7 +1031,47 @@ prof:  run ## Run code profiling
 
 doc: ## Generate doxygen documentation
 	$(DOXYGEN)
+=======
 
+# Bracket style options
+AST  = --style=java
+>>>>>>> fb0c280f2781ae6705620f645a6f85b93a0ce448
+
+# Tab options
+AST += --indent=spaces=$(TABSIZE)
+
+# Indentation options
+AST += --indent-switches
+AST += --indent-cases
+#AST += --indent-preproc-cond
+AST += --indent-col1-comments
+AST += --max-instatement-indent=40
+ 
+# C++ specific indentation
+AST += --indent-modifiers
+
+# Padding options
+AST += --break-blocks
+AST += --pad-oper
+#AST += --pad-comma
+AST += --pad-header
+AST += --align-pointer=name
+AST += --align-reference=name 
+
+# Formatting options
+AST += --add-brackets 
+AST += --convert-tabs
+
+# Other options
+AST += --lineend=linux
+#AST += --recursive
+#AST += --exclude=
+AST +=--preserve-date
+
+PSRCH = $(PSRC:%.c=%.h) 
+
+astyle: ## Format source to conform to a standard
+	@$(ASTYLE) $(AST) src/*.c src/*.h
 
 	
 # Listing of phony targets.
@@ -902,6 +1080,7 @@ doc: ## Generate doxygen documentation
 #
 # Makeplate internal targets
 #============================================================================
+<<<<<<< HEAD
 mpType=mp-cpp
 
 utools: # Update tools from locally installed tools
@@ -909,4 +1088,13 @@ utools: # Update tools from locally installed tools
 	@$(COPY) ~/bin/makeplate_files/tools/* tools/.
 
 meld: # Meld Makefile with locally installed makefile
+=======
+mpType=mp-c
+
+utools: # Update tools from installed tools
+	@echo -e "${C_ACTION}Updating makeplate tools${E_END}"
+	@$(COPY) ~/bin/makeplate_files/tools/* tools/.
+
+meld: # Meld with installed 
+>>>>>>> fb0c280f2781ae6705620f645a6f85b93a0ce448
 	@meld ~/bin/makeplate_files/${mpType}/Makefile  Makefile
