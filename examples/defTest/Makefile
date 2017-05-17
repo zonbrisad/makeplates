@@ -680,7 +680,8 @@ newclass:  ## Create a new C++ class
 # Install options -----------------------------------------------------------
 
 # Install directory
-INSTALL_DIR      = ~/bin
+INSTALL_DIR_DEF      = ../../3dparty/def
+INSTALL_DIR_PMU      = ../../3dparty/pmutil
 
 # Owner of binary
 INSTALL_OWNER    = $${USER}
@@ -690,15 +691,30 @@ INSTALL_OWNER    = $${USER}
 INSTALL_GROUP    = users
 
 # Install options
-INSTALL_OPTIONS =  --owner ${INSTALL_OWNER}
-INSTALL_OPTIONS += --group ${INSTALL_GROUP}
-INSTALL_OPTIONS += -D
+#INSTALL_OPTIONS =  --owner ${INSTALL_OWNER}
+#INSTALL_OPTIONS += --group ${INSTALL_GROUP}
+INSTALL_OPTIONS = -D
 INSTALL_OPTIONS += --preserve-timestamps
-#INSTALL_OPTIONS += --verbose
+INSTALL_OPTIONS += --verbose
 
 install: $(TRGFILE) ## Install program
 	@echo -e $(MSG_INSTALLING) "$(E_BR_GREEN)$(TARGET) $(E_END)"
 	@${INSTALL} ${INSTALL_OPTIONS} $(TRGFILE) ${INSTALL_DIR}
+
+
+install-def:  ## Install def.h
+	@echo -e $(MSG_INSTALLING) "$(E_BR_GREEN)def.h $(E_END)"
+	@${REMOVE} -rf ${INSTALL_DIR_DEF}
+	@${MKDIR} -p ${INSTALL_DIR_DEF}/src
+	@${COPY} -rf src/def.h ${INSTALL_DIR_DEF}/src/.
+
+
+install-pmu:  ## Install pmutil
+	@echo -e $(MSG_INSTALLING) "$(E_BR_GREEN)pmutil $(E_END)"
+	@${REMOVE} -rf ${INSTALL_DIR_PMU}
+	@${MKDIR} -p ${INSTALL_DIR_PMU}/src
+	@${COPY} -rf src/pmutil.* ${INSTALL_DIR_PMU}/src/.
+
 
 #
 # Help information
