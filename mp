@@ -206,19 +206,19 @@ NEW=1
 ##CN- NEW Project cmds
 
 newC() { ##C NEW Create a new standard C makeplate project
-  createProject "Creating new makeplate C project" ${scriptPath}/${MPT_DIR}/mp-c 
+  createProject "Creating new makeplate C project" ${scriptPath}/mp-c 
 }
 
 newCpp() { ##C NEW Create a new standard C++ makeplate project
-  createProject  "Creating new makeplate C++ project" ${scriptPath}/${MPT_DIR}/mp-cpp
+  createProject  "Creating new makeplate C++ project" ${scriptPath}/mp-cpp
 }
 
 newSC() { ##C NEW Create a new simple C makeplate project
-  createProject "Creating new simple makeplate C project"  ${scriptPath}/${MPT_DIR}/mp-simple-c
+  createProject "Creating new simple makeplate C project"  ${scriptPath}/mp-simple-c
 }
 
 newSCpp() { ##C NEW Create a new simple C++ makeplate project
-  createProject "Creating new simple makeplate C++ project" ${scriptPath}/${MPT_DIR}/mp-simple-cpp
+  createProject "Creating new simple makeplate C++ project" ${scriptPath}/mp-simple-cpp
 }
 
 
@@ -247,7 +247,7 @@ list() {  ##C NEW List 3d party libraries
 
 eInstall() { ##C NEW Install 3d party library
   if [ -d ${MP_3DPARTY_DIR}/${2} ]; then
-	  cp -rf ${MP_3DPARTY_DIR}/${2}/* .
+	  cp -arf ${MP_3DPARTY_DIR}/${2}/* .
 		bpOk "Module \"${2}\" installed"
 	else
 	  bpError "Module \"${2}\" does not exist"
