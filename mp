@@ -107,13 +107,6 @@ mpCreateDir() {
 	fi
 }
 
-mpConfigDir() { ## testing
-  mpCreateDir ${MP_CONFIG_DIR}
-#	mpCreateDir ${MP_CONFIG_DIR}/3r
-#	mpCreateDir ${MP_CONFIG_DIR}
-}
-
-
 
 #
 # arg1 install dir
@@ -202,7 +195,7 @@ createProject() {
 }
 
 
-NEW=1
+#NEW=1
 ##CN- NEW Project cmds
 
 newC() { ##C NEW Create a new standard C makeplate project
@@ -239,20 +232,48 @@ newModule() { ##C NEW Create new C module
   ${scriptPath}/tools/ctemplate.py
 }
 
+
+
 ##CN- NEW Install
 
 list() {  ##C NEW List 3d party libraries
   ls -1 ${scriptPath}/3dparty
 }
 
+MPINSTALL=mpInstall
+
 eInstall() { ##C NEW Install 3d party library
+
   if [ -d ${MP_3DPARTY_DIR}/${2} ]; then
+	  if [ -e ${MP_3DPARTY_DIR}/${2}/${MPINSTALL} ]; then
+
+			${MP_3DPARTY_DIR}/${2}/${MPINSTALL} ${PWD}
+			bpOk "Module \"${2}\" installed"
+		  return
+		fi
+	
 	  cp -arf ${MP_3DPARTY_DIR}/${2}/* .
 		bpOk "Module \"${2}\" installed"
 	else
 	  bpError "Module \"${2}\" does not exist"
 	fi
 }
+NEW=1
+
+
+newScript() { ##C NEW Create new 3d party install script
+  echo "#!/usr/bin/env bash" > mpInstall
+	echo "#" >> mpInstall
+	echo "# Makeplate 3dparty install script" >> mpInstall
+	echo "#" >> mpInstall
+	echo "# $1 is destination directory" >> mpInstall
+	echo "#" >> mpInstall
+  echo  >> mpInstall
+	echo 'scriptPath=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )' >> mpInstall
+	echo  >> mpInstall
+	chmod +x ${MPINSTALL}
+}
+
 
 
 #--------------------------------------------------------------------- 
