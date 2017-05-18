@@ -1,11 +1,16 @@
 # Hey Emacs, this is a -*- makefile -*-
 #----------------------------------------------------------------------------
 # 
-# Makeplate example project
+# Some tests of def.h and pmutils
 #
 # author: Peter Malmberg <peter.malmberg@gmail.com>
 #
-#  
+# License: MIT
+#----------------------------------------------------------------------------
+# This file is part of the makeplates project.
+# Git checkout:
+# https://github.com/zonbrisad/makeplates.git
+# 
 #----------------------------------------------------------------------------
 # On command line:
 # >make help 
@@ -15,11 +20,11 @@
 # linux win32 avr arm osx
 TARGET_PLATFORM = linux
 
-# Project Licence (GPL, GPLv2, MIT, BSD, Apache, etc.) 
-LICENCE = GPLv2
+# Project License (GPL, GPLv2, MIT, BSD, Apache, etc.) 
+LICENSE = MIT
 
 # Target file name (without extension).
-TARGET = makeplate
+TARGET = defTest
 
 # List C, C++ and assembler source files here. (C/C++ dependencies are automatically generated.)
 SRC = src/main.c        \
@@ -169,6 +174,15 @@ LDFLAGS += $(patsubst %,-L%,$(INCLUDE))
 LDFLAGS += -g
 
 
+# Misc settings -------------------------------------------------------------
+MPFLAGS  = -DLICENSE=$(LICENSE)
+MPFLAGS += -DTARGET=$(TARGET)
+MPFLAGS += -DVERSION=$(VERSION)
+ 
+CFLAGS   += $(MPFLAGS)
+CPPFLAGS += $(MPFLAGS)
+ASFLAGS  += $(MPFLAGS)
+
 #
 # Platform specific options
 #============================================================================
@@ -190,16 +204,20 @@ CFLAGS   += $(foreach X, $(PKGLIBS), $(shell pkg-config --cflags $(X)) )
 CPPFLAGS += $(foreach X, $(PKGLIBS), $(shell pkg-config --cflags $(X)) )
 LDFLAGS  += $(foreach X, $(PKGLIBS), $(shell pkg-config --libs $(X)) )
 
-# Size flags
-SIZEFLAGS = 
+# Size flags ----------------------------------------------------------------
+SIZEFLAGS = --format=berkley  # format = {sysv|berkeley}
 
-# objdump flags
-ODFLAGS = -h -S -C -r
 
-# Output format. (can be srec, ihex, binary)
+# objdump flags -------------------------------------------------------------
+ODFLAGS  = -h  # Display the contents of the section headers  
+ODFLAGS += -S  # Intermix source code with disassembly
+ODFLAGS += -C  #
+ODFLAGS += -r  # Display the relocation entries in the file
+
+# Output format. (can be srec, ihex, binary) --------------------------------
 FORMAT = ihex
 
-# object copy flags
+# object copy flags ---------------------------------------------------------
 OCFLAGS = -O $(FORMAT) 
 
 endif
@@ -217,6 +235,28 @@ TCHAIN_BASE=/usr/bin
 TCHAIN_PREFIX=
 
 endif
+
+# 
+# Qt5 Specific objects and targets
+#============================================================================
+
+# Qt objects ----------------------------------------------------------------
+MOCSRC = $(patsubst %.h,%_moc.cpp,$(MOCS))         # Generate moc source files
+SRC   += $(MOCSRC)
+UIH    = $(patsubst src/%.ui, src/ui_%.h, $(UI) )  # Generate UI header files
+
+
+# Qt Meta Object Compiler target --------------------------------------------
+$(MOCSRC): %_moc.cpp : %.h 	
+	@echo -en $(MSG_MOC) "\n               "
+	@echo -e $@ $(F_SOURCE)
+	@$(MOC) $(INCDIRS) $< -o $@
+
+# Qt user interface header file generation target ---------------------------
+$(UIH): src/ui_%.h: src/%.ui
+	@echo -en $(MSG_UI) "\n               "
+	@echo -e $@  $(F_SOURCE)  
+	@$(UIC) $(INCDIRS) $< -o $@
 
 #
 # Tool settings
@@ -445,8 +485,8 @@ finished:
 # Linking targets from object files
 .PRECIOUS : $(OBJS)
 $(TRGFILE): $(OBJS) $(OUTDIR)
-	@echo -en "\n"$(MSG_LINKING)"\n               "
-	@echo -e $@ $(F_SOURCE)
+	@echo -en "\n"$(MSG_LINKING)"       "
+	@echo -e $@ $(F_SOURCE) 
 	@$(CPP) $(ALL_CFLAGS) $(OBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)
 	
 # Create extended listing file/disassambly from ELF output file.
@@ -477,7 +517,7 @@ $(COBJS): $(BUILDDIR)/%.o : %.c
 	@$(CC) -c $(ALL_CFLAGS) $< -o $@ 2>&1  $(C_FILTER)
 
 # Compile: create object files from C++ source files.
-$(CPPOBJS): $(BUILDDIR)/%.o : src/%.cpp
+$(CPPOBJS): $(BUILDDIR)/%.o : %.cpp
 	@$(MKDIR) $(@D)                                       # Create directory for object file
 	@echo -en $(MSG_COMPILING_CPP)" " 
 	@echo -e $< $(F_SOURCE)
@@ -508,30 +548,6 @@ size: $(TRGFILE)
 strip: $(TRGFILE) ## Strip target binary from symbols
 	@echo -e $(MSG_STRIP)
 	@$(STRIP) $(TRGFILE)
-
-
-# 
-# Qt5 Specific objects and targets
-#============================================================================
-
-# Qt objects ----------------------------------------------------------------
-MOCSRC = $(patsubst %.h,%_moc.cpp,$(MOCS))         # Generate moc source files
-SRC   += $(MOCSRC)
-UIH    = $(patsubst src/%.ui, src/ui_%.h, $(UI) )  # Generate UI header files
-
-
-# Qt Meta Object Compiler target --------------------------------------------
-$(MOCSRC): %_moc.cpp : %.h 	
-	@echo -en $(MSG_MOC) "\n               "
-	@echo -e $@ $(F_SOURCE)
-	@$(MOC) $(INCDIRS) $< -o $@
-
-# Qt user interface header file generation target ---------------------------
-$(UIH): src/ui_%.h: src/%.ui
-	@echo -en $(MSG_UI) "\n               "
-	@echo -e $@  $(F_SOURCE)  
-	@$(UIC) $(INCDIRS) $< -o $@
-
 
 # 
 # Debug rules
@@ -915,9 +931,9 @@ astyle: ## Format source to conform to a standard
 #============================================================================
 mpType=mp-c
 
-utools: # Update tools from installed tools
+utools: # Update tools from locally installed tools
 	@echo -e "${C_ACTION}Updating makeplate tools${E_END}"
 	@$(COPY) ~/bin/makeplate_files/tools/* tools/.
 
-meld: # Meld with installed 
+meld: # Meld Makefile with locally installed makefile
 	@meld ~/bin/makeplate_files/${mpType}/Makefile  Makefile

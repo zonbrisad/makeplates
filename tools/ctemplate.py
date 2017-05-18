@@ -156,12 +156,11 @@ def newModule(dir, author, licence, lan):
         gtkMain = query_yn("GTK project", "no")
     else:
         gtkMain = 0
-
+        
     if main and lan=="cpp":    
         qtMain = query_yn("Qt project", "no")
     else:
         qtMain = 0
-        
     
     fileNameC = fName + "."+lan
     fileNameH = fName + ".h"
@@ -287,7 +286,9 @@ def main():
     parser.add_argument("--license",  type=str,            help="License of new file", default="")
     parser.add_argument("--author",   type=str,            help="Author of file",      default="")
     parser.add_argument("--dir",      type=str,            help="Directory where to store file",  default=".")
+#    parser.add_argument("--header",   type=str,            help="External header file",  default="headerExample")
     
+        
     args = parser.parse_args()
 
     if args.newc:
@@ -314,7 +315,7 @@ def main():
         newProject(args.dir, args.author, args.license)
         exit(0)
     
-        
+    parser.print_help()
     exit(0)    
 
     
@@ -430,7 +431,22 @@ int main(int argc, char *argv[]) {
     return app.exec();
 }
 """
-    
+
+headerExample="""
+/**
+ *---------------------------------------------------------------------------
+ * @brief   __brief__
+ *
+ * @file    __fileName__
+ * @author  __author__
+ * @date    __date__
+ * @license __license__
+ *
+ *---------------------------------------------------------------------------
+ *
+ */
+"""
+
     
 if __name__ == "__main__":
     try:

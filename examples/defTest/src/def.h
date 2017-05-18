@@ -20,13 +20,29 @@
 #include <string.h>
 #include <sys/types.h>
 
-
 #ifndef DEF_H_
 #define DEF_H_
 
 
-
 // Types ------------------------------------------------------------------
+
+typedef int8_t                  S8 ;  //!< 8-bit signed integer.
+typedef uint8_t                 U8 ;  //!< 8-bit unsigned integer.
+typedef int16_t                 S16;  //!< 16-bit signed integer.
+typedef uint16_t                U16;  //!< 16-bit unsigned integer.
+typedef uint16_t                le16_t;
+typedef uint16_t                be16_t;
+typedef int32_t                 S32;  //!< 32-bit signed integer.
+typedef uint32_t                U32;  //!< 32-bit unsigned integer.
+typedef uint32_t                le32_t;
+typedef uint32_t                be32_t;
+typedef int64_t                 S64;  //!< 64-bit signed integer.
+typedef uint64_t                U64;  //!< 64-bit unsigned integer.
+typedef float                   F32;  //!< 32-bit floating-point number.
+typedef double                  F64;  //!< 64-bit floating-point number.
+typedef uint32_t                iram_size_t;
+
+
 #ifndef bool
 typedef uint8_t bool;
 #endif
@@ -159,11 +175,19 @@ typedef unsigned long       ulong;
 #undef  CLAMP
 #define CLAMP(x, low, high)  (((x) > (high)) ? (high) : (((x) < (low)) ? (low) : (x)))
 
+
+
+#define Swap16(u16) ((U16)(((U16)(u16) >> 8) |\
+                           ((U16)(u16) << 8)))
+
+
+
 #undef  isWithin
 #define isWithin(val, min, max) ((val>=min) && (val<=max))
 
 #undef  isOutside
 #define isOutside(val, min, max) (!isWithin(val, min, max))
+
 
 #ifndef NULL
 #define NULL            (void)0

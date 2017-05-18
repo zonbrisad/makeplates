@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# shellcheck disable=2034
 #---------------------------------------------------------------------
 #
 #  [Description]
@@ -21,7 +22,7 @@
 #set -v
 
 # Exit script when a command fails. Append ||true if error is expected
-set -o errexit # || true
+#set -o errexit # || true
 # Exit script when undeclared variable is used
 #set -o nounset
 # Exit script when pipe fails
@@ -47,6 +48,11 @@ else
   NEW=1
 fi
 
+# Set correct scriptPath
+if [ "$MPT" !=  "1" ]; then
+	scriptPath=${scriptPath}/${MPT_DIR}
+fi
+
 # Local install directory
 MP_LOCALDIR=~/bin
 
@@ -56,6 +62,7 @@ MP_SYSDIR=/usr/local/bin
 # Settings directory
 MP_CONFIG_DIR=~/.config/makeplates
 
+# Directory for 3d party files
 MP_3DPARTY_DIR=${scriptPath}/3dparty
 
 #---------------------------------------------------------------------
@@ -194,10 +201,9 @@ createProject() {
 	
 }
 
+
 NEW=1
 ##CN- NEW Project cmds
-
-##CN- NEW Kalle
 
 newC() { ##C NEW Create a new standard C makeplate project
   createProject "Creating new makeplate C project" ${scriptPath}/${MPT_DIR}/mp-c 
@@ -215,18 +221,33 @@ newSCpp() { ##C NEW Create a new simple C++ makeplate project
   createProject "Creating new simple makeplate C++ project" ${scriptPath}/${MPT_DIR}/mp-simple-cpp
 }
 
+
+# check for local version of mp and execute it
+preCheck() {
+echo XXX $0 $1 $2 $3
+	# Check if local dir contains MPT
+  if [ -f ${PWD}/MPT ]; then
+	  if [ $(dirname $0) != "." ]; then
+#		   ./mp "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8" "$9" "${10}"
+			 ./mp 
+			 bpExit 
+		fi		
+  fi
+}
+
 newModule() { ##C NEW Create new C module
   ${scriptPath}/tools/ctemplate.py
 }
 
+##CN- NEW Install
 
 list() {  ##C NEW List 3d party libraries
-  ls -1 3dparty
+  ls -1 ${scriptPath}/3dparty
 }
 
 eInstall() { ##C NEW Install 3d party library
   if [ -d ${MP_3DPARTY_DIR}/${2} ]; then
-	  cp -rf ${MP_3DPARTY_DIR}/${2} .
+	  cp -rf ${MP_3DPARTY_DIR}/${2}/* .
 		bpOk "Module \"${2}\" installed"
 	else
 	  bpError "Module \"${2}\" does not exist"
@@ -239,10 +260,10 @@ eInstall() { ##C NEW Install 3d party library
 #---------------------------------------------------------------------
 
 # Script version info
-VERSION="1.00"
+VERSION="1.01"
 
 ##V Bashplate version
-BPVERSION="1.10"   
+BPVERSION="1.11"   
 
 ##V Usage info
 USAGE="Usage: ${scriptName} command [option]" 
@@ -256,6 +277,18 @@ DESC="Help tool for makeplate project"
 ##V Default command (uncomment to use a default command )
 DEFAULT=help
 
+##V Pre script hook, execute this function before every command
+#PREHOOK=preCheck
+
+##V Post script hook, execute this function before every command
+#POSTHOOK=
+
+##V Function to be executed before every other cmd except DEFAULT function
+#PRECMDHOOK=
+
+##V Function to be executed after every other function except DEFAULT function
+#POSTCMDHOOK=
+
 ##V Programs that are required to run the script (uncomment to use)
 #REQUIRED_PROGRAMS=(ls mv kalle)
 
@@ -268,7 +301,7 @@ DEFAULT=help
 
 signalInt() {
   bpCleanUp
-  exit "$EX_OK"
+  exit "$BP_E_OK"
 }
 
 signalHup() {
@@ -291,11 +324,17 @@ bpCleanUp() { ##D Cleanup function
 
 bpExit() { ##D Function for safely exiting script
   bpCleanUp
+	
+	# execute postscript hook if existing
+	if [ -n "$POSTHOOK" ]; then
+    ${POSTHOOK}
+	fi
+	
   exit
 }
 
 bpErrorExit() {  ##D Safely exit script with a error 
-  echo -e "${E_ERROR}${1}${E_END}"
+  echo -e "${BP_ERROR}${1}${E_END}"
   bpCleanUp
   exit
 }
@@ -354,18 +393,18 @@ E_SHOW="\e[?25h"          # Show cursor
 
 E_END="\e[m"              # Clear Attributes
 
-# Message colors
-E_OK=$E_BR_GREEN
-E_INFO=$E_BR_CYAN
-E_WARNING=$E_BR_YELLOW
-E_ERROR=$E_BR_RED
-E_CRITICAL=$E_ON_RED$E_WHITE
-C_LINE=$E_GREEN
-C_LINE_TEXT=$E_BR_GREEN
+# Internal bashplate colors
+BP_OK=$E_BR_GREEN
+BP_INFO=$E_BR_CYAN
+BP_WARNING=$E_BR_YELLOW
+BP_ERROR=$E_BR_RED
+BP_CRITICAL=$E_ON_RED$E_WHITE
+BP_LINE=$E_GREEN
+BP_LINE_TEXT=$E_BR_GREEN
 
 # Exit codes 
 #
-EX_OK=0            # successful termination 
+BP_E_OK=0            # successful termination 
 
 ##-
 
@@ -392,20 +431,23 @@ bpPrintLineC() { ##D Print text with adjusted line after with selectable colors
 # arg2 text color
 # arg3 line color
 bpTextLineC() { ##D Print text with adjusted line after with selectable colors
-  bpPrintLineC $1 $2 $3 " " "-"
-	return
+  bpPrintLineC "$1" "$2" "$3" " " "-"
 }
 
+bpTextLine() { ##D Print text with line after
+  bpTextLineC "$1" "${C_LINE_TEXT}" "${C_LINE}"
+}
 
 # Print a divider row
-printLine() { ##D Print a line  
+bpLine() { ##D Print a line  
 	bpPrintLineC "" "${E_GRAY}" "${E_GRAY}" "" "-" 
 }
 
-
-bpTextLine() { ##D Print text with adjusted line after
-  bpTextLineC "$1" "${C_LINE_TEXT}" "${C_LINE}"
+# Legacy function
+printLine() { 
+  bpLine
 }
+
 
 # Print text into two columns
 #
@@ -449,9 +491,9 @@ bpLog() { ##D Log to file command
 
 log() { ##C LOGFILE View logfile
   if [ -n "$LOGFILE" ]; then
-    D=$(sed -r -e "s|\[Info\]|\[\\${E_INFO}Info\\${E_END}\]|"  \
-            -e "s|\[Warn\]|\[\\${E_WARNING}Warn\\${E_END}\]|"  \
-            -e "s|\[Erro\]|\[\\${E_ERROR}Erro\\${E_END}\]|"    \
+    D=$(sed -r -e "s|\[Info\]|\[\\${BP_INFO}Info\\${E_END}\]|"  \
+            -e "s|\[Warn\]|\[\\${BP_WARNING}Warn\\${E_END}\]|"  \
+            -e "s|\[Erro\]|\[\\${BP_ERROR}Erro\\${E_END}\]|"    \
             -e "s/[-0-9]+/\\${E_GREEN}&\\${E_END}/1"            \
             -e "s/[:0-9]+/\\${E_BR_GREEN}&\\${E_END}/6"            \
             -e "s|\[Crit\]|\[\\${E_ON_RED}\\${E_WHITE}Crit\\${E_END}\]|" < "${LOGFILE}" ) 
@@ -466,27 +508,27 @@ log() { ##C LOGFILE View logfile
 
 bpOk() { ##D Success message 
   bpLog "[Ok] $1"
-  echo -e "[${E_OK}Ok${E_END}] $1"
+  echo -e "[${BP_OK}Ok${E_END}] $1"
 }
 
 bpInfo() { ##D Info message 
   bpLog "[Info] $1"
-  echo -e "[${E_INFO}Info${E_END}] $1"
+  echo -e "[${BP_INFO}Info${E_END}] $1"
 }
 
 bpWarning() { ##D Warning message
   bpLog "[Warn] $1"
-  echo -e "[${E_WARNING}Warning${E_END}] $1"
+  echo -e "[${BP_WARNING}Warning${E_END}] $1"
 }
 
 bpError() { ##D Error message
   bpLog "[Erro] $1"
-  echo -e "[${E_ERROR}Error${E_END}] $1"
+  echo -e "[${BP_ERROR}Error${E_END}] $1"
 }
 
 bpCritical() { ##D Critical error message
   bpLog "[Crit] $1"
-  echo -e "[${E_CRITICAL}Critical${E_END}] $1"
+  echo -e "[${BP_CRITICAL}Critical${E_END}] $1"
   bpExit
 }
 
@@ -501,7 +543,7 @@ assertRoot() { ##D Assert that user is root
 assertNoLockFile() { ##D Assert that lockfile is not present
   if [ -n "$LOCK_FILE" ]; then 
     if [ -f "$LOCK_FILE" ]; then
-      echo -e "${E_ERROR}Script is already running. (${LOCK_FILE})${E_END} "
+      echo -e "${BP_ERROR}Script is already running. (${LOCK_FILE})${E_END} "
       exit  # do not use bpExit because lock belongs to other process
     fi
     touch "$LOCK_FILE"              
@@ -512,7 +554,7 @@ assertRequiredProgs() { ##D Assert that required programs are available on the s
   if [ -n "${REQUIRED_PROGRAMS}" ]; then
     for p in ${REQUIRED_PROGRAMS[@]}; do
       hash "$p" 2>&- || \
-      { echo -e >&2 "${E_ERROR}Required program \"$p\" not found.${E_END}"; exit 1; }
+      { echo -e >&2 "${BP_ERROR}Required program \"$p\" not found.${E_END}"; exit 1; }
     done
   fi
 }
@@ -581,6 +623,7 @@ printNamedLine() {
 }
 
 
+
 printCondNamedLine() {
   help_line=$1
   C=$(echo "$1" | sed -s 's/^.*##CN-//' | awk '{print $1}')
@@ -588,8 +631,8 @@ printCondNamedLine() {
 	name=$(echo "$help_line" | sed -e 's/^.*'"$C"'//' -e 's/^[ \t]*//' )
   eval "D=\$$C"
   if [ -n "$D" ]; then
-     printLine
-		 bpTextLineC $name "${E_BLUE}" "${E_GREEN}"
+		 #bpTextLineC $name "${E_BLUE}" "${E_GREEN}"
+		 bpTextLine "$name" 
   fi
 }
 
@@ -631,12 +674,12 @@ ihelp() { ##D Print internal help information
     esac
   done 
 	
-	printInfo "#" "Normal bash comment"
-	printInfo "##" "Subcommand information comment (shown with help)"
-	printInfo "##C" "Conditional subcommand comment (shown with help)"
-	printInfo "##-" "Generates a line at output (shown with help)"
-	printInfo "##d" "Internal function comment (shown ihelp)"
-	printLine
+  printInfo "#" "Normal bash comment"
+  printInfo "##" "Subcommand information comment (shown with help)"
+  printInfo "##C" "Conditional subcommand comment (shown with help)"
+  printInfo "##-" "Generates a line at output (shown with help)"
+  printInfo "##d" "Internal function comment (shown ihelp)"
+  printLine
 }
 
 vhelp() { ##D Print internal variable information
@@ -657,18 +700,12 @@ vhelp() { ##D Print internal variable information
 #  echo $lines
 }
 
-version() { ## Print version information
-  echo "$VERSION"
+imeld() { ##D Run meld file compare with local installed bashplate
+  meld ${scriptPath}/${scriptName} ~/bin/bashplate_files/bashplate
 }
 
-# Check if a number of required programs are available on the system
-requiredPrograms() {
-  if [ -n "${REQUIRED_PROGRAMS}" ]; then
-    for p in ${REQUIRED_PROGRAMS[@]}; do
-	    hash "$p" 2>&- || \
-	    { echo -e >&2 "${E_ERROR}Required program \"$p\" not installed.${E_END}"; exit 1; }
-	  done
-	fi
+version() { ## Print version information
+  echo "$VERSION"
 }
 
 # Runs a function in this file as a command
@@ -689,17 +726,17 @@ runCommand() {
     if [ "$command" == "$1" ]; then
       
       
-      # execute prefunction if existing
-      if [ -n "$PREFUNCTION" ]; then
-        ${PREFUNCTION}
+      # execute pre command hook  if existing
+      if [ -n "$PRECMDHOOK" ]; then
+        ${PRECMDHOOK}
       fi
       
       # execute command
       ${command} "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8" "$9" "${10}"
       
-      # execute postfunction if existing
-      if [ -n "$POSTFUNCTION" ]; then
-        ${POSTFUNCTION}
+			# execute post command hook  if existing
+      if [ -n "$POSTCMDHOOK" ]; then
+        ${POSTCMDHOOK}
       fi      
       bpExit
     fi
@@ -720,6 +757,11 @@ trap  signalHup  SIGHUP
 trap  signalTerm SIGTERM
 
 bpArguments=$#
+
+# execute prescript hook if existing
+if [ -n "$PREHOOK" ]; then
+  ${PREHOOK} "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8" "$9" "${10}"
+fi
 
 # Run command parser
 runCommand "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8" "$9" "${10}"
