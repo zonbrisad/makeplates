@@ -12,6 +12,15 @@
 
 // Includes ---------------------------------------------------------------
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+
 #include "pmutil.h"
 #include "def.h"
 
@@ -25,11 +34,40 @@
 
 // I2S ----------------------------------------------------------------------
 
+
+I2S *I2S_new(int size) {
+  I2S *db;
+	
+	db = malloc((size+1) * sizeof(I2S));
+
+	db[size].key = I2S_LAST;
+	db[size].val[0] =' \0';
+	
+	return db;
+}
+
+I2S *I2S_copy(I2S *db) {
+	I2S *dst;
+	int len;
+
+	len = I2S_len(db);
+
+	dst = I2S_new(len);
+
+	memcpy(dst, db, len * sizeof(I2S));
+
+	return dst;
+}
+
+void I2S_free(I2S *db) {
+  free(db);
+}
+
 int I2S_findIdx(I2S *db, int val) {
     int i = 0;
 
-    while (db[i].val != I2S_LAST) {
-        if (db[i].val == val) {
+    while (db[i].key != I2S_LAST) {
+        if (db[i].key == val) {
             return i;
         }
 
@@ -42,8 +80,8 @@ int I2S_findIdx(I2S *db, int val) {
 int I2S_findIdxStr(I2S *db, char *str) {
     int i = 0;
 
-    while (db[i].val != I2S_LAST) {
-        if (!strncmp(db[i].str, str, I2S_STRLEN)) {
+    while (db[i].key != I2S_LAST) {
+        if (!strncmp(db[i].val, str, I2S_STRLEN)) {
             return i;
         }
 
@@ -53,32 +91,41 @@ int I2S_findIdxStr(I2S *db, char *str) {
     return -1;
 }
 
-char *I2S_getString(I2S *db, int val) {
+char *I2S_getValue(I2S *db, int val) {
     int idx = 0;
 
     idx = I2S_findIdx(db, val);
 
     if (idx != -1) {
-        return db[idx].str;
+        return db[idx].val;
     } else {
         return NULL;
     }
 }
 
-void I2S_setString(I2S *db, int val, char *str) {
+void I2S_setValue(I2S *db, int val, char *str) {
     int idx = 0;
 
     idx = I2S_findIdx(db, val);
 
     if (idx != -1) {
-        strncpy(db[idx].str, str, I2S_STRLEN);
+        strncpy(db[idx].val, str, I2S_STRLEN);
     }
 }
+
+void I2S_setKeyValue(I2S *db, int idx, int key, char *value) {
+
+	if (isWithin(idx, 0, I2S_len(db)-1)) {
+		db[idx].key = key;
+		strncpy(db[idx].val, value, I2S_STRLEN);
+	}
+}
+
 
 int I2S_len(I2S *db) {
     int i = 0;
 
-    while (db[i].val != I2S_LAST) {
+    while (db[i].key != I2S_LAST) {
         i++;
     }
 
@@ -133,3 +180,63 @@ char *S2S_getValue(S2S *db, char *key) {
 
     return NULL;
 }
+
+
+
+// Linux specific  ---------------------------------------------------------
+
+#ifdef PMU_LINUX
+
+void daemonize(void) {
+    pid_t pid, sid;
+    int fd;
+
+    /* already a daemon */
+    if ( getppid() == 1 ) {
+        return;
+    }
+
+    /* Fork off the parent process */
+    pid = fork();
+
+    if (pid < 0) {
+        exit(EXIT_FAILURE);
+    }
+
+    /* Killing the Parent Process*/
+    if (pid > 0) {
+        exit(EXIT_SUCCESS);
+    }
+
+    /* At this point we are executing as the child process */
+
+    /* Create a new SID for the child process */
+    sid = setsid();
+
+    if (sid < 0) {
+        exit(EXIT_FAILURE);
+    }
+
+    /* Change the current working directory. */
+    if ((chdir("/")) < 0)   {
+        exit(EXIT_FAILURE);
+    }
+
+    fd = open("/dev/null", O_RDWR, 0);
+
+    // redirect streams
+    if (fd != -1) {
+        dup2 (fd, STDIN_FILENO);
+        dup2 (fd, STDOUT_FILENO);
+        dup2 (fd, STDERR_FILENO);
+
+        if (fd > 2) {
+            close (fd);
+        }
+    }
+
+    /* resettign File Creation Mask */
+    umask(027);
+}
+
+#endif

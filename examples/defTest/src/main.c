@@ -118,8 +118,6 @@ I2S numbersDb[] = {
     { 4, "Last"   },
     { I2S_END     },
 };
-
-//I2S tDb[] = numbersDb;
  
 void setUp(void) {
 }
@@ -130,13 +128,23 @@ void tearDown(void) {
 
 void I2S_tests() {
 	int i;
+	I2S *db;
+
+	db = I2S_copy(numbersDb);
+	TEST_ASSERT_EQUAL_INT(2, I2S_findIdxStr(db, "Third"));
+
 	TEST_ASSERT_EQUAL_INT(4, I2S_len(numbersDb));
-	TEST_ASSERT_EQUAL_STRING("Last", I2S_getString(numbersDb, 4));
+	TEST_ASSERT_EQUAL_STRING("Last", I2S_getValue(numbersDb, 4));
 	TEST_ASSERT_EQUAL_INT(2, I2S_findIdx(numbersDb, 3));
 	TEST_ASSERT_EQUAL_INT(2, I2S_findIdxStr(numbersDb, "Third"));
 	
-	I2S_setString(numbersDb, 4, "Nisse");
-	TEST_ASSERT_EQUAL_STRING("Nisse", I2S_getString(numbersDb, 4));
+	I2S_setValue(numbersDb, 4, "Nisse");
+	TEST_ASSERT_EQUAL_STRING("Nisse", I2S_getValue(numbersDb, 4));
+
+	I2S_setKeyValue(numbersDb, 0, 22, "kv22");
+	TEST_ASSERT_EQUAL_INT(0, I2S_findIdx(numbersDb, 22));
+	TEST_ASSERT_EQUAL_STRING("kv22", I2S_getValue(numbersDb, 22));
+
 }
 
 int ia[] = { 12, 33, 54, 11, 412, -443 };
@@ -251,11 +259,11 @@ int main(int argc, char *argv[]) {
     printf("Size of I2S db = %d\n", I2S_len(numbersDb));
 
     for (i = 1; i <= 4; i++) {
-        printf("I2S test %d  =  %s\n", i, I2S_getString(numbersDb, i));
+        printf("I2S test %d  =  %s\n", i, I2S_getValue(numbersDb, i));
     }
 
-    I2S_setString(numbersDb, 4, "Fourth");
-    printf("I2S test %d  =  %s\n", 4, I2S_getString(numbersDb, 4));
+    I2S_setValue(numbersDb, 4, "Fourth");
+    printf("I2S test %d  =  %s\n", 4, I2S_getValue(numbersDb, 4));
 
     return 0;
 }
