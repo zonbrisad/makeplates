@@ -21,8 +21,8 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 
-#include "pmutil.h"
 #include "def.h"
+#include "def_util.h"
 
 // Macros -----------------------------------------------------------------
 

@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+#
+# Makeplate 3dparty install script
+#
+# newScript is destination directory
+#
+
+scriptPath=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
