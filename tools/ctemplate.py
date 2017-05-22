@@ -40,13 +40,12 @@ AppAuthor   = "Peter Malmberg <peter.malmberg@gmail.com>"
             
 def addHeader(file, fileName, brief, date, author, license):
     header = headerExample
-    
+
     header = header.replace("__FILENAME__", fileName )
     header = header.replace("__BRIEF__",    brief    )
     header = header.replace("__DATE__",     date     )
-    header = header.replace("__AUTHOR__",   author   )
+    header = header.replace("__AUTHOR__",   author   )    
     header = header.replace("__LICENSE__",  license  )
-    
     file.write(header)
 
     
@@ -367,12 +366,12 @@ def query_yn(question, default="yes"):
     
 headerExample="""/**
  *---------------------------------------------------------------------------
- * @brief   __BRIEF__
+ * @brief    __BRIEF__
  *
- * @file    __FILENAME__
- * @author  __AUTHOR__
- * @date    __DATE__
- * @license __LICENSE__
+ * @file     __FILENAME__
+ * @author   __AUTHOR__
+ * @date     __DATE__
+ * @license  __LICENSE__
  *
  *---------------------------------------------------------------------------
  *
@@ -412,6 +411,9 @@ int main(int argc, char *argv[]) {
 }
 """
 
+glibMainExample="""
+"""
+
 mainExample="""
 int main(int argc, char *argv[]) {
         
@@ -437,21 +439,6 @@ int main(int argc, char *argv[]) {
          
     return app.exec();
 }
-"""
-
-headerExample="""
-/**
- *---------------------------------------------------------------------------
- * @brief   __brief__
- *
- * @file    __fileName__
- * @author  __author__
- * @date    __date__
- * @license __license__
- *
- *---------------------------------------------------------------------------
- *
- */
 """
 
 

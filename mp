@@ -128,8 +128,12 @@ mpInstall() {
   installMp ${scriptPath}  ${1}  mp-simple-cpp
 	
  	
-  # Create symlink
+  # Create symlinks
   ln -s ${1}/mp ${2}
+	ln -s ${1}/tools/ctemplate.py ${2}/mptemplate
+	
+	
+	# Remove sentinel file
   rm -f ${1}/MPT
 }
 
