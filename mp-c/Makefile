@@ -788,6 +788,9 @@ files: list-src ## List source files
 
 gccversion :    ## Display compiler version
 	@$(CC) --version
+
+libs: ## List system wide libraries (pkg-config)
+	@pkg-config --list-all
 	
 #
 # Personal settings
