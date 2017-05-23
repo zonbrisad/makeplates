@@ -1,11 +1,9 @@
-#!/usr/bin/env bash
-# shellcheck disable=2034
+#!/bin/bash
 #---------------------------------------------------------------------
 #
 #  [Description]
-#    Makeplate help tool. This file is not part of the template itself
-#    and should be erased when creating a new project based on this
-#    template.
+#    A simple project management tools for Makeplates
+#  
 #
 #  [Author] 
 #    Peter Malmberg <peter.malmberg@gmail.com>
@@ -38,263 +36,75 @@ scriptName=$(basename "$0")
 # User defined Settings
 #---------------------------------------------------------------------
 
-MPT_DIR=makeplate_files
-MPT_INSTALL_DIR=~/bin/${MPT_DIR}
-
-# Check if MPT file exists
-if [ -e ${scriptPath}/MPT ]; then
-  MPT=1
-else
-  NEW=1
-fi
-
-# Set correct scriptPath
-if [ "$MPT" !=  "1" ]; then
-	scriptPath=${scriptPath}/${MPT_DIR}
-fi
-
-# Local install directory
-MP_LOCALDIR=~/bin
-
-# system wide install directory
-MP_SYSDIR=/usr/local/bin
-
-# Settings directory
-MP_CONFIG_DIR=~/.config/makeplates
-
-# Directory for 3d party files
-MP_3DPARTY_DIR=${scriptPath}/3dparty
 
 #---------------------------------------------------------------------
 # User defined functions
 #---------------------------------------------------------------------
 
-# Install single makeplate
-#
-# arg1 source directory 
-# arg2 destination directory
-# arg3 makeplate
-#
-installMp() {
-
-  # First remove all possible object files etc.
-  cd ${1}/${3}
-  make clean
-	rm -rf backup
-	rm -rf archive
-  cd -
-	
-  # Copy makeplate
-  mkdir -p ${2}
-  cp -rf ${1}/${3}  ${2}/.
-	
-
-  # Check if tools link exists	
-  if [ -L ${2}/${3}/tools ]; then 
-  
-    # Remove symbolic link
-    rm -f ${2}/${3}/tools
-	
-    # Copy tools to project
-    cp -rf ${2}/tools ${2}/${3}/.
-  fi
+newproj() { 
+  echo "New project name"
+	read -e -p ">" projname
+	echo $projname	
 }
 
-# Create a directory if it does not exist
-mpCreateDir() {
- if [ ! -d $1 ]; then
-		 mkdir -p $1
- fi
-}
-
-createLink() {
- bpInfo "Creating link ${2}"
- if [ ! -L $1 ]; then
-   	ln -s ${1} ${2}
- fi
-}
-
-#
-# arg1 install dir
-# arg2 symbolic link dir
-#
-mpInstall() {
-
-  # Create dir
-  mkdir -p ${1}
-	
-  cp -rf ${scriptPath}/mp      ${1}/.
-  cp -rf ${scriptPath}/tools   ${1}/. 
-	cp -rf ${scriptPath}/3dparty ${1}/.
-
-  # Install makeplates
-  installMp ${scriptPath}  ${1}  mp-c 
-  installMp ${scriptPath}  ${1}  mp-cpp
-  installMp ${scriptPath}  ${1}  mp-simple-c
-  installMp ${scriptPath}  ${1}  mp-simple-cpp
-	
- 	
-  # Create symlinks
-#  ln -s ${1}/mp ${2}
-#	ln -s ${1}/tools/ctemplate.py ${2}/mptemplate
-
-  createLink ${1}/mp ${2}
-	createLink ${1}/tools/ctemplate.py ${2}/mptemplate
-
-	
-	# Remove sentinel file
-  rm -f ${1}/MPT
-}
-
-
-install() { #C MPT Install makeplates on system
-  assertRoot
-  echo -e "Installing makeplates"
-  rm -rf ${MP_SYSDIR}/${MPT_DIR}
-  rm -rf ${MP_SYSDIR}/mp	
-  mpInstall /usr/local/bin/makeplate_files  /usr/local/bin
-}
-
-install-local() { ##C MPT Install makeplates localy for easy creating new projects
-  echo -e "Installing makeplates locally"
-  rm -rf ${MP_LOCALDIR}/${MPT_DIR}
-  rm -rf ${MP_LOCALDIR}/mp
-  mpInstall ~/bin/makeplate_files  ~/bin
-}
-
-clean() { ##C MPT Clean out old files
-  find . -name "*~"     -delete
-  find . -name "*.orig" -delete
-}
-
-installPlate() {
-  rm -rf ${1}/*
-  cp -rf ${1}/* .
-}
-
-
-#
-# Ask yes/no question
-#
-# arg1 question text
-# arg2 result variable name
-#
-bpQuestionDy() {  ##D Ask yes/no question default yes 
-  local __result=$2
-  while true; do
-	  read -p "${1}"" [Y/n]>" yn
-    case $yn in
-	    [Yy]* ) eval $__result='y'; break;;
-			[Nn]* ) eval $__result='n'; break;;
-			""    ) eval $__result='y'; break;;
-			* ) echo "Please answer yes or no.";;
-		esac
-	done 	
-}
-
-
-createProject() {
-  echo -e ${1}
-	read -p "Project name>" pn
-	bpQuestionDy "Create subdirectory?" res
-	if [ ${res} == 'y' ]; then
-	  echo "Creating directory"
-		mkdir -p ${pn}
-		cp -rf ${2}/* ${pn}/.
+ce() { ## Check if file exists
+  bn=$(basename $2)
+  cmd=$(command -v $2)
+	if [ $? -ne 0 ]; then
+		printf "%-30s${E_BR_RED}N/A${E_END}\n" "${bn}"
 	else
-		cp -rf ${2}/* .
-	fi
-	
-}
-
-
-#NEW=1
-##CN- NEW Project cmds
-
-newC() { ##C NEW Create a new standard C makeplate project
-  createProject "Creating new makeplate C project" ${scriptPath}/mp-c 
-}
-
-newCpp() { ##C NEW Create a new standard C++ makeplate project
-  createProject  "Creating new makeplate C++ project" ${scriptPath}/mp-cpp
-}
-
-newSC() { ##C NEW Create a new simple C makeplate project
-  createProject "Creating new simple makeplate C project"  ${scriptPath}/mp-simple-c
-}
-
-newSCpp() { ##C NEW Create a new simple C++ makeplate project
-  createProject "Creating new simple makeplate C++ project" ${scriptPath}/mp-simple-cpp
-}
-
-
-# check for local version of mp and execute it
-preCheck() {
-echo XXX $0 $1 $2 $3
-	# Check if local dir contains MPT
-  if [ -f ${PWD}/MPT ]; then
-	  if [ $(dirname $0) != "." ]; then
-#		   ./mp "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8" "$9" "${10}"
-			 ./mp 
-			 bpExit 
-		fi		
-  fi
-}
-
-newModule() { ##C NEW Create new C module
-  ${scriptPath}/tools/ctemplate.py
-}
-
-
-
-##CN- NEW Install
-
-list() {  ##C NEW List 3d party libraries
-  ls -1 ${scriptPath}/3dparty
-}
-
-MPINSTALL=mpInstall
-
-eInstall() { ##C NEW Install 3d party library
-
-  if [ -d ${MP_3DPARTY_DIR}/${2} ]; then
-	  if [ -e ${MP_3DPARTY_DIR}/${2}/${MPINSTALL} ]; then
-
-			${MP_3DPARTY_DIR}/${2}/${MPINSTALL} ${PWD}
-			bpOk "Module \"${2}\" installed"
-		  return
-		fi
-	
-	  cp -arf ${MP_3DPARTY_DIR}/${2}/* .
-		bpOk "Module \"${2}\" installed"
-	else
-	  bpError "Module \"${2}\" does not exist"
+		dn=$(dirname ${cmd})
+		printf "%-30s${E_BR_GREEN}%s${E_END}\n" "${bn}" "$dn"
 	fi
 }
-NEW=1
 
-
-newScript() { ##C NEW Create new 3d party install script
-  echo "#!/usr/bin/env bash" > mpInstall
-	echo "#" >> mpInstall
-	echo "# Makeplate 3dparty install script" >> mpInstall
-	echo "#" >> mpInstall
-	echo "# $1 is destination directory" >> mpInstall
-	echo "#" >> mpInstall
-  echo  >> mpInstall
-	echo 'scriptPath=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )' >> mpInstall
-	echo  >> mpInstall
-	chmod +x ${MPINSTALL}
+cl() { ## Check if library exists
+  CC=$2
+	LIB=$3
+	data=$(${CC} ${LIB} 2>&1 )
+ 
+  echo $data | grep "cannot find" > /dev/null
+	if [ $? -eq 1 ]; then
+	  printf "%-30s${E_BR_GREEN}Exists${E_END}\n" "$LIB"
+	else
+	  printf "%-30s${E_BR_RED}Missing${E_END}\n"  "$LIB"
+	fi
 }
 
 
+printCommandMp() {
+	help_split=$1 ;
+	
+	help_command=$(echo $help_line | sed -s 's/:.*//')
+	help_info=$(echo $help_line | sed -s 's/^.*##//')
+	
+	printf "${E_BR_CYAN}%-15s %s${E_END}" $help_command ;                 
+	printf "${E_BR_GREEN}%s${E_END}\n" $help_info ;                       
+
+}
+
+mpHelp() { ## Print makeplate makefile help
+#	printf "%-30s %s\n" "target" "help"
+#	printLine
+	IFS=$'\n'                                  
+	help_lines=$( grep -h '##' "$2" | grep -v grep | grep -v '##D' | grep -v '##V' | grep -v '\*##C' | grep -v '\*##C-' |  grep -v '\"##' |  grep -v '##N-//' | grep -v help_line | grep -v printLine )
+	for help_line in ${help_lines[@]}; do                                     
+	  case "$help_line" in                   
+	    *"##-"*)  printLine ;; 
+			*"##N-"*) printNamedLine "$help_line" ;;
+	    *"##"*)   printCommandMp "$help_line" ;;
+      *) ;; 
+	  esac 
+	done 
+#	printLine
+}
 
 #--------------------------------------------------------------------- 
 # Bashplate settings
 #---------------------------------------------------------------------
 
 # Script version info
-VERSION="1.01"
+VERSION="1.11"
 
 ##V Bashplate version
 BPVERSION="1.11"   
@@ -303,10 +113,17 @@ BPVERSION="1.11"
 USAGE="Usage: ${scriptName} command [option]" 
 
 # Description text
-DESC="Help tool for makeplate project"
+DESC="Bashplate is a bash script template to ease development of\n\
+command style shellscripts"
 
 ##V logfile (uncomment to use logfile)
-#LOGFILE=${scriptPath}/${scriptName}.log
+LOGFILE=${scriptPath}/${scriptName}.log
+
+##V Logging options (uncomment to activate logging parameters)
+#LOG_INFO=1
+#LOG_WARNING=1
+#LOG_ERROR=1
+#LOG_CRITICAL=1
 
 ##V Default command (uncomment to use a default command )
 DEFAULT=help
@@ -314,7 +131,7 @@ DEFAULT=help
 ##V Pre script hook, execute this function before every command
 #PREHOOK=preCheck
 
-##V Post script hook, execute this function before every command
+##V Post script hook, execute this function after every command
 #POSTHOOK=
 
 ##V Function to be executed before every other cmd except DEFAULT function
@@ -359,16 +176,17 @@ bpCleanUp() { ##D Cleanup function
 bpExit() { ##D Function for safely exiting script
   bpCleanUp
 	
-	# execute postscript hook if existing
-	if [ -n "$POSTHOOK" ]; then
-    ${POSTHOOK}
-	fi
+  # execute postscript hook if existing
+  if [ -n "$POSTHOOK" ]; then
+     ${POSTHOOK}
+  fi
 	
   exit
 }
 
 bpErrorExit() {  ##D Safely exit script with a error 
-  echo -e "${BP_ERROR}${1}${E_END}"
+  #echo -e "${BP_C_ERROR}${1}${E_END}"
+  bpError "${1}"
   bpCleanUp
   exit
 }
@@ -428,13 +246,15 @@ E_SHOW="\e[?25h"          # Show cursor
 E_END="\e[m"              # Clear Attributes
 
 # Internal bashplate colors
-BP_OK=$E_BR_GREEN
-BP_INFO=$E_BR_CYAN
-BP_WARNING=$E_BR_YELLOW
-BP_ERROR=$E_BR_RED
-BP_CRITICAL=$E_ON_RED$E_WHITE
-BP_LINE=$E_GREEN
-BP_LINE_TEXT=$E_BR_GREEN
+BP_C_OK=$E_BR_GREEN
+BP_C_INFO=$E_BR_CYAN
+BP_C_WARNING=$E_BR_YELLOW
+BP_C_ERROR=$E_BR_RED
+BP_C_CRITICAL=$E_ON_RED$E_WHITE
+#BP_C_LINE=$E_GREEN
+#BP_C_LINE_TEXT=$E_BR_GREEN
+BP_C_LINE=
+BP_C_LINE_TEXT=
 
 # Exit codes 
 #
@@ -451,12 +271,12 @@ BP_E_OK=0            # successful termination
 # arg5 line character
 bpPrintLineC() { ##D Print text with adjusted line after with selectable colors
   len1=${#1}
-	len4=${#4}
+  len4=${#4}
 	
-	echo -en ${2}${1}${4}${3}
-	l=$((${COLUMNS} - ${len1} - ${len4} - 3 ))
-	seq -s${5} ${l}|tr -d '[:digit:]'
-	echo -en ${E_END} 
+  echo -en ${2}${1}${4}${3}
+  l=$((${COLUMNS} - ${len1} - ${len4} - 3 ))
+  seq -s${5} ${l}|tr -d '[:digit:]'
+  echo -en ${E_END} 
 }
 
 # Print text with row
@@ -474,7 +294,7 @@ bpTextLine() { ##D Print text with line after
 
 # Print a divider row
 bpLine() { ##D Print a line  
-	bpPrintLineC "" "${E_GRAY}" "${E_GRAY}" "" "-" 
+  bpPrintLineC "" "${E_GRAY}" "${E_GRAY}" "" "-" 
 }
 
 # Legacy function
@@ -525,9 +345,9 @@ bpLog() { ##D Log to file command
 
 log() { ##C LOGFILE View logfile
   if [ -n "$LOGFILE" ]; then
-    D=$(sed -r -e "s|\[Info\]|\[\\${BP_INFO}Info\\${E_END}\]|"  \
-            -e "s|\[Warn\]|\[\\${BP_WARNING}Warn\\${E_END}\]|"  \
-            -e "s|\[Erro\]|\[\\${BP_ERROR}Erro\\${E_END}\]|"    \
+    D=$(sed -r -e "s|\[Info\]|\[\\${BP_C_INFO}Info\\${E_END}\]|"  \
+            -e "s|\[Warn\]|\[\\${BP_C_WARNING}Warn\\${E_END}\]|"  \
+            -e "s|\[Erro\]|\[\\${BP_C_ERROR}Erro\\${E_END}\]|"    \
             -e "s/[-0-9]+/\\${E_GREEN}&\\${E_END}/1"            \
             -e "s/[:0-9]+/\\${E_BR_GREEN}&\\${E_END}/6"            \
             -e "s|\[Crit\]|\[\\${E_ON_RED}\\${E_WHITE}Crit\\${E_END}\]|" < "${LOGFILE}" ) 
@@ -541,28 +361,36 @@ log() { ##C LOGFILE View logfile
 
 
 bpOk() { ##D Success message 
-  bpLog "[Ok] $1"
-  echo -e "[${BP_OK}Ok${E_END}] $1"
+  bpLog "[ Ok ] $1"
+  echo -e "[${BP_C_OK}Ok${E_END}] $1"
 }
 
 bpInfo() { ##D Info message 
-  bpLog "[Info] $1"
-  echo -e "[${BP_INFO}Info${E_END}] $1"
+  if [ -n "$LOG_INFO" ]; then
+    bpLog "[Info] $1"
+  fi
+  echo -e "[${BP_C_INFO}Info${E_END}] $1"
 }
 
 bpWarning() { ##D Warning message
-  bpLog "[Warn] $1"
-  echo -e "[${BP_WARNING}Warning${E_END}] $1"
+  if [ -n "$LOG_WARNING" ]; then	
+    bpLog "[Warn] $1"
+  fi
+  echo -e "[${BP_C_WARNING}Warning${E_END}] $1"
 }
 
 bpError() { ##D Error message
-  bpLog "[Erro] $1"
-  echo -e "[${BP_ERROR}Error${E_END}] $1"
+  if [ -n "$LOG_ERROR" ]; then
+    bpLog "[Erro] $1"  
+  fi
+  echo -e "[${BP_C_ERROR}Error${E_END}] $1"
 }
 
 bpCritical() { ##D Critical error message
-  bpLog "[Crit] $1"
-  echo -e "[${BP_CRITICAL}Critical${E_END}] $1"
+  if [ -n "$LOG_CRITICAL" ]; then
+    bpLog "[Crit] $1"
+  fi
+  echo -e "[${BP_C_CRITICAL}Critical${E_END}] $1"
   bpExit
 }
 
@@ -577,7 +405,8 @@ assertRoot() { ##D Assert that user is root
 assertNoLockFile() { ##D Assert that lockfile is not present
   if [ -n "$LOCK_FILE" ]; then 
     if [ -f "$LOCK_FILE" ]; then
-      echo -e "${BP_ERROR}Script is already running. (${LOCK_FILE})${E_END} "
+      #echo -e "${BP_C_ERROR}Script is already running. (${LOCK_FILE})${E_END} "
+      bpError "Script is already running. (${LOCK_FILE})"
       exit  # do not use bpExit because lock belongs to other process
     fi
     touch "$LOCK_FILE"              
@@ -588,7 +417,8 @@ assertRequiredProgs() { ##D Assert that required programs are available on the s
   if [ -n "${REQUIRED_PROGRAMS}" ]; then
     for p in ${REQUIRED_PROGRAMS[@]}; do
       hash "$p" 2>&- || \
-      { echo -e >&2 "${BP_ERROR}Required program \"$p\" not found.${E_END}"; exit 1; }
+        { bpError "Required program \"$p\" not found."; exit 1; }
+#      { echo -e >&2 "${BP_C_ERROR}Required program \"$p\" not found.${E_END}"; exit 1; }
     done
   fi
 }
@@ -651,22 +481,18 @@ printCondLine() {
 }
 
 printNamedLine() {
-  #name=$(echo "$1" | sed -s 's/^.*##N-//' | awk '{print $1}')
-	name=$(echo "$1" | sed -e 's/^.*##N-//' -e 's/^[ \t]*//' )
-	bpTextLineC $name "${E_BLUE}" "${E_GREEN}"
+  name=$(echo "$1" | sed -e 's/^.*##N-//' -e 's/^[ \t]*//' )
+  bpTextLineC $name "${BP_C_TEXT}" "${BP_C_LINE}"
 }
-
 
 
 printCondNamedLine() {
   help_line=$1
   C=$(echo "$1" | sed -s 's/^.*##CN-//' | awk '{print $1}')
-	#name=$(echo "$1" | sed -s 's/^.*##CN-//' | awk '{print $2}')
 	name=$(echo "$help_line" | sed -e 's/^.*'"$C"'//' -e 's/^[ \t]*//' )
   eval "D=\$$C"
   if [ -n "$D" ]; then
-		 #bpTextLineC $name "${E_BLUE}" "${E_GREEN}"
-		 bpTextLine "$name" 
+    bpTextLine "$name" 
   fi
 }
 
@@ -678,13 +504,14 @@ help() { ## Print this help information
   printLine
   IFS=$'\n'
   SC=$1
-  help_lines=$(grep -h '##' "$0" | grep -v grep | grep -v '##D' | grep -v '##V' | grep -v '\*##C' | grep -v '\*##C-' |  grep -v '\"##' |  grep -v '##N-//' | grep -v help_line | grep -v printLine)
+  #help_lines=$(grep -h '##' "$0" | grep -v grep | grep -v '##D' | grep -v '##V' | grep -v '\*##C' | grep -v '\*##C-' |  grep -v '\"##' |  grep -v '##N-//' | grep -v help_line | grep -v printLine)
+  help_lines=$(grep -h '##' "$0" | grep -v -e 'grep' -e '##D' -e '##V' -e '\*##C' -e '\*##C-' -e '\"##' -e '##N-//' -e 'help_line' -e   'printLine')
   for help_line in ${help_lines[@]} ; do
     case "$help_line" in
       *"##-"*)   printLine ;;
-			*"##C-"*)  printCondLine       "$help_line" ;;
-			*"##N-"*)  printNamedLine      "$help_line" ;;
-			*"##CN-"*) printCondNamedLine  "$help_line" ;;
+      *"##C-"*)  printCondLine       "$help_line" ;;
+      *"##N-"*)  printNamedLine      "$help_line" ;;
+      *"##CN-"*) printCondNamedLine  "$help_line" ;;
       *"##C"*)   printCondCommand    "$help_line" ;;
       *"##"*)    printCommand        "$help_line" '##' ;;
       *)    
@@ -700,9 +527,8 @@ ihelp() { ##D Print internal help information
   help_lines=$(grep -h '##' "$0" | grep -v grep | grep -v '\*"##[ A-Z]"\*' | grep -v help_line | grep -v printLine)
   for help_line in ${help_lines[@]}; do
     case "$help_line" in
-      "##-") printLine ;;
-      *"##D"*) 
-          printCommand "$help_line" '##D' ;;
+      "##-")   printLine ;;
+      *"##D"*) printCommand "$help_line" '##D' ;;
       *)    
       ;;   
     esac
@@ -768,7 +594,7 @@ runCommand() {
       # execute command
       ${command} "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8" "$9" "${10}"
       
-			# execute post command hook  if existing
+      # execute post command hook  if existing
       if [ -n "$POSTCMDHOOK" ]; then
         ${POSTCMDHOOK}
       fi      
@@ -778,7 +604,7 @@ runCommand() {
   bpErrorExit "Command \"$1\" not found"	 
 }
 
-# Init 
+# Init magic variables
 #
 DATE=$(date +"%Y-%m-%d")
 TIME=$(date +"%H:%M:%S")
@@ -802,6 +628,5 @@ runCommand "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8" "$9" "${10}"
 
 # Exit cleanly
 bpExit
-
 
 ##-

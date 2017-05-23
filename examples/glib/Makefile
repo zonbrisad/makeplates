@@ -688,19 +688,7 @@ install: $(TRGFILE) ## Install program
 
 help: ## This help information
 	@$(MPTOOL) mpHelp Makefile
-	
-#	@printf "%-30s %s\n" "target" "help"
 #	@echo -e $(MSG_LINE)
-#	@IFS=$$'\n' ;                                    \
-#	help_lines=(`fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##/:/'`); \
-#	for help_line in $${help_lines[@]}; do                                     \
-#	  IFS=$$':' ;                                                              \
-#		help_split=($$help_line) ;                                               \
-#		help_command=`echo $${help_split[0]} | sed -e 's/^ *//' -e 's/ *$$//'` ; \
-#		help_info=`echo $${help_split[2]} | sed -e 's/^ *//' -e 's/ *$$//'` ;    \
-#		printf "$(E_BR_CYAN)%-15s %s$(E_END)" $$help_command ;                 \
-#		printf "$(E_BR_GREEN)%s$(E_END)\n" $$help_info ;                       \
-#	done ; 
 #	@echo -e $(MSG_LINE)
 
 list-src: ## List all source files
