@@ -68,7 +68,7 @@
 
 //_____ D E C L A R A T I O N S ____________________________________________
 
-#ifndef __ASSEMBLY__ // Not defined for assembling.
+ifndef __ASSEMBLY__ // Not defined for assembling.
 
 #include <stdio.h>
 #include <stdbool.h>
