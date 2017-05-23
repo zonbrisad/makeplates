@@ -7,3 +7,20 @@
 
 scriptPath=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
+
+# Install file to dir
+# arg1 local file to copy
+# arg2 destination dir
+mpInst() {
+  dn=$(dirname $1)
+	dst=$2/${dn}
+	if [ ! -d ${dst} ]; then	
+		mkdir -p $dst
+	fi
+	cp -rf ${scriptPath}/$1 $2/${dn}/.
+}
+
+mpInst src/def.h      $1
+mpInst src/def_util.h $1
+mpInst src/def_util.c $1
+

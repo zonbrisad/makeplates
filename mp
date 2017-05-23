@@ -266,11 +266,28 @@ newScript() { ##C NEW Create new 3d party install script
 	echo "#" >> mpInstall
 	echo "# Makeplate 3dparty install script" >> mpInstall
 	echo "#" >> mpInstall
-	echo "# $1 is destination directory" >> mpInstall
+	echo '# $1 is destination directory' >> mpInstall
 	echo "#" >> mpInstall
   echo  >> mpInstall
 	echo 'scriptPath=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )' >> mpInstall
 	echo  >> mpInstall
+	
+  echo '# Install file to dir' >> mpInstall
+  echo '# arg1 local file to copy' >> mpInstall
+  echo '# arg2 destination dir' >> mpInstall
+	 
+	echo 'mpInst() {' >> mpInstall
+	echo '  dn=$(dirname $1)' >> mpInstall
+	echo '  dst=$2/${dn}' >> mpInstall
+	echo '  if [ ! -d ${dst} ]; then' >> mpInstall
+	echo '    mkdir -p $dst' >> mpInstall
+	echo '  fi' >> mpInstall
+	echo '  cp -rf ${scriptPath}/$1 $2/${dn}/.' >> mpInstall
+	echo '}' >> mpInstall
+	echo  >> mpInstall
+	echo 'mpInst myFile $1' >> mpInstall
+								
+	
 	chmod +x ${MPINSTALL}
 }
 
