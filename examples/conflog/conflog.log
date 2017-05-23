@@ -5,4 +5,14 @@
 2016-03-03 10:33:55 [msg ] Program start
 2016-03-03 10:33:55 [msg ] Shuting down...2017-03-19 19:51:13 [dbg ] Logfile size: 341
 2017-03-19 19:51:13 [msg ] Program start
-2017-03-19 19:51:13 [msg ] Shuting down...
+<<<<<<< HEAD
+2017-03-19 19:51:13 [msg ] Shuting down...2017-05-05 23:22:07 [dbg ] Logfile size: 469
+2017-05-05 23:22:07 [msg ] Program start
+2017-05-05 23:22:07 [msg ] Shuting down...2017-05-05 23:31:27 [dbg ] Logfile size: 597
+2017-05-05 23:31:27 [msg ] Program start
+2017-05-05 23:31:27 [msg ] Shuting down...
+=======
+2017-03-19 19:51:13 [msg ] Shuting down...2017-05-10 13:20:37 [dbg ] Logfile size: 469
+2017-05-10 13:20:37 [msg ] Program start
+2017-05-10 13:20:37 [msg ] Shuting down...
+>>>>>>> fb0c280f2781ae6705620f645a6f85b93a0ce448

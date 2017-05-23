@@ -30,7 +30,7 @@ scriptName=$(basename $0)
 #---------------------------------------------------------------------
 
 # Script version info
-VERSION="1.00"
+VERSION="1.01"
 
 # Bashplate version
 templateVersion="1.07"   
@@ -58,7 +58,7 @@ DEFAULT=help
 # User functions
 #---------------------------------------------------------------------
 
-newproj() { ## Description of funktion 1 
+newproj() { 
   echo "New project name"
 	read -e -p ">" projname
 	echo $projname	
@@ -68,12 +68,10 @@ ce() { ## Check if file exists
   bn=$(basename $2)
   cmd=$(command -v $2)
 	if [ $? -ne 0 ]; then
-	  #echo -e "${bn}       ${E_BR_RED}N/A${E_END}"
-		printf "%-20s${E_BR_RED}N/A${E_END}\n" "${bn}"
+		printf "%-30s${E_BR_RED}N/A${E_END}\n" "${bn}"
 	else
 		dn=$(dirname ${cmd})
-#	  echo -e "${bn}       ${E_BR_GREEN}$dn${E_END}"
-		printf "%-20s${E_BR_GREEN}%s${E_END}\n" "${bn}" "$dn"
+		printf "%-30s${E_BR_GREEN}%s${E_END}\n" "${bn}" "$dn"
 	fi
 }
 
@@ -84,9 +82,9 @@ cl() { ## Check if library exists
  
   echo $data | grep "cannot find" > /dev/null
 	if [ $? -eq 1 ]; then
-	  printf "%-20s${E_BR_GREEN}Exists${E_END}\n" "$LIB"
+	  printf "%-30s${E_BR_GREEN}Exists${E_END}\n" "$LIB"
 	else
-	  printf "%-20s${E_BR_RED}Missing${E_END}\n"  "$LIB"
+	  printf "%-30s${E_BR_RED}Missing${E_END}\n"  "$LIB"
 	fi
 }
 

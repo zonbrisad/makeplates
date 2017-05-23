@@ -5,7 +5,7 @@
  * @file    main.cpp
  * @author  Peter Malmberg <peter.malmberg@gmail.com>
  * @date    2016-10-24
- * @licence GPLv2
+ * @license GPLv2
  *
  *---------------------------------------------------------------------------
  */
@@ -42,6 +42,20 @@ void sigHup(int sig);
 
 // Code -------------------------------------------------------------------
 
+class Kalle {
+  private:
+    int a;
+
+  public:
+    Kalle() {
+        a = 1;
+    }
+
+    void Do(void) {
+        printf("Do %d\n", a);
+    }
+};
+
 
 void sigInt(int sig) {
     UNUSED(sig);
@@ -59,8 +73,9 @@ void sigHup(int sig) {
 int main(int argc, char *argv[]) {
     int i;
     MyClass a, *b;
-    vector<MyClass> mcList;
+    vector<MyClass *> mcList;
     string str;
+    Kalle *k;
 
     UNUSED(argc);
     UNUSED(argv);
@@ -78,11 +93,15 @@ int main(int argc, char *argv[]) {
 
     for (i = 0; i < 10; i++) {
         b = new MyClass(i);
-
-        b->Do(i);
-
+        mcList.push_back(b);
     }
 
+    for (i = 0; i < mcList.size(); i++) {
+        mcList[i]->Do(i);
+    }
+
+    k = new Kalle;
+    k->Do();
 
     return 0;
 }

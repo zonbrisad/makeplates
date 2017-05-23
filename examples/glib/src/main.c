@@ -87,7 +87,8 @@ GMainLoop   *mLoop1;
 GMainLoop   *mLoop2;
 GAsyncQueue *queue1;
 
-struct termios orig_termios;
+struct termios orig_termios_stdin;
+struct termios orig_termios_stdout;
 
 // Code -------------------------------------------------------------------
 
@@ -123,12 +124,12 @@ int isAppRunning() {
             return pid;
         }
 
-//    f = g_fopen(buf, "r");
-//    if (f!=NULL) {
-//      fclose(f);
-//      appPid2 = pid;
-//      return pid;
-//    }
+        //    f = g_fopen(buf, "r");
+        //    if (f!=NULL) {
+        //      fclose(f);
+        //      appPid2 = pid;
+        //      return pid;
+        //    }
     }
 
     // write to pidfile
@@ -225,7 +226,7 @@ gboolean timeout_1() {
 void threadTesto() {
     timer = g_timer_new();
     g_timer_start(timer);
-//  queue1 = g_async_queue_new();
+    //  queue1 = g_async_queue_new();
 
     //signal(SIGINT, sig_ctrl_c);
     //g_unix_signal_add(SIGINT, sig_ctrl_c);
@@ -387,7 +388,7 @@ static gboolean gio_in (GIOChannel *gio, GIOCondition condition, gpointer data) 
     char buf[32];
 
 
-//  printf("Cond: %x\n",condition);
+    //  printf("Cond: %x\n",condition);
     if (condition & G_IO_IN) {
         ret = g_io_channel_read_chars (gio, buf, 4, &len, &err);
 
@@ -417,7 +418,7 @@ void pipeTest() {
     timer = g_timer_new();
     g_timer_start(timer);
 
-//  g_timeout_add_seconds(5, timeout_1, "Pipe timeout");
+    //  g_timeout_add_seconds(5, timeout_1, "Pipe timeout");
 
     channel = g_io_channel_unix_new (STDIN_FILENO);
 
@@ -444,7 +445,7 @@ static gboolean socket_in(GIOChannel *gio, GIOCondition condition, gpointer data
 
     DEBUGPRINT("Socket data in. cond %x\n", condition);
 
-//  printf("Cond: %x\n",condition);
+    //  printf("Cond: %x\n",condition);
     if (condition & G_IO_IN) {
         DEBUGPRINT("\n");
         ret = g_io_channel_read_chars (gio, buf, 4, &len, &err);
@@ -486,7 +487,7 @@ void domainTest(void) {
     sock = g_socket_new(G_SOCKET_FAMILY_UNIX, G_SOCKET_TYPE_STREAM, G_SOCKET_PROTOCOL_DEFAULT, &error);
 
     // bind socket
-    g_socket_bind(sock, sockAddr, 1 &error);
+    //    g_socket_bind(sock, sockAddr, 1 &error);
     return;
 
     memset(&addr, 0, sizeof(addr));
@@ -507,6 +508,7 @@ void domainTest(void) {
     bind(fd, (struct sockaddr *)&addr, sizeof(addr));
 
     DEBUGPRINT("Listening to domain socket.\n");
+
     if (listen(fd, 5) == -1) {
         perror("listen error");
         exit(-1);
@@ -564,6 +566,7 @@ void domainTest2(void) {
     bind(fd, (struct sockaddr *)&addr, sizeof(addr));
 
     DEBUGPRINT("Listening to domain socket.\n");
+
     if (listen(fd, 5) == -1) {
         perror("listen error");
         exit(-1);
@@ -600,7 +603,7 @@ typedef struct {
 
 char cBuf[10];
 int b = 0;
-#define ESC          0x1b
+//#define ESC          0x1b
 #define ARROW_UP     0x8041
 #define ARROW_DOWN   0x8042
 #define ARROW_RIGHT  0x8043
@@ -749,6 +752,7 @@ uint16_t getCharX(char ch) {
                 b = 0;
                 return ch;
             }
+
             break;
 
         case 4:
@@ -781,7 +785,7 @@ static gboolean stdin_in (GIOChannel *gio, GIOCondition condition, gpointer data
     gsize len = 0;
     char buf[32];
     int ch;
-    int i,j;
+    int i, j;
 
     if (condition & G_IO_IN) {
         ret = g_io_channel_read_chars (gio, buf, 1, &len, &err);
@@ -791,13 +795,14 @@ static gboolean stdin_in (GIOChannel *gio, GIOCondition condition, gpointer data
         } else {
 
 
-          //for (i=0;i<len;i++) {
+            //for (i=0;i<len;i++) {
             ch = getCharX(buf[i]);
 
             if (ch != NO_CHAR) {
-                for (j=0; j<b; j++) {
-                  printf("%x ", cBuf[j]);
+                for (j = 0; j < b; j++) {
+                    printf("%x ", cBuf[j]);
                 }
+
                 printf("%s\n", char2Str(ch));
             }
 
@@ -815,16 +820,28 @@ static gboolean stdin_in (GIOChannel *gio, GIOCondition condition, gpointer data
 }
 
 void ttySetup() {
-	 struct termios new_termios;
+    struct termios new_termios;
 
-	 /* take two copies - one for now, one for later */
-	 tcgetattr(STDIN_FILENO, &orig_termios);
-	 memcpy(&new_termios, &orig_termios, sizeof(new_termios));
+    /* take two copies - one for now, one for later */
+    tcgetattr(STDIN_FILENO, &orig_termios_stdin);
+    memcpy(&new_termios, &orig_termios_stdin, sizeof(new_termios));
 
-	 new_termios.c_lflag &= ~(ICANON | ECHO);
-	 //cfmakeraw(&new_termios);
+    new_termios.c_lflag &= ~(ICANON | ECHO   /* | ECHONL  | ISIG | IEXTEN */);
+    //new_termios_p->c_cflag &= ~(CSIZE | PARENB);
+    //new_termios.c_lflag &= ~OPOST;
+    new_termios.c_oflag = 0;
 
-	 tcsetattr(STDIN_FILENO, TCSANOW, &new_termios);
+    //cfmakeraw(&new_termios);
+
+    tcsetattr(STDIN_FILENO, TCSANOW, &new_termios);
+
+
+    tcgetattr(STDOUT_FILENO, &orig_termios_stdout);
+    memcpy(&new_termios, &orig_termios_stdout, sizeof(new_termios));
+    new_termios.c_oflag = 0;
+    new_termios.c_lflag &= ~(ECHO | ICANON );
+    tcsetattr(STDOUT_FILENO, TCSANOW, &new_termios);
+
 }
 
 void stdinTest() {
@@ -832,6 +849,7 @@ void stdinTest() {
     pid_t childPid;
 
     printf("Stdin test\n");
+
 
     ttySetup();
 
@@ -853,8 +871,33 @@ void stdinTest() {
 }
 
 void cli_in(int ch) {
-	//putc('a', STDOUT_FILENO);
-	printf("a");
+	static int pos=0;
+	char *str;
+	char buf[16];
+	printf("%d", ch);
+	tcflush(stdout,TCIOFLUSH);
+		if (ch=='q') {
+			exit(0);
+		}
+
+	switch (ch) {
+		case NO_CHAR:     break;
+		case ARROW_UP:    break;
+		case ARROW_DOWN:  break;
+		case ARROW_LEFT:
+			if (pos>0) {
+			  str = E_CUR_BACK;
+			  pos--;
+			}
+			break;
+		case ARROW_RIGHT:
+			break;
+		default: break;
+	}
+
+
+    //putc('a', STDOUT_FILENO);
+    //printf(str);
 }
 
 static gboolean stdin_in_cli (GIOChannel *gio, GIOCondition condition, gpointer data) {
@@ -865,6 +908,7 @@ static gboolean stdin_in_cli (GIOChannel *gio, GIOCondition condition, gpointer 
     char buf[32];
     int ch;
 
+
     if (condition & G_IO_IN) {
         ret = g_io_channel_read_chars (gio, buf, 1, &len, &err);
 
@@ -874,11 +918,12 @@ static gboolean stdin_in_cli (GIOChannel *gio, GIOCondition condition, gpointer 
             //printChar(buf[0]);
 
             ch = getCharX(buf[0]);
-
-            if (ch != NO_CHAR) {
-                //printf("%s\n", char2Str(ch));
+            //printf("b %x\n", ch);
             cli_in(ch);
-            }
+//            if (ch != NO_CHAR) {
+//                //printf("%s\n", char2Str(ch));
+//                cli_in(ch);
+//            }
 
 
         }
@@ -894,29 +939,29 @@ static gboolean stdin_in_cli (GIOChannel *gio, GIOCondition condition, gpointer 
 }
 
 void cliTest() {
-	 GIOChannel *channel;
-	 printf("CLI test\n");
+    GIOChannel *channel;
+    printf("CLI test\n");
+    //fprintf(stdout, "Stdout\n");
+    //fprintf(stdin, "Stdin\n");
 
-	 ttySetup();
+    ttySetup();
 
-	 mLoop1 = g_main_loop_new(NULL, FALSE);
-	    timer = g_timer_new();
-	    g_timer_start(timer);
+    mLoop1 = g_main_loop_new(NULL, FALSE);
+    timer = g_timer_new();
+    g_timer_start(timer);
 
-	    	channel = g_io_channel_unix_new (STDIN_FILENO);
+    channel = g_io_channel_unix_new (STDIN_FILENO);
 
-	    if (!channel) {
-	        g_error ("Cannot create new GIOChannel!\n");
-	    }
+    if (!channel) {
+        g_error ("Cannot create new GIOChannel!\n");
+    }
 
-	    	if (!g_io_add_watch (channel, G_IO_IN | G_IO_HUP, stdin_in_cli, NULL)) {
-	        g_error ("Cannot add watch on GIOChannel!\n");
-	    }
+    if (!g_io_add_watch (channel, G_IO_IN | G_IO_HUP, stdin_in_cli, NULL)) {
+        g_error ("Cannot add watch on GIOChannel!\n");
+    }
 
-	    g_main_loop_run(mLoop1);
-
+    g_main_loop_run(mLoop1);
 }
-
 
 
 int main(int argc, char *argv[]) {
@@ -1008,11 +1053,11 @@ int main(int argc, char *argv[]) {
         exit(0);
     }
 
-    // stdin test
-      if (opt_cliTest) {
-          cliTest();
-          exit(0);
-      }
+    // CLI test
+    if (opt_cliTest) {
+        cliTest();
+        exit(0);
+    }
 
 
     return 0;
