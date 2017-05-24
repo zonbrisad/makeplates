@@ -104,7 +104,7 @@ def addCIncludes(file):
     addInclude(file, "errno.h")
   
 def addGLIBIncludes(file):
-    
+    return
     
 def addGTKIncludes(file):
     addInclude(file, "gtk/gtk.h")
