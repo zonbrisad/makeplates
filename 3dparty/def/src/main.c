@@ -222,50 +222,13 @@ void defTest(void) {
 
 
 int main(int argc, char *argv[]) {
-    int i;
-
-	unitTest();
-	exit(0);
+	int a;
 	
-    UNUSED(argc);
-    UNUSED(argv);
+	unitTest();
 
-    signal(SIGINT, sigInt);
-    signal(SIGHUP, sigHup);
+	
+//	a =0b100;
+//	printf("a=%d\n", a);
 
-
-    printf("\nMakeplate linux C example.\n\n\n");
-
-    colorTest();
-
-    INFOPRINT("Information printout\n");
-
-    DEBUGPRINT("Debug printout\n");
-
-    WARNINGPRINT("Warning printout\n");
-
-    ERRORPRINT("Error printout\n");
-
-    DEBUG_DO(printf("Debug do\n"));
-
-    i = 0;
-
-    printf("Var i = %2x\n", i);
-    BIT_SET(i, 4);
-    printf("Var i = %2x\n", i);
-    BIT_SET(i, 2);
-    printf("Var i = %2x\n", i);
-    BIT_CLEAR(i, 4);
-    printf("Var i = %2x\n", i);
-
-    printf("Size of I2S db = %d\n", I2S_len(numbersDb));
-
-    for (i = 1; i <= 4; i++) {
-        printf("I2S test %d  =  %s\n", i, I2S_getValue(numbersDb, i));
-    }
-
-    I2S_setValue(numbersDb, 4, "Fourth");
-    printf("I2S test %d  =  %s\n", 4, I2S_getValue(numbersDb, 4));
-
-    return 0;
+	return 0;
 }

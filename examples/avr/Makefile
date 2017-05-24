@@ -15,8 +15,8 @@
 # linux win32 avr arm osx
 TARGET_PLATFORM = avr
 
-# Project Licence (GPL, GPLv2, MIT, BSD, Apache, etc.) 
-LICENCE = GPLv2
+# Project License (GPL, GPLv2, MIT, BSD, Apache, etc.) 
+LICENSE = GPLv2
 
 # Target file name (without extension).
 TARGET = avrtest
@@ -40,9 +40,6 @@ LIB  =
 #     To put object files in current directory, use a dot (.), do NOT make
 #     this an empty or blank macro!
 OBJDIR = .
-
-# Source code directory
-SRCDIR=src
 
 # Build directory
 BUILDDIR=build
@@ -79,6 +76,8 @@ DEBUG=0
 # Compiler and Linker options
 #============================================================================
 
+##N- Build
+
 # Compiler Options C --------------------------------------------------------
 CFLAGS = -g$(DEBUG)                            # Debugging information
 CFLAGS += -O$(OPT)                             # Optimisation level
@@ -92,7 +91,6 @@ CFLAGS += -funsigned-char
 #CFLAGS += -funsigned-bitfields
 #CFLAGS += -fpack-struct
 #CFLAGS += -fshort-enums
-#CFLAGS += -mshort-calls
 #CFLAGS += -fno-unit-at-a-time
 #CFLAGS += -mshort-calls
 #CFLAGS += -fPIC                  # Position independet code
@@ -114,8 +112,6 @@ CFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void po
 #CFLAGS += -Wundef
 #CFLAGS += -Werror               # All warnings will be treated as errors
 
-# Library compiler flags C --------------------------------------------------
-CFLAGS += $(foreach X, $(PKGLIBS), $(shell pkg-config --cflags $(X)) )
 
 # Compiler Options C++ ------------------------------------------------------
 CPPFLAGS = -g$(DEBUG)                              # Debugging information
@@ -149,10 +145,6 @@ CPPFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void 
 #CPPFLAGS += -Wsign-compare
 #CPPFLAGS += -Wundef
 #CPPFLAGS += -Werror              # All warnings will be treated as errors
-
-# Library compiler flags C++ ------------------------------------------------
-CPPFLAGS += $(foreach X, $(PKGLIBS), $(shell pkg-config --cflags $(X)) )
-
 
 # Assembler Options ---------------------------------------------------------
 #  -Wa,...:   tell GCC to pass this to the assembler.
@@ -190,7 +182,28 @@ TCHAIN_BASE=/usr/bin
 # Toolchain prefix 
 TCHAIN_PREFIX=
 
+# Handle pkg-config libraries -----------------------------------------------
+CFLAGS   += $(foreach X, $(PKGLIBS), $(shell pkg-config --cflags $(X)) )
+CPPFLAGS += $(foreach X, $(PKGLIBS), $(shell pkg-config --cflags $(X)) )
+LDFLAGS  += $(foreach X, $(PKGLIBS), $(shell pkg-config --libs $(X)) )
+
+# Size flags ----------------------------------------------------------------
+SIZEFLAGS = --format=berkley  # format = {sysv|berkeley}
+
+# objdump flags -------------------------------------------------------------
+ODFLAGS  = -h  # Display the contents of the section headers  
+ODFLAGS += -S  # Intermix source code with disassembly
+ODFLAGS += -C  #
+ODFLAGS += -r  # Display the relocation entries in the file
+
+# Output format. (can be srec, ihex, binary) --------------------------------
+FORMAT = ihex
+
+# object copy flags ---------------------------------------------------------
+OCFLAGS = -O $(FORMAT) 
+
 endif
+
 # Windows options -----------------------------------------------------------
 ifeq ($(TARGET_PLATFORM), win32)
 
@@ -307,7 +320,6 @@ REMOVE    = rm -f
 REMOVEDIR = rm -rf
 COPY      = cp -f 
 MOVE      = mv -f
-
 MKDIR     = mkdir -p
 SED       = sed              # stream editor program
 MOC       = moc              # Qt meta object compiler
@@ -315,7 +327,7 @@ QMAKE     = qmake            # Qt make program
 UIC       = uic              # Qt resource file compiler
 CTEMPLATE = python3 tools/ctemplate.py # C/C++ template tool
 BIN2ARRAY = python3 tools/bin2array.py # Binary to array tool
-MPTOOL    = tools/mkptools   # Makeplate tools
+MPTOOL    = tools/mptools    # Makeplate tools
 CPPCHECK  = cppcheck
 INSTALL   = install
 ASTYLE    = astyle           # Code beatyfier
@@ -332,6 +344,7 @@ AR        = ${TCHAIN}ar rcs
 NM        = ${TCHAIN}nm
 AS        = ${TCHAIN}as
 GDB       = ${TCHAIN}gdb
+STRIP     = ${TCHAIN}strip
 
 #
 # Message/Filter settings
@@ -388,6 +401,7 @@ MSG_LINE             = "$(E_WHITE)----------------------------------------------
 MSG_BEGIN            = "${E_WHITE}-------------------------------- Begin ---------------------------${E_END}"
 MSG_END              = "${E_WHITE}-------------------------------- End -----------------------------${E_END}"
 MSG_ERRORS_NONE      = "${C_OK}Errors: none ${E_END}"
+MSG_STRIP            = "${C_ACTION}Striping:${E_END}"
 MSG_LINKING          = "${C_ACTION}Linking:${E_END}"
 MSG_COMPILING        = "${C_ACTION}Compiling C:  ${E_END}"
 MSG_COMPILING_CPP    = "${C_ACTION}Compiling C++:${E_END}"
@@ -450,7 +464,7 @@ CPP_FILTER = $(C_FILTER)
 LD_ERROR1="s/undefined reference/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
 LD_ERROR2="s/No such file or directory/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
 LD_FILTER = | sed -ru -e $(LD_ERROR1) -e $(LD_ERROR2)
-
+	
 #
 # Build rules	
 #============================================================================
@@ -490,15 +504,9 @@ LST = $(patsubst %.c, $(OBJDIR)/%.lst, $(CSRC)) $(patsubst %.cpp, $(OBJDIR)/%.ls
 # Default target.
 all:	begin build finished end
 
-# Remove colorfilter
-nocolor:
-	$(eval C_FILTER:= )
+nc: C_FILTER:= 
+nc: all   ## Build with no color filter on compiler output
 
-#
-# Build with no color filter on compiler output
-# Useful for Netbeans, Eclipse builds etc. 
-#	
-nc: nocolor all   ## Build with no color filter on compiler output
 
 build: elf hex eep lss sym size
 
@@ -509,7 +517,6 @@ hex: $(OUTDIR)/$(TARGET).hex
 bin: $(OUTDIR)/$(TARGET).bin
 eep: $(OUTDIR)/$(TARGET).eep
 
-# Eye candy.
 begin:
 	@echo -e $(MSG_BEGIN)
 	@echo -e ${MSG_BUILDING}" $(E_BR_GREEN)$(TARGET) $(E_END)"
@@ -521,14 +528,12 @@ end:
 finished:
 	@echo
 
-
-# Link target
-#.SECONDARY : $(TARGET)
+# Linking targets from object files
 .PRECIOUS : $(OBJS)
 $(TRGFILE): $(OBJS) $(OUTDIR)
-	@echo -en "\n"$(MSG_LINKING)"\n               "
-	@echo -e $@ $(F_SOURCE)
-	@$(CC) $(ALL_CFLAGS) $(OBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)
+	@echo -en "\n"$(MSG_LINKING)"       "
+	@echo -e $@ $(F_SOURCE) 
+	@$(CPP) $(ALL_CFLAGS) $(OBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)
 	
 # Create extended listing file/disassambly from ELF output file.
 # using objdump testing: option -C
@@ -536,6 +541,7 @@ $(TRGFILE): $(OBJS) $(OUTDIR)
 	@echo -en "\n"$(MSG_EXTENDED_LISTING) "\n               "
 	@echo -e $@ $(F_SOURCE)
 	@$(OBJDUMP) -h -S -z $< > $@
+#@$(OBJDUMP) $(ODFLAGS) $< > $@
 	
 # Create a symbol table from ELF output file.
 %.sym: $(TRGFILE)
@@ -549,6 +555,7 @@ $(TRGFILE): $(OBJS) $(OUTDIR)
 	@echo -en $(MSG_HEX_FILE) "\n               "
 	@echo -e $@ $(F_SOURCE)
 	@$(OBJCOPY) -O $(FORMAT) -R .eeprom -R .fuse -R .lock -R .signature $< $@
+#@$(OBJCOPY) $(OCFLAGS) $< $@
 
 # Compile: create object files from C source files.
 $(COBJS): $(BUILDDIR)/%.o : %.c
@@ -558,7 +565,7 @@ $(COBJS): $(BUILDDIR)/%.o : %.c
 	@$(CC) -c $(ALL_CFLAGS) $< -o $@ 2>&1  $(C_FILTER)
 
 # Compile: create object files from C++ source files.
-$(CPPOBJS): $(BUILDDIR)/%.o : src/%.cpp
+$(CPPOBJS): $(BUILDDIR)/%.o : %.cpp
 	@$(MKDIR) $(@D)                                       # Create directory for object file
 	@echo -en $(MSG_COMPILING_CPP)" " 
 	@echo -e $< $(F_SOURCE)
@@ -610,6 +617,7 @@ size: $(TRGFILE)
 	@echo
 	@echo -e $(MSG_SIZE_AFTER)
 	@$(SIZE) --mcu=$(MCU) --format=avr $(TRGFILE)
+        #@$(SIZE) $(SIZEFLAGS) $(TRGFILE)
 
 strip: $(TRGFILE) ## Strip target binary from symbols
 	@echo -e $(MSG_STRIP)
@@ -726,11 +734,13 @@ edit:   ## Open source and makefile in editor
 
 # Project options -----------------------------------------------------------
 
+##N- Create
+
 newfile:  ## Create a new C file
-	@${CTEMPLATE} --newc --dir src --author "$(AUTHOR)" --licence "$(LICENCE)"
+	@${CTEMPLATE} --newc --dir src --author "$(AUTHOR)" --license "$(LICENSE)"
 
 newclass:  ## Create a new C++ class
-	@${CTEMPLATE} --newclass --dir src --author "$(AUTHOR)" --licence "$(LICENCE)"	
+	@${CTEMPLATE} --newclass --dir src --author "$(AUTHOR)" --license "$(LICENSE)"	
 		
 #newproj:  # Create a new project
 #	@${PROJECT} newproj
@@ -763,20 +773,12 @@ install: $(TRGFILE) ## Install program
 # Help information
 #============================================================================
 
+##N- Information
+
 help: ## This help information
-	@printf "%-30s %s\n" "target" "help"
-	@echo -e $(MSG_LINE)
-	@IFS=$$'\n' ;                                    \
-	help_lines=(`fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##/:/'`); \
-	for help_line in $${help_lines[@]}; do                                     \
-	  IFS=$$':' ;                                                              \
-		help_split=($$help_line) ;                                               \
-		help_command=`echo $${help_split[0]} | sed -e 's/^ *//' -e 's/ *$$//'` ; \
-		help_info=`echo $${help_split[2]} | sed -e 's/^ *//' -e 's/ *$$//'` ;    \
-		printf "$(E_BR_CYAN)%-15s %s$(E_END)" $$help_command ;                 \
-		printf "$(E_BR_GREEN)%s$(E_END)\n" $$help_info ;                       \
-	done ; 
-	@echo -e $(MSG_LINE)
+	@$(MPTOOL) mpHelp Makefile
+#	@echo -e $(MSG_LINE)
+#	@echo -e $(MSG_LINE)
 
 list-src: ## List all source files
 	@echo -e $(MSG_SRC)
@@ -830,7 +832,7 @@ list-info:
 	@echo -e $(MSG_PROJECT)
 	@echo "Target:     $(TARGET)"
 	@echo "Platform:   $(TARGET_PLATFORM)"
-	@echo "Licence:    $(LICENCE)"
+	@echo "License:    $(LICENSE)"
 	@echo "Outdir:     $(OUTDIR)"
 	@echo "C standard: $(CSTANDARD)"
 	@echo "MCU:        $(MCU)"
@@ -873,6 +875,9 @@ files: list-src ## List source files
 
 gccversion :    ## Display compiler version
 	@$(CC) --version
+
+libs: ## List system wide libraries (pkg-config)
+	@pkg-config --list-all
 	
 #
 # Personal settings
@@ -897,6 +902,8 @@ $(PERSONAL):	# Create a settings file
 	@echo "AUTHOR=${AUTHOR}" >> ${PERSONAL}
 
 
+
+##N- Code
 
 #
 # CppCheck static code analysis
@@ -1006,9 +1013,12 @@ sim:  ## Run AVR simulator
 #============================================================================
 mpType=mp-c
 
-utools: # Update tools from installed tools
+utools: # Update tools from locally installed tools
 	@echo -e "${C_ACTION}Updating makeplate tools${E_END}"
 	@$(COPY) ~/bin/makeplate_files/tools/* tools/.
 
-meld: # Meld with installed 
+meld: # Meld Makefile with locally installed makefile
 	@meld ~/bin/makeplate_files/${mpType}/Makefile  Makefile
+
+
+##-
