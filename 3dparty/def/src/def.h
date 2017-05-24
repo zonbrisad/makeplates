@@ -43,6 +43,169 @@ typedef double                  F64;  //!< 64-bit floating-point number.
 typedef uint32_t                iram_size_t;
 
 
+/*! \name Aliasing Aggregate Types
+ */
+//! @{
+
+//! 16-bit union.
+typedef union
+{
+  S16 s16   ;
+  U16 u16   ;
+  S8  s8 [2];
+  U8  u8 [2];
+} Union16;
+
+//! 32-bit union.
+typedef union
+{
+  S32 s32   ;
+  U32 u32   ;
+  S16 s16[2];
+  U16 u16[2];
+  S8  s8 [4];
+  U8  u8 [4];
+} Union32;
+
+//! 64-bit union.
+typedef union
+{
+  S64 s64   ;
+  U64 u64   ;
+  S32 s32[2];
+  U32 u32[2];
+  S16 s16[4];
+  U16 u16[4];
+  S8  s8 [8];
+  U8  u8 [8];
+} Union64;
+
+//! Union of pointers to 64-, 32-, 16- and 8-bit unsigned integers.
+typedef union
+{
+  S64 *s64ptr;
+  U64 *u64ptr;
+  S32 *s32ptr;
+  U32 *u32ptr;
+  S16 *s16ptr;
+  U16 *u16ptr;
+  S8  *s8ptr ;
+  U8  *u8ptr ;
+} UnionPtr;
+
+//! Union of pointers to volatile 64-, 32-, 16- and 8-bit unsigned integers.
+typedef union
+{
+  volatile S64 *s64ptr;
+  volatile U64 *u64ptr;
+  volatile S32 *s32ptr;
+  volatile U32 *u32ptr;
+  volatile S16 *s16ptr;
+  volatile U16 *u16ptr;
+  volatile S8  *s8ptr ;
+  volatile U8  *u8ptr ;
+} UnionVPtr;
+
+//! Union of pointers to constant 64-, 32-, 16- and 8-bit unsigned integers.
+typedef union
+{
+  const S64 *s64ptr;
+  const U64 *u64ptr;
+  const S32 *s32ptr;
+  const U32 *u32ptr;
+  const S16 *s16ptr;
+  const U16 *u16ptr;
+  const S8  *s8ptr ;
+  const U8  *u8ptr ;
+} UnionCPtr;
+
+//! Union of pointers to constant volatile 64-, 32-, 16- and 8-bit unsigned integers.
+typedef union
+{
+  const volatile S64 *s64ptr;
+  const volatile U64 *u64ptr;
+  const volatile S32 *s32ptr;
+  const volatile U32 *u32ptr;
+  const volatile S16 *s16ptr;
+  const volatile U16 *u16ptr;
+  const volatile S8  *s8ptr ;
+  const volatile U8  *u8ptr ;
+} UnionCVPtr;
+
+//! Structure of pointers to 64-, 32-, 16- and 8-bit unsigned integers.
+typedef struct
+{
+  S64 *s64ptr;
+  U64 *u64ptr;
+  S32 *s32ptr;
+  U32 *u32ptr;
+  S16 *s16ptr;
+  U16 *u16ptr;
+  S8  *s8ptr ;
+  U8  *u8ptr ;
+} StructPtr;
+
+//! Structure of pointers to volatile 64-, 32-, 16- and 8-bit unsigned integers.
+typedef struct
+{
+  volatile S64 *s64ptr;
+  volatile U64 *u64ptr;
+  volatile S32 *s32ptr;
+  volatile U32 *u32ptr;
+  volatile S16 *s16ptr;
+  volatile U16 *u16ptr;
+  volatile S8  *s8ptr ;
+  volatile U8  *u8ptr ;
+} StructVPtr;
+
+//! Structure of pointers to constant 64-, 32-, 16- and 8-bit unsigned integers.
+typedef struct
+{
+  const S64 *s64ptr;
+  const U64 *u64ptr;
+  const S32 *s32ptr;
+  const U32 *u32ptr;
+  const S16 *s16ptr;
+  const U16 *u16ptr;
+  const S8  *s8ptr ;
+  const U8  *u8ptr ;
+} StructCPtr;
+
+//! Structure of pointers to constant volatile 64-, 32-, 16- and 8-bit unsigned integers.
+typedef struct
+{
+  const volatile S64 *s64ptr;
+  const volatile U64 *u64ptr;
+  const volatile S32 *s32ptr;
+  const volatile U32 *u32ptr;
+  const volatile S16 *s16ptr;
+  const volatile U16 *u16ptr;
+  const volatile S8  *s8ptr ;
+  const volatile U8  *u8ptr ;
+} StructCVPtr;
+
+//! @}
+
+//#endif  // #ifndef __ASSEMBLY__
+
+/*! \name Usual Constants
+ */
+//! @{
+#define DISABLE   0
+#define ENABLE    1
+#ifndef __cplusplus
+#if !defined(__bool_true_false_are_defined)
+#define false     0
+#define true      1
+#endif
+#endif
+#define PASS      0
+#define FAIL      1
+#define LOW       0
+#define HIGH      1
+//! @}
+
+
 #ifndef bool
 typedef uint8_t bool;
 #endif
@@ -176,10 +339,74 @@ typedef unsigned long       ulong;
 #define CLAMP(x, low, high)  (((x) > (high)) ? (high) : (((x) < (low)) ? (low) : (x)))
 
 
+/*! \name Endianism Conversion
+ *
+ * The same considerations as for clz and ctz apply here but GCC's
+ * __builtin_bswap_32 and __builtin_bswap_64 do not behave like macros when
+ * applied to constant expressions, so two sets of macros are defined here:
+ *   - Swap16, Swap32 and Swap64 to apply to constant expressions (values known
+ *     at compile time);
+ *   - swap16, swap32 and swap64 to apply to non-constant expressions (values
+ *     unknown at compile time).
+ */
+//! @{
 
+/*! \brief Toggles the endianism of \a u16 (by swapping its bytes).
+ *
+ * \param u16 U16 of which to toggle the endianism.
+ *
+ * \return Value resulting from \a u16 with toggled endianism.
+ *
+ * \note More optimized if only used with values known at compile time.
+ */
 #define Swap16(u16) ((U16)(((U16)(u16) >> 8) |\
                            ((U16)(u16) << 8)))
 
+/*! \brief Toggles the endianism of \a u32 (by swapping its bytes).
+ *
+ * \param u32 U32 of which to toggle the endianism.
+ *
+ * \return Value resulting from \a u32 with toggled endianism.
+ *
+ * \note More optimized if only used with values known at compile time.
+ */
+#define Swap32(u32) ((U32)(((U32)Swap16((U32)(u32) >> 16)) |\
+                           ((U32)Swap16((U32)(u32)) << 16)))
+
+/*! \brief Toggles the endianism of \a u64 (by swapping its bytes).
+ *
+ * \param u64 U64 of which to toggle the endianism.
+ *
+ * \return Value resulting from \a u64 with toggled endianism.
+ *
+ * \note More optimized if only used with values known at compile time.
+ */
+#define Swap64(u64) ((U64)(((U64)Swap32((U64)(u64) >> 32)) |\
+                           ((U64)Swap32((U64)(u64)) << 32)))
+
+/*! \brief Toggles the endianism of \a u16 (by swapping its bytes).
+ *
+ * \param u16 U16 of which to toggle the endianism.
+ *
+ * \return Value resulting from \a u16 with toggled endianism.
+ *
+ * \note More optimized if only used with values unknown at compile time.
+ */
+#define swap16(u16) Swap16(u16)
+
+/*! \brief Toggles the endianism of \a u32 (by swapping its bytes).
+ *
+ * \param u32 U32 of which to toggle the endianism.
+ *
+ * \return Value resulting from \a u32 with toggled endianism.
+ *
+ * \note More optimized if only used with values unknown at compile time.
+ */
+#if (defined __GNUC__)
+#   define swap32(u32) ((U32)__builtin_bswap32((U32)(u32)))
+#else
+#   define swap32(u32) Swap32(u32)
+#endif
 
 
 #undef  isWithin
@@ -395,8 +622,6 @@ typedef unsigned long       ulong;
 #define FATALPRINT_COND(cond, _fmt, ...)
 #define FATAL_DO(f)
 #endif
-
-
 
 
 

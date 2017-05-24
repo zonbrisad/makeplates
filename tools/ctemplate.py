@@ -40,13 +40,12 @@ AppAuthor   = "Peter Malmberg <peter.malmberg@gmail.com>"
             
 def addHeader(file, fileName, brief, date, author, license):
     header = headerExample
-    
+
     header = header.replace("__FILENAME__", fileName )
     header = header.replace("__BRIEF__",    brief    )
     header = header.replace("__DATE__",     date     )
-    header = header.replace("__AUTHOR__",   author   )
+    header = header.replace("__AUTHOR__",   author   )    
     header = header.replace("__LICENSE__",  license  )
-    
     file.write(header)
 
     
@@ -142,7 +141,7 @@ def newFile(dir, fileName):
     file = open(dir+"/"+fileName, 'w')
     return file
   except IOError:
-    logging.debug("Could not open template file %s" % (fileName))
+    logging.debug("Could not open file %s" % (fileName))
     exit()
 
 
@@ -304,12 +303,13 @@ def main():
     parser.add_argument("--newQt",    action="store_true", help="Create a new Qt project")
     parser.add_argument("--newgtk",   action="store_true", help="Create a new GTK project")
     parser.add_argument("--newproj",  action="store_true", help="Create a new Makeplate project")
-    parser.add_argument("--license",  type=str,            help="License of new file", default="")
-    parser.add_argument("--author",   type=str,            help="Author of file",      default="")
-    parser.add_argument("--dir",      type=str,            help="Directory where to store file",  default=".")
+    parser.add_argument("--giti",     action="store_true", help="Create a .gitignore file")
+    
+    parser.add_argument("--license",  type=str,            help="License of new file",           default="")
+    parser.add_argument("--author",   type=str,            help="Author of file",                default="")
+    parser.add_argument("--dir",      type=str,            help="Directory where to store file", default=".")
 #    parser.add_argument("--header",   type=str,            help="External header file",  default="headerExample")
     
-        
     args = parser.parse_args()
 
     if args.newc:
@@ -327,15 +327,21 @@ def main():
     if args.newgtk:
         newCppModule(args.dir, args.author, args.license)
         exit(0)
-
+        
     if args.newQt:
         newCppModule(args.dir, args.author, args.license)
         exit(0)
-
+        
     if args.newproj:
         newProject(args.dir, args.author, args.license)
         exit(0)
-    
+        
+    if args.giti:
+        file = newFile(args.dir, ".gitignore")
+        file.write(gitIgnore)
+        file.close()
+        exit(0)
+        
     parser.print_help()
     exit(0)    
 
@@ -381,12 +387,12 @@ def query_yn(question, default="yes"):
     
 headerExample="""/**
  *---------------------------------------------------------------------------
- * @brief   __BRIEF__
+ * @brief    __BRIEF__
  *
- * @file    __FILENAME__
- * @author  __AUTHOR__
- * @date    __DATE__
- * @license __LICENSE__
+ * @file     __FILENAME__
+ * @author   __AUTHOR__
+ * @date     __DATE__
+ * @license  __LICENSE__
  *
  *---------------------------------------------------------------------------
  *
@@ -426,6 +432,9 @@ int main(int argc, char *argv[]) {
 }
 """
 
+glibMainExample="""
+"""
+
 mainExample="""
 int main(int argc, char *argv[]) {
         
@@ -453,22 +462,108 @@ int main(int argc, char *argv[]) {
 }
 """
 
-headerExample="""
-/**
- *---------------------------------------------------------------------------
- * @brief   __brief__
- *
- * @file    __fileName__
- * @author  __author__
- * @date    __date__
- * @license __license__
- *
- *---------------------------------------------------------------------------
- *
- */
+
+gitIgnore="""
+#
+# Makeplate .gitignore file
+#
+# 
+# 
+#
+
+
+# Makeplate specific files
+#--------------------------------------------------------------------
+archive
+backup
+output
+personal*.mk
+
+# Temporary files
+#--------------------------------------------------------------------
+*.tmp
+*.old
+*.orig
+*~
+
+# Revision control
+#--------------------------------------------------------------------
+.svn
+.git
+
+# C/C++
+#--------------------------------------------------------------------
+
+# Object files
+*.o
+*.ko
+*.obj
+*.elf
+*.lo
+*.slo
+
+# Symbols etc
+*.lst
+*.sym
+*.map
+*.lss
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Static Libraries
+*.lib
+*.a
+*.la
+*.lo
+*.lai
+
+# Shared libraries (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Executables
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+*.bin
+*.elf
+*.a
+
+# Debug files
+*.dSYM/
+
+# Makefile specific
+#--------------------------------------------------------------------
+*.d
+.dep
+
+
+# Qt 
+#--------------------------------------------------------------------
+*.moc
+moc_*.h
+moc_*.cpp
+*_moc.h
+*_moc.cpp
+qrc_*.cpp
+ui_*.h
+
+# QtCreator Qml
+*.qmlproject.user
+*.qmlproject.user.*
+
+# QtCtreator CMake
+CMakeLists.txt.user*
 """
 
-    
+
 if __name__ == "__main__":
     try:
         main()
