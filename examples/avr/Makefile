@@ -24,9 +24,9 @@ TARGET = avrtest
 # List C, C++ and assembler source files here. (C/C++ dependencies are automatically generated.)
 SRC = src/main.c \
       src/avrsimul.c \
-			src/uart.c  \
-#			src/twimaster.c \
-#			src/lcd.c
+      src/uart.c  \
+#      src/twimaster.c \
+#      src/lcd.c
 
 # List C, C++ and assembler library/3rd partry source files here. (C/C++ dependencies are automatically generated.)
 LSRC =
@@ -488,8 +488,8 @@ CPPSRC_1 = $(patsubst %.c,  , $(SRC) $(LSRC))
 CPPSRC   = $(patsubst %.S,  , $(CPPSRC_1))
 
 # Filter out Assembler sources
-ASRC_1 = $(patsubst $(SRCDIR)/%.c,    , $(SRC) $(LSRC))
-ASRC   = $(patsubst $(SRCDIR)/%.cpp,  , $(ASRC_1))
+ASRC_1 = $(patsubst %.c,    , $(SRC) $(LSRC))
+ASRC   = $(patsubst %.cpp,  , $(ASRC_1))
 
 # Define all object files.
 COBJS    = $(patsubst %.c,   $(BUILDDIR)/%.o, $(CSRC))
@@ -985,7 +985,7 @@ AVRDUDE = avrdude
 AVRDUDE_PROGRAMMER = arduino
  
 # com1 = serial port. Use lpt1 to connect to parallel port.
-AVRDUDE_PORT = /dev/ttyUSB3    # programmer connected to serial device
+AVRDUDE_PORT = /dev/ttyUSB0    # programmer connected to serial device
 
 AVRDUDE_BITRATE = 57600 
  
@@ -996,6 +996,21 @@ AVRDUDE_WRITE_FLASH = -U flash:w:$(OUTDIR)/$(TARGET).hex:i
 # Note that this counter needs to be initialized first using -Yn,
 # see avrdude manual.
 #AVRDUDE_ERASE_COUNTER = -y
+
+# Increase verbosity level.  Please use this when submitting bug
+# # reports about avrdude. See <http://savannah.nongnu.org/projects/avrdude>
+# # to submit bug reports.
+AVRDUDE_VERBOSE = -v -v
+ 
+AVRDUDE_FLAGS = -p $(MCU) -P $(AVRDUDE_PORT) -c $(AVRDUDE_PROGRAMMER) -b ${AVRDUDE_BITRATE} -D
+AVRDUDE_FLAGS += $(AVRDUDE_NO_VERIFY)
+AVRDUDE_FLAGS += $(AVRDUDE_VERBOSE)
+AVRDUDE_FLAGS += $(AVRDUDE_ERASE_COUNTER)
+ 
+ 
+# Program the device.
+program: $(TARGET).hex # $(TARGET).eep  ## Burn program into flash 
+	$(AVRDUDE) $(AVRDUDE_FLAGS) $(AVRDUDE_WRITE_FLASH) # $(AVRDUDE_WRITE_EEPROM)
 
 #
 # AVR simulator
