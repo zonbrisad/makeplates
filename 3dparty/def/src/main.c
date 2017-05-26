@@ -232,6 +232,17 @@ int main(int argc, char *argv[]) {
 	printf("Binary %s\n", int2bin(0xAAFFAAFF,32));
 	printf("Binary %s\n", int2bin(0xAAFFAAFF,48));
 	
+
+	printf("|||||||+--\n");
+	printf("||||||+---\n");
+	printf("|||||+----\n");
+	printf("||||+-----\n");
+	printf("|||+------\n");
+	printf("||+-------\n");
+	printf("|+--------\n");
+	printf("+---------\n");
+	
+	
 	
 //	a =0b100;
 //	printf("a=%d\n", a);
