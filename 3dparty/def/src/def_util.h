@@ -76,6 +76,8 @@ int S2S_last(S2S *db);
 int S2S_first(S2S *db);
 int S2S_len(S2S *db);
 
+
+char *int2bin(int val);	
 	
 	
 #ifdef PMU_LINUX

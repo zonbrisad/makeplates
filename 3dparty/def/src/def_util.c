@@ -183,6 +183,40 @@ char *S2S_getValue(S2S *db, char *key) {
 
 
 
+// Binary--------------------------------------------------------------------
+
+char *int2bin(int val) {
+	static char buf[33];
+	int i;
+	int n;
+//	size_t bits = sizeof(int) * CHAR_BIT;
+	
+	bits=8
+	//	char * str = malloc(bits + 1);
+	
+	//if (!str) return NULL;
+  n = val;
+	
+	//type punning because signed shift is implementation-defined
+//		unsigned u = *(unsigned *)&i;
+
+//	for(; bits--; u >>= 1)
+//		buf[bits] = u & 1 ? '1' : '0';
+	
+	for (i = BITS - 1; i >= 0; --i) {
+		buf[i] = (n & 1) ? '1' : '0';
+		        n >>= 1;
+	}
+
+	buf[bits] = '\0';
+	
+	return buf;
+}
+
+
+
+
+
 // Linux specific  ---------------------------------------------------------
 
 #ifdef PMU_LINUX
