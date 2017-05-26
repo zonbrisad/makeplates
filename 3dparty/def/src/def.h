@@ -339,6 +339,8 @@ typedef unsigned long       ulong;
 #define CLAMP(x, low, high)  (((x) > (high)) ? (high) : (((x) < (low)) ? (low) : (x)))
 
 
+
+
 /*! \name Endianism Conversion
  *
  * The same considerations as for clz and ctz apply here but GCC's
