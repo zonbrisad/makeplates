@@ -226,6 +226,12 @@ int main(int argc, char *argv[]) {
 	
 	unitTest();
 
+	printf("Binary %s\n", int2bin(0xAA, 8));
+	printf("Binary %s\n", int2bin(0xFF, 8));
+	printf("Binary %s\n", int2bin(0xAAAA,16));
+	printf("Binary %s\n", int2bin(0xAAFFAAFF,32));
+	printf("Binary %s\n", int2bin(0xAAFFAAFF,48));
+	
 	
 //	a =0b100;
 //	printf("a=%d\n", a);

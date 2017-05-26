@@ -183,6 +183,34 @@ char *S2S_getValue(S2S *db, char *key) {
 
 
 
+// Binary--------------------------------------------------------------------
+
+#define MAXBITS  32
+
+char *int2bin(int val, uint8_t bits) {
+	static char buf[MAXBITS+1];
+	int i;
+	int n;
+	int mb;
+	
+  n = val;
+	
+	mb = CLAMP(bits, 0, MAXBITS);
+	printf("Maxibits %d\n", mb);
+	buf[mb] = '\0';
+	
+	for (i = mb-1; i >= 0; --i) {
+		buf[i] = (n & 1) ? '1' : '0';
+		n >>= 1;
+	}
+
+	return buf;
+}
+
+
+
+
+
 // Linux specific  ---------------------------------------------------------
 
 #ifdef PMU_LINUX
