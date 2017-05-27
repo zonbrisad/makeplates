@@ -1010,7 +1010,7 @@ AVRDUDE_FLAGS += $(AVRDUDE_ERASE_COUNTER)
  
 # Program the device.
 program: $(TARGET).hex # $(TARGET).eep  ## Burn program into flash 
-	$(AVRDUDE) $(AVRDUDE_FLAGS) $(AVRDUDE_WRITE_FLASH) # $(AVRDUDE_WRITE_EEPROM)
+	@$(AVRDUDE) $(AVRDUDE_FLAGS) $(AVRDUDE_WRITE_FLASH) # $(AVRDUDE_WRITE_EEPROM)
 
 #
 # AVR simulator
