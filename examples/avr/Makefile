@@ -185,7 +185,7 @@ TCHAIN_PREFIX=
 # Handle pkg-config libraries -----------------------------------------------
 CFLAGS   += $(foreach X, $(PKGLIBS), $(shell pkg-config --cflags $(X)) )
 CPPFLAGS += $(foreach X, $(PKGLIBS), $(shell pkg-config --cflags $(X)) )
-LDFLAGS  += $(foreach X, $(PKGLIBS), $(shell pkg-config --libs $(X)) )
+LDFLAGS  += $(foreach X, $(PKGLIBS), $(shell pkg-config --libs $(X))   )
 
 # Size flags ----------------------------------------------------------------
 SIZEFLAGS = --format=berkley  # format = {sysv|berkeley}
@@ -242,6 +242,7 @@ endif
 # Atmel AVR options ---------------------------------------------------------
 
 ifeq ($(TARGET_PLATFORM), avr)
+
 # MCU name
 MCU = atmega328p
 
@@ -254,7 +255,7 @@ CFLAGS   += -mmcu=$(MCU)
 CPPFLAGS += -mmcu=$(MCU)
 ASFLAGS  += -mmcu=$(MCU)
 
-# Output format. (can be srec, ihex, binary)
+# Output format. (can be srec, ihex, binary) --------------------------------
 FORMAT = ihex
 
 # Debugging format.
@@ -274,7 +275,22 @@ TCHAIN_PREFIX=avr-
 
 TRGFILE=$(OUTDIR)/$(TARGET).elf
 
-# Library Options ------------------------------------------------------------
+# Size flags ----------------------------------------------------------------
+SIZEFLAGS = --mcu=$(MCU) --format=avr  # format = {sysv|berkeley}
+
+# objdump flags -------------------------------------------------------------
+ODFLAGS  = -h  # Display the contents of the section headers  
+ODFLAGS += -S  # Intermix source code with disassembly
+ODFLAGS += -z  #
+#ODFLAGS += -r  # Display the relocation entries in the file
+
+# Output format. (can be srec, ihex, binary) --------------------------------
+FORMAT = ihex
+
+# object copy flags ---------------------------------------------------------
+OCFLAGS = -O $(FORMAT) -R .eeprom -R .fuse -R .lock -R .signature
+
+# Library Options -----------------------------------------------------------
 # Minimalistic printf version
 PRINTF_LIB_MIN = -Wl,-u,vfprintf -lprintf_min
 
@@ -502,7 +518,7 @@ OBJS    = $(COBJS) $(CPPOBJS) $(AOBJS)
 LST = $(patsubst %.c, $(OBJDIR)/%.lst, $(CSRC)) $(patsubst %.cpp, $(OBJDIR)/%.lst, $(CPPSRC)) $(patsubst %.S, $(OBJDIR)/%.lst, $(ASRC))
 
 # Default target.
-all:	begin build finished end
+all:	begin build finished end ## Build project (default)
 
 nc: C_FILTER:= 
 nc: all   ## Build with no color filter on compiler output
@@ -540,8 +556,7 @@ $(TRGFILE): $(OBJS) $(OUTDIR)
 %.lss:	$(TRGFILE)
 	@echo -en "\n"$(MSG_EXTENDED_LISTING) "\n               "
 	@echo -e $@ $(F_SOURCE)
-	@$(OBJDUMP) -h -S -z $< > $@
-#@$(OBJDUMP) $(ODFLAGS) $< > $@
+	@$(OBJDUMP) $(ODFLAGS) $< > $@
 	
 # Create a symbol table from ELF output file.
 %.sym: $(TRGFILE)
@@ -554,8 +569,7 @@ $(TRGFILE): $(OBJS) $(OUTDIR)
 	@echo
 	@echo -en $(MSG_HEX_FILE) "\n               "
 	@echo -e $@ $(F_SOURCE)
-	@$(OBJCOPY) -O $(FORMAT) -R .eeprom -R .fuse -R .lock -R .signature $< $@
-#@$(OBJCOPY) $(OCFLAGS) $< $@
+	@$(OBJCOPY) $(OCFLAGS) $< $@
 
 # Compile: create object files from C source files.
 $(COBJS): $(BUILDDIR)/%.o : %.c
@@ -603,7 +617,6 @@ extcoff: $(TRGFILE)
 	--change-section-lma .eeprom=0 --no-change-warnings -O $(FORMAT) $< $@ || exit 0
 
 
-
 # Create output dir
 $(OUTDIR):
 	@$(MKDIR) $@
@@ -616,13 +629,11 @@ $(BUILDDIR):
 size: $(TRGFILE)
 	@echo
 	@echo -e $(MSG_SIZE_AFTER)
-	@$(SIZE) --mcu=$(MCU) --format=avr $(TRGFILE)
-        #@$(SIZE) $(SIZEFLAGS) $(TRGFILE)
+	@$(SIZE) $(SIZEFLAGS) $(TRGFILE)
 
 strip: $(TRGFILE) ## Strip target binary from symbols
 	@echo -e $(MSG_STRIP)
 	@$(STRIP) $(TRGFILE)
-
 
 	
 #
@@ -997,9 +1008,13 @@ AVRDUDE_WRITE_FLASH = -U flash:w:$(OUTDIR)/$(TARGET).hex:i
 # see avrdude manual.
 #AVRDUDE_ERASE_COUNTER = -y
 
+# Uncomment the following if you do /not/ wish a verification to be
+# performed after programming the device.
+#AVRDUDE_NO_VERIFY = -V
+
 # Increase verbosity level.  Please use this when submitting bug
-# # reports about avrdude. See <http://savannah.nongnu.org/projects/avrdude>
-# # to submit bug reports.
+# reports about avrdude. See <http://savannah.nongnu.org/projects/avrdude>
+# to submit bug reports.
 AVRDUDE_VERBOSE = -v -v
  
 AVRDUDE_FLAGS = -p $(MCU) -P $(AVRDUDE_PORT) -c $(AVRDUDE_PROGRAMMER) -b ${AVRDUDE_BITRATE} -D
