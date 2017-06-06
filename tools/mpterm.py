@@ -4,7 +4,7 @@
 # 
 # asdf sfda
 #
-# File:    __FILE__
+# File:    mpterm.py
 # Author:  
 # Date:    2017-05-29
 # License: 
@@ -45,7 +45,7 @@ from serial.tools import hexlify_codec
 # Settings ------------------------------------------------------------------
 
 # Application settings
-AppName     = "__FILE__"
+AppName     = "mpterm"
 AppVersion  = "0.1"
 AppLicense  = ""
 AppAuthor   = ""
@@ -82,7 +82,7 @@ class MainForm(QMainWindow):
         
         self.ui.comboBox.activated.connect(self.change)
         self.ui.actionNew.triggered.connect(self.new)
-        self.ui.actionExit.triggered.connect(self.quit)
+        self.ui.actionExit.triggered.connect(self.exitProgram)
         
         self.ui.plainTextEdit.setReadOnly(True)
         #self.ui.plainTextEdit.returnPressed.connect(self.kalle)
@@ -102,12 +102,12 @@ class MainForm(QMainWindow):
     def change(e):
         print(e.ui.comboBox.currentText())
         
-    def quit(e):
+    def exitProgram(e):
         sys.exit(0)
             
     def new(e):
 #        subprocess.Popen(["/usr/bin/meld", ""], shell=False)
-        subprocess.Popen([scriptPath+"/aaa.py", ""], shell=False)
+        subprocess.Popen([scriptPath+"/mpterm.py", ""], shell=False)
 
 
 def findPorts():
