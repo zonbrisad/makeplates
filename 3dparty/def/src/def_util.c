@@ -41,7 +41,7 @@ I2S *I2S_new(int size) {
 	db = malloc((size+1) * sizeof(I2S));
 
 	db[size].key = I2S_LAST;
-	db[size].val[0] =' \0';
+	db[size].val[0] ='\0';
 	
 	return db;
 }
@@ -195,8 +195,8 @@ char *int2bin(int val, uint8_t bits) {
 	
   n = val;
 	
-	mb = CLAMP(bits, 0, MAXBITS);
-	printf("Maxibits %d\n", mb);
+	mb = Clamp(bits, 0, MAXBITS);
+//	printf("Maxibits %d\n", mb);
 	buf[mb] = '\0';
 	
 	for (i = mb-1; i >= 0; --i) {
