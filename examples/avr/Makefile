@@ -34,6 +34,7 @@ LSRC =
 # Include directories
 INCLUDE =  src 
 
+# Libraries to link
 LIB  = 
 
 # Object files directory

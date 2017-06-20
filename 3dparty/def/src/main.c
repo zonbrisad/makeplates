@@ -33,11 +33,16 @@
 void sigInt(int sig);
 void sigHup(int sig);
 
+void colorTest(void);
+void I2S_tests(void);
+void S2S_tests(void);
+void defTest(void);
+void unitTest(void);
+
 // Code -------------------------------------------------------------------
 
 
 void escapeFilter(char *str) {
-    int i;
     int len;
     len = strlen(str);
 }
@@ -125,9 +130,8 @@ void setUp(void) {
 void tearDown(void) {
 }
 
-
+	
 void I2S_tests() {
-	int i;
 	I2S *db;
 
 	db = I2S_copy(numbersDb);
@@ -170,23 +174,23 @@ void S2S_tests() {
 }
 
 void defTests() {
-	TEST_ASSERT_EQUAL_INT(10, MAX( 10,   5));
-	TEST_ASSERT_EQUAL_INT(10, MAX(  5,  10));
-	TEST_ASSERT_EQUAL_INT( 5, MAX(  5, -10));
-	TEST_ASSERT_EQUAL_INT( 5, MAX(-10,   5));
+	TEST_ASSERT_EQUAL_INT(10, Max( 10,   5));
+	TEST_ASSERT_EQUAL_INT(10, Max(  5,  10));
+	TEST_ASSERT_EQUAL_INT( 5, Max(  5, -10));
+	TEST_ASSERT_EQUAL_INT( 5, Max(-10,   5));
 
-	TEST_ASSERT_EQUAL_INT(  5, MIN( 10,   5));
-	TEST_ASSERT_EQUAL_INT(  5, MIN(  5,  10));
-	TEST_ASSERT_EQUAL_INT(-10, MIN(  5, -10));
-	TEST_ASSERT_EQUAL_INT(-10, MIN(-10,   5));
+	TEST_ASSERT_EQUAL_INT(  5, Min( 10,   5));
+	TEST_ASSERT_EQUAL_INT(  5, Min(  5,  10));
+	TEST_ASSERT_EQUAL_INT(-10, Min(  5, -10));
+	TEST_ASSERT_EQUAL_INT(-10, Min(-10,   5));
 
-	TEST_ASSERT_EQUAL_INT(485,  ABS( 485));
-	TEST_ASSERT_EQUAL_INT(485,  ABS(-485));
+	TEST_ASSERT_EQUAL_INT(485,  Abs( 485));
+	TEST_ASSERT_EQUAL_INT(485,  Abs(-485));
 	
-	TEST_ASSERT_EQUAL_INT( 42, CLAMP( 42, -100, 100));
-	TEST_ASSERT_EQUAL_INT( 32, CLAMP( 42, -100,  32));
-	TEST_ASSERT_EQUAL_INT(-42, CLAMP(-42, -100, 100));
-	TEST_ASSERT_EQUAL_INT(-32, CLAMP(-42, - 32, 100));
+	TEST_ASSERT_EQUAL_INT( 42, Clamp( 42, -100, 100));
+	TEST_ASSERT_EQUAL_INT( 32, Clamp( 42, -100,  32));
+	TEST_ASSERT_EQUAL_INT(-42, Clamp(-42, -100, 100));
+	TEST_ASSERT_EQUAL_INT(-32, Clamp(-42, - 32, 100));
 
 	
 	TEST_ASSERT_EQUAL_INT(0xF100,             Swap16(0x00F1));
@@ -222,7 +226,10 @@ void defTest(void) {
 
 
 int main(int argc, char *argv[]) {
-	int a;
+	int x;
+
+	UNUSED(argc);
+	UNUSED(argv);
 	
 	unitTest();
 
@@ -232,7 +239,7 @@ int main(int argc, char *argv[]) {
 	printf("Binary %s\n", int2bin(0xAAFFAAFF,32));
 	printf("Binary %s\n", int2bin(0xAAFFAAFF,48));
 	
-
+/*
 	printf("|||||||+--\n");
 	printf("||||||+---\n");
 	printf("|||||+----\n");
@@ -241,11 +248,27 @@ int main(int argc, char *argv[]) {
 	printf("||+-------\n");
 	printf("|+--------\n");
 	printf("+---------\n");
-	
-	
-	
-//	a =0b100;
-//	printf("a=%d\n", a);
+	*/
 
+
+	x = 0;
+	printf("x = %s\n", int2bin(x, 8));
+  Set_bits(x, 0x2);
+	printf("x = %s\n", int2bin(x, 8));
+
+	Set_bits(x, 0xF0);
+	printf("x = %s\n", int2bin(x, 8));
+
+	Clr_bits(x, 0xA0);
+	printf("x = %s\n", int2bin(x, 8));
+
+	Tgl_bits(x, 0x8);
+	printf("x = %s\n", int2bin(x, 8));
+
+//	x = bit_reverse8(x);
+//	printf("x = %s\n", int2bin(x, 8));
+	
+	
+	
 	return 0;
 }

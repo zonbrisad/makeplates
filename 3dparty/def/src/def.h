@@ -326,18 +326,80 @@ typedef unsigned long       ulong;
 #define TRUE    (1)
 #endif
 
-#undef  MAX
-#define MAX(a, b)  (((a) > (b)) ? (a) : (b))
+/*! \name Mathematics
+ *
+ * The same considerations as for clz and ctz apply here but GCC does not
+ * provide built-in functions to access the assembly instructions abs, min and
+ * max and it does not produce them by itself in most cases, so two sets of
+ * macros are defined here:
+ *   - Abs, Min and Max to apply to constant expressions (values known at
+ *     compile time);
+ *   - abs, min and max to apply to non-constant expressions (values unknown at
+ *     compile time), abs is found in stdlib.h.
+ */
+//! @{
 
-#undef  MIN
-#define MIN(a, b)  (((a) < (b)) ? (a) : (b))
+/*! \brief Takes the absolute value of \a a.
+ *
+ * \param a Input value.
+ *
+ * \return Absolute value of \a a.
+ *
+ * \note More optimized if only used with values known at compile time.
+ */
+#define Abs(a)              (((a) <  0 ) ? -(a) : (a))
 
-#undef  ABS
-#define ABS(a)     (((a) < 0) ? -(a) : (a))
+/*! \brief Takes the minimal value of \a a and \a b.
+ *
+ * \param a Input value.
+ * \param b Input value.
+ *
+ * \return Minimal value of \a a and \a b.
+ *
+ * \note More optimized if only used with values known at compile time.
+ */
+#define Min(a, b)           (((a) < (b)) ?  (a) : (b))
 
-#undef  CLAMP
-#define CLAMP(x, low, high)  (((x) > (high)) ? (high) : (((x) < (low)) ? (low) : (x)))
+/*! \brief Takes the maximal value of \a a and \a b.
+ *
+ * \param a Input value.
+ * \param b Input value.
+ *
+ * \return Maximal value of \a a and \a b.
+ *
+ * \note More optimized if only used with values known at compile time.
+ */
+#define Max(a, b)           (((a) > (b)) ?  (a) : (b))
 
+// abs() is already defined by stdlib.h
+
+/*! \brief Takes the minimal value of \a a and \a b.
+ *
+ * \param a Input value.
+ * \param b Input value.
+ *
+ * \return Minimal value of \a a and \a b.
+ *
+ * \note More optimized if only used with values unknown at compile time.
+ */
+#define min(a, b)   Min(a, b)
+
+/*! \brief Takes the maximal value of \a a and \a b.
+ *
+ * \param a Input value.
+ * \param b Input value.
+ *
+ * \return Maximal value of \a a and \a b.
+ *
+ * \note More optimized if only used with values unknown at compile time.
+ */
+#define max(a, b)   Max(a, b)
+
+//! @}
+
+
+#undef  Clamp
+#define Clamp(x, low, high)  (((x) > (high)) ? (high) : (((x) < (low)) ? (low) : (x)))
 
 
 
@@ -424,11 +486,242 @@ typedef unsigned long       ulong;
 
 // Bit manipulation ---------------------------------------------------------
 
-#define BIT_IS_SET(v, bit)   ((v) & (bit))
-#define BIT_IS_CLEAR(v, bit) !(BIT_IS_SET(v, bit))
+/*! \name Bit-Field Handling
+ */
+//! @{
 
-#define BIT_SET(v, bit)      ((v) |= (bit))
-#define BIT_CLEAR(v, bit)    ((v) &= ~(bit))
+/*! \brief Reads the bits of a value specified by a given bit-mask.
+ *
+ * \param value Value to read bits from.
+ * \param mask  Bit-mask indicating bits to read.
+ *
+ * \return Read bits.
+ */
+#define Rd_bits( value, mask)        ((value) & (mask))
+
+/*! \brief Writes the bits of a C lvalue specified by a given bit-mask.
+ *
+ * \param lvalue  C lvalue to write bits to.
+ * \param mask    Bit-mask indicating bits to write.
+ * \param bits    Bits to write.
+ *
+ * \return Resulting value with written bits.
+ */
+#define Wr_bits(lvalue, mask, bits)  ((lvalue) = ((lvalue) & ~(mask)) |\
+                                                 ((bits  ) &  (mask)))
+
+/*! \brief Tests the bits of a value specified by a given bit-mask.
+ *
+ * \param value Value of which to test bits.
+ * \param mask  Bit-mask indicating bits to test.
+ *
+ * \return \c 1 if at least one of the tested bits is set, else \c 0.
+ */
+#define Tst_bits( value, mask)  (Rd_bits(value, mask) != 0)
+
+/*! \brief Clears the bits of a C lvalue specified by a given bit-mask.
+ *
+ * \param lvalue  C lvalue of which to clear bits.
+ * \param mask    Bit-mask indicating bits to clear.
+ *
+ * \return Resulting value with cleared bits.
+ */
+#define Clr_bits(lvalue, mask)  ((lvalue) &= ~(mask))
+
+/*! \brief Sets the bits of a C lvalue specified by a given bit-mask.
+ *
+ * \param lvalue  C lvalue of which to set bits.
+ * \param mask    Bit-mask indicating bits to set.
+ *
+ * \return Resulting value with set bits.
+ */
+#define Set_bits(lvalue, mask)  ((lvalue) |=  (mask))
+
+/*! \brief Toggles the bits of a C lvalue specified by a given bit-mask.
+ *
+ * \param lvalue  C lvalue of which to toggle bits.
+ * \param mask    Bit-mask indicating bits to toggle.
+ *
+ * \return Resulting value with toggled bits.
+ */
+#define Tgl_bits(lvalue, mask)  ((lvalue) ^=  (mask))
+
+/*! \brief Reads the bit-field of a value specified by a given bit-mask.
+ *
+ * \param value Value to read a bit-field from.
+ * \param mask  Bit-mask indicating the bit-field to read.
+ *
+ * \return Read bit-field.
+ */
+#define Rd_bitfield( value, mask)           (Rd_bits( value, mask) >> ctz(mask))
+
+/*! \brief Writes the bit-field of a C lvalue specified by a given bit-mask.
+ *
+ * \param lvalue    C lvalue to write a bit-field to.
+ * \param mask      Bit-mask indicating the bit-field to write.
+ * \param bitfield  Bit-field to write.
+ *
+ * \return Resulting value with written bit-field.
+ */
+#define Wr_bitfield(lvalue, mask, bitfield) (Wr_bits(lvalue, mask, (U32)(bitfield) << ctz(mask)))
+
+//! @}
+
+
+/*! \name Zero-Bit Counting
+ *
+ * Under GCC, __builtin_clz and __builtin_ctz behave like macros when
+ * applied to constant expressions (values known at compile time), so they are
+ * more optimized than the use of the corresponding assembly instructions and
+ * they can be used as constant expressions e.g. to initialize objects having
+ * static storage duration, and like the corresponding assembly instructions
+ * when applied to non-constant expressions (values unknown at compile time), so
+ * they are more optimized than an assembly periphrasis. Hence, clz and ctz
+ * ensure a possible and optimized behavior for both constant and non-constant
+ * expressions.
+ */
+//! @{
+
+/*! \brief Counts the leading zero bits of the given value considered as a 32-bit integer.
+ *
+ * \param u Value of which to count the leading zero bits.
+ *
+ * \return The count of leading zero bits in \a u.
+ */
+#if (defined __GNUC__) || (defined __CC_ARM)
+#   define clz(u)              __builtin_clz(u)
+#elif (defined __ICCARM__)
+#   define clz(u)              __CLZ(u)
+#else
+#   define clz(u)              (((u) == 0)          ? 32 : \
+                                ((u) & (1ul << 31)) ?  0 : \
+                                ((u) & (1ul << 30)) ?  1 : \
+
+                                ((u) & (1ul << 29)) ?  2 : \
+                                ((u) & (1ul << 28)) ?  3 : \
+                                ((u) & (1ul << 27)) ?  4 : \
+                                ((u) & (1ul << 26)) ?  5 : \
+                                ((u) & (1ul << 25)) ?  6 : \
+                                ((u) & (1ul << 24)) ?  7 : \
+                                ((u) & (1ul << 23)) ?  8 : \
+                                ((u) & (1ul << 22)) ?  9 : \
+                                ((u) & (1ul << 21)) ? 10 : \
+                                ((u) & (1ul << 20)) ? 11 : \
+                                ((u) & (1ul << 19)) ? 12 : \
+                                ((u) & (1ul << 18)) ? 13 : \
+                                ((u) & (1ul << 17)) ? 14 : \
+                                ((u) & (1ul << 16)) ? 15 : \
+                                ((u) & (1ul << 15)) ? 16 : \
+                                ((u) & (1ul << 14)) ? 17 : \
+                                ((u) & (1ul << 13)) ? 18 : \
+                                ((u) & (1ul << 12)) ? 19 : \
+                                ((u) & (1ul << 11)) ? 20 : \
+                                ((u) & (1ul << 10)) ? 21 : \
+                                ((u) & (1ul <<  9)) ? 22 : \
+                                ((u) & (1ul <<  8)) ? 23 : \
+                                ((u) & (1ul <<  7)) ? 24 : \
+                                ((u) & (1ul <<  6)) ? 25 : \
+                                ((u) & (1ul <<  5)) ? 26 : \
+                                ((u) & (1ul <<  4)) ? 27 : \
+                                ((u) & (1ul <<  3)) ? 28 : \
+                                ((u) & (1ul <<  2)) ? 29 : \
+                                ((u) & (1ul <<  1)) ? 30 : \
+                                31)
+#endif
+
+/*! \brief Counts the trailing zero bits of the given value considered as a 32-bit integer.
+ *
+ * \param u Value of which to count the trailing zero bits.
+ *
+ * \return The count of trailing zero bits in \a u.
+ */
+#if (defined __GNUC__) || (defined __CC_ARM)
+#   define ctz(u)              __builtin_ctz(u)
+#else
+#   define ctz(u)              ((u) & (1ul <<  0) ?  0 : \
+                                (u) & (1ul <<  1) ?  1 : \
+                                (u) & (1ul <<  2) ?  2 : \
+                                (u) & (1ul <<  3) ?  3 : \
+                                (u) & (1ul <<  4) ?  4 : \
+                                (u) & (1ul <<  5) ?  5 : \
+                                (u) & (1ul <<  6) ?  6 : \
+                                (u) & (1ul <<  7) ?  7 : \
+                                (u) & (1ul <<  8) ?  8 : \
+                                (u) & (1ul <<  9) ?  9 : \
+                                (u) & (1ul << 10) ? 10 : \
+                                (u) & (1ul << 11) ? 11 : \
+                                (u) & (1ul << 12) ? 12 : \
+                                (u) & (1ul << 13) ? 13 : \
+                                (u) & (1ul << 14) ? 14 : \
+                                (u) & (1ul << 15) ? 15 : \
+                                (u) & (1ul << 16) ? 16 : \
+                                (u) & (1ul << 17) ? 17 : \
+                                (u) & (1ul << 18) ? 18 : \
+                                (u) & (1ul << 19) ? 19 : \
+                                (u) & (1ul << 20) ? 20 : \
+                                (u) & (1ul << 21) ? 21 : \
+                                (u) & (1ul << 22) ? 22 : \
+                                (u) & (1ul << 23) ? 23 : \
+                                (u) & (1ul << 24) ? 24 : \
+                                (u) & (1ul << 25) ? 25 : \
+                                (u) & (1ul << 26) ? 26 : \
+                                (u) & (1ul << 27) ? 27 : \
+                                (u) & (1ul << 28) ? 28 : \
+                                (u) & (1ul << 29) ? 29 : \
+                                (u) & (1ul << 30) ? 30 : \
+                                (u) & (1ul << 31) ? 31 : \
+                                32)
+#endif
+
+//! @}
+
+
+/*! \name Bit Reversing
+ */
+//! @{
+
+/*! \brief Reverses the bits of \a u8.
+ *
+ * \param u8  U8 of which to reverse the bits.
+ *
+ * \return Value resulting from \a u8 with reversed bits.
+ */
+#define bit_reverse8(u8)    ((U8)(bit_reverse32((U8)(u8)) >> 24))
+
+/*! \brief Reverses the bits of \a u16.
+ *
+ * \param u16 U16 of which to reverse the bits.
+ *
+ * \return Value resulting from \a u16 with reversed bits.
+ */
+#define bit_reverse16(u16)  ((U16)(bit_reverse32((U16)(u16)) >> 16))
+
+/*! \brief Reverses the bits of \a u32.
+ *
+ * \param u32 U32 of which to reverse the bits.
+ *
+ * \return Value resulting from \a u32 with reversed bits.
+ */
+#define bit_reverse32(u32)   __RBIT(u32)
+
+/*! \brief Reverses the bits of \a u64.
+ *
+ * \param u64 U64 of which to reverse the bits.
+ *
+ * \return Value resulting from \a u64 with reversed bits.
+ */
+#define bit_reverse64(u64)  ((U64)(((U64)bit_reverse32((U64)(u64) >> 32)) |\
+                                   ((U64)bit_reverse32((U64)(u64)) << 32)))
+
+//! @}
+
+
+
+//#define BIT_IS_SET(v, bit)   ((v) & (bit))
+//#define BIT_IS_CLEAR(v, bit) !(BIT_IS_SET(v, bit))
+
+//#define BIT_SET(v, bit)      ((v) |= (bit))
+//#define BIT_CLEAR(v, bit)    ((v) &= ~(bit))
 
 // Special character definitions --------------------------------------------
 
