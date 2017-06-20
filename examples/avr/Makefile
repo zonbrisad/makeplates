@@ -308,6 +308,11 @@ EXTRALIBDIRS =
 
 LDFLAGS += $(PRINTF_LIB) $(SCANF_LIB) $(MATH_LIB)
 
+
+
+
+
+
 endif
 
 #
@@ -489,8 +494,8 @@ CPPSRC_1 = $(patsubst %.c,  , $(SRC) $(LSRC))
 CPPSRC   = $(patsubst %.S,  , $(CPPSRC_1))
 
 # Filter out Assembler sources
-ASRC_1 = $(patsubst $(SRCDIR)/%.c,    , $(SRC) $(LSRC))
-ASRC   = $(patsubst $(SRCDIR)/%.cpp,  , $(ASRC_1))
+ASRC_1 = $(patsubst %.c,    , $(SRC) $(LSRC))
+ASRC   = $(patsubst %.cpp,  , $(ASRC_1))
 
 # Define all object files.
 COBJS    = $(patsubst %.c,   $(BUILDDIR)/%.o, $(CSRC))
@@ -503,7 +508,7 @@ OBJS    = $(COBJS) $(CPPOBJS) $(AOBJS)
 LST = $(patsubst %.c, $(OBJDIR)/%.lst, $(CSRC)) $(patsubst %.cpp, $(OBJDIR)/%.lst, $(CPPSRC)) $(patsubst %.S, $(OBJDIR)/%.lst, $(ASRC))
 
 # Default target.
-all:	begin build finished end
+all:	begin build finished end ## Build project (default)
 
 nc: C_FILTER:= 
 nc: all   ## Build with no color filter on compiler output
@@ -584,25 +589,6 @@ $(OBJDIR)/%.s : %.c
 $(OBJDIR)/%.s : %.cpp
 	@$(CC) -S $(ALL_CPPFLAGS) $< -o $@
 
-coff: $(TRGFILE)
-	@echo
-	@echo -e $(MSG_COFF)"\n             $(E_BR_CYAN)" $(TARGET).cof "$(E_END)"
-	$(COFFCONVERT) -O coff-avr $< $(TARGET).cof
-
-extcoff: $(TRGFILE)
-	@echo
-	@echo -e $(MSG_EXTENDED_COFF)"\n             $(E_BR_CYAN)" $(TARGET).cof "$(E_END)"
-	@$(COFFCONVERT) -O coff-ext-avr $< $(TARGET).cof
-
-%.eep: $(TRGFILE)
-	@echo
-	@echo -en $(MSG_EEPROM)"\n               "
-	@echo -e $@ $(F_SOURCE)
-	@$(OBJCOPY) -j .eeprom --set-section-flags=.eeprom="alloc,load" \
-	--change-section-lma .eeprom=0 --no-change-warnings -O $(FORMAT) $< $@ || exit 0
-
-
-
 # Create output dir
 $(OUTDIR):
 	@$(MKDIR) $@
@@ -620,6 +606,25 @@ size: $(TRGFILE)
 strip: $(TRGFILE) ## Strip target binary from symbols
 	@echo -e $(MSG_STRIP)
 	@$(STRIP) $(TRGFILE)
+
+
+# AVR specific targets
+coff: $(TRGFILE)
+	@echo
+	@echo -e $(MSG_COFF)"\n             $(E_BR_CYAN)" $(TARGET).cof "$(E_END)"
+	$(COFFCONVERT) -O coff-avr $< $(TARGET).cof
+
+extcoff: $(TRGFILE)
+	@echo
+	@echo -e $(MSG_EXTENDED_COFF)"\n             $(E_BR_CYAN)" $(TARGET).cof "$(E_END)"
+	@$(COFFCONVERT) -O coff-ext-avr $< $(TARGET).cof
+
+%.eep: $(TRGFILE)
+	@echo
+	@echo -en $(MSG_EEPROM)"\n               "
+	@echo -e $@ $(F_SOURCE)
+	@$(OBJCOPY) -j .eeprom --set-section-flags=.eeprom="alloc,load" \
+	--change-section-lma .eeprom=0 --no-change-warnings -O $(FORMAT) $< $@ || exit 0
 
 
 	
