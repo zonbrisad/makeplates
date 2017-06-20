@@ -50,9 +50,9 @@ from PyQt5.QtSerialPort import QSerialPortInfo
 #import PyQt5.QtSerialPortInfo
 
 
-import serial
-from serial.tools.list_ports import comports
-from serial.tools import hexlify_codec
+#import serial
+#from serial.tools.list_ports import comports
+#from serial.tools import hexlify_codec
 
 # Settings ------------------------------------------------------------------
 
@@ -65,7 +65,6 @@ AppDesc     = "Pyplate description text"
 AppOrg      = "Mudderverk"
 AppDomain   = ""
 
-
 # Qt settings
 QCoreApplication.setOrganizationName(AppOrg)
 QCoreApplication.setOrganizationDomain(AppDomain)
@@ -73,6 +72,46 @@ QCoreApplication.setApplicationName(AppName)
 
 # Code ----------------------------------------------------------------------
 
+class mpProfile():
+    def __init__(self, group):
+        self.settings = QSettings(AppOrg, AppName)
+        self.group    = group
+        self.setDefaults()
+    
+    def setDefaults(self):
+        self.alias    = "Default"
+        self.port     = "ttyUSB1"
+        self.bitrate  = "9600"
+        self.bits     = 8
+        self.parity   = "none"
+        self.stopbits = 0
+        
+    def load(self):
+        self.settings.sync()
+        self.settings.beginGroup(self.group)
+        self.alias    = self.settings.value("alias",    type=str)
+        self.port     = self.settings.value("port",     type=str)
+        self.bitrate  = self.settings.value("bitrate",  type=str)
+        self.bits     = self.settings.value("bits",     type=int)
+        self.parity   = self.settings.value("parity",   type=str)
+        self.stopbits = self.settings.value("stopbits", type=int)
+        self.settings.endGroup()
+        
+#    def print(self):
+#        print("Port:     ", self.port)
+#        print("Bitrate:  ", self.bitrate)
+        
+    def write(self):
+        self.settings.beginGroup(self.group)
+        self.settings.setValue("alias",    self.alias)
+        self.settings.setValue("port",     self.port)
+        self.settings.setValue("bitrate",  self.bitrate)
+        self.settings.setValue("bits",     self.bits)
+        self.settings.setValue("parity",   self.parity)
+        self.settings.setValue("stopbits", self.stopbits)
+        self.settings.endGroup()
+        self.settings.sync()
+        return
 
 class MainForm(QMainWindow):
     def __init__(self, parent=None):
@@ -80,9 +119,14 @@ class MainForm(QMainWindow):
         
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+                
+        self.mpDefault = mpProfile("Default")
+#        mpDefault.write()
+        self.mpDefault.load()
+#        mpDefault.print()
         
-        self.rxLabel = QLabel("RX: 0")
-        self.txLabel = QLabel("TX: 0")
+        self.rxLabel = QLabel("")
+        self.txLabel = QLabel("")
 #        self.rtSpacer
         self.ui.statusbar.addWidget(self.rxLabel)
         self.ui.statusbar.addWidget(self.txLabel)
@@ -131,7 +175,14 @@ class MainForm(QMainWindow):
         #self.ui.plainTextEdit.returnPressed.connect(self.kalle)
 #        self.ui.plainTextEdit.textChanged.connect(self.kalle)
 #        self.ui.plainTextEdit.keyPressEvent.connect(self.kalle)
-        
+        self.updateUi()
+
+    def saveSetting(self):
+        return
+    
+    def loadSettings(self):
+        return
+
 
     def actionClear(self):
         self.ui.plainTextEdit.clear()
@@ -249,9 +300,16 @@ class MainForm(QMainWindow):
         self.serial.open(QIODevice.ReadWrite)
         self.updateUi() 
         
-    def bitrateChange(self):
-        print(self.ui.cbBitrate.currentText())
+    def setBitrate(self):
+        print("Current bitrate: ", self.serial.baudRate)
+        print(self.serial.baudRate)
+        self.serial.setBaudRate(1200)
+        print("New bitrate:     ", self.ui.cbBitrate.currentText())
         
+    def bitrateChange(self):
+        self.setBitrate()
+
+                
     def exitProgram(self, e):
         self.serial.close()
         sys.exit(0)
@@ -264,10 +322,7 @@ class MainForm(QMainWindow):
     def new(self):
         subprocess.Popen([scriptPath+"/mpterm.py", ""], shell=False)
         
-    def saveSetting(self):
-        return
-    def loadSettings(self):
-        return
+        
 
 
 def findPorts():
