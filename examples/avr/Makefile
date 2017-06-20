@@ -24,9 +24,9 @@ TARGET = avrtest
 # List C, C++ and assembler source files here. (C/C++ dependencies are automatically generated.)
 SRC = src/main.c \
       src/avrsimul.c \
-			src/uart.c  \
-#			src/twimaster.c \
-#			src/lcd.c
+      src/uart.c  \
+#      src/twimaster.c \
+#      src/lcd.c
 
 # List C, C++ and assembler library/3rd partry source files here. (C/C++ dependencies are automatically generated.)
 LSRC =
@@ -186,7 +186,7 @@ TCHAIN_PREFIX=
 # Handle pkg-config libraries -----------------------------------------------
 CFLAGS   += $(foreach X, $(PKGLIBS), $(shell pkg-config --cflags $(X)) )
 CPPFLAGS += $(foreach X, $(PKGLIBS), $(shell pkg-config --cflags $(X)) )
-LDFLAGS  += $(foreach X, $(PKGLIBS), $(shell pkg-config --libs $(X)) )
+LDFLAGS  += $(foreach X, $(PKGLIBS), $(shell pkg-config --libs $(X))   )
 
 # Size flags ----------------------------------------------------------------
 SIZEFLAGS = --format=berkley  # format = {sysv|berkeley}
@@ -243,6 +243,7 @@ endif
 # Atmel AVR options ---------------------------------------------------------
 
 ifeq ($(TARGET_PLATFORM), avr)
+
 # MCU name
 MCU = atmega328p
 
@@ -255,7 +256,7 @@ CFLAGS   += -mmcu=$(MCU)
 CPPFLAGS += -mmcu=$(MCU)
 ASFLAGS  += -mmcu=$(MCU)
 
-# Output format. (can be srec, ihex, binary)
+# Output format. (can be srec, ihex, binary) --------------------------------
 FORMAT = ihex
 
 # Debugging format.
@@ -275,7 +276,20 @@ TCHAIN_PREFIX=avr-
 
 TRGFILE=$(OUTDIR)/$(TARGET).elf
 
-# Library Options ------------------------------------------------------------
+# Size flags ----------------------------------------------------------------
+SIZEFLAGS = --mcu=$(MCU) --format=avr  # format = {sysv|berkeley}
+
+# objdump flags -------------------------------------------------------------
+ODFLAGS  = -h  # Display the contents of the section headers  
+ODFLAGS += -S  # Intermix source code with disassembly
+ODFLAGS += -z  #
+#ODFLAGS += -r  # Display the relocation entries in the file
+
+
+# object copy flags ---------------------------------------------------------
+OCFLAGS = -O $(FORMAT) -R .eeprom -R .fuse -R .lock -R .signature
+
+# Library Options -----------------------------------------------------------
 # Minimalistic printf version
 PRINTF_LIB_MIN = -Wl,-u,vfprintf -lprintf_min
 
@@ -608,6 +622,7 @@ strip: $(TRGFILE) ## Strip target binary from symbols
 	@$(STRIP) $(TRGFILE)
 
 
+
 # AVR specific targets
 coff: $(TRGFILE)
 	@echo
@@ -625,6 +640,7 @@ extcoff: $(TRGFILE)
 	@echo -e $@ $(F_SOURCE)
 	@$(OBJCOPY) -j .eeprom --set-section-flags=.eeprom="alloc,load" \
 	--change-section-lma .eeprom=0 --no-change-warnings -O $(FORMAT) $< $@ || exit 0
+
 
 
 	
@@ -988,7 +1004,7 @@ AVRDUDE = avrdude
 AVRDUDE_PROGRAMMER = arduino
  
 # com1 = serial port. Use lpt1 to connect to parallel port.
-AVRDUDE_PORT = /dev/ttyUSB3    # programmer connected to serial device
+AVRDUDE_PORT = /dev/ttyUSB0    # programmer connected to serial device
 
 AVRDUDE_BITRATE = 57600 
  
@@ -999,6 +1015,25 @@ AVRDUDE_WRITE_FLASH = -U flash:w:$(OUTDIR)/$(TARGET).hex:i
 # Note that this counter needs to be initialized first using -Yn,
 # see avrdude manual.
 #AVRDUDE_ERASE_COUNTER = -y
+
+# Uncomment the following if you do /not/ wish a verification to be
+# performed after programming the device.
+#AVRDUDE_NO_VERIFY = -V
+
+# Increase verbosity level.  Please use this when submitting bug
+# reports about avrdude. See <http://savannah.nongnu.org/projects/avrdude>
+# to submit bug reports.
+AVRDUDE_VERBOSE = -v -v
+ 
+AVRDUDE_FLAGS = -p $(MCU) -P $(AVRDUDE_PORT) -c $(AVRDUDE_PROGRAMMER) -b ${AVRDUDE_BITRATE} -D
+AVRDUDE_FLAGS += $(AVRDUDE_NO_VERIFY)
+AVRDUDE_FLAGS += $(AVRDUDE_VERBOSE)
+AVRDUDE_FLAGS += $(AVRDUDE_ERASE_COUNTER)
+ 
+ 
+# Program the device.
+program: $(TARGET).hex # $(TARGET).eep  ## Burn program into flash 
+	@$(AVRDUDE) $(AVRDUDE_FLAGS) $(AVRDUDE_WRITE_FLASH) # $(AVRDUDE_WRITE_EEPROM)
 
 #
 # AVR simulator
