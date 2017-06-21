@@ -72,6 +72,34 @@ QCoreApplication.setApplicationName(AppName)
 
 # Code ----------------------------------------------------------------------
 
+htmlTable='''
+<table style="width:100%">
+<tr>
+<th>Firstname</th>
+<th>Lastname</th> 
+<th>Age</th>
+</tr>
+<tr>
+<td>Jill</td>
+<td>Smith</td> 
+<td>50</td>
+</tr>
+<tr>
+<td>Eve</td>
+<td>Jackson</td> 
+<td>94</td>
+</tr>
+</table>
+'''
+htmlBlock='''
+<div style="background-color:blue;color:red;padding:20px;">
+<h2>London</h2>
+<p>London is the capital city of England. It is the most populous city in the United Kingdom, with a metropolitan area of over 13 million inhabitants.</p>
+<p>Standing on the River Thames, London has been a major settlement for two millennia, its history going back to its founding by the Romans, who named it Londinium.</p>
+</div> 
+'''
+
+
 class mpProfile():
     def __init__(self, group):
         self.settings = QSettings(AppOrg, AppName)
@@ -191,14 +219,34 @@ class MainForm(QMainWindow):
 #        p = QPalette()
         c = QColor("red")
         p.setColor( QPalette.Text, c )
-        self.ui.plainTextEdit.setPalette(p)
-        self.ui.plainTextEdit.appendPlainText("A")
+#        self.ui.plainTextEdit.setPalette(p)
+#        self.ui.plainTextEdit.appendPlainText("A")
         #print(chr(65))        
         x = b'\n'
-        print(x.decode("utf-8"))
-        self.ui.plainTextEdit.appendPlainText(x.decode("utf-8"))
-        self.ui.plainTextEdit.insertPlainText(x.decode("utf-8"))
+#        print(x.decode("utf-8"))
+        self.ui.plainTextEdit.appendHtml('<font color="Lime">Kalle')
+        self.ui.plainTextEdit.appendHtml('<font color="Aqua">Nisse')
+        self.ui.plainTextEdit.appendHtml('Normal')
+        self.ui.plainTextEdit.appendHtml('<b>Bold</b>')
+        self.ui.plainTextEdit.appendHtml('<i>Italic</i>')
+        self.ui.plainTextEdit.appendHtml('<h1>Heading 1</h1>')
+        self.ui.plainTextEdit.appendHtml('<h2>Heading 2</h2>')
+        self.ui.plainTextEdit.appendHtml('<a href="www.svd.se">Svenska Dagbladet</a>')
+
+        self.ui.plainTextEdit.appendHtml(htmlTable)
+        self.ui.plainTextEdit.appendHtml(htmlBlock)
+        self.ui.plainTextEdit.appendHtml('<ol>  <li>Coffee</li> <li>Tea</li>  <li>Milk</li>  </ol>') 
+        self.ui.plainTextEdit.appendHtml('''<h2 style="background-color:blue;color:white">
+Background-color set by using blue
+</h2>''')
+
+#        self.ui.plainTextEdit.appendPlainText(x.decode("utf-8"))
+#        self.ui.plainTextEdit.appendPlainText(x.decode("utf-8"))
+#        self.ui.plainTextEdit.insertPlainText(x.decode("utf-8"))
+        #QString notifyHtml = "<font color=\"Lime\">";
+
         self.showMessage("Nisse")
+        
         
         
     # scroll down to bottom
@@ -221,6 +269,7 @@ class MainForm(QMainWindow):
         
         
     def send(self, data):
+        data = self.serial.readAll()
         print(data)
         self.txCnt += 1
         if (self.serial.isOpen()):
@@ -296,6 +345,7 @@ class MainForm(QMainWindow):
 
         print("Open port")
         self.serial.setPortName("/dev/"+self.ui.cbPorts.currentText())
+        self.serial.setBaudRate(115200)
         self.serial.open(QIODevice.ReadWrite)
         self.updateUi() 
     
