@@ -125,6 +125,7 @@ class Ui_MainWindow(object):
         self.menuAction.setObjectName("menuAction")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
+        self.statusbar.setLayoutDirection(QtCore.Qt.RightToLeft)
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
         self.actionExit = QtWidgets.QAction(MainWindow)
