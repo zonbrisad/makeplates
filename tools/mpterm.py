@@ -81,7 +81,7 @@ class mpProfile():
     def setDefaults(self):
         self.alias    = "Default"
         self.port     = "ttyUSB1"
-        self.bitrate  = "9600"
+        self.bitrate  = '9600'
         self.bits     = 8
         self.parity   = "none"
         self.stopbits = 0
@@ -121,9 +121,10 @@ class MainForm(QMainWindow):
         self.ui.setupUi(self)
                 
         self.mpDefault = mpProfile("Default")
-#        mpDefault.write()
+#        self.mpDefault.write()
         self.mpDefault.load()
-#        mpDefault.print()
+        self.loadProfile(self.mpDefault)
+
         
         self.rxLabel = QLabel("")
         self.txLabel = QLabel("")
@@ -142,25 +143,26 @@ class MainForm(QMainWindow):
         self.ui.cbStopBits.addItem("1")
         self.ui.cbStopBits.addItem("2")
         
+        self.ui.cbBits.addItem("5")
         self.ui.cbBits.addItem("6")
         self.ui.cbBits.addItem("7")
         self.ui.cbBits.addItem("8")
-        self.ui.cbBits.addItem("9")
+#        self.ui.cbBits.addItem("9")
         
         self.ui.cbParity.addItem("None")
         self.ui.cbParity.addItem("Odd")
         self.ui.cbParity.addItem("Even")
         
-        self.ui.cbBitrate.addItem("300")
-        self.ui.cbBitrate.addItem("600")
-        self.ui.cbBitrate.addItem("1200")
-        self.ui.cbBitrate.addItem("2400")
-        self.ui.cbBitrate.addItem("4800")
-        self.ui.cbBitrate.addItem("9600")
-        self.ui.cbBitrate.addItem("19200")
-        self.ui.cbBitrate.addItem("28400")
-        self.ui.cbBitrate.addItem("57600")        
-        self.ui.cbBitrate.addItem("115200")       
+        self.ui.cbBitrate.addItem('300',   300    )
+        self.ui.cbBitrate.addItem('600',   600    )
+        self.ui.cbBitrate.addItem("1200",  1200   )
+        self.ui.cbBitrate.addItem("2400",  2400   )
+        self.ui.cbBitrate.addItem("4800",  4800   )
+        self.ui.cbBitrate.addItem('9600',  9600   )
+        self.ui.cbBitrate.addItem("19200", 19200  )
+        self.ui.cbBitrate.addItem("28400", 28400  )
+        self.ui.cbBitrate.addItem("57600", 57600  )        
+        self.ui.cbBitrate.addItem("115200",115200 )       
         
         self.ui.cbBitrate.activated.connect(self.bitrateChange)
         
@@ -172,9 +174,6 @@ class MainForm(QMainWindow):
         self.ui.pbOpen.pressed.connect(self.openPort)
         
         self.ui.plainTextEdit.setReadOnly(True)
-        #self.ui.plainTextEdit.returnPressed.connect(self.kalle)
-#        self.ui.plainTextEdit.textChanged.connect(self.kalle)
-#        self.ui.plainTextEdit.keyPressEvent.connect(self.kalle)
         self.updateUi()
 
     def saveSetting(self):
@@ -299,16 +298,20 @@ class MainForm(QMainWindow):
         self.serial.setPortName("/dev/"+self.ui.cbPorts.currentText())
         self.serial.open(QIODevice.ReadWrite)
         self.updateUi() 
+    
+    def loadProfile(self, prof):
+        print("Bitrate: ", prof.bitrate )
+        print("Index:   ", self.ui.cbBitrate.findText(prof.bitrate, Qt.MatchCaseSensitive) )
+        print("Index:   ", self.ui.cbBitrate.findText('300') )
+        print("Index:   ", self.ui.cbBitrate.findData(9600) )
+        self.ui.cbBitrate.setCurrentIndex( self.ui.cbBitrate.findText(prof.bitrate) )
+        return        
         
     def setBitrate(self):
-        print("Current bitrate: ", self.serial.baudRate)
-        print(self.serial.baudRate)
-        self.serial.setBaudRate(1200)
-        print("New bitrate:     ", self.ui.cbBitrate.currentText())
+        self.serial.setBaudRate( self.ui.cbBitrate.itemData(self.ui.cbBitrate.currentIndex() ))
         
     def bitrateChange(self):
         self.setBitrate()
-
                 
     def exitProgram(self, e):
         self.serial.close()
