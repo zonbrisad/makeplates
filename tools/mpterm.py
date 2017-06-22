@@ -99,6 +99,45 @@ htmlBlock='''
 </div> 
 '''
 
+htmlList='''
+<ol>  
+  <li>Coffee</li> 
+  <li>Tea</li>  
+  <li>Milk</li>  
+</ol>
+'''
+htmlStyle='''
+<h2 style="background-color:blue;color:white">
+Background-color set by using blue
+</h2>'''
+
+htmlFont='''
+<font color="Lime">Kalle
+<font color="Aqua">Nisse
+Normal
+<b>Bold</b>
+<i>Italic</i>
+<h1>Heading 1</h1>
+<h2>Heading 2</h2>
+<h3>Heading 3</h3>
+<h4>Heading 4</h4>
+<a href="www.svd.se">Svenska Dagbladet</a>
+'''
+htmlCss='''
+h1 {
+    color: white;
+}
+h2 {
+    color: red;
+}
+h3 {
+    color: green;
+}
+h4 {
+    color: blue;
+}
+'''
+
 
 class mpProfile():
     def __init__(self, group):
@@ -155,7 +194,6 @@ class MainForm(QMainWindow):
         
         self.rxLabel = QLabel("")
         self.txLabel = QLabel("")
-#        self.rtSpacer
         self.ui.statusbar.addWidget(self.rxLabel)
         self.ui.statusbar.addWidget(self.txLabel)
         
@@ -188,7 +226,8 @@ class MainForm(QMainWindow):
         self.ui.cbBitrate.addItem("19200")
         self.ui.cbBitrate.addItem("28400")
         self.ui.cbBitrate.addItem("57600")        
-        self.ui.cbBitrate.addItem("115200")       
+        self.ui.cbBitrate.addItem("115200")
+        
         
         self.ui.cbBitrate.activated.connect(self.bitrateChange)
         
@@ -199,7 +238,10 @@ class MainForm(QMainWindow):
         self.ui.pushButton.pressed.connect(self.testing)
         self.ui.pbOpen.pressed.connect(self.openPort)
         
+
         self.ui.plainTextEdit.setReadOnly(True)
+        
+        self.ui.textEdit.setReadOnly(True)
         #self.ui.plainTextEdit.returnPressed.connect(self.kalle)
 #        self.ui.plainTextEdit.textChanged.connect(self.kalle)
 #        self.ui.plainTextEdit.keyPressEvent.connect(self.kalle)
@@ -225,22 +267,22 @@ class MainForm(QMainWindow):
         #print(chr(65))        
         x = b'\n'
 #        print(x.decode("utf-8"))
-        self.ui.plainTextEdit.appendHtml('<font color="Lime">Kalle')
-        self.ui.plainTextEdit.appendHtml('<font color="Aqua">Nisse')
-        self.ui.plainTextEdit.appendHtml('Normal')
-        self.ui.plainTextEdit.appendHtml('<b>Bold</b>')
-        self.ui.plainTextEdit.appendHtml('<i>Italic</i>')
-        self.ui.plainTextEdit.appendHtml('<h1>Heading 1</h1>')
-        self.ui.plainTextEdit.appendHtml('<h2>Heading 2</h2>')
-        self.ui.plainTextEdit.appendHtml('<a href="www.svd.se">Svenska Dagbladet</a>')
-
+        self.ui.plainTextEdit.appendHtml(htmlFont)
         self.ui.plainTextEdit.appendHtml(htmlTable)
         self.ui.plainTextEdit.appendHtml(htmlBlock)
-        self.ui.plainTextEdit.appendHtml('<ol>  <li>Coffee</li> <li>Tea</li>  <li>Milk</li>  </ol>') 
-        self.ui.plainTextEdit.appendHtml('''<h2 style="background-color:blue;color:white">
-Background-color set by using blue
-</h2>''')
+        self.ui.plainTextEdit.appendHtml(htmlList) 
+        self.ui.plainTextEdit.appendHtml(htmlStyle)
 
+        self.ui.textEdit.insertHtml(htmlCss)
+        self.ui.textEdit.insertHtml(htmlFont)
+        self.ui.textEdit.insertHtml(htmlTable)
+        self.ui.textEdit.insertHtml(htmlBlock)
+        self.ui.textEdit.insertHtml(htmlList) 
+        self.ui.textEdit.insertHtml(htmlStyle)
+        
+        self.ui.textEdit.insertHtml('<font color="Lime">Kalle')
+        self.ui.textEdit.insertHtml('<font color="Aqua">Nisse')
+        
 #        self.ui.plainTextEdit.appendPlainText(x.decode("utf-8"))
 #        self.ui.plainTextEdit.appendPlainText(x.decode("utf-8"))
 #        self.ui.plainTextEdit.insertPlainText(x.decode("utf-8"))
