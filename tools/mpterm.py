@@ -34,7 +34,7 @@ from datetime import datetime, date, time
 #from PyQt5.QtWidgets import *
 #from PyQt5.QtCore import pyqtSlot
 from ui_MainWindow import Ui_MainWindow
-from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QScrollBar, QLabel
+from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QScrollBar, QLabel, QPushButton
 
 from PyQt5.QtGui import QPalette, QColor
 
@@ -196,6 +196,10 @@ class MainForm(QMainWindow):
         self.txLabel = QLabel("")
         self.ui.statusbar.addWidget(self.rxLabel)
         self.ui.statusbar.addWidget(self.txLabel)
+        
+        self.sbb = QPushButton("Sbb", self.ui.centralwidget)
+        self.ui.statusbar.addWidget(self.sbb)
+        
         
         self.rxCnt = 0
         self.txCnt = 0
