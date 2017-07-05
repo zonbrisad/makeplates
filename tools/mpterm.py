@@ -99,6 +99,135 @@ htmlBlock='''
 </div> 
 '''
 
+htmlList='''
+<ol>  
+  <li>Coffee</li> 
+  <li>Tea</li>  
+  <li>Milk</li>  
+</ol>
+'''
+htmlStyle='''
+<h2 style="background-color:blue;color:white">
+Background-color set by using blue
+</h2>'''
+
+htmlColors='''
+<br>
+<h2>Standard colors</h2><br>
+<font color="White">White<br>
+<font color="Silver">Silver<br>
+<font color="Gray">Gray<br>
+<font color="Black">Black<br>
+<font color="Red">Red<br>
+<font color="Maroon">Maroon<br>
+<font color="Yellow">Yellow<br>
+<font color="Olive">Olive<br>
+<font color="Lime">Lime<br>
+<font color="Green">Green<br>
+<font color="Aqua">Aqua<br>
+<font color="Teal">Teal<br>
+<font color="Blue">Blue<br>
+<font color="Navy">Navy<br>
+<font color="Fuchsia">Fuchsia<br>
+<font color="Purple">Purple<br>
+
+<font color="White">
+<h2">Pink colors</h2><br>
+
+<font color="Pink">Pink<br>
+<font color="LightPink">LightPink<br>
+<font color="HotPink">HotPink<br>
+<font color="DeepPink">DeepPink<br>
+<font color="PaleVioletRed">PaleVioletRed<br>
+<font color="MediumVioletRed">MediumVioletRed<br>
+
+<h2>Red colors</h2><br>
+
+<font color="LightSalmon">LightSalmon<br>
+<font color="Salmon">Salmon<br>
+<font color="DarkSalmon">DarkSalmon<br>
+<font color="LightCoral">LightCoral<br>
+<font color="IndianRed">IndianRed<br>
+<font color="Crimson">Crimson<br>
+<font color="FireBrick">FireBric<br>
+<font color="DarkRed">DarkRed<br>
+<font color="Red">Red<br>
+
+<h2>Orange colors</h2><br>
+
+<font color="OrangeRed">OrangeRed<br>
+<font color="Tomato">omato<br>
+<font color="Coral">Coral<br>
+<font color="DarkOrange">DarkOrange<br>
+<font color="Orange">Orange<br>
+
+<h2>Yellow colors</h2><br>
+
+<font color="Yellow">Yellow<br>
+<font color="LightYellow">LightYellow<br>
+<font color="LemonChiffon">LemonChiffon<br>
+<font color="LightGoldenrodYellow">LightGoldenrodYellow<br>
+<font color="PapayaWhip">PapayaWhip<br>
+<font color="Moccasin">Moccasin<br>
+<font color="PeachPuff">PeachPuff<br>
+<font color="PaleGoldenrod">PaleGoldenrod<br>
+<font color="Khaki">Khaki<br>
+<font color="DarkKhaki">DarkKhaki<br>
+<font color="Gold">Gold<br>
+
+<h2>Brown colors</h2><br>
+
+<font color="Cornsilk">Cornsilk<br>
+<font color="BlanchedAlmond">BlanchedAlmond<br>
+<font color="Bisque">Bisque<br>
+<font color="NavajoWhite">NavajoWhite<br>
+<font color="Wheat">Wheat<br>
+<font color="BurlyWood">BurlyWood<br>
+<font color="Tan">Tan<br>
+<font color="RosyBrown">RosyBrown<br>
+<font color="SandyBrown">SandyBrown<br>
+<font color="Goldenrod">Goldenrod<br>
+<font color="DarkGoldenrod">DarkGoldenrod<br>
+<font color="Peru">Peru<br>
+<font color="Chocolate">Chocolate<br>
+<font color="SaddleBrown">SaddleBrown<br>
+<font color="Sienna">Sienna<br>
+<font color="Brown">Brown<br>
+<font color="Maroon">Maroon<br>
+
+'''
+
+htmlFont='''
+<br>
+<font color="Lime">Lime<br>
+<font color="Aqua">Aqua<br>
+<hr>
+Normal<br>
+<b>Bold</b><br>
+<i>Italic</i><br>
+<code>Code</code><br>
+<h1><font color="Green">Heading 1</h1>
+<h2 color="Red">Heading 2</h2>
+<h3 bgcolor="Maroon">Heading 3</h3>
+<h4><font bgcolor="Tan">Heading 4</h4>
+<hr>
+<a href="www.svd.se">Svenska Dagbladet</a>
+'''
+htmlCss='''
+h1 {
+    color: white;
+}
+h2 {
+    color: red;
+}
+h3 {
+    color: green;
+}
+h4 {
+    color: blue;
+}
+'''
+
 
 class mpProfile():
     def __init__(self, group):
@@ -147,16 +276,9 @@ class MainForm(QMainWindow):
         
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-                
-        self.mpDefault = mpProfile("Default")
-#        self.mpDefault.write()
-        self.mpDefault.load()
-        self.loadProfile(self.mpDefault)
-
-        
+                        
         self.rxLabel = QLabel("")
         self.txLabel = QLabel("")
-#        self.rtSpacer
         self.ui.statusbar.addWidget(self.rxLabel)
         self.ui.statusbar.addWidget(self.txLabel)
         
@@ -201,7 +323,17 @@ class MainForm(QMainWindow):
         self.ui.pushButton.pressed.connect(self.testing)
         self.ui.pbOpen.pressed.connect(self.openPort)
         
-        self.ui.plainTextEdit.setReadOnly(True)
+        self.ui.bpTest1.pressed.connect(self.test1)
+        self.ui.bpTest2.pressed.connect(self.test2)
+
+#        self.ui.plainTextEdit.setReadOnly(True)
+        self.ui.textEdit.setReadOnly(True)
+        
+        self.mpDefault = mpProfile("Default")
+#        self.mpDefault.write()
+        self.mpDefault.load()
+        self.loadProfile(self.mpDefault)
+        
         self.updateUi()
 
     def saveSetting(self):
@@ -212,46 +344,60 @@ class MainForm(QMainWindow):
 
 
     def actionClear(self):
-        self.ui.plainTextEdit.clear()
+        self.ui.textEdit.clear()
 
+        
+    def test1(self):
+        self.send(b'ABCD')
+        return
+    
+    def test2(self):
+        self.send(b'0123456789')
+        return
+        
     def testing(self):
-        p = self.ui.plainTextEdit.palette()
+#        p = self.ui.plainTextEdit.palette()
 #        p = QPalette()
-        c = QColor("red")
-        p.setColor( QPalette.Text, c )
+#        c = QColor("red")
+#        p.setColor( QPalette.Text, c )
 #        self.ui.plainTextEdit.setPalette(p)
 #        self.ui.plainTextEdit.appendPlainText("A")
         #print(chr(65))        
         x = b'\n'
 #        print(x.decode("utf-8"))
-        self.ui.plainTextEdit.appendHtml('<font color="Lime">Kalle')
-        self.ui.plainTextEdit.appendHtml('<font color="Aqua">Nisse')
-        self.ui.plainTextEdit.appendHtml('Normal')
-        self.ui.plainTextEdit.appendHtml('<b>Bold</b>')
-        self.ui.plainTextEdit.appendHtml('<i>Italic</i>')
-        self.ui.plainTextEdit.appendHtml('<h1>Heading 1</h1>')
-        self.ui.plainTextEdit.appendHtml('<h2>Heading 2</h2>')
-        self.ui.plainTextEdit.appendHtml('<a href="www.svd.se">Svenska Dagbladet</a>')
+#        self.ui.plainTextEdit.appendHtml(htmlFont)
+#        self.ui.plainTextEdit.appendHtml(htmlTable)
+#        self.ui.plainTextEdit.appendHtml(htmlBlock)
+#        self.ui.plainTextEdit.appendHtml(htmlList) 
+#        self.ui.plainTextEdit.appendHtml(htmlStyle)
 
-        self.ui.plainTextEdit.appendHtml(htmlTable)
-        self.ui.plainTextEdit.appendHtml(htmlBlock)
-        self.ui.plainTextEdit.appendHtml('<ol>  <li>Coffee</li> <li>Tea</li>  <li>Milk</li>  </ol>') 
-        self.ui.plainTextEdit.appendHtml('''<h2 style="background-color:blue;color:white">
-Background-color set by using blue
-</h2>''')
-
+        self.ui.textEdit.insertHtml('<body bgcolor="Red">')
+#        self.ui.textEdit.insertHtml(htmlCss)
+        self.ui.textEdit.insertHtml(htmlFont)
+        self.ui.textEdit.insertHtml(htmlTable)
+        self.ui.textEdit.insertHtml(htmlBlock)
+        self.ui.textEdit.insertHtml(htmlList) 
+        self.ui.textEdit.insertHtml(htmlStyle)
+        self.ui.textEdit.insertHtml(htmlColors)
+        
+        self.ui.textEdit.insertHtml('<font color="Lime">Kalle')
+        self.ui.textEdit.insertHtml('<font color="Aqua">Nisse')
+        
 #        self.ui.plainTextEdit.appendPlainText(x.decode("utf-8"))
 #        self.ui.plainTextEdit.appendPlainText(x.decode("utf-8"))
 #        self.ui.plainTextEdit.insertPlainText(x.decode("utf-8"))
         #QString notifyHtml = "<font color=\"Lime\">";
 
         self.showMessage("Nisse")
+        self.scrollDown()
         
-        
-        
+                
     # scroll down to bottom
     def scrollDown(self):
-        vsb = self.ui.plainTextEdit.verticalScrollBar()
+#        vsb = self.ui.plainTextEdit.verticalScrollBar()
+#        vsb.setValue(vsb.maximum())
+        
+        vsb = self.ui.textEdit.verticalScrollBar()
         vsb.setValue(vsb.maximum())
         
     # Show message in status bar    
@@ -261,21 +407,34 @@ Background-color set by using blue
 
     def read(self):
         data = self.serial.readAll()
-        self.ui.plainTextEdit.insertPlainText(data.at(0))
+#        self.ui.plainTextEdit.insertPlainText(data.at(0))
+#        self.ui.textEdit.insertHtml('<font color="Blue">')
+
+#        print("Data len
+        for i in range(0, data.count()):
+            ch = data.at(i)
+            if ch == '\n':
+                self.ui.textEdit.insertHtml('<br>')
+            else:
+                self.ui.textEdit.insertHtml('<font color="White">'+ch)
+            
         self.scrollDown()
+        
         print("Total: ",self.rxCnt," Data: ", data.count())
         self.rxCnt += data.count()
         self.updateUi()
         
         
     def send(self, data):
-        data = self.serial.readAll()
-        print(data)
-        self.txCnt += 1
+#        data = self.serial.readAll()
+#        print(data)
         if (self.serial.isOpen()):
             self.serial.write(data)
+            self.txCnt += 1
             self.updateUi()
-        
+            
+    def sendStr(self, str):
+        return
         
         
     def keyPressEvent(self, a):
@@ -324,7 +483,7 @@ Background-color set by using blue
         self.send(msg)
         
     def kalle(self):
-        self.ui.plainTextEdit.appendPlainText("A")
+#        self.ui.plainTextEdit.appendPlainText("A")
         print("Kalle")
         
     def updateUi(self):
@@ -375,7 +534,11 @@ Background-color set by using blue
     def new(self):
         subprocess.Popen([scriptPath+"/mpterm.py", ""], shell=False)
         
-        
+    def openFile(self):
+        dlg = QFileDialog()
+        dlg.setFileMode(QFileDialog.AnyFile)
+        dlg.setFilter("Text files (*.txt)")
+        filenames = QStringList()
 
 
 def findPorts():

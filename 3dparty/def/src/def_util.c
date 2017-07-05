@@ -142,6 +142,14 @@ int I2S_first(I2S *db) {
 }
 
 
+void I2S_print(I2S *db) {
+	int i;
+	for (i=0;i<I2S_len(db); i++) {
+		printf("%6d   %s\n", db[i].key, db[i].val);
+	}
+}
+
+
 // S2S ----------------------------------------------------------------------
 
 

@@ -66,6 +66,8 @@ int I2S_last(I2S *db);
 int I2S_first(I2S *db);
 int I2S_len(I2S *db);
 
+void I2S_print(I2S *db);
+	
 
 
 int S2S_findIdx(S2S *db, char *key);

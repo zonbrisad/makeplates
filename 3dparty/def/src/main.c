@@ -268,7 +268,7 @@ int main(int argc, char *argv[]) {
 //	x = bit_reverse8(x);
 //	printf("x = %s\n", int2bin(x, 8));
 	
-	
+	I2S_print(numbersDb);
 	
 	return 0;
 }

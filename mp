@@ -146,6 +146,7 @@ mpInstall() {
   rm -f ${1}/MPT
 }
 
+##N- Install
 
 install() { #C MPT Install makeplates on system
   assertRoot
@@ -247,7 +248,7 @@ newModule() { ##C NEW Create new C module
 
 
 
-##CN- NEW Install
+##CN- NEW 3d party
 
 list() {  ##C NEW List 3d party libraries
   ls -1 ${scriptPath}/3dparty
@@ -327,7 +328,7 @@ USAGE="Usage: ${scriptName} command [option]"
 DESC="Help tool for makeplate project"
 
 ##V logfile (uncomment to use logfile)
-LOGFILE=${scriptPath}/${scriptName}.log
+#LOGFILE=${scriptPath}/${scriptName}.log
 
 ##V Logging options (uncomment to activate logging parameters)
 #LOG_INFO=1
@@ -349,6 +350,9 @@ DEFAULT=help
 
 ##V Function to be executed after every other function except DEFAULT function
 #POSTCMDHOOK=
+
+##V Function to be executed after information command
+#INFOHOOK=
 
 ##V Programs that are required to run the script (uncomment to use)
 #REQUIRED_PROGRAMS=(ls mv kalle)
@@ -462,7 +466,7 @@ BP_C_WARNING=$E_BR_YELLOW
 BP_C_ERROR=$E_BR_RED
 BP_C_CRITICAL=$E_ON_RED$E_WHITE
 BP_C_LINE=$E_GRAY
-BP_C_LINE_TEXT=$E_WHITE
+BP_C_LINE_TEXT=$E_GRAY
 
 # Exit codes 
 #
@@ -497,7 +501,8 @@ bpTextLineC() { ##D Print text with adjusted line after with selectable colors
 }
 
 bpTextLine() { ##D Print text with line after
-  bpTextLineC "$1" "${C_LINE_TEXT}" "${C_LINE}"
+#	bpPrintLineC "$1" "${C_LINE_TEXT}" "${C_LINE}" " " "-"
+	bpPrintLineC "$1" "${E_WHITE}" "${E_GRAY}" " " "-"
 }
 
 # Print a divider row
@@ -505,7 +510,7 @@ bpLine() { ##D Print a line
   bpPrintLineC "" "${E_GRAY}" "${E_GRAY}" "" "-" 
 }
 
-# Legacy function
+# Legacy function (do not use in new applications)
 printLine() { 
   bpLine
 }
@@ -651,6 +656,7 @@ assertRequiredProgs() { ##D Assert that required programs are available on the s
 }
 
 info() { ##D Show information about script
+  bpTextLine "Script information"
   printVar scriptName      "Script name" 
   printVar scriptPath      "Script path" 
   printVar VERSION         "Script version" 
@@ -661,7 +667,12 @@ info() { ##D Show information about script
   printVar "REQUIRED_PROGRAMS" "Dependencies"
   printInfo "PID" $$  
   printVar DATE "Date" 
-  printVar TIME "Time" 
+  printVar TIME "Time"
+	
+  if [ -n "${INFOHOOK}" ]; then
+    bpTextLine "App. information"
+    ${INFOHOOK}
+  fi
 }
 
 check() { ##D Make a shellcheck
@@ -708,21 +719,18 @@ printCondLine() {
 }
 
 printNamedLine() {
-  #name=$(echo "$1" | sed -s 's/^.*##N-//' | awk '{print $1}')
   name=$(echo "$1" | sed -e 's/^.*##N-//' -e 's/^[ \t]*//' )
-  bpTextLineC $name "${E_BLUE}" "${E_GREEN}"
+  bpTextLine "$name"
 }
 
 
 printCondNamedLine() {
   help_line=$1
   C=$(echo "$1" | sed -s 's/^.*##CN-//' | awk '{print $1}')
-	#name=$(echo "$1" | sed -s 's/^.*##CN-//' | awk '{print $2}')
 	name=$(echo "$help_line" | sed -e 's/^.*'"$C"'//' -e 's/^[ \t]*//' )
   eval "D=\$$C"
   if [ -n "$D" ]; then
-    #bpTextLineC $name "${E_BLUE}" "${E_GREEN}"
-    bpTextLine "$name" 
+    bpTextLine "$name"
   fi
 }
 
@@ -730,8 +738,8 @@ help() { ## Print this help information
   echo "$USAGE"
   echo -e "$DESC"
   echo 
-  printf "%-20s  %s\n" "Command" "Help"
-  printLine
+#  printf "%-20s  %s\n" "Command" "Help"
+#  printLine
   IFS=$'\n'
   SC=$1
   #help_lines=$(grep -h '##' "$0" | grep -v grep | grep -v '##D' | grep -v '##V' | grep -v '\*##C' | grep -v '\*##C-' |  grep -v '\"##' |  grep -v '##N-//' | grep -v help_line | grep -v printLine)
