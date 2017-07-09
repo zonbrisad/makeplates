@@ -17,6 +17,7 @@
 # Peter Malmberg <peter.malmberg@gmail.com>
 #
 #
+# -----------------------------------------------------------------------
 # pyuic5 mpTerminal.ui -o ui_MainWindow.py
 #
 
@@ -29,30 +30,25 @@ import traceback
 import logging
 import argparse
 from datetime import datetime, date, time
-#from PyQt5.QtCore import *
-#from PyQt5.QtGui import *
-#from PyQt5.QtWidgets import *
-#from PyQt5.QtCore import pyqtSlot
+
 from ui_MainWindow import Ui_MainWindow
-from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QScrollBar, QLabel
+#from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QScrollBar, QLabel, QDialog
 
-from PyQt5.QtGui import QPalette, QColor
+#from PyQt5.QtGui import QPalette, QColor
+#from PyQt5.QtCore import QIODevice
+#from PyQt5.QtCore import QCoreApplication
+#from PyQt5.QtCore import QSettings
+#from PyQt5.QtCore import Qt
 
-from PyQt5.QtCore import QIODevice
-from PyQt5.QtCore import QCoreApplication
-from PyQt5.QtCore import QSettings
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
+
+#from PyQt5 import QtCore, QtGui, QtWidgets
 
 
 from PyQt5.QtSerialPort import QSerialPort
 from PyQt5.QtSerialPort import QSerialPortInfo
-#import PyQt5.QtSerialPort
-#import PyQt5.QtSerialPortInfo
-
-
-#import serial
-#from serial.tools.list_ports import comports
-#from serial.tools import hexlify_codec
 
 # Settings ------------------------------------------------------------------
 
@@ -70,202 +66,134 @@ QCoreApplication.setOrganizationName(AppOrg)
 QCoreApplication.setOrganizationDomain(AppDomain)
 QCoreApplication.setApplicationName(AppName)
 
-# Code ----------------------------------------------------------------------
 
-htmlTable='''
-<table style="width:100%">
-<tr>
-<th>Firstname</th>
-<th>Lastname</th> 
-<th>Age</th>
-</tr>
-<tr>
-<td>Jill</td>
-<td>Smith</td> 
-<td>50</td>
-</tr>
-<tr>
-<td>Eve</td>
-<td>Jackson</td> 
-<td>94</td>
-</tr>
-</table>
-'''
-htmlBlock='''
-<div style="background-color:blue;color:red;padding:20px;">
-<h2>London</h2>
-<p>London is the capital city of England. It is the most populous city in the United Kingdom, with a metropolitan area of over 13 million inhabitants.</p>
-<p>Standing on the River Thames, London has been a major settlement for two millennia, its history going back to its founding by the Romans, who named it Londinium.</p>
-</div> 
-'''
+# Definitions ---------------------------------------------------------------
 
-htmlList='''
-<ol>  
-  <li>Coffee</li> 
-  <li>Tea</li>  
-  <li>Milk</li>  
-</ol>
-'''
-htmlStyle='''
-<h2 style="background-color:blue;color:white">
-Background-color set by using blue
-</h2>'''
+class MpTerm():
+    # Display modes
+    Ascii    = 0
+    Hex      = 1
+    AsciiHex = 2
+    
+    # Newline modes
+    Nl       = 0
+    Cr       = 1
+    NlCr     = 2
+    
+    
 
-htmlColors='''
+# Code ----------------------------------------------------------------------    
+    
+aboutHtml='''
+<h3>About '''+AppName+'''</h3>
 <br>
-<h2>Standard colors</h2><br>
-<font color="White">White<br>
-<font color="Silver">Silver<br>
-<font color="Gray">Gray<br>
-<font color="Black">Black<br>
-<font color="Red">Red<br>
-<font color="Maroon">Maroon<br>
-<font color="Yellow">Yellow<br>
-<font color="Olive">Olive<br>
-<font color="Lime">Lime<br>
-<font color="Green">Green<br>
-<font color="Aqua">Aqua<br>
-<font color="Teal">Teal<br>
-<font color="Blue">Blue<br>
-<font color="Navy">Navy<br>
-<font color="Fuchsia">Fuchsia<br>
-<font color="Purple">Purple<br>
-
-<font color="White">
-<h2">Pink colors</h2><br>
-
-<font color="Pink">Pink<br>
-<font color="LightPink">LightPink<br>
-<font color="HotPink">HotPink<br>
-<font color="DeepPink">DeepPink<br>
-<font color="PaleVioletRed">PaleVioletRed<br>
-<font color="MediumVioletRed">MediumVioletRed<br>
-
-<h2>Red colors</h2><br>
-
-<font color="LightSalmon">LightSalmon<br>
-<font color="Salmon">Salmon<br>
-<font color="DarkSalmon">DarkSalmon<br>
-<font color="LightCoral">LightCoral<br>
-<font color="IndianRed">IndianRed<br>
-<font color="Crimson">Crimson<br>
-<font color="FireBrick">FireBric<br>
-<font color="DarkRed">DarkRed<br>
-<font color="Red">Red<br>
-
-<h2>Orange colors</h2><br>
-
-<font color="OrangeRed">OrangeRed<br>
-<font color="Tomato">omato<br>
-<font color="Coral">Coral<br>
-<font color="DarkOrange">DarkOrange<br>
-<font color="Orange">Orange<br>
-
-<h2>Yellow colors</h2><br>
-
-<font color="Yellow">Yellow<br>
-<font color="LightYellow">LightYellow<br>
-<font color="LemonChiffon">LemonChiffon<br>
-<font color="LightGoldenrodYellow">LightGoldenrodYellow<br>
-<font color="PapayaWhip">PapayaWhip<br>
-<font color="Moccasin">Moccasin<br>
-<font color="PeachPuff">PeachPuff<br>
-<font color="PaleGoldenrod">PaleGoldenrod<br>
-<font color="Khaki">Khaki<br>
-<font color="DarkKhaki">DarkKhaki<br>
-<font color="Gold">Gold<br>
-
-<h2>Brown colors</h2><br>
-
-<font color="Cornsilk">Cornsilk<br>
-<font color="BlanchedAlmond">BlanchedAlmond<br>
-<font color="Bisque">Bisque<br>
-<font color="NavajoWhite">NavajoWhite<br>
-<font color="Wheat">Wheat<br>
-<font color="BurlyWood">BurlyWood<br>
-<font color="Tan">Tan<br>
-<font color="RosyBrown">RosyBrown<br>
-<font color="SandyBrown">SandyBrown<br>
-<font color="Goldenrod">Goldenrod<br>
-<font color="DarkGoldenrod">DarkGoldenrod<br>
-<font color="Peru">Peru<br>
-<font color="Chocolate">Chocolate<br>
-<font color="SaddleBrown">SaddleBrown<br>
-<font color="Sienna">Sienna<br>
-<font color="Brown">Brown<br>
-<font color="Maroon">Maroon<br>
-
-'''
-
-htmlFont='''
+<b>Version: </b> '''+AppVersion+'''
 <br>
-<font color="Lime">Lime<br>
-<font color="Aqua">Aqua<br>
-<hr>
-Normal<br>
-<b>Bold</b><br>
-<i>Italic</i><br>
-<code>Code</code><br>
-<h1><font color="Green">Heading 1</h1>
-<h2 color="Red">Heading 2</h2>
-<h3 bgcolor="Maroon">Heading 3</h3>
-<h4><font bgcolor="Tan">Heading 4</h4>
-<hr>
-<a href="www.svd.se">Svenska Dagbladet</a>
-'''
-htmlCss='''
-h1 {
-    color: white;
-}
-h2 {
-    color: red;
-}
-h3 {
-    color: green;
-}
-h4 {
-    color: blue;
-}
+<b>Author: </b>'''+AppName+'''
+<br><br>
+'''+AppDesc+'''
 '''
 
+class AboutDialog(QDialog):
+    def __init__(self, parent = None):
+        super(AboutDialog, self).__init__(parent)
 
+        self.setWindowTitle("About " + AppName)
+        self.setWindowModality(Qt.ApplicationModal)
+        
+        # Set dialog size. 
+        self.resize(400, 300)
+                                
+        self.verticalLayout = QVBoxLayout(self)
+        self.verticalLayout.setSpacing(2)
+        #horizontalLayout.addLayout(self.verticalLayout)
+        
+        self.mainLayout = QHBoxLayout()
+        self.mainLayout.setContentsMargins(2, 2, 2, 2)
+        self.mainLayout.setSpacing(2)
+
+        self.buttonLayout = QHBoxLayout()
+        self.buttonLayout.setContentsMargins(2, 2, 2, 2)
+        self.buttonLayout.setSpacing(2)
+
+        self.setLayout(self.verticalLayout)
+                
+        # TextEdit
+        self.textEdit = QTextEdit(self)
+        self.textEdit.setReadOnly(True)
+        self.verticalLayout.addWidget(self.textEdit)
+
+        # Buttonbox
+        self.buttonBox = QDialogButtonBox(self)
+        self.buttonBox.setOrientation(Qt.Horizontal)
+        self.buttonBox.setStandardButtons( QDialogButtonBox.Ok | QDialogButtonBox.Cancel )
+        self.buttonBox.accepted.connect(self.accept)
+        self.buttonBox.rejected.connect(self.reject)
+        self.verticalLayout.addWidget(self.buttonBox)
+        
+        self.textEdit.insertHtml(aboutHtml)
+        
+    @staticmethod
+    def about(parent = None):
+        dialog = AboutDialog(parent)
+        result = dialog.exec_()
+        return (result == QDialog.Accepted)
+    
+settings = { 'alias':str,     
+             'port':   str,  
+             'bitrate':str,  
+             'bits':  int,   
+             'parity':str,   
+             'stopbits':int, 
+             }
+             
+#print(settings)
+    
 class mpProfile():
     def __init__(self, group):
         self.settings = QSettings(AppOrg, AppName)
         self.group    = group
         self.setDefaults()
-    
-    def setDefaults(self):
-        self.alias    = "Default"
-        self.port     = "ttyUSB1"
-        self.bitrate  = '9600'
-        self.bits     = 8
-        self.parity   = "none"
-        self.stopbits = 0
         
+    def setDefaults(self):
+        self.alias       = "Default"
+        self.port        = "ttyUSB1"
+        self.bitrate     = '9600'
+        self.databits    = QSerialPort.Data8
+        self.parity      = QSerialPort.NoParity
+        self.stopbits    = QSerialPort.OneStop
+        self.flowcontrol = QSerialPort.NoFlowControl
+        self.display     = MpTerm.Ascii
+
     def load(self):
         self.settings.sync()
         self.settings.beginGroup(self.group)
-        self.alias    = self.settings.value("alias",    type=str)
-        self.port     = self.settings.value("port",     type=str)
-        self.bitrate  = self.settings.value("bitrate",  type=str)
-        self.bits     = self.settings.value("bits",     type=int)
-        self.parity   = self.settings.value("parity",   type=str)
-        self.stopbits = self.settings.value("stopbits", type=int)
+        self.alias       = self.settings.value("alias",       type=str)
+        self.port        = self.settings.value("port",        type=str)
+        self.bitrate     = self.settings.value("bitrate",     type=str)
+        self.databits    = self.settings.value("databits",    type=str)
+        self.parity      = self.settings.value("parity",      type=str)
+        self.stopbits    = self.settings.value("stopbits",    type=str)
+        self.flowcontrol = self.settings.value("flowcontrol", type=str)
+        self.display     = self.settings.value("display",     type=str)
         self.settings.endGroup()
         
-#    def print(self):
-#        print("Port:     ", self.port)
-#        print("Bitrate:  ", self.bitrate)
+        self.print()
+        
+    def print(self):
+        print("Port:     ", self.port)
+        print("Bitrate:  ", self.bitrate)
         
     def write(self):
         self.settings.beginGroup(self.group)
-        self.settings.setValue("alias",    self.alias)
-        self.settings.setValue("port",     self.port)
-        self.settings.setValue("bitrate",  self.bitrate)
-        self.settings.setValue("bits",     self.bits)
-        self.settings.setValue("parity",   self.parity)
-        self.settings.setValue("stopbits", self.stopbits)
+        self.settings.setValue("alias",       self.alias)
+        self.settings.setValue("port",        self.port)
+        self.settings.setValue("bitrate",     self.bitrate)
+        self.settings.setValue("databits",    self.databits)
+        self.settings.setValue("parity",      self.parity)
+        self.settings.setValue("stopbits",    self.stopbits)
+        self.settings.setValue("flowcontrol", self.flowcontrol)
+        self.settings.setValue("display",     self.display)
         self.settings.endGroup()
         self.settings.sync()
         return
@@ -276,7 +204,7 @@ class MainForm(QMainWindow):
         
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-                        
+        
         self.rxLabel = QLabel("")
         self.txLabel = QLabel("")
         self.ui.statusbar.addWidget(self.rxLabel)
@@ -290,19 +218,23 @@ class MainForm(QMainWindow):
         
         self.updatePorts()
         
-        self.ui.cbStopBits.addItem("1")
-        self.ui.cbStopBits.addItem("2")
+        self.ui.cbStopBits.addItem("1",   QSerialPort.OneStop)
+        self.ui.cbStopBits.addItem("1.5", QSerialPort.OneAndHalfStop)
+        self.ui.cbStopBits.addItem("2",   QSerialPort.TwoStop)
+
+        self.ui.cbBits.addItem("5", QSerialPort.Data5)
+        self.ui.cbBits.addItem("6", QSerialPort.Data6)
+        self.ui.cbBits.addItem("7", QSerialPort.Data7)
+        self.ui.cbBits.addItem("8", QSerialPort.Data8)
+                
+        self.ui.cbParity.addItem("None", QSerialPort.NoParity)
+        self.ui.cbParity.addItem("Odd",  QSerialPort.OddParity)
+        self.ui.cbParity.addItem("Even", QSerialPort.EvenParity)
         
-        self.ui.cbBits.addItem("5")
-        self.ui.cbBits.addItem("6")
-        self.ui.cbBits.addItem("7")
-        self.ui.cbBits.addItem("8")
-#        self.ui.cbBits.addItem("9")
-        
-        self.ui.cbParity.addItem("None")
-        self.ui.cbParity.addItem("Odd")
-        self.ui.cbParity.addItem("Even")
-        
+        self.ui.cbFlowControl.addItem("No Flow Control",  QSerialPort.NoFlowControl )
+        self.ui.cbFlowControl.addItem("Hardware Control", QSerialPort.HardwareControl )
+        self.ui.cbFlowControl.addItem("Software Control", QSerialPort.SoftwareControl )
+
         self.ui.cbBitrate.addItem('300',   300    )
         self.ui.cbBitrate.addItem('600',   600    )
         self.ui.cbBitrate.addItem("1200",  1200   )
@@ -312,13 +244,28 @@ class MainForm(QMainWindow):
         self.ui.cbBitrate.addItem("19200", 19200  )
         self.ui.cbBitrate.addItem("28400", 28400  )
         self.ui.cbBitrate.addItem("57600", 57600  )        
-        self.ui.cbBitrate.addItem("115200",115200 )       
+        self.ui.cbBitrate.addItem("115200",115200 )
         
-        self.ui.cbBitrate.activated.connect(self.bitrateChange)
+        self.ui.cbNewline.addItem("nl",    0 )
+        self.ui.cbNewline.addItem("cr",    1 )
+        self.ui.cbNewline.addItem("cr+nl", 2 )
+        
+        self.ui.cbDisplay.addItem("Ascii",       MpTerm.Ascii    )
+        self.ui.cbDisplay.addItem("Hex",         MpTerm.Hex      )
+        self.ui.cbDisplay.addItem("Hex + Ascii", MpTerm.AsciiHex )
+        
+        
+        self.ui.cbBitrate.activated.connect(self.setBitrate)        
+        self.ui.cbStopBits.activated.connect(self.setStopBits)
+        self.ui.cbBits.activated.connect(self.setBits)
+        self.ui.cbParity.activated.connect(self.setParity)
+        self.ui.cbFlowControl.activated.connect(self.setFlowControl)
+        
         
         self.ui.actionNew.triggered.connect(self.new)
         self.ui.actionExit.triggered.connect(self.exitProgram)
         self.ui.actionClear.triggered.connect(self.actionClear)
+        self.ui.actionAbout.triggered.connect(self.about)
 
         self.ui.pushButton.pressed.connect(self.testing)
         self.ui.pbOpen.pressed.connect(self.openPort)
@@ -326,26 +273,34 @@ class MainForm(QMainWindow):
         self.ui.bpTest1.pressed.connect(self.test1)
         self.ui.bpTest2.pressed.connect(self.test2)
 
-#        self.ui.plainTextEdit.setReadOnly(True)
         self.ui.textEdit.setReadOnly(True)
         
         self.mpDefault = mpProfile("Default")
-#        self.mpDefault.write()
         self.mpDefault.load()
         self.loadProfile(self.mpDefault)
+                
+        
+ #       self.ui.textEdit.insertPlainText("Kalle")
+ #       self.ui.textEdit.appendHtml('<code>')
+#        self.ui.textEdit.insertPlainText("Nisse")
+#        self.ui.textEdit.appendHtml('<b>Bold')
+#        self.ui.textEdit.insertPlainText("Bold")
+#        self.ui.textEdit.appendHtml("Bold")
+        
+        self.ui.textEdit.appendHtml('<font face="verdana" color="green">')
+        self.ui.textEdit.setMaximumBlockCount(200)
+        
+        # Some debug widgets (comment out for production)
+        self.ui.gbDebug.hide()
         
         self.updateUi()
-
-    def saveSetting(self):
-        return
-    
-    def loadSettings(self):
-        return
+        
+    def about(self):
+        AboutDialog.about()
 
 
     def actionClear(self):
         self.ui.textEdit.clear()
-
         
     def test1(self):
         self.send(b'ABCD')
@@ -365,24 +320,6 @@ class MainForm(QMainWindow):
         #print(chr(65))        
         x = b'\n'
 #        print(x.decode("utf-8"))
-#        self.ui.plainTextEdit.appendHtml(htmlFont)
-#        self.ui.plainTextEdit.appendHtml(htmlTable)
-#        self.ui.plainTextEdit.appendHtml(htmlBlock)
-#        self.ui.plainTextEdit.appendHtml(htmlList) 
-#        self.ui.plainTextEdit.appendHtml(htmlStyle)
-
-        self.ui.textEdit.insertHtml('<body bgcolor="Red">')
-#        self.ui.textEdit.insertHtml(htmlCss)
-        self.ui.textEdit.insertHtml(htmlFont)
-        self.ui.textEdit.insertHtml(htmlTable)
-        self.ui.textEdit.insertHtml(htmlBlock)
-        self.ui.textEdit.insertHtml(htmlList) 
-        self.ui.textEdit.insertHtml(htmlStyle)
-        self.ui.textEdit.insertHtml(htmlColors)
-        
-        self.ui.textEdit.insertHtml('<font color="Lime">Kalle')
-        self.ui.textEdit.insertHtml('<font color="Aqua">Nisse')
-        
 #        self.ui.plainTextEdit.appendPlainText(x.decode("utf-8"))
 #        self.ui.plainTextEdit.appendPlainText(x.decode("utf-8"))
 #        self.ui.plainTextEdit.insertPlainText(x.decode("utf-8"))
@@ -401,22 +338,49 @@ class MainForm(QMainWindow):
         vsb.setValue(vsb.maximum())
         
     # Show message in status bar    
-    def showMessage(self, msg):
+    def message(self, msg):
         self.ui.statusbar.showMessage(msg, 4000)
+        # uncomment for debugging
+        #print(msg)
+        
+        
         
 
     def read(self):
         data = self.serial.readAll()
 #        self.ui.plainTextEdit.insertPlainText(data.at(0))
-#        self.ui.textEdit.insertHtml('<font color="Blue">')
+        self.ui.textEdit.moveCursor (QTextCursor.End);
+        DisplayMode = self.ui.cbDisplay.itemData(self.ui.cbDisplay.currentIndex())
+                
+        if DisplayMode == MpTerm.Ascii:
+            for i in range(0, data.count()):
+                ch = data.at(i)
 
-#        print("Data len
-        for i in range(0, data.count()):
-            ch = data.at(i)
-            if ch == '\n':
-                self.ui.textEdit.insertHtml('<br>')
-            else:
-                self.ui.textEdit.insertHtml('<font color="White">'+ch)
+                if ch == '\n':
+                    #self.ui.textEdit.insertHtml('<br>')
+                    #                self.ui.textEdit.appendHtml('<br>')
+                    self.ui.textEdit.insertPlainText('\n')
+                    #                    self.ui.textEdit.appendHtml('<br>')
+                    
+                    #                 x=1
+                else:
+                    #self.ui.textEdit.insertHtml('<font color="White">'+ch)
+                    #self.ui.textEdit.appendHtml(ch)
+                    #self.ui.textEdit.insertPlainText(ch)
+                    self.ui.textEdit.insertPlainText(ch);
+                    
+        elif DisplayMode == MpTerm.Hex:
+#            s = 'xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx'
+            s = ''
+            for i in range(0, data.count()):
+                ch = data.at(i)                
+                s = s + '{0:02x} '.format(ord(ch))
+                
+            self.ui.textEdit.insertPlainText(s)
+            #self.ui.textEdit.insertPlainText( '{0:02x} '.format(ord(ch)))
+            
+                    
+        self.ui.textEdit.moveCursor(QTextCursor.End);
             
         self.scrollDown()
         
@@ -426,19 +390,17 @@ class MainForm(QMainWindow):
         
         
     def send(self, data):
-#        data = self.serial.readAll()
-#        print(data)
         if (self.serial.isOpen()):
             self.serial.write(data)
-            self.txCnt += 1
+            self.txCnt += len(data)
             self.updateUi()
             
     def sendStr(self, str):
         return
         
-        
     def keyPressEvent(self, a):
-        print("  ",a.key(),"  ",a.text())
+        print("  ",a.key(),"  ",a.text(), "  ord: ",ord(a.text()))
+        
         if a.key() == Qt.Key_Escape:
             print("Escape")
             return
@@ -448,10 +410,6 @@ class MainForm(QMainWindow):
             print("Enter")
             return
 
-#        if a.key() == Qt.Key_Return:
-#            print("Return")
-#            return
-            
         if a.key() == Qt.Key_Left:
             print("Left")
             return
@@ -479,7 +437,8 @@ class MainForm(QMainWindow):
 #        if (self.serial.isOpen()):
 #        msg = bytearray([ a.key() ])
 #        self.sendByte(msg)
-        msg = bytearray([ a.key() ])
+        #msg = bytearray([ a.key() ])
+        msg = bytearray([ ord(a.text()) ])
         self.send(msg)
         
     def kalle(self):
@@ -488,48 +447,109 @@ class MainForm(QMainWindow):
         
     def updateUi(self):
         if (self.serial.isOpen()):
+            self.setWindowTitle('MpTerm  /dev/'+self.ui.cbPort.currentText() + '  '+self.ui.cbBitrate.currentText())
             self.ui.pbOpen.setText("Close")
+            self.ui.cbPort.setEnabled(0)
         else:
+            self.setWindowTitle('MpTerm')
             self.ui.pbOpen.setText("Open")
+            self.ui.cbPort.setEnabled(1)
             
         self.rxLabel.setText('RX: '+str(self.rxCnt))
-        self.txLabel.setText('TX: '+str(self.txCnt))
-            
+        self.txLabel.setText('TX: '+str(self.txCnt))            
 
     def openPort(self):
         if (self.serial.isOpen()):
             self.serial.close()
-            self.updateUi()
+            self.updateUi() 
             return
 
-        print("Open port")
-        self.serial.setPortName("/dev/"+self.ui.cbPorts.currentText())
-        self.serial.setBaudRate(115200)
+        self.message("Opening port")
+        self.initPort()
+        self.serial.clear()
         self.serial.open(QIODevice.ReadWrite)
         self.updateUi() 
-    
-    def loadProfile(self, prof):
-        print("Bitrate: ", prof.bitrate )
-        print("Index:   ", self.ui.cbBitrate.findText(prof.bitrate, Qt.MatchCaseSensitive) )
-        print("Index:   ", self.ui.cbBitrate.findText('300') )
-        print("Index:   ", self.ui.cbBitrate.findData(9600) )
-        self.ui.cbBitrate.setCurrentIndex( self.ui.cbBitrate.findText(prof.bitrate) )
-        return        
+
+    def initPort(self):
+        self.setPort()
+        self.setBitrate()
+        self.setBits()
+        self.setStopBits()
+        self.setParity()
+        self.setFlowControl()
+        
+    def setPort(self):
+        self.serial.setPortName("/dev/"+self.ui.cbPort.currentText())
         
     def setBitrate(self):
-        self.serial.setBaudRate( self.ui.cbBitrate.itemData(self.ui.cbBitrate.currentIndex() ))
+        self.serial.setBaudRate( self.ui.cbBitrate.currentData())
         
-    def bitrateChange(self):
-        self.setBitrate()
-                
+    def setStopBits(self):
+        self.serial.setStopBits( self.ui.cbStopBits.currentData())
+        
+    def setBits(self):
+        self.serial.setDataBits( self.ui.cbBits.currentData())
+
+    def setParity(self):
+        print("a")
+        self.serial.setParity( self.ui.cbParity.currentData())
+    
+    def setFlowControl(self):
+        self.serial.setFlowControl( self.ui.cbFlowControl.currentData())
+
+    def saveSetting(self):        
+#        self.mpDefault.write()
+        return
+    
+    def loadSettings(self):
+        return
+
+        
+    def setCbText(self, cb, txt):
+        a = cb.findText(txt)
+        if a == -1:
+            cb.setCurrentIndex(0)
+        else:
+            cb.setCurrentIndex(a)
+    
+    def setCbData(self, cb, data):
+        a = cb.findData(data)
+        if a == -1:
+            cb.setCurrentIndex(0)
+        else:
+            cb.setCurrentIndex(a)
+
+    def saveProfile(self, prof):
+        prof.port        = self.ui.cbPort.currentText()
+        prof.bitrate     = self.ui.cbBitrate.currentText()
+        prof.databits    = self.ui.cbBits.currentData()
+        prof.stopbits    = self.ui.cbStopBits.currentData()
+        prof.parity      = self.ui.cbParity.currentData()
+        prof.flowcontrol = self.ui.cbFlowControl.currentData()
+        prof.display     = self.ui.cbDisplay.currentData()
+        prof.write()
+        
+        
+    def loadProfile(self, prof):
+        self.setCbText(self.ui.cbPort,        prof.port)
+        self.setCbText(self.ui.cbBitrate,     prof.bitrate)
+        self.setCbData(self.ui.cbBits,        prof.databits)
+        self.setCbData(self.ui.cbStopBits,    prof.stopbits)
+        self.setCbData(self.ui.cbParity,      prof.parity)
+        self.setCbData(self.ui.cbFlowControl, prof.flowcontrol)
+        self.setCbData(self.ui.cbDisplay,     prof.display)
+        
+        
     def exitProgram(self, e):
+        self.saveProfile(self.mpDefault)
+        
         self.serial.close()
-        sys.exit(0)
+        self.close()
     
     def updatePorts(self):
         ports = QSerialPortInfo.availablePorts()
         for port in ports:
-            self.ui.cbPorts.addItem(port.portName())
+            self.ui.cbPort.addItem(port.portName())
             
     def new(self):
         subprocess.Popen([scriptPath+"/mpterm.py", ""], shell=False)

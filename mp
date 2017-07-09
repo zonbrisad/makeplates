@@ -212,19 +212,19 @@ createProject() {
 #NEW=1
 ##CN- NEW Project cmds
 
-newC() { ##C NEW Create a new standard C makeplate project
+newc() { ##C NEW Create a new standard C makeplate project
   createProject "Creating new makeplate C project" ${scriptPath}/mp-c 
 }
 
-newCpp() { ##C NEW Create a new standard C++ makeplate project
+newcpp() { ##C NEW Create a new standard C++ makeplate project
   createProject  "Creating new makeplate C++ project" ${scriptPath}/mp-cpp
 }
 
-newSC() { ##C NEW Create a new simple C makeplate project
+newsc() { ##C NEW Create a new simple C makeplate project
   createProject "Creating new simple makeplate C project"  ${scriptPath}/mp-simple-c
 }
 
-newSCpp() { ##C NEW Create a new simple C++ makeplate project
+newscpp() { ##C NEW Create a new simple C++ makeplate project
   createProject "Creating new simple makeplate C++ project" ${scriptPath}/mp-simple-cpp
 }
 
@@ -242,7 +242,7 @@ echo XXX $0 $1 $2 $3
   fi
 }
 
-newModule() { ##C NEW Create new C module
+newmodule() { ##C NEW Create new C module
   ${scriptPath}/tools/ctemplate.py
 }
 
@@ -256,7 +256,7 @@ list() {  ##C NEW List 3d party libraries
 
 MPINSTALL=mpInstall
 
-eInstall() { ##C NEW Install 3d party library
+install3p() { ##C NEW Install 3d party library
 
   if [ -d ${MP_3DPARTY_DIR}/${2} ]; then
 	  if [ -e ${MP_3DPARTY_DIR}/${2}/${MPINSTALL} ]; then
@@ -275,7 +275,7 @@ eInstall() { ##C NEW Install 3d party library
 NEW=1
 
 
-newScript() { ##C NEW Create new 3d party install script
+new3p() { ##C NEW Create new 3d party install script
   echo "#!/usr/bin/env bash" > mpInstall
 	echo "#" >> mpInstall
 	echo "# Makeplate 3dparty install script" >> mpInstall

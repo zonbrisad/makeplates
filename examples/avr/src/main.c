@@ -36,6 +36,7 @@ static FILE mystdout = FDEV_SETUP_STREAM(uart_putc, uart_getc, _FDEV_SETUP_WRITE
 
 volatile int timer2_ticks;
 
+
 // Prototypes -------------------------------------------------------------
 void hw_init(void);
 
@@ -69,6 +70,8 @@ int kalle(int a, char b);
 
 int main(void) {
 	volatile int tmp;
+	int ch;
+	int counter = 0;
 	
 	hw_init();
 	
@@ -76,10 +79,18 @@ int main(void) {
 	
 	while (1) {
 		tmp = timer2_ticks;
-		printf("Timer counter %d\n", tmp);
-//		printf("Input char %c\n", simul_getchar());
-		_delay_ms(100);
+//		printf("Timer counter %d\n", tmp);
+		printf("Counter %-6d\n", counter);
+		
+		ch = uart_getc();
+		if (ch!= 0x100) {
+//			printf("CH = %x\n", ch);
+			printf("%c", ch);
+		}
+		_delay_ms(200);
 		ARD_LED_TOGGLE();
+		
+		counter++;
 	}
 
   return 0;
