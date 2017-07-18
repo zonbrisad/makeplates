@@ -110,7 +110,7 @@ mpCreateDir() {
 createLink() {
  bpInfo "Creating link ${2}"
  if [ ! -L $1 ]; then
-   	ln -s ${1} ${2}
+   	ln -sf ${1} ${2}
  fi
 }
 
@@ -146,7 +146,7 @@ mpInstall() {
   rm -f ${1}/MPT
 }
 
-##N- Install
+##CN- MPT Install
 
 install() { #C MPT Install makeplates on system
   assertRoot

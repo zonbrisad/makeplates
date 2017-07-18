@@ -54,10 +54,10 @@ from PyQt5.QtSerialPort import QSerialPortInfo
 
 # Application settings
 AppName     = "mpterm"
-AppVersion  = "0.1"
+AppVersion  = "0.2"
 AppLicense  = ""
-AppAuthor   = ""
-AppDesc     = "Pyplate description text"
+AppAuthor   = "Peter Malmberg <peter.malmberg@gmail.com"
+AppDesc     = "MpTerm is a simple serial terminal program"
 AppOrg      = "Mudderverk"
 AppDomain   = ""
 
@@ -80,6 +80,116 @@ class MpTerm():
     Cr       = 1
     NlCr     = 2
     
+class Esc():
+    Esc = 0x1b
+    
+    # ANSI Colors
+    BLACK         = "\e[0;300m"
+    RED           = "\e[0;31m"
+    GREEN         = "\e[0;32m"
+    YELLOW        = "\e[0;33m"
+    BLUE          = "\e[0;34m"
+    MAGENTA       = "\e[0;35m"
+    CYAN          = "\e[0;36m"
+    GRAY          = "\e[0;37m"
+    DARKGRAY      = "\e[1;30m"
+    BR_RED        = "\e[1;31m"
+    BR_GREEN      = "\e[1;32m"
+    BR_YELLOW     = "\e[1;33m"
+    BR_BLUE       = "\e[1;34m"
+    BR_MAGENTA    = "\e[1;35m"
+    BR_CYAN       = "\e[1;36m"
+    WHITE         = "\e[1;37m"
+    
+    ON_BLACK      = "\e[40m"
+    ON_RED        = "\e[41m"
+    ON_GREEN      = "\e[42m"
+    ON_YELLOW     = "\e[43m"
+    ON_BLUE       = "\e[44m"
+    ON_MAGENTA    = "\e[45m"
+    ON_CYAN       = "\e[46m"
+    ON_WHITE      = "\e[1;47m"
+    
+    # ANSI Text attributes
+    ATTR_BOLD      = "\e[1m"
+    ATTR_LOWI      = "\e[2m"
+    ATTR_UNDERLINE = "\e[4m"
+    ATTR_BLINK     = "\e[5m"
+    ATTR_REVERSE   = "\e[7m"
+    
+    END           = "\e[0m"
+    CLEAR         = "\e[2J"
+    RESET         = "\ec"
+    
+    WONR          = "\e[1;47\e[1;31m"
+    
+    # ANSI movement codes 
+    CUR_RETURN  = "\e[;0F"      # cursor return
+    CUR_UP      = "\e[;0A"      # cursor up
+    CUR_DOWN    = "\e[;0B"      # cursor down
+    CUR_FORWARD = "\e[;0C"      # cursor forward
+    CUR_BACK    = "\e[;0D"      # cursor back
+    HIDE_CURSOR = "\e[?25l"     # hide cursor
+    SHOW_CURSOR = "\e[?25h"     # show cursor
+    
+
+    @staticmethod
+    def findEnd(data, idx):
+        i = idx
+        while (i-idx) < 12:
+            ch = data.at(i)
+            if ch.isalpha():
+                return i
+            else:
+                i += 1
+        return -1
+      
+class EscapeDecoder():
+    
+    def __init__(self):
+        self.idx = 0
+        self.clear()
+        
+    def clear(self):
+        self.buf = []
+    
+    def len(self):
+        return len(self.buf)
+    
+    def getSequence(self):
+        print(self.buf)
+        
+    def next(self, ch):
+#        print("Ch: "+ch)
+#        print('Type: ', type(ch))
+        if ord(ch) == Esc.Esc:
+            print("EscapeDecoder: found escape sequence")
+            self.clear()
+            self.buf.append(ch)
+            return -1
+            
+        if len(self.buf) > 0:   # an escape sequence has been detected
+
+            if ch.isalpha(): # end of escape message
+                self.buf.append(ch)
+                print("EscapeDecoder: End of escape message, len=", self.len())
+                self.getSequence()
+#                print(self.buf)
+
+                self.clear()
+                return -1
+            else:
+                self.buf.append(ch)
+                return -1
+            
+            
+            if len(self.buf) > 10:
+                print("EscapeDecoder: oversize, len=", self.len())
+                self.clear()
+                return -1
+            
+        return ord(ch)
+    
     
 
 # Code ----------------------------------------------------------------------    
@@ -89,7 +199,7 @@ aboutHtml='''
 <br>
 <b>Version: </b> '''+AppVersion+'''
 <br>
-<b>Author: </b>'''+AppName+'''
+<b>Author: </b>'''+AppAuthor+'''
 <br><br>
 '''+AppDesc+'''
 '''
@@ -164,6 +274,7 @@ class mpProfile():
         self.stopbits    = QSerialPort.OneStop
         self.flowcontrol = QSerialPort.NoFlowControl
         self.display     = MpTerm.Ascii
+        self.sync        = ''
 
     def load(self):
         self.settings.sync()
@@ -176,6 +287,7 @@ class mpProfile():
         self.stopbits    = self.settings.value("stopbits",    type=str)
         self.flowcontrol = self.settings.value("flowcontrol", type=str)
         self.display     = self.settings.value("display",     type=str)
+        self.sync        = self.settings.value("sync",        type=str)
         self.settings.endGroup()
         
         self.print()
@@ -194,6 +306,7 @@ class mpProfile():
         self.settings.setValue("stopbits",    self.stopbits)
         self.settings.setValue("flowcontrol", self.flowcontrol)
         self.settings.setValue("display",     self.display)
+        self.settings.setValue("sync",        self.sync)
         self.settings.endGroup()
         self.settings.sync()
         return
@@ -205,8 +318,8 @@ class MainForm(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         
-        self.rxLabel = QLabel("")
-        self.txLabel = QLabel("")
+        self.rxLabel = QLabel('')
+        self.txLabel = QLabel('')
         self.ui.statusbar.addWidget(self.rxLabel)
         self.ui.statusbar.addWidget(self.txLabel)
         
@@ -244,6 +357,7 @@ class MainForm(QMainWindow):
         self.ui.cbBitrate.addItem("19200", 19200  )
         self.ui.cbBitrate.addItem("28400", 28400  )
         self.ui.cbBitrate.addItem("57600", 57600  )        
+
         self.ui.cbBitrate.addItem("115200",115200 )
         
         self.ui.cbNewline.addItem("nl",    0 )
@@ -255,17 +369,18 @@ class MainForm(QMainWindow):
         self.ui.cbDisplay.addItem("Hex + Ascii", MpTerm.AsciiHex )
         
         
+        # event slots
         self.ui.cbBitrate.activated.connect(self.setBitrate)        
         self.ui.cbStopBits.activated.connect(self.setStopBits)
         self.ui.cbBits.activated.connect(self.setBits)
         self.ui.cbParity.activated.connect(self.setParity)
         self.ui.cbFlowControl.activated.connect(self.setFlowControl)
-        
-        
+                
         self.ui.actionNew.triggered.connect(self.new)
         self.ui.actionExit.triggered.connect(self.exitProgram)
         self.ui.actionClear.triggered.connect(self.actionClear)
         self.ui.actionAbout.triggered.connect(self.about)
+        self.ui.actionPortInfo.triggered.connect(self.portInfo)
 
         self.ui.pushButton.pressed.connect(self.testing)
         self.ui.pbOpen.pressed.connect(self.openPort)
@@ -273,31 +388,53 @@ class MainForm(QMainWindow):
         self.ui.bpTest1.pressed.connect(self.test1)
         self.ui.bpTest2.pressed.connect(self.test2)
 
+        self.ui.leSyncString.textChanged.connect(self.syncChanged)
+        
         self.ui.textEdit.setReadOnly(True)
         
         self.mpDefault = mpProfile("Default")
         self.mpDefault.load()
         self.loadProfile(self.mpDefault)
                 
-        
- #       self.ui.textEdit.insertPlainText("Kalle")
- #       self.ui.textEdit.appendHtml('<code>')
-#        self.ui.textEdit.insertPlainText("Nisse")
-#        self.ui.textEdit.appendHtml('<b>Bold')
-#        self.ui.textEdit.insertPlainText("Bold")
-#        self.ui.textEdit.appendHtml("Bold")
-        
-        self.ui.textEdit.appendHtml('<font face="verdana" color="green">')
         self.ui.textEdit.setMaximumBlockCount(200)
         
         # Some debug widgets (comment out for production)
-        self.ui.gbDebug.hide()
+        #self.ui.gbDebug.hide()
+        
+#        palette = self.palette().text().color()
+#        color = self.palette().text().color()
+#        r,g,b=color.getRgb()
+#        print (palette)
+
+        self.escDec = EscapeDecoder()
+
         
         self.updateUi()
         
     def about(self):
         AboutDialog.about()
 
+    def syncChanged(self):
+        try:
+            self.sync = int(self.ui.leSyncString.text(), 16)
+
+            if self.sync>255 or self.sync<0:
+                self.sync = -1
+                self.ui.lSync.setText('<font color="Red">Sync string')
+            else:
+                self.ui.lSync.setText('<font color="Black">Sync string')
+                
+        except:
+            self.sync = -1
+            text = self.ui.leSyncString.text()
+#            print(len(text), 'Text: '+text)
+            if len(text) > 0:
+                self.ui.lSync.setText('<font color="Red">Sync string')
+            else:
+                self.ui.lSync.setText('<font color="Black">Sync string')
+            
+        print('se')
+        return
 
     def actionClear(self):
         self.ui.textEdit.clear()
@@ -337,55 +474,114 @@ class MainForm(QMainWindow):
         vsb = self.ui.textEdit.verticalScrollBar()
         vsb.setValue(vsb.maximum())
         
-    # Show message in status bar    
-    def message(self, msg):
+    def _message(self,msg):    
         self.ui.statusbar.showMessage(msg, 4000)
-        # uncomment for debugging
-        #print(msg)
+    
+    # Show message in status bar
+    def message(self, msg):
+        self.ui.statusbar.setStyleSheet("color: black")
+        self._message(msg)
+        
+    # Show error message in status bar
+    def messageError(self, msg):    
+        self.ui.statusbar.setStyleSheet("color: red")
+        self._message(msg)
         
         
-        
+    def decodeEscape(self, data, index):
+        end = Esc.findEnd(data, index)        
+        if (end<0):
+            print("Negative escape")
+            return 1
+            
+        endCh = data.at(end)
+        print("Escape: ",(end-index), "  Ch:", endCh)
 
+#        i = index + 1
+#        ch = data.at(i)
+        if endCh == 'c':
+            print('Escape clear')
+        #    return 2
+        
+        elif endCh == 'm': # Attribute and colors
+            print('Esc: Attribute/colors')
+            
+            
+#        elif ch == '[':  # 0x5b
+#            i += 2
+#            ch = data.at(i)
+            #if ch 
+        
+        return (end-index+1)
+        
     def read(self):
+        # get all data from buffer
         data = self.serial.readAll()
-#        self.ui.plainTextEdit.insertPlainText(data.at(0))
-        self.ui.textEdit.moveCursor (QTextCursor.End);
-        DisplayMode = self.ui.cbDisplay.itemData(self.ui.cbDisplay.currentIndex())
-                
-        if DisplayMode == MpTerm.Ascii:
-            for i in range(0, data.count()):
-                ch = data.at(i)
+        
+        print("Receive: ", len(data), '  Type data: ', type(data))
 
-                if ch == '\n':
-                    #self.ui.textEdit.insertHtml('<br>')
-                    #                self.ui.textEdit.appendHtml('<br>')
-                    self.ui.textEdit.insertPlainText('\n')
-                    #                    self.ui.textEdit.appendHtml('<br>')
+#        s = 'abcd'
+#        print('Type: ', type(s))
+        
+#        x = b'abcd'
+#        print('Type: ', type(x))
+
+#        y = []
+#        print('Type: ', type(y))
+
+#        b = bytearray('abcd', )
+#        print('Type: ', type(b))
+
+        
+        # move cursor to end of buffer
+        self.ui.textEdit.moveCursor (QTextCursor.End);
+        
+        DisplayMode = self.ui.cbDisplay.currentData()
                     
-                    #                 x=1
-                else:
-                    #self.ui.textEdit.insertHtml('<font color="White">'+ch)
-                    #self.ui.textEdit.appendHtml(ch)
-                    #self.ui.textEdit.insertPlainText(ch)
-                    self.ui.textEdit.insertPlainText(ch);
-                    
-        elif DisplayMode == MpTerm.Hex:
-#            s = 'xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx'
+        if DisplayMode == MpTerm.Ascii:   # Standard ascii display mode
+            i = 0 
+            while i<data.count():
+                
+                ch = self.escDec.next(data.at(i))
+                if (ch > 0): 
+                    if ch == '\n':
+                        self.ui.textEdit.insertPlainText('\n')
+                    else:
+                        self.ui.textEdit.insertPlainText(chr(ch))
+                
+                i += 1
+                        
+#                if ord(ch) == 0x1b:
+#                    print('Byte nr: ',i, 'byte: {0:02x} '.format(ord(ch)), ' ch: ',ch)
+#                if ch == '\n':
+#                    self.ui.textEdit.insertPlainText('\n')
+#                    i += 1
+#                elif ord(ch) == Esc.Esc:
+                    #i +=  self.decodeEscape(data, i)
+#                    i += 1
+#                    pass
+#                else:
+#                    self.ui.textEdit.insertPlainText(ch);
+#                    i += 1
+
+        elif DisplayMode == MpTerm.Hex:  # Hexadecimal display mode
             s = ''
             for i in range(0, data.count()):
-                ch = data.at(i)                
+                ch = data.at(i)
+                
+                # handle sync 
+                if self.sync >= 0 and ord(ch) == self.sync:
+                    s = s + '\n'
+
                 s = s + '{0:02x} '.format(ord(ch))
                 
             self.ui.textEdit.insertPlainText(s)
             #self.ui.textEdit.insertPlainText( '{0:02x} '.format(ord(ch)))
-            
                     
-        self.ui.textEdit.moveCursor(QTextCursor.End);
-            
-        self.scrollDown()
-        
-        print("Total: ",self.rxCnt," Data: ", data.count())
+        self.ui.textEdit.moveCursor(QTextCursor.End)
+
         self.rxCnt += data.count()
+        self.scrollDown()
         self.updateUi()
         
         
@@ -464,10 +660,16 @@ class MainForm(QMainWindow):
             self.updateUi() 
             return
 
-        self.message("Opening port")
         self.initPort()
         self.serial.clear()
-        self.serial.open(QIODevice.ReadWrite)
+        res = self.serial.open(QIODevice.ReadWrite)
+        if (res):
+            self.message('Opening port: /dev/'+self.ui.cbPort.currentText())
+        else:
+            self.messageError('Failed to open port: /dev/'+self.ui.cbPort.currentText())
+            err = self.serial.error()
+            print(err)
+        
         self.updateUi() 
 
     def initPort(self):
@@ -527,6 +729,7 @@ class MainForm(QMainWindow):
         prof.parity      = self.ui.cbParity.currentData()
         prof.flowcontrol = self.ui.cbFlowControl.currentData()
         prof.display     = self.ui.cbDisplay.currentData()
+        prof.sync        = self.ui.leSyncString.text()
         prof.write()
         
         
@@ -538,7 +741,7 @@ class MainForm(QMainWindow):
         self.setCbData(self.ui.cbParity,      prof.parity)
         self.setCbData(self.ui.cbFlowControl, prof.flowcontrol)
         self.setCbData(self.ui.cbDisplay,     prof.display)
-        
+        self.ui.leSyncString.setText(prof.sync)
         
     def exitProgram(self, e):
         self.saveProfile(self.mpDefault)
@@ -546,6 +749,21 @@ class MainForm(QMainWindow):
         self.serial.close()
         self.close()
     
+    def appendInfo(self, desc, data):
+        self.ui.textEdit.appendHtml('<b>'+desc+'</b><code><font color="Green">'+data)
+        
+    def portInfo(self):
+        ports = QSerialPortInfo.availablePorts()
+        for port in ports:
+            self.appendInfo('Port:         ', port.portName() )
+            self.appendInfo('Location:     ', port.systemLocation() )
+            self.appendInfo('Vendor id:    ', str(port.vendorIdentifier())  )
+            self.appendInfo('Product id:   ', str(port.productIdentifier()) )
+            self.appendInfo('Manufacturer: ', port.manufacturer()  )
+            self.appendInfo('Description:  ', port.description()   )
+            self.ui.textEdit.appendHtml('<b>')
+                                
+        
     def updatePorts(self):
         ports = QSerialPortInfo.availablePorts()
         for port in ports:
