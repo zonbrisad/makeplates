@@ -84,11 +84,11 @@ class Esc():
     Esc = 0x1b
     
     # ANSI Colors
-    BLACK         = "\e[0;300m"
-    RED           = "\e[0;31m"
-    GREEN         = "\e[0;32m"
-    YELLOW        = "\e[0;33m"
-    BLUE          = "\e[0;34m"
+    BLACK         = '\e[0;300m'
+    RED           = '\e[0;31m'
+    GREEN         = '\e[0;32m'
+    YELLOW        = '\e[0;33m'
+    BLUE          = '\e[0;34m'
     MAGENTA       = "\e[0;35m"
     CYAN          = "\e[0;36m"
     GRAY          = "\e[0;37m"
@@ -132,6 +132,14 @@ class Esc():
     HIDE_CURSOR = "\e[?25l"     # hide cursor
     SHOW_CURSOR = "\e[?25h"     # show cursor
     
+    E_RET  = 100
+    E_UP   = 101
+    E_DOWN = 102
+    
+    x = [ CUR_RETURN, CUR_UP, CUR_DOWN ]
+    y = { E_RET:CUR_RETURN, 
+          E_UP:CUR_UP, 
+          E_DOWN:CUR_DOWN }
 
     @staticmethod
     def findEnd(data, idx):
@@ -151,18 +159,19 @@ class EscapeDecoder():
         self.clear()
         
     def clear(self):
-        self.buf = []
+        self.buf = bytearray()
     
     def len(self):
         return len(self.buf)
     
     def getSequence(self):
         print(self.buf)
+        str = self.buf.decode('utf-8')
         
     def next(self, ch):
-#        print("Ch: "+ch)
-#        print('Type: ', type(ch))
-        if ord(ch) == Esc.Esc:
+        print('Char: ',ch,'  Type: ', type(ch))
+#        if ord(ch) == Esc.Esc:
+        if ch == Esc.Esc:
             print("EscapeDecoder: found escape sequence")
             self.clear()
             self.buf.append(ch)
@@ -367,7 +376,12 @@ class MainForm(QMainWindow):
         self.ui.cbDisplay.addItem("Ascii",       MpTerm.Ascii    )
         self.ui.cbDisplay.addItem("Hex",         MpTerm.Hex      )
         self.ui.cbDisplay.addItem("Hex + Ascii", MpTerm.AsciiHex )
-        
+
+        # Timers
+        self.timer = QTimer()
+        self.timer.setInterval(1000)
+        self.timer.timeout.connect(self.timerEvent)
+        self.timer.start()
         
         # event slots
         self.ui.cbBitrate.activated.connect(self.setBitrate)        
@@ -413,6 +427,11 @@ class MainForm(QMainWindow):
         
     def about(self):
         AboutDialog.about()
+        
+    def timerEvent(self):
+        pass
+#        if (!self.serial.isOpen()):
+#            print("Timer event")
 
     def syncChanged(self):
         try:
@@ -433,7 +452,7 @@ class MainForm(QMainWindow):
             else:
                 self.ui.lSync.setText('<font color="Black">Sync string')
             
-        print('se')
+
         return
 
     def actionClear(self):
@@ -497,42 +516,21 @@ class MainForm(QMainWindow):
         endCh = data.at(end)
         print("Escape: ",(end-index), "  Ch:", endCh)
 
-#        i = index + 1
-#        ch = data.at(i)
         if endCh == 'c':
             print('Escape clear')
         #    return 2
         
         elif endCh == 'm': # Attribute and colors
             print('Esc: Attribute/colors')
-            
-            
-#        elif ch == '[':  # 0x5b
-#            i += 2
-#            ch = data.at(i)
-            #if ch 
-        
+
         return (end-index+1)
         
     def read(self):
         # get all data from buffer
         data = self.serial.readAll()
         
-        print("Receive: ", len(data), '  Type data: ', type(data))
+#        print("Receive: ", len(data), '  Type data: ', type(data))
 
-#        s = 'abcd'
-#        print('Type: ', type(s))
-        
-#        x = b'abcd'
-#        print('Type: ', type(x))
-
-#        y = []
-#        print('Type: ', type(y))
-
-#        b = bytearray('abcd', )
-#        print('Type: ', type(b))
-
-        
         # move cursor to end of buffer
         self.ui.textEdit.moveCursor (QTextCursor.End);
         
@@ -542,7 +540,7 @@ class MainForm(QMainWindow):
             i = 0 
             while i<data.count():
                 
-                ch = self.escDec.next(data.at(i))
+                ch = self.escDec.next(ord(data.at(i)))
                 if (ch > 0): 
                     if ch == '\n':
                         self.ui.textEdit.insertPlainText('\n')
@@ -595,7 +593,7 @@ class MainForm(QMainWindow):
         return
         
     def keyPressEvent(self, a):
-        print("  ",a.key(),"  ",a.text(), "  ord: ",ord(a.text()))
+#        print("  ",a.key(),"  ",a.text(), "  ord: ",ord(a.text()))
         
         if a.key() == Qt.Key_Escape:
             print("Escape")
@@ -693,7 +691,6 @@ class MainForm(QMainWindow):
         self.serial.setDataBits( self.ui.cbBits.currentData())
 
     def setParity(self):
-        print("a")
         self.serial.setParity( self.ui.cbParity.currentData())
     
     def setFlowControl(self):
@@ -748,21 +745,29 @@ class MainForm(QMainWindow):
         
         self.serial.close()
         self.close()
+        
+    
+    def ss(self, str):
+        print(len(str))
+        nstr = str
+        for i in range(1, 16-len(str)):
+            nstr += '&nbsp;'
+        return nstr
     
     def appendInfo(self, desc, data):
-        self.ui.textEdit.appendHtml('<b>'+desc+'</b><code><font color="Green">'+data)
+        self.ui.textEdit.appendHtml('<b>'+self.ss(desc)+'</b><code><font color="Green">'+data)
         
     def portInfo(self):
+        self.ss("Kalle")
         ports = QSerialPortInfo.availablePorts()
         for port in ports:
-            self.appendInfo('Port:         ', port.portName() )
-            self.appendInfo('Location:     ', port.systemLocation() )
-            self.appendInfo('Vendor id:    ', str(port.vendorIdentifier())  )
-            self.appendInfo('Product id:   ', str(port.productIdentifier()) )
-            self.appendInfo('Manufacturer: ', port.manufacturer()  )
-            self.appendInfo('Description:  ', port.description()   )
+            self.appendInfo('Port:', port.portName() )
+            self.appendInfo('Location:', port.systemLocation() )
+            self.appendInfo('Vendor id:', str(port.vendorIdentifier())  )
+            self.appendInfo('Product id:', str(port.productIdentifier()) )
+            self.appendInfo('Manufacturer:', port.manufacturer()  )
+            self.appendInfo('Description:', port.description()   )
             self.ui.textEdit.appendHtml('<b>')
-                                
         
     def updatePorts(self):
         ports = QSerialPortInfo.availablePorts()

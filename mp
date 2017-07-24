@@ -140,7 +140,6 @@ mpInstall() {
 
   createLink ${1}/mp ${2}
 	createLink ${1}/tools/ctemplate.py ${2}/mptemplate
-
 	
 	# Remove sentinel file
   rm -f ${1}/MPT
@@ -202,10 +201,11 @@ createProject() {
 	  echo "Creating directory"
 		mkdir -p ${pn}
 		cp -rf ${2}/* ${pn}/.
+#		cp -rf ${scriptPath}/tools ${pn}/.
 	else
 		cp -rf ${2}/* .
+#		cp -rf ${scriptPath}/tools .
 	fi
-	
 }
 
 

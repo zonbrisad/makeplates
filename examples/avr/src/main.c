@@ -68,7 +68,7 @@ void hw_init(void) {
 int kalle(int a, char b);
 
 void printColor(char *str, char *color) {
-	  printf("%s%-15s Example text and chars #/-_+!@$%%&{}() %s\n", color, str, E_END);
+	printf("%s%-15s Example text and chars #/-_+!@$%%&{}() %s\n", color, str, E_END);
 }
 void printColor2(char *str, char *color, char *bg) {
 	printf("%s%s%-15s Example text and chars #/-_+!@$%%&{}() %s\n", bg, color, str, E_END);
@@ -138,7 +138,28 @@ int keyPressed() {
 	return 0;
 }
 
+void uart_clear(void) {
+  int ch;
+	while (1) {
+		ch = uart_getc();
+		if (ch == 0x100) 
+			return;
+	}
+	
+}
 
+void printData(void) {
+	uint32_t x;
+	x = 0;
+	uart_clear();
+	while (1) {
+		printf("Printing some text. %-10d !\"#¤%&/()\n",x);
+		if (keyPressed())
+				return;
+		
+		x++;
+	}
+}
 
 
 int main(void) {
@@ -157,7 +178,7 @@ int main(void) {
 		ch = getCh();
 		switch (ch) {
 		 case '1': printColors(); break;
-		 case '2': break;
+		 case '2': printData(); break;
 		 case '3': break;
 		 case '4': break;
 			
