@@ -80,57 +80,107 @@ class MpTerm():
     Cr       = 1
     NlCr     = 2
     
+    Black         = '<font color="Black">'
+    Red           = '<font color="DarkRed">'
+    Green         = '<font color="Green">'
+    Yellow        = '<font color="Yellow">'
+    Blue          = '<font color="Blue">'
+    Magenta       = '<font color="Purple">'
+    Cyan          = '<font color="Teal">'
+    Gray          = '<font color="Gray">'
+    Darkgray      = '<font color="Black">'
+    Br_Red        = '<font color="Red">'
+    Br_Green      = '<font color="Green">'
+    Br_Yellow     = '<font color="Yellow">'
+    Br_Blue       = '<font color="Blue">'
+    Br_Magenta    = '<font color="Fuchsia">'
+    Br_Cyan       = '<font color="Aqua">'
+    White         = '<font color="White">'
+    
+    ON_BLACK      = '<font color="">'
+    ON_RED        = '<font color="">'
+    ON_GREEN      = '<font color="">'
+    ON_YELLOW     = '<font color="">'
+    ON_BLUE       = '<font color="">'
+    ON_MAGENTA    = '<font color="">'
+    ON_CYAN       = '<font color="">'
+    ON_WHITE      = '<font color="">'
+    
+    # ANSI Text attributes
+    ATTR_BOLD      = '\x1b[1m'
+    ATTR_LOWI      = '\x1b[2m'
+    ATTR_UNDERLINE = '\x1b[4m'
+    ATTR_BLINK     = '\x1b[5m'
+    ATTR_REVERSE   = '\x1b[7m'
+    
+    END           = '\x1b[0m'
+    CLEAR         = '\x1b[2J'
+    RESET         = '\x1bc'
+    
+    WONR          = '\x1b[1;47\x1b[1;31m'
+    
+    # ANSI movement codes 
+    CUR_RETURN  = '\x1b[;0F'      # cursor return
+    CUR_UP      = '\x1b[;0A'      # cursor up
+    CUR_DOWN    = '\x1b[;0B'      # cursor down
+    CUR_FORWARD = '\x1b[;0C'      # cursor forward
+    CUR_BACK    = '\x1b[;0D'      # cursor back
+    HIDE_CURSOR = '\x1b[?25l'     # hide cursor
+    SHOW_CURSOR = '\x1b[?25h'     # show cursor
+
+    
+    
 class Esc():
     Esc = 0x1b
     
     # ANSI Colors
-    BLACK         = '\e[0;300m'
-    RED           = '\e[0;31m'
-    GREEN         = '\e[0;32m'
-    YELLOW        = '\e[0;33m'
-    BLUE          = '\e[0;34m'
-    MAGENTA       = "\e[0;35m"
-    CYAN          = "\e[0;36m"
-    GRAY          = "\e[0;37m"
-    DARKGRAY      = "\e[1;30m"
-    BR_RED        = "\e[1;31m"
-    BR_GREEN      = "\e[1;32m"
-    BR_YELLOW     = "\e[1;33m"
-    BR_BLUE       = "\e[1;34m"
-    BR_MAGENTA    = "\e[1;35m"
-    BR_CYAN       = "\e[1;36m"
-    WHITE         = "\e[1;37m"
+    Black         = '\x1b[0;300m'
+    Red           = '\x1b[0;31m'
+    Green         = '\x1b[0;32m'
+    Yellow        = '\x1b[0;33m'
+    Blue          = '\x1b[0;34m'
+    Magenta       = '\x1b[0;35m'
+    Cyan          = '\x1b[0;36m'
+    Gray          = '\x1b[0;37m'
+    Darkgray      = '\x1b[1;30m'
+    Br_Red        = '\x1b[1;31m'
+    Br_Green      = '\x1b[1;32m'
+    Br_Yellow     = '\x1b[1;33m'
+    Br_Blue       = '\x1b[1;34m'
+    Br_Magenta    = '\x1b[1;35m'
+    Br_Cyan       = '\x1b[1;36m'
+    White         = '\x1b[1;37m'
     
-    ON_BLACK      = "\e[40m"
-    ON_RED        = "\e[41m"
-    ON_GREEN      = "\e[42m"
-    ON_YELLOW     = "\e[43m"
-    ON_BLUE       = "\e[44m"
-    ON_MAGENTA    = "\e[45m"
-    ON_CYAN       = "\e[46m"
-    ON_WHITE      = "\e[1;47m"
+    ON_BLACK      = '\x1b[40m'
+    ON_RED        = '\x1b[41m'
+    ON_GREEN      = '\x1b[42m'
+    ON_YELLOW     = '\x1b[43m'
+    ON_BLUE       = '\x1b[44m'
+    ON_MAGENTA    = '\x1b[45m'
+    ON_CYAN       = '\x1b[46m'
+    ON_WHITE      = '\x1b[1;47m'
     
     # ANSI Text attributes
-    ATTR_BOLD      = "\e[1m"
-    ATTR_LOWI      = "\e[2m"
-    ATTR_UNDERLINE = "\e[4m"
-    ATTR_BLINK     = "\e[5m"
-    ATTR_REVERSE   = "\e[7m"
+    ATTR_BOLD      = '\x1b[1m'
+    ATTR_LOWI      = '\x1b[2m'
+    ATTR_UNDERLINE = '\x1b[4m'
+    ATTR_BLINK     = '\x1b[5m'
+    ATTR_REVERSE   = '\x1b[7m'
     
-    END           = "\e[0m"
-    CLEAR         = "\e[2J"
-    RESET         = "\ec"
+    END           = '\x1b[0m'
+    CLEAR         = '\x1b[2J'
+    RESET         = '\x1bc'
     
-    WONR          = "\e[1;47\e[1;31m"
+    WONR          = '\x1b[1;47\x1b[1;31m'
     
     # ANSI movement codes 
-    CUR_RETURN  = "\e[;0F"      # cursor return
-    CUR_UP      = "\e[;0A"      # cursor up
-    CUR_DOWN    = "\e[;0B"      # cursor down
-    CUR_FORWARD = "\e[;0C"      # cursor forward
-    CUR_BACK    = "\e[;0D"      # cursor back
-    HIDE_CURSOR = "\e[?25l"     # hide cursor
-    SHOW_CURSOR = "\e[?25h"     # show cursor
+    CUR_RETURN  = '\x1b[;0F'      # cursor return
+    CUR_UP      = '\x1b[;0A'      # cursor up
+    CUR_DOWN    = '\x1b[;0B'      # cursor down
+    CUR_FORWARD = '\x1b[;0C'      # cursor forward
+    CUR_BACK    = '\x1b[;0D'      # cursor back
+    HIDE_CURSOR = '\x1b[?25l'     # hide cursor
+    SHOW_CURSOR = '\x1b[?25h'     # show cursor
     
     E_RET  = 100
     E_UP   = 101
@@ -159,45 +209,48 @@ class EscapeDecoder():
         self.clear()
         
     def clear(self):
-        self.buf = bytearray()
+        self.buf = ''
+#        self.buf = bytearray()
+   
+    def append(self, ch):
+        self.buf += ch 
+        #self.buf.append(ch)
     
     def len(self):
         return len(self.buf)
     
     def getSequence(self):
         print(self.buf)
-        str = self.buf.decode('utf-8')
+#        str = self.buf.decode('utf-8')
+        return self.buf
         
     def next(self, ch):
-        print('Char: ',ch,'  Type: ', type(ch))
-#        if ord(ch) == Esc.Esc:
-        if ch == Esc.Esc:
+#        print('Char: ',ch,'  Type: ', type(ch))
+        if ord(ch) == Esc.Esc:
             print("EscapeDecoder: found escape sequence")
             self.clear()
-            self.buf.append(ch)
-            return -1
+            self.append(ch)
+            return chr(0)
             
         if len(self.buf) > 0:   # an escape sequence has been detected
 
             if ch.isalpha(): # end of escape message
-                self.buf.append(ch)
+                self.append(ch)
                 print("EscapeDecoder: End of escape message, len=", self.len())
-                self.getSequence()
-#                print(self.buf)
-
+                str = self.getSequence()
                 self.clear()
-                return -1
+                return str
             else:
-                self.buf.append(ch)
-                return -1
-            
+                self.append(ch)
+                return chr(0)
+                            
             
             if len(self.buf) > 10:
                 print("EscapeDecoder: oversize, len=", self.len())
                 self.clear()
-                return -1
-            
-        return ord(ch)
+                return chr(0)
+        
+        return ch    
     
     
 
@@ -524,43 +577,92 @@ class MainForm(QMainWindow):
             print('Esc: Attribute/colors')
 
         return (end-index+1)
-        
-    def read(self):
-        # get all data from buffer
-        data = self.serial.readAll()
-        
-#        print("Receive: ", len(data), '  Type data: ', type(data))
 
+    def appendText(self, str):
         # move cursor to end of buffer
-        self.ui.textEdit.moveCursor (QTextCursor.End);
+        self.ui.textEdit.moveCursor(QTextCursor.End)
+        
+        # QPlaintTextEdit
+        self.ui.textEdit.appendPlainText(str)
+        
+    
+    def appendHtml(self, str):
+        # move cursor to end of buffer
+        self.ui.textEdit.moveCursor(QTextCursor.End)
+        
+        # QPlaintTextEdit
+        self.ui.textEdit.appendHtml(str)
+        
+        
+                
+    def read(self):        
+        # get all data from buffer
+        data = self.serial.readAll()        
+        
+#       print("Receive: ", len(data), '  Type data: ', type(data))
         
         DisplayMode = self.ui.cbDisplay.currentData()
                     
         if DisplayMode == MpTerm.Ascii:   # Standard ascii display mode
-            i = 0 
-            while i<data.count():
-                
-                ch = self.escDec.next(ord(data.at(i)))
-                if (ch > 0): 
+            self.color = ''
+            i = 0
+            str = ''
+            while i<data.count():                
+                ch = self.escDec.next(data.at(i))
+                if (len(ch) == 1) and (ord(ch) > 0):
                     if ch == '\n':
-                        self.ui.textEdit.insertPlainText('\n')
+#                        str += '\n'
+                       str += '<br>'
                     else:
-                        self.ui.textEdit.insertPlainText(chr(ch))
+                        str += ch
+                        
+                if (len(ch) > 1):
+#                    chx = bytearray(ch, 'utf-8')
+#                    print(chx)        
+                        
+                    if ch == Esc.Black:
+                        self.color = MpTerm.Black
+                    elif ch == Esc.Red:
+                        self.color = MpTerm.Red
+        #                self.ui.textEdit.setColor(QColor('Red'))
+                    elif ch == Esc.Green:         
+                        self.color = MpTerm.Green
+                    elif ch == Esc.Yellow:  
+                        self.color = MpTerm.Yellow
+                    elif ch == Esc.Blue:
+                        self.color = MpTerm.Blue
+                    elif ch == Esc.Magenta:
+                        self.color = MpTerm.Magenta
+                    elif ch == Esc.Cyan:
+                        self.color = MpTerm.Cyan
+                    elif ch == Esc.Gray:
+                        self.color = MpTerm.Gray
+                    elif ch == Esc.Darkgray:
+                        self.color = MpTerm.Darkgray
+                    elif ch == Esc.Br_Red:
+                        self.color = MpTerm.Br_Red
+                    elif ch == Esc.Br_Green:
+                        self.color = MpTerm.Br_Green
+                    elif ch == Esc.Br_Yellow:
+                        self.color = MpTerm.Br_Green
+                    elif ch == Esc.Br_Blue:
+                        self.color = MpTerm.Br_Blue
+                    elif ch == Esc.Br_Magenta:
+                        self.color = MpTerm.Br_Magenta
+                    elif ch == Esc.Br_Cyan:
+                        self.color = MpTerm.Br_Cyan
+                    elif ch == Esc.White:
+                        self.color = MpTerm.White
+                        
+                    else:
+                        pass
+
                 
                 i += 1
-                        
-#                if ord(ch) == 0x1b:
-#                    print('Byte nr: ',i, 'byte: {0:02x} '.format(ord(ch)), ' ch: ',ch)
-#                if ch == '\n':
-#                    self.ui.textEdit.insertPlainText('\n')
-#                    i += 1
-#                elif ord(ch) == Esc.Esc:
-                    #i +=  self.decodeEscape(data, i)
-#                    i += 1
-#                    pass
-#                else:
-#                    self.ui.textEdit.insertPlainText(ch);
-#                    i += 1
+                
+            self.appendHtml(str)
+                
+
 
         elif DisplayMode == MpTerm.Hex:  # Hexadecimal display mode
             s = ''
@@ -573,10 +675,9 @@ class MainForm(QMainWindow):
 
                 s = s + '{0:02x} '.format(ord(ch))
                 
-            self.ui.textEdit.insertPlainText(s)
-            #self.ui.textEdit.insertPlainText( '{0:02x} '.format(ord(ch)))
+            #self.ui.textEdit.insertPlainText(s)
+            self.appendText(s)
                     
-        self.ui.textEdit.moveCursor(QTextCursor.End)
 
         self.rxCnt += data.count()
         self.scrollDown()

@@ -1004,7 +1004,7 @@ AVRDUDE = avrdude
 AVRDUDE_PROGRAMMER = arduino
  
 # com1 = serial port. Use lpt1 to connect to parallel port.
-AVRDUDE_PORT = /dev/ttyUSB0    # programmer connected to serial device
+AVRDUDE_PORT = /dev/ttyUSB1    # programmer connected to serial device
 
 AVRDUDE_BITRATE = 57600 
  

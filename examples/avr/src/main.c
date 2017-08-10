@@ -153,7 +153,7 @@ void printData(void) {
 	x = 0;
 	uart_clear();
 	while (1) {
-		printf("Printing some text. %-10d !\"#¤%&/()\n",x);
+		printf("Printing a counter: %-10d\n",x);
 		if (keyPressed())
 				return;
 		
