@@ -34,18 +34,18 @@ void sigInt(int sig);
 void sigHup(int sig);
 
 void colorTest(void);
-void I2S_tests(void);
-void S2S_tests(void);
+void I2S_test(void);
+void S2S_test(void);
 void defTest(void);
 void unitTest(void);
 
 // Code -------------------------------------------------------------------
 
 
-void escapeFilter(char *str) {
-    int len;
-    len = strlen(str);
-}
+//void escapeFilter(char *str) {
+//    int len;
+//    len = strlen(str);
+//}
 
 S2S fgColors[] = {
     { E_BLACK,      "Black"    },
@@ -131,7 +131,7 @@ void tearDown(void) {
 }
 
 	
-void I2S_tests() {
+void I2S_test(void) {
 	I2S *db;
 
 	db = I2S_copy(numbersDb);
@@ -148,32 +148,25 @@ void I2S_tests() {
 	I2S_setKeyValue(numbersDb, 0, 22, "kv22");
 	TEST_ASSERT_EQUAL_INT(0, I2S_findIdx(numbersDb, 22));
 	TEST_ASSERT_EQUAL_STRING("kv22", I2S_getValue(numbersDb, 22));
-
+	
+	db = I2S_new(12);
+	TEST_ASSERT_EQUAL_INT(12, I2S_len(db));
+	
 }
 
 int ia[] = { 12, 33, 54, 11, 412, -443 };
 
 int ix[] = { 44, 33, 54, 11, 412, -443 };
 
-void S2S_tests() {
+void S2S_test(void) {
 	TEST_ASSERT_EQUAL_INT(12,12);
 	ia[0] = 44;
 	TEST_ASSERT_EQUAL_INT_ARRAY( ix,  ia, 6);
 
-	TEST_ASSERT_TRUE(  isWithin(  5, -10, 10));
-	TEST_ASSERT_TRUE(  isWithin( -5, -10, 10));
-	TEST_ASSERT_FALSE( isWithin( 11, -10, 10));
-	TEST_ASSERT_FALSE( isWithin(-11, -10, 10));
-	
-	TEST_ASSERT_TRUE( isOutside( 15, -10, 10));
-	TEST_ASSERT_TRUE( isOutside(-15, -10, 10));
-
-	TEST_ASSERT_FALSE( isOutside(-5, -10, 10));
-	TEST_ASSERT_FALSE( isOutside( 5, -10, 10));
 
 }
 
-void defTests() {
+void defTest(void) {
 	TEST_ASSERT_EQUAL_INT(10, Max( 10,   5));
 	TEST_ASSERT_EQUAL_INT(10, Max(  5,  10));
 	TEST_ASSERT_EQUAL_INT( 5, Max(  5, -10));
@@ -187,16 +180,24 @@ void defTests() {
 	TEST_ASSERT_EQUAL_INT(485,  Abs( 485));
 	TEST_ASSERT_EQUAL_INT(485,  Abs(-485));
 	
-	TEST_ASSERT_EQUAL_INT( 42, Clamp( 42, -100, 100));
-	TEST_ASSERT_EQUAL_INT( 32, Clamp( 42, -100,  32));
-	TEST_ASSERT_EQUAL_INT(-42, Clamp(-42, -100, 100));
-	TEST_ASSERT_EQUAL_INT(-32, Clamp(-42, - 32, 100));
-
+	TEST_ASSERT_EQUAL_INT(   42, Clamp(   42, -100, 100));
+	TEST_ASSERT_EQUAL_INT(  100, Clamp(  142, -100, 100));
+	TEST_ASSERT_EQUAL_INT(  -42, Clamp(  -42, -100, 100));
+	TEST_ASSERT_EQUAL_INT( -100, Clamp( -142, -100, 100));
 	
 	TEST_ASSERT_EQUAL_INT(0xF100,             Swap16(0x00F1));
 	TEST_ASSERT_EQUAL_INT(0xCDAB0000,         Swap32(0x0000ABCD));
 	TEST_ASSERT_EQUAL_INT(0xDDCCBBAA00000000, Swap64(0x00000000AABBCCDD));
-
+	
+	TEST_ASSERT_TRUE(  isWithin(  5, -10, 10));
+	TEST_ASSERT_TRUE(  isWithin( -5, -10, 10));
+	TEST_ASSERT_FALSE( isWithin( 11, -10, 10));
+	TEST_ASSERT_FALSE( isWithin(-11, -10, 10));
+	TEST_ASSERT_TRUE(  isOutside( 15, -10, 10));
+	TEST_ASSERT_TRUE(  isOutside(-15, -10, 10));
+	TEST_ASSERT_FALSE( isOutside( -5, -10, 10));
+	TEST_ASSERT_FALSE( isOutside(  5, -10, 10));
+	
 }
 
 
@@ -205,24 +206,14 @@ void unitTest(void) {
 	printf("Swap %X\n", Swap16(0xFF00));
 	
 	UNITY_BEGIN();
-	RUN_TEST(I2S_tests);
-	RUN_TEST(S2S_tests);
-	RUN_TEST(defTests);
+	RUN_TEST(I2S_test);
+	RUN_TEST(S2S_test);
+	RUN_TEST(defTest);
 	return UNITY_END();
-	
-
 }
 
 
 //#define SOMETEXT  This_is_some_text
-
-void defTest(void) {
-	int unusedVariable;
-	
-	UNUSED(unusedVariable);
-	//printf("MACRO to text: %s\n", STRINGIFY(SOMETEXT));
-	
-}
 
 
 int main(int argc, char *argv[]) {
