@@ -586,9 +586,12 @@ size: $(TRGFILE)
 	@echo -e $(MSG_SIZE_AFTER)
 	@$(SIZE) $(SIZEFLAGS) $(TRGFILE)
 
-strip: $(TRGFILE) ## Strip target binary from symbols
+
+strip: $(TRGFILE)  ## Strip target binary from symbols
 	@echo -e $(MSG_STRIP)
+	@$(SIZE) $(SIZEFLAGS) $(TRGFILE)
 	@$(STRIP) $(TRGFILE)
+	@$(SIZE) $(SIZEFLAGS) $(TRGFILE)
 	
 #
 # Various utility rules	
@@ -751,12 +754,18 @@ help: ## This help information
 #	@echo -e $(MSG_LINE)
 #	@echo -e $(MSG_LINE)
 
+list-files: list-src list-objs ## List source and object files
+
 list-src: ## List all source files
 	@echo -e $(MSG_SRC)
-	@export IFS=" "
 	@for f in $(SRC); do      \
 	  echo $${f} ;            \
+	done                      
+	@export IFS=" "
+	@for f in $(LSRC); do      \
+	  echo $${f} ;            \
 	done                      \
+	
 	
 list-flags: ## List compiler flags
 	@echo -e $(MSG_FLAGS)

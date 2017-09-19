@@ -23,18 +23,30 @@
 #include "def_avr.h"
 #include "uart.h"
 #include "avrsimul.h"
+#include "def_util.h"
 
 // Macros -----------------------------------------------------------------
 
-#define PROGNAME "makeplate"
+#define PROGNAME "avrtest"
 #define VERSION  "0.1"
 #define UART_BAUD_RATE 57600
 
 // Variables --------------------------------------------------------------
-// static FILE mystdout = FDEV_SETUP_STREAM(simul_putchar, NULL, _FDEV_SETUP_WRITE);
-static FILE mystdout = FDEV_SETUP_STREAM(uart_putc, uart_getc, _FDEV_SETUP_WRITE);
+static FILE mystdout = FDEV_SETUP_STREAM(simul_putchar, NULL, _FDEV_SETUP_WRITE);
+//static FILE mystdout = FDEV_SETUP_STREAM(uart_putc, uart_getc, _FDEV_SETUP_WRITE);
 
 volatile int timer2_ticks;
+
+
+const I2S numbersDb[] PROGMEM = {
+	{ 1, "First"  },
+	{ 2, "Second" },
+	{ 3, "Third"  },
+	{ 4, "Last"   },
+	{ I2S_END     },
+};
+
+
 
 // Prototypes -------------------------------------------------------------
 void hw_init(void);
@@ -72,11 +84,34 @@ int main(void) {
 	
 	hw_init();
 	
-	printf("Makeplate AVR example\n");
+	printf_P(PSTR("\n\n\nMakeplate AVR example\n\n"));
+	printf_P(PSTR("Build: "__DATE__"  "__TIME__"\n"));
+	printf_P(PSTR("C Standard: "STRINGIZE(__STDC_VERSION__)"\n"));
+	if (IS_POWER_ON_RESET()) {  
+		printf_P(PSTR("Power on reset\n"));
+	}
+	if (IS_BROWN_OUT_RESET()) {  
+		printf_P(PSTR("Brown out reset\n"));
+	}
+	if (IS_WATCH_DOG_RESET() ) {  
+		printf_P(PSTR("Watchdog reset\n"));
+	}
+	if (IS_EXTERNAL_RESET()) {  
+		printf_P(PSTR("External reset\n"));
+	}
+	CLEAR_RESETS();
+
+	
+	INFOPRINT("Info\n");
+	DEBUGPRINT("Debug\n");
+	WARNINGPRINT("Warning\n");
+	ERRORPRINT("Error\n");
+	FATALPRINT("Fatal\n");
+	
 	
 	while (1) {
 		tmp = timer2_ticks;
-		printf("Timer counter %d\n", tmp);
+		printf_P(PSTR("Timer counter %d\n"), tmp);
 //		printf("Input char %c\n", simul_getchar());
 		_delay_ms(100);
 		ARD_LED_TOGGLE();

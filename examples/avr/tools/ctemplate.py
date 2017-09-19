@@ -29,7 +29,7 @@ from datetime import datetime, date, time
 
 AppName     = "ctemplate"
 AppVersion  = "0.2"
-AppLicense  = "MIT"
+AppLicence  = "MIT"
 AppAuthor   = "Peter Malmberg <peter.malmberg@gmail.com>"
 
 # Uncomment to use logfile
@@ -96,16 +96,12 @@ def addInclude(file, includeFile):
 def addCIncludes(file):
     addInclude(file, "stdio.h")
     addInclude(file, "stdlib.h")
-    addInclude(file, "stdint.h")
-    addInclude(file, "unistd.h")
-    addInclude(file, "string.h")
     addInclude(file, "sys/types.h")
+    addInclude(file, "unistd.h")
     addInclude(file, "signal.h")
+    addInclude(file, "string.h")
     addInclude(file, "errno.h")
   
-def addGLIBIncludes(file):
-    return
-    
 def addGTKIncludes(file):
     addInclude(file, "gtk/gtk.h")
   
@@ -121,20 +117,8 @@ def addMain(file):
   file.write("int main(int argc, char *argv[]) {\n\n")
   file.write("  return 0;\n")    
   file.write("}\n")
+  
 
-def addDefine(file, name, value):
-    file.write("#define "+name+" "+value)
-
-def addAppDefines(file, name):
-    addDefine("APP_NAME        ", "\""+name+"\"")
-    addDefine("APP_VERSION     ", "0.01")
-    addDefine("APP_DESCRIPTION ", "\"\"")
-    addDefine("APP_AUTHOR      ", "\"\"")
-    addDefine("APP_LICENSE     ", "\"\"")
-#    addDefine("APP_LOGFILE",     "glib.log")
-#    addDefine("APP_PIDFILE",     "/tmp/glibtest.pid")
-    
-    
 def newFile(dir, fileName):
   # Open files to be generated
   try:
@@ -191,11 +175,6 @@ def newModule(dir, author, licence, lan):
     
     if (main):
         addCIncludes(fileC)
-        
-#        if qtkMain:
- #           addInclude
-    
-        
         
     fileC.write("#include \""+fileNameH+"\"\n\n");
     
@@ -399,7 +378,7 @@ headerExample="""/**
  *
  */
 """    
-
+    
 gtkMainExample="""
 
 int main(int argc, char *argv[]) {

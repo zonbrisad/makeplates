@@ -474,8 +474,7 @@ finished:
 
 # Linking targets from object files
 .PRECIOUS : $(OBJS)
-#$(TRGFILE): $(UIH) $(OBJS) $(OUTDIR)
-$(TRGFILE):  $(OBJS) $(OUTDIR)
+$(TRGFILE): $(UIH) $(OBJS) $(OUTDIR)
 	@echo -en "\n"$(MSG_LINKING)"       "
 	@echo -e $@ $(F_SOURCE) 
 	@$(CPP) $(ALL_CFLAGS) $(OBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)

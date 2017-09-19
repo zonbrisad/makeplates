@@ -25,8 +25,10 @@ TARGET = avrtest
 SRC = src/main.c \
       src/avrsimul.c \
       src/uart.c  \
+			src/def_util.c \
 #      src/twimaster.c \
 #      src/lcd.c
+# 
 
 # List C, C++ and assembler library/3rd partry source files here. (C/C++ dependencies are automatically generated.)
 LSRC =
@@ -245,7 +247,7 @@ endif
 ifeq ($(TARGET_PLATFORM), avr)
 
 # MCU name
-MCU = atmega328p
+MCU = atmega328
 
 # Processor frequency.
 # Some common values:
