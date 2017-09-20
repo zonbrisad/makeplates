@@ -78,15 +78,17 @@ void hw_init(void) {
 
 int kalle(int a, char b);
 
+void printSysInfo(void) {
+	defprintf("File:       "__FILE__"\n");
+	defprintf("Build:      "__DATE__"  "__TIME__"\n");
+	defprintf("C Standard: "STRINGIZE(__STDC_VERSION__)"\n");
+#ifdef __GNUC__
+	defprintf("GNU C ver:  "__GNUC_VERSION__"\n");
+#endif
+	defprintf("Byteorder:  "STRINGIZE(__BYTE_ORDER)"\n");
+}
 
-int main(void) {
-	volatile int tmp;
-	
-	hw_init();
-	
-	printf_P(PSTR("\n\n\nMakeplate AVR example\n\n"));
-	printf_P(PSTR("Build: "__DATE__"  "__TIME__"\n"));
-	printf_P(PSTR("C Standard: "STRINGIZE(__STDC_VERSION__)"\n"));
+void printResetInfo(void)  {
 	if (IS_POWER_ON_RESET()) {  
 		printf_P(PSTR("Power on reset\n"));
 	}
@@ -100,7 +102,21 @@ int main(void) {
 		printf_P(PSTR("External reset\n"));
 	}
 	CLEAR_RESETS();
+	
+}
 
+#define DEBUGPRINTX
+
+int main(void) {
+	volatile int tmp;
+	
+	hw_init();
+	
+	printf_P(PSTR("\n\n\nMakeplate AVR example\n\n"));
+	printSysInfo();
+	defprintf("\n");
+	printResetInfo();
+	defprintf("\n");
 	
 	INFOPRINT("Info\n");
 	DEBUGPRINT("Debug\n");

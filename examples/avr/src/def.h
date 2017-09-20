@@ -22,6 +22,14 @@
 #endif
 
 
+#if defined(__GNUC__)
+# if defined(__GNUC_PATCHLEVEL__)
+#  define __GNUC_VERSION__ STRINGIZE(__GNUC__)"."STRINGIZE(__GNUC_MINOR__)"."STRINGIZE(__GNUC_PATCHLEVEL__)
+# else
+#  define __GNUC_VERSION__ STRINGIZE(__GNUC__)"."STRINGIZE(__GNUC_MINOR__)
+# endif
+#endif
+
 // Includes ---------------------------------------------------------------
 
 #include <stdio.h>
@@ -44,7 +52,8 @@
 #define DEF_H_
 
 
-#define DEBUGPRINT
+//#define DEBUGPRINT
+//#define DEBUGPRINT
 #define WARNINGPRINT
 #define ERRORPRINT
 #define INFOPRINT
@@ -887,7 +896,7 @@ typedef unsigned long       ulong;
 
 #ifdef DEF_PLATFORM_AVR   // if avr GCC use printf_P to store format strings in flash instead of RAM
 #undef defprintf
-#define defprintf(fmt, ...)  printf_P(PSTR(fmt), __VA_ARGS__)
+#define defprintf(fmt, ...)  printf_P(PSTR(fmt), ##__VA_ARGS__)
 #endif
 
 #ifdef DEF_PLATFORM_UNIX
@@ -917,7 +926,8 @@ typedef unsigned long       ulong;
 #define FATAL_DO(f) FATALDO(f)
 
 
-#ifdef DEBUGPRINT
+//#ifdef DEBUGPRINT
+#if defined(DEBUGPRINT) || defined(DEBUGPRINTX)
 #undef DEBUGPRINT
 #define DEBUGPRINT(_fmt, ...)  defprintf(DEBUGSTR _fmt, WHEREARG, ##__VA_ARGS__)
 #define DEBUGPRINTC(cond, _fmt, ...) if (cond) defprintf(DEBUGSTR _fmt, WHEREARG, ##__VA_ARGS__)
@@ -972,7 +982,6 @@ typedef unsigned long       ulong;
 #define FATALPRINTC(cond, _fmt, ...)
 #define FATALDO(f)
 #endif
-
 
 
 // Misc ---------------------------------------------------------------------
