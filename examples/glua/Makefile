@@ -98,7 +98,7 @@ OUTDIR = output
 #     0 = turn off optimization. s = optimize for size.
 OPT = 0
 
-# Compiler flag to set the C Standard level.
+# Compiler flag to set the C and C++ Standard level.
 # [ gnu99 gnu11 c++98 c++03 c++11 c++14 ] 
 CSTANDARD   = gnu99
 CPPSTANDARD = c++11
@@ -748,8 +748,6 @@ install: $(TRGFILE) ## Install program
 
 help: ## This help information
 	@$(MPTOOL) mpHelp Makefile
-#	@echo -e $(MSG_LINE)
-#	@echo -e $(MSG_LINE)
 
 list-src: ## List all source files
 	@echo -e $(MSG_SRC)

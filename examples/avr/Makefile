@@ -25,6 +25,7 @@ TARGET = avrtest
 SRC = src/main.c \
       src/avrsimul.c \
       src/uart.c  \
+			src/def_util.c
 #      src/twimaster.c \
 #      src/lcd.c
 

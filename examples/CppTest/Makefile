@@ -89,6 +89,8 @@ DEBUG=2
 # Compiler and Linker options
 #============================================================================
 
+##N- Build
+
 # Compiler Options C --------------------------------------------------------
 CFLAGS = -g$(DEBUG)                            # Debugging information
 CFLAGS += -O$(OPT)                             # Optimisation level
@@ -123,8 +125,6 @@ CFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void po
 #CFLAGS += -Wundef
 #CFLAGS += -Werror               # All warnings will be treated as errors
 
-# Library compiler flags C --------------------------------------------------
-CFLAGS += $(foreach X, $(PKGLIBS), $(shell pkg-config --cflags $(X)) )
 
 # Compiler Options C++ ------------------------------------------------------
 CPPFLAGS = -g$(DEBUG)                              # Debugging information
@@ -159,9 +159,6 @@ CPPFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void 
 #CPPFLAGS += -Wundef
 #CPPFLAGS += -Werror              # All warnings will be treated as errors
 
-# Library compiler flags C++ ------------------------------------------------
-CPPFLAGS += $(foreach X, $(PKGLIBS), $(shell pkg-config --cflags $(X)) )
-
 
 # Linker Options ------------------------------------------------------------
 #  -Wl,...:     tell GCC to pass this to linker.
@@ -171,7 +168,16 @@ LDFLAGS = -Wl,-Map=$(OUTDIR)/$(TARGET).map,--cref
 LDFLAGS += $(EXTMEMOPTS)
 LDFLAGS += $(patsubst %,-L%,$(INCLUDE))
 LDFLAGS += -g
-LDFLAGS += $(foreach X, $(PKGLIBS), $(shell pkg-config --libs $(X)) )
+
+
+# Misc settings -------------------------------------------------------------
+MPFLAGS  = -DLICENSE=$(LICENSE)
+MPFLAGS += -DTARGET=$(TARGET)
+MPFLAGS += -DVERSION=$(VERSION)
+ 
+CFLAGS   += $(MPFLAGS)
+CPPFLAGS += $(MPFLAGS)
+ASFLAGS  += $(MPFLAGS)
 
 #
 # Platform specific options
@@ -189,7 +195,28 @@ TCHAIN_BASE=/usr/bin
 # Toolchain prefix 
 TCHAIN_PREFIX=
 
+# Handle pkg-config libraries -----------------------------------------------
+CFLAGS   += $(foreach X, $(PKGLIBS), $(shell pkg-config --cflags $(X)) )
+CPPFLAGS += $(foreach X, $(PKGLIBS), $(shell pkg-config --cflags $(X)) )
+LDFLAGS  += $(foreach X, $(PKGLIBS), $(shell pkg-config --libs $(X))   )
+
+# Size flags ----------------------------------------------------------------
+SIZEFLAGS = --format=berkley  # format = {sysv|berkeley}
+
+# objdump flags -------------------------------------------------------------
+ODFLAGS  = -h  # Display the contents of the section headers  
+ODFLAGS += -S  # Intermix source code with disassembly
+ODFLAGS += -C  #
+ODFLAGS += -r  # Display the relocation entries in the file
+
+# Output format. (can be srec, ihex, binary) --------------------------------
+FORMAT = ihex
+
+# object copy flags ---------------------------------------------------------
+OCFLAGS = -O $(FORMAT) 
+
 endif
+
 # Windows options -----------------------------------------------------------
 ifeq ($(TARGET_PLATFORM), win32)
 
@@ -204,11 +231,27 @@ TCHAIN_PREFIX=
 
 endif
 
+# 
+# Qt5 Specific objects and targets
+#============================================================================
 
-# Qt stuff -----------------------------------------------------------------
-MOCSRC = $(patsubst %.h,%_moc.cpp,$(MOCS))      # Generate moc source files
-SRC += $(MOCSRC)
-UIH = $(patsubst src/%.ui, src/ui_%.h, $(UI) )  # Generate UI header files
+# Qt objects ----------------------------------------------------------------
+MOCSRC = $(patsubst %.h,%_moc.cpp,$(MOCS))         # Generate moc source files
+SRC   += $(MOCSRC)
+UIH    = $(patsubst src/%.ui, src/ui_%.h, $(UI) )  # Generate UI header files
+
+
+# Qt Meta Object Compiler target --------------------------------------------
+$(MOCSRC): %_moc.cpp : %.h 	
+	@echo -en $(MSG_MOC) "\n               "
+	@echo -e $@ $(F_SOURCE)
+	@$(MOC) $(INCDIRS) $< -o $@
+
+# Qt user interface header file generation target ---------------------------
+$(UIH): src/ui_%.h: src/%.ui
+	@echo -en $(MSG_UI) "\n               "
+	@echo -e $@  $(F_SOURCE)  
+	@$(UIC) $(INCDIRS) $< -o $@
 
 #
 # Tool settings
@@ -228,7 +271,7 @@ QMAKE     = qmake            # Qt make program
 UIC       = uic              # Qt resource file compiler
 CTEMPLATE = python3 tools/ctemplate.py # C/C++ template tool
 BIN2ARRAY = python3 tools/bin2array.py # Binary to array tool
-MPTOOL    = tools/mkptools   # Makeplate tools
+MPTOOL    = tools/mptools    # Makeplate tools
 CPPCHECK  = cppcheck
 INSTALL   = install
 ASTYLE    = astyle           # Code beatyfier
@@ -330,6 +373,7 @@ MSG_FLAGS            = "${C_MSG}Compiler Flags $(E_GREEN)-----------------------
 MSG_LINKER           = "${C_MSG}Linker Flags $(E_GREEN)-----------------------------------------------------${E_END}"
 MSG_PROJECT          = "${C_MSG}Project info $(E_GREEN)-----------------------------------------------------${E_END}"
 MSG_INCLUDES         = "${C_MSG}Include directories $(E_GREEN)----------------------------------------------${E_END}"
+MSG_OBJECTS          = "${C_MSG}Object files $(E_GREEN)-----------------------------------------------------${E_END}"	
 MSG_DEFS             = "${C_MSG}Macro definitions $(E_GREEN)------------------------------------------------${E_END}"
 MSG_INSTALL_INFO     = "${C_MSG}Install settings $(E_GREEN)-------------------------------------------------${E_END}"
 MSG_INSTALLING       = "${C_ACTION}Installing:   ${E_END}"
@@ -376,6 +420,8 @@ GENDEPFLAGS = -MMD -MP -MF .dep/$(@F).d
 # Add target processor to flags.
 ALL_CFLAGS   =  -I. $(CFLAGS) $(GENDEPFLAGS)
 ALL_CPPFLAGS =  -I. -x c++ $(CPPFLAGS) $(GENDEPFLAGS)
+ALL_ASFLAGS  =  -I. -x assembler-with-cpp $(ASFLAGS)
+
 
 # Filter out C sources
 CSRC_1 = $(patsubst %.cpp,  , $(SRC) $(LSRC))
@@ -385,27 +431,25 @@ CSRC   = $(patsubst %.S,    , $(CSRC_1))
 CPPSRC_1 = $(patsubst %.c,  , $(SRC) $(LSRC))
 CPPSRC   = $(patsubst %.S,  , $(CPPSRC_1))
 
+# Filter out Assembler sources
+ASRC_1 = $(patsubst %.c,    , $(SRC) $(LSRC))
+ASRC   = $(patsubst %.cpp,  , $(ASRC_1))
+
 # Define all object files.
 COBJS    = $(patsubst %.c,   $(BUILDDIR)/%.o, $(CSRC))
 CPPOBJS  = $(patsubst %.cpp, $(BUILDDIR)/%.o, $(CPPSRC))
+AOBJS    = $(patsubst %.S,   $(BUILDDIR)/%.o, $(ASRC))
 
-OBJS    = $(COBJS) $(CPPOBJS) 
+OBJS    = $(COBJS) $(CPPOBJS) $(AOBJS)
 
 # Define all listing files.
 LST = $(patsubst %.c, $(OBJDIR)/%.lst, $(CSRC)) $(patsubst %.cpp, $(OBJDIR)/%.lst, $(CPPSRC)) $(patsubst %.S, $(OBJDIR)/%.lst, $(ASRC))
 
 # Default target.
-all:	begin build finished end
+all:	begin build finished end ## Build project (default)
 
-# Remove colorfilter
-nocolor:
-	$(eval C_FILTER:= )
-
-#
-# Build with no color filter on compiler output
-# Useful for Netbeans, Eclipse builds etc. 
-#	
-nc: nocolor all   ## Build with no color filter on compiler output
+nc: C_FILTER:= 
+nc: all   ## Build with no color filter on compiler output
 
 
 build: elf lss sym size
@@ -417,7 +461,6 @@ hex: $(OUTDIR)/$(TARGET).hex
 bin: $(OUTDIR)/$(TARGET).bin
 eep: $(OUTDIR)/$(TARGET).eep
 
-# Eye candy.
 begin:
 	@echo -e $(MSG_BEGIN)
 	@echo -e ${MSG_BUILDING}" $(E_BR_GREEN)$(TARGET) $(E_END)"
@@ -429,8 +472,7 @@ end:
 finished:
 	@echo
 
-
-# Link target
+# Linking targets from object files
 .PRECIOUS : $(OBJS)
 $(TRGFILE): $(OBJS) $(OUTDIR)
 	@echo -en "\n"$(MSG_LINKING)"       "
@@ -442,7 +484,7 @@ $(TRGFILE): $(OBJS) $(OUTDIR)
 %.lss:	$(TRGFILE)
 	@echo -en "\n"$(MSG_EXTENDED_LISTING) "\n               "
 	@echo -e $@ $(F_SOURCE)
-	@$(OBJDUMP) -h -S -C -r $< > $@
+	@$(OBJDUMP) $(ODFLAGS) $< > $@
 	
 # Create a symbol table from ELF output file.
 %.sym: $(TRGFILE)
@@ -455,7 +497,7 @@ $(TRGFILE): $(OBJS) $(OUTDIR)
 	@echo
 	@echo -en $(MSG_HEX_FILE) "\n               "
 	@echo -e $@ $(F_SOURCE)
-	@$(OBJCOPY) -O ihex $< $@
+	@$(OBJCOPY) $(OCFLAGS) $< $@
 
 # Compile: create object files from C source files.
 $(COBJS): $(BUILDDIR)/%.o : %.c
@@ -479,20 +521,6 @@ $(OBJDIR)/%.s : %.c
 $(OBJDIR)/%.s : %.cpp
 	@$(CC) -S $(ALL_CPPFLAGS) $< -o $@
 
-
-# Qt Meta Object Compiler target
-$(MOCSRC): %_moc.cpp : %.h 	
-	@echo -en $(MSG_MOC) "\n               "
-	@echo -e $@ $(F_SOURCE)
-	@$(MOC) $(INCDIRS) $< -o $@
-
-# Qt user interface header file generation target
-$(UIH): src/ui_%.h: src/%.ui
-	@echo -en $(MSG_UI) "\n               "
-	@echo -e $@  $(F_SOURCE)  
-	@$(UIC) $(INCDIRS) $< -o $@
-
-
 # Create output dir
 $(OUTDIR):
 	@$(MKDIR) $@
@@ -505,7 +533,7 @@ $(BUILDDIR):
 size: $(TRGFILE)
 	@echo
 	@echo -e $(MSG_SIZE_AFTER)
-	@$(SIZE) $(TRGFILE)
+	@$(SIZE) $(SIZEFLAGS) $(TRGFILE)
 
 strip: $(TRGFILE) ## Strip target binary from symbols
 	@echo -e $(MSG_STRIP)
@@ -629,11 +657,13 @@ run:    ## Run application
 
 # Project options -----------------------------------------------------------
 
+##N- Create
+
 newfile:  ## Create a new C file
-	@${CTEMPLATE} --newc --dir src --author "$(AUTHOR)" --licence "$(LICENCE)"
+	@${CTEMPLATE} --newc --dir src --author "$(AUTHOR)" --license "$(LICENSE)"
 
 newclass:  ## Create a new C++ class
-	@${CTEMPLATE} --newclass --dir src --author "$(AUTHOR)" --licence "$(LICENCE)"	
+	@${CTEMPLATE} --newclass --dir src --author "$(AUTHOR)" --license "$(LICENSE)"	
 		
 #newproj:  # Create a new project
 #	@${PROJECT} newproj
@@ -666,20 +696,10 @@ install: $(TRGFILE) ## Install program
 # Help information
 #============================================================================
 
+##N- Information
+
 help: ## This help information
-	@printf "%-30s %s\n" "target" "help"
-	@echo -e $(MSG_LINE)
-	@IFS=$$'\n' ;                                    \
-	help_lines=(`fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##/:/'`); \
-	for help_line in $${help_lines[@]}; do                                     \
-	  IFS=$$':' ;                                                              \
-		help_split=($$help_line) ;                                               \
-		help_command=`echo $${help_split[0]} | sed -e 's/^ *//' -e 's/ *$$//'` ; \
-		help_info=`echo $${help_split[2]} | sed -e 's/^ *//' -e 's/ *$$//'` ;    \
-		printf "$(E_BR_CYAN)%-15s %s$(E_END)" $$help_command ;                 \
-		printf "$(E_BR_GREEN)%s$(E_END)\n" $$help_info ;                       \
-	done ; 
-	@echo -e $(MSG_LINE)
+	@$(MPTOOL) mpHelp Makefile
 
 list-src: ## List all source files
 	@echo -e $(MSG_SRC)
@@ -703,10 +723,10 @@ list-ldflags: ## List linker flags
 	done                       \
 
 list-objs: ## List objects 
-	@echo -e $(MSG_INCLUDES)
+	@echo -e $(MSG_OBJECTS)
 	@export IFS=" "
 	@for f in $(OBJS); do   \
-	  echo $${f} ;             \
+	  echo $${f} ;          \
 	done        
 
 
@@ -733,7 +753,7 @@ list-info:
 	@echo -e $(MSG_PROJECT)
 	@echo "Target:     $(TARGET)"
 	@echo "Platform:   $(TARGET_PLATFORM)"
-	@echo "Licence:    $(LICENCE)"
+	@echo "License:    $(LICENSE)"
 	@echo "Outdir:     $(OUTDIR)"
 	@echo "C standard: $(CSTANDARD)"
 	@echo "MCU:        $(MCU)"
@@ -776,6 +796,9 @@ files: list-src ## List source files
 
 gccversion :    ## Display compiler version
 	@$(CC) --version
+
+libs: ## List system wide libraries (pkg-config)
+	@pkg-config --list-all
 	
 #
 # Personal settings
@@ -800,6 +823,8 @@ $(PERSONAL):	# Create a settings file
 	@echo "AUTHOR=${AUTHOR}" >> ${PERSONAL}
 
 
+
+##N- Code
 
 #
 # CppCheck static code analysis
@@ -889,9 +914,12 @@ prof:  run ## Run code profiling
 #============================================================================
 mpType=mp-cpp
 
-utools: # Update tools from installed tools
+utools: # Update tools from locally installed tools
 	@echo -e "${C_ACTION}Updating makeplate tools${E_END}"
 	@$(COPY) ~/bin/makeplate_files/tools/* tools/.
 
-meld: # Meld with installed 
+meld: # Meld Makefile with locally installed makefile
 	@meld ~/bin/makeplate_files/${mpType}/Makefile  Makefile
+
+
+##-

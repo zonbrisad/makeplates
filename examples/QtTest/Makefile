@@ -57,6 +57,7 @@ PKGLIBS += Qt5Widgets
 #PKGLIBS += Qt5Network
 #PKGLIBS += glib-2.0
 #PKGLIBS += gthread-2.0
+#PKGLIBS += gio-2.0
 #PKGLIBS += ncurses
 #PKGLIBS += lua5.1
 #PKGLIBS += sqlite3
@@ -210,7 +211,7 @@ TCHAIN_PREFIX=
 # Handle pkg-config libraries -----------------------------------------------
 CFLAGS   += $(foreach X, $(PKGLIBS), $(shell pkg-config --cflags $(X)) )
 CPPFLAGS += $(foreach X, $(PKGLIBS), $(shell pkg-config --cflags $(X)) )
-LDFLAGS  += $(foreach X, $(PKGLIBS), $(shell pkg-config --libs $(X)) )
+LDFLAGS  += $(foreach X, $(PKGLIBS), $(shell pkg-config --libs $(X))   )
 
 # Size flags ----------------------------------------------------------------
 SIZEFLAGS = --format=berkley  # format = {sysv|berkeley}
@@ -712,8 +713,6 @@ install: $(TRGFILE) ## Install program
 
 help: ## This help information
 	@$(MPTOOL) mpHelp Makefile
-#	@echo -e $(MSG_LINE)
-#	@echo -e $(MSG_LINE)
 
 list-src: ## List all source files
 	@echo -e $(MSG_SRC)

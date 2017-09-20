@@ -32,6 +32,7 @@ import argparse
 from datetime import datetime, date, time
 
 from ui_MainWindow import Ui_MainWindow
+#<<<<<<< HEAD
 #from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QScrollBar, QLabel, QDialog
 
 #from PyQt5.QtGui import QPalette, QColor
@@ -39,6 +40,9 @@ from ui_MainWindow import Ui_MainWindow
 #from PyQt5.QtCore import QCoreApplication
 #from PyQt5.QtCore import QSettings
 #from PyQt5.QtCore import Qt
+#=======
+from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QScrollBar, QLabel, QPushButton
+#>>>>>>> 08c3dbfdfad839827b5b55e3191ca9774229b1df
 
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -385,6 +389,9 @@ class MainForm(QMainWindow):
         self.ui.statusbar.addWidget(self.rxLabel)
         self.ui.statusbar.addWidget(self.txLabel)
         
+        self.sbb = QPushButton("Sbb", self.ui.centralwidget)
+        self.ui.statusbar.addWidget(self.sbb)
+                
         self.rxCnt = 0
         self.txCnt = 0
                
@@ -599,7 +606,7 @@ class MainForm(QMainWindow):
         # get all data from buffer
         data = self.serial.readAll()        
         
-#       print("Receive: ", len(data), '  Type data: ', type(data))
+        print("Receive: ", len(data), '  Type data: ', type(data))
         
         DisplayMode = self.ui.cbDisplay.currentData()
                     
