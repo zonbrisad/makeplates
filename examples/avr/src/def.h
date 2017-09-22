@@ -52,12 +52,14 @@
 #define DEF_H_
 
 
+//#define DEBUGALL
+
 //#define DEBUGPRINT
 //#define DEBUGPRINT
-#define WARNINGPRINT
-#define ERRORPRINT
-#define INFOPRINT
-#define FATALPRINT
+//#define WARNINGPRINT
+//#define ERRORPRINT
+//#define INFOPRINT
+//#define FATALPRINT
 
 
 
@@ -888,11 +890,30 @@ typedef unsigned long       ulong;
 
 // Debugging ----------------------------------------------------------------
 
-#define WHEREARG  __LINE__, __FUNCTION__
+#if defined(NO_DEBUG_COLOR) 
+#define DEBUG_COLOR   
+#define ERROR_COLOR   
+#define WARNING_COLOR 
+#define INFO_COLOR    
+#define FATAL_COLOR   
+#define ROWNR_COLOR   
+#define FUNC_COLOR    
+#define DEBUG_CEND    
+
+#else
+
+#define DEBUG_COLOR   E_BR_GREEN
+#define ERROR_COLOR   E_BR_RED
+#define WARNING_COLOR E_BR_YELLOW
+#define INFO_COLOR    E_BR_BLUE
+#define FATAL_COLOR   E_BR_RED
+#define ROWNR_COLOR   E_WHITE
+#define FUNC_COLOR    E_BR_CYAN
+#define DEBUG_CEND    E_END
+#endif
 
 // default defprintf 
 #define defprintf(...)  printf( __VA_ARGS__)
-
 
 #ifdef DEF_PLATFORM_AVR   // if avr GCC use printf_P to store format strings in flash instead of RAM
 #undef defprintf
@@ -904,12 +925,75 @@ typedef unsigned long       ulong;
 #define defprintf(...)       fprintf(stderr, __VA_ARGS__)
 #endif
 
-#define DEBUGSTR  E_BR_GREEN"DBG  "E_WHITE"%4d"E_BR_CYAN" %-25s"E_END": "
-#define ERRORSTR  E_BR_RED"ERR  "E_WHITE"%4d"E_BR_CYAN" %-25s"E_END": "
-#define WARNSTR   E_BR_YELLOW"WARN "E_WHITE"%4d"E_BR_CYAN" %-25s"E_END": "
-#define INFOSTR   E_BR_BLUE"INFO "E_WHITE"%4d"E_BR_CYAN" %-25s"E_END": "
-#define FATALSTR   "\n\n\n"E_BR_RED"############### FATAL ERROR ###############\n"E_WHITE"     %4d"E_BR_CYAN" %-25s"E_END": "
-#define FATALSTRE  E_BR_RED"##############################\n"E_END
+#define WHEREARG  __LINE__, __FUNCTION__
+
+#define DEBUGSTR  DEBUG_COLOR   "DBG  " ROWNR_COLOR "%4d" FUNC_COLOR " %-25s" DEBUG_CEND": "
+#define ERRORSTR  ERROR_COLOR   "ERR  " ROWNR_COLOR "%4d" FUNC_COLOR " %-25s" DEBUG_CEND": "
+#define WARNSTR   WARNING_COLOR "WARN " ROWNR_COLOR "%4d" FUNC_COLOR " %-25s" DEBUG_CEND": "
+#define INFOSTR   INFO_COLOR    "INFO " ROWNR_COLOR "%4d" FUNC_COLOR " %-25s" DEBUG_CEND": "
+#define FATALSTR   "\n\n\n"FATAL_COLOR"############### FATAL ERROR ###############\n"ROWNR_COLOR"     %4d"FUNC_COLOR" %-25s"DEBUG_CEND": "
+#define FATALSTRE  FATAL_COLOR"##############################\n"DEBUG_CEND
+
+//#ifdef DEBUGPRINT
+#if defined(DEBUGPRINT) || defined(DEBUGALL)
+#undef DEBUGPRINT
+#define DEBUGPRINT(_fmt, ...)  defprintf(DEBUGSTR _fmt, WHEREARG, ##__VA_ARGS__)
+#define DEBUGPRINTC(cond, _fmt, ...) if (cond) defprintf(DEBUGSTR _fmt, WHEREARG, ##__VA_ARGS__)
+#define DEBUGDO(f) f
+#else
+#define DEBUGPRINT(_fmt, ...)
+#define DEBUGPRINTC(cond, _fmt, ...)
+#define DEBUGDO(f)
+#endif
+
+//#ifdef ERRORPRINT
+#if defined(ERRORPRINT) || defined(DEBUGALL)
+#undef ERRORPRINT
+#define ERRORPRINT(_fmt, ...)  defprintf(ERRORSTR _fmt, WHEREARG, ##__VA_ARGS__)
+#define ERRORPRINTC(cond, _fmt, ...)  if (cond) defprintf(ERRORSTR _fmt, WHEREARG, ##__VA_ARGS__)
+#define ERRORDO(f) f
+#else
+#define ERRORPRINT(_fmt, ...)
+#define ERRORPRINTC(cond, _fmt, ...)
+#define ERRORDO(f)
+#endif
+
+//#ifdef WARNINGPRIN
+#if defined(WARNINGPRINT) || defined(DEBUGALL)
+#undef WARNINGPRINT
+#define WARNINGPRINT(_fmt, ...)  defprintf(WARNSTR _fmt, WHEREARG, ##__VA_ARGS__)
+#define WARNINGPRINTC(cond, _fmt, ...) if (cond) defprintf(WARNSTR _fmt, WHEREARG, ##__VA_ARGS__)
+#define WARNINGDO(f) f
+#else
+#define WARNINGPRINT(_fmt, ...)
+#define WARNINGPRINTC(cond, _fmt, ...)
+#define WARNINGDO(f)
+#endif
+
+//#ifdef INFOPRINT
+#if defined(INFOPRINT) || defined(DEBUGALL)
+#undef INFOPRINT
+#define INFOPRINT(_fmt, ...) defprintf(INFOSTR _fmt, WHEREARG, ##__VA_ARGS__)
+#define INFOPRINTC(cond, _fmt, ...) if (cond) defprintf(INFOSTR _fmt, WHEREARG, ##__VA_ARGS__)
+#define INFODO(f) f
+#else
+#define INFOPRINT(_fmt, ...)
+#define INFOPRINTC(cond, _fmt, ...)
+#define INFODO(f)
+#endif
+
+//#ifdef FATALPRINT
+#if defined(FATALPRINT) || defined(DEBUGALL)
+#undef FATALPRINT
+#define FATALPRINT(_fmt, ...) defprintf(FATALSTR _fmt, WHEREARG, ##__VA_ARGS__)
+#define FATALPRINTC(cond, _fmt, ...) if (cond) { defprintf(FATALSTR _fmt, WHEREARG, ##__VA_ARGS__); defprintf(FATALSTRE) }
+#define FATALDO(f) f
+#else
+#
+#define FATALPRINT(_fmt, ...)
+#define FATALPRINTC(cond, _fmt, ...)
+#define FATALDO(f)
+#endif
 
 
 // some legacy macros, DO NOT USE IN NEW CODE
@@ -924,64 +1008,6 @@ typedef unsigned long       ulong;
 #define ERROR_DO(f) ERRORDO(f)
 #define WARNING_DO(f) WARNINGDO(f) 
 #define FATAL_DO(f) FATALDO(f)
-
-
-//#ifdef DEBUGPRINT
-#if defined(DEBUGPRINT) || defined(DEBUGPRINTX)
-#undef DEBUGPRINT
-#define DEBUGPRINT(_fmt, ...)  defprintf(DEBUGSTR _fmt, WHEREARG, ##__VA_ARGS__)
-#define DEBUGPRINTC(cond, _fmt, ...) if (cond) defprintf(DEBUGSTR _fmt, WHEREARG, ##__VA_ARGS__)
-#define DEBUGDO(f) f
-#else
-#define DEBUGPRINT(_fmt, ...)
-#define DEBUGPRINTC(cond, _fmt, ...)
-#define DEBUGDO(f)
-#endif
-
-#ifdef ERRORPRINT
-#undef ERRORPRINT
-#define ERRORPRINT(_fmt, ...)  defprintf(ERRORSTR _fmt, WHEREARG, ##__VA_ARGS__)
-#define ERRORPRINTC(cond, _fmt, ...)  if (cond) defprintf(ERRORSTR _fmt, WHEREARG, ##__VA_ARGS__)
-#define ERRORDO(f) f
-#else
-#define ERRORPRINT(_fmt, ...)
-#define ERRORPRINTC(cond, _fmt, ...)
-#define ERRORDO(f)
-#endif
-
-#ifdef WARNINGPRINT
-#undef WARNINGPRINT
-#define WARNINGPRINT(_fmt, ...)  defprintf(WARNSTR _fmt, WHEREARG, ##__VA_ARGS__)
-#define WARNINGPRINTC(cond, _fmt, ...) if (cond) defprintf(WARNSTR _fmt, WHEREARG, ##__VA_ARGS__)
-#define WARNINGDO(f) f
-#else
-#define WARNINGPRINT(_fmt, ...)
-#define WARNINGPRINTC(cond, _fmt, ...)
-#define WARNINGDO(f)
-#endif
-
-#ifdef INFOPRINT
-#undef INFOPRINT
-#define INFOPRINT(_fmt, ...) defprintf(INFOSTR _fmt, WHEREARG, ##__VA_ARGS__)
-#define INFOPRINTC(cond, _fmt, ...) if (cond) defprintf(INFOSTR _fmt, WHEREARG, ##__VA_ARGS__)
-#define INFODO(f) f
-#else
-#define INFOPRINT(_fmt, ...)
-#define INFOPRINTC(cond, _fmt, ...)
-#define INFODO(f)
-#endif
-
-#ifdef FATALPRINT
-#undef FATALPRINT
-#define FATALPRINT(_fmt, ...) defprintf(FATALSTR _fmt, WHEREARG, ##__VA_ARGS__)
-#define FATALPRINTC(cond, _fmt, ...) if (cond) defprintf(FATALSTR _fmt, WHEREARG, ##__VA_ARGS__)
-#define FATALDO(f) f
-#else
-#
-#define FATALPRINT(_fmt, ...)
-#define FATALPRINTC(cond, _fmt, ...)
-#define FATALDO(f)
-#endif
 
 
 // Misc ---------------------------------------------------------------------

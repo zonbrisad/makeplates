@@ -18,12 +18,17 @@
 #include <avr/wdt.h>
 #include <avr/pgmspace.h>
 #include <avr/io.h>
-	
-#include "def.h"
-#include "def_avr.h"
+
+
 #include "uart.h"
 #include "avrsimul.h"
 #include "def_util.h"
+
+//#define DEBUGPRINT
+#define DEBUGALL
+//#define NO_DEBUG_COLOR
+
+#include "def.h"
 
 // Macros -----------------------------------------------------------------
 
@@ -105,7 +110,6 @@ void printResetInfo(void)  {
 	
 }
 
-#define DEBUGPRINTX
 
 int main(void) {
 	volatile int tmp;
