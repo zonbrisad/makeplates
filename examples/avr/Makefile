@@ -324,11 +324,6 @@ EXTRALIBDIRS =
 
 LDFLAGS += $(PRINTF_LIB) $(SCANF_LIB) $(MATH_LIB)
 
-
-
-
-
-
 endif
 
 #
@@ -798,8 +793,6 @@ install: $(TRGFILE) ## Install program
 
 help: ## This help information
 	@$(MPTOOL) mpHelp Makefile
-#	@echo -e $(MSG_LINE)
-#	@echo -e $(MSG_LINE)
 
 list-src: ## List all source files
 	@echo -e $(MSG_SRC)
@@ -1031,8 +1024,7 @@ AVRDUDE_FLAGS = -p $(MCU) -P $(AVRDUDE_PORT) -c $(AVRDUDE_PROGRAMMER) -b ${AVRDU
 AVRDUDE_FLAGS += $(AVRDUDE_NO_VERIFY)
 AVRDUDE_FLAGS += $(AVRDUDE_VERBOSE)
 AVRDUDE_FLAGS += $(AVRDUDE_ERASE_COUNTER)
- 
- 
+
 # Program the device.
 program: $(TARGET).hex # $(TARGET).eep  ## Burn program into flash 
 	@$(AVRDUDE) $(AVRDUDE_FLAGS) $(AVRDUDE_WRITE_FLASH) # $(AVRDUDE_WRITE_EEPROM)

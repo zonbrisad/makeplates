@@ -1026,10 +1026,13 @@ typedef unsigned long       ulong;
 #define UNUSED_PARAM(p)		(void)p
 #define UNUSED(p)         UNUSED_PARAM(p)
 
-
 // Create a string from a definition
 #define STRINGIZE2(s) #s
 #define STRINGIZE(s) STRINGIZE2(s)
+
+// Weak function macro
+#define WEAK     __attribute__((weak))
+#define WEAKA(a) __attribute__((weak, alias(a)))
 
 
 #endif	/* DEF_H */
