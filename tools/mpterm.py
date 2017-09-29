@@ -470,7 +470,7 @@ class MainForm(QMainWindow):
         self.mpDefault.load()
         self.loadProfile(self.mpDefault)
                 
-        self.ui.textEdit.setMaximumBlockCount(200)
+        #self.ui.textEdit.setMaximumBlockCount(200)
         
         # Some debug widgets (comment out for production)
         #self.ui.gbDebug.hide()
@@ -588,7 +588,7 @@ class MainForm(QMainWindow):
     def appendText(self, str):
         # move cursor to end of buffer
         self.ui.textEdit.moveCursor(QTextCursor.End)
-        
+#        print("x")
         # QPlaintTextEdit
         self.ui.textEdit.appendPlainText(str)
         
@@ -596,9 +596,10 @@ class MainForm(QMainWindow):
     def appendHtml(self, str):
         # move cursor to end of buffer
         self.ui.textEdit.moveCursor(QTextCursor.End)
-        
+#        print("h")
         # QPlaintTextEdit
-        self.ui.textEdit.appendHtml(str)
+#        self.ui.textEdit.appendHtml(str)
+        self.ui.textEdit.insertHtml(str)
         
         
                 

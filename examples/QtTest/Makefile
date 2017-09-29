@@ -245,7 +245,7 @@ TCHAIN_PREFIX=
 endif
 
 # 
-# Qt5 Specific objects and targets
+# Qt5 Specific objects
 #============================================================================
 
 # Qt objects ----------------------------------------------------------------
@@ -253,18 +253,6 @@ MOCSRC = $(patsubst %.h,%_moc.cpp,$(MOCS))         # Generate moc source files
 SRC   += $(MOCSRC)
 UIH    = $(patsubst src/%.ui, src/ui_%.h, $(UI) )  # Generate UI header files
 
-
-# Qt Meta Object Compiler target --------------------------------------------
-$(MOCSRC): %_moc.cpp : %.h 	
-	@echo -en $(MSG_MOC) "\n               "
-	@echo -e $@ $(F_SOURCE)
-	@$(MOC) $(INCDIRS) $< -o $@
-
-# Qt user interface header file generation target ---------------------------
-$(UIH): src/ui_%.h: src/%.ui
-	@echo -en $(MSG_UI) "\n               "
-	@echo -e $@  $(F_SOURCE)  
-	@$(UIC) $(INCDIRS) $< -o $@
 
 #
 # Tool settings
@@ -533,6 +521,21 @@ $(OBJDIR)/%.s : %.c
 # Compile: create assembler files from C++ source files.
 $(OBJDIR)/%.s : %.cpp
 	@$(CC) -S $(ALL_CPPFLAGS) $< -o $@
+
+
+# Qt targets ----------------------------------------------------------------
+
+# Qt Meta Object Compiler target 
+$(MOCSRC): %_moc.cpp : %.h 	
+	@echo -en $(MSG_MOC) "\n               "
+	@echo -e $@ $(F_SOURCE)
+	@$(MOC) $(INCDIRS) $< -o $@
+
+# Qt user interface header file generation target
+$(UIH): src/ui_%.h: src/%.ui
+	@echo -en $(MSG_UI) "\n               "
+	@echo -e $@  $(F_SOURCE)  
+	@$(UIC) $(INCDIRS) $< -o $@
 
 # Create output dir
 $(OUTDIR):

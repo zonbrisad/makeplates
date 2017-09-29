@@ -18,23 +18,39 @@
 #include <avr/wdt.h>
 #include <avr/pgmspace.h>
 #include <avr/io.h>
-	
-#include "def.h"
-#include "def_avr.h"
+
+
 #include "uart.h"
 #include "avrsimul.h"
+#include "def_util.h"
+
+//#define DEBUGPRINT
+#define DEBUGALL
+//#define NO_DEBUG_COLOR
+
+#include "def.h"
 
 // Macros -----------------------------------------------------------------
 
-#define PROGNAME "makeplate"
+#define PROGNAME "avrtest"
 #define VERSION  "0.1"
 #define UART_BAUD_RATE 57600
 
 // Variables --------------------------------------------------------------
-// static FILE mystdout = FDEV_SETUP_STREAM(simul_putchar, NULL, _FDEV_SETUP_WRITE);
+//static FILE mystdout = FDEV_SETUP_STREAM(simul_putchar, NULL, _FDEV_SETUP_WRITE);
 static FILE mystdout = FDEV_SETUP_STREAM(uart_putc, uart_getc, _FDEV_SETUP_WRITE);
 
 volatile int timer2_ticks;
+
+
+const I2S numbersDb[] PROGMEM = {
+	{ 1, "First"  },
+	{ 2, "Second" },
+	{ 3, "Third"  },
+	{ 4, "Last"   },
+	{ I2S_END     },
+};
+
 
 
 // Prototypes -------------------------------------------------------------
@@ -66,6 +82,7 @@ void hw_init(void) {
 }
 
 int kalle(int a, char b);
+
 
 void printColor(char *str, char *color) {
 	printf("%s%-15s Example text and chars #/-_+!@$%%&{}() %s\n", color, str, E_END);
@@ -162,6 +179,47 @@ void printData(void) {
 }
 
 
+void printSysInfo(void) {
+	defprintf("File:       "__FILE__"\n");
+	defprintf("Build:      "__DATE__"  "__TIME__"\n");
+	defprintf("C Standard: "STRINGIZE(__STDC_VERSION__)"\n");
+#ifdef __GNUC__
+	defprintf("GNU C ver:  "__GNUC_VERSION__"\n");
+#endif
+
+	//defprintf("Byteorder:  "STRINGIZE(__BYTE_ORDER)"\n");
+#ifdef __BIG_ENDIAN__
+	defprintf("Byteorder:  big endian\n");
+#endif	
+#ifdef __LITTLE_ENDIAN__
+	defprintf("Byteorder:  little endian\n");
+#endif	
+	
+#ifdef __cplusplus
+	defprint("C++: enabled\n");
+#endif	
+ 
+}
+
+void printResetInfo(void)  {
+	if (IS_POWER_ON_RESET()) {  
+		printf_P(PSTR("Power on reset\n"));
+	}
+	if (IS_BROWN_OUT_RESET()) {  
+		printf_P(PSTR("Brown out reset\n"));
+	}
+	if (IS_WATCH_DOG_RESET() ) {  
+		printf_P(PSTR("Watchdog reset\n"));
+	}
+	if (IS_EXTERNAL_RESET()) {  
+		printf_P(PSTR("External reset\n"));
+	}
+	CLEAR_RESETS();
+	
+}
+
+
+
 int main(void) {
 	volatile int tmp;
 	int ch;
@@ -169,8 +227,19 @@ int main(void) {
 	
 	hw_init();
 	
-	printf("Makeplate AVR example\n");
+	printf_P(PSTR("\n\n\nMakeplate AVR example\n\n"));
+	printSysInfo();
+	defprintf("\n");
+	printResetInfo();
+	defprintf("\n");
 	
+	INFOPRINT("Info\n");
+	DEBUGPRINT("Debug\n");
+	WARNINGPRINT("Warning\n");
+	ERRORPRINT("Error\n");
+	FATALPRINT("Fatal\n");
+	
+/*	
 	
 	while (1) {
 		printf("Press a key 1-4\n");
@@ -185,12 +254,11 @@ int main(void) {
 		 default:break;
 		}
 	}
-	
+	*/
 //	printColors();
 	
 	while (1) {
 		tmp = timer2_ticks;
-//		printf("Timer counter %d\n", tmp);
 		printf("Counter %-6d\n", counter);
 		
 		ch = uart_getc();
@@ -199,6 +267,7 @@ int main(void) {
 			printf("%c", ch);
 		}
 		_delay_ms(200);
+
 		ARD_LED_TOGGLE();
 		
 		counter++;
