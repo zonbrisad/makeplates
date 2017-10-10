@@ -558,7 +558,11 @@ void LCT_PrintParamFile(luaConf *param, FILE *f) {
             fprintf(f, "-- %s\n", param->desc);
             fprintf(f, "-- %s\n", LCT_paramLimits(param));
             fprintf(f, "-- \n");
-            fprintf(f, "%s = %s\n\n", param->name, LCT_val2string(param));
+			      if (param->type == LCT_TYPE_STRING) {
+							fprintf(f, "%s = \"%s\"\n\n", param->name, LCT_val2string(param));
+						} else {
+              fprintf(f, "%s = %s\n\n", param->name, LCT_val2string(param));
+						}
             break;
     }
 
