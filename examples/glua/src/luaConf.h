@@ -67,8 +67,8 @@ extern "C" {
 #define LCT_DBL_LIST(name, desc, flags, def, min, max)  { LCT_TYPE_DOUBLE_LIST,  name, desc, flags | LCT_FLAG_PARAM, LCT_ERR_VALID, .data.dblParam = {0, def, min, max, NULL, 0, NULL} }
 #define LCT_STR_LIST(name, desc, flags, def)            { LCT_TYPE_STRING_LIST,  name, desc, flags | LCT_FLAG_PARAM, LCT_ERR_VALID, .data.strParam = {NULL, def, 0, NULL} }
 
-#define LCT_TABLE(name, params)       { LCT_TYPE_TABLE,      name, NULL, LCT_FLAG_PARAM, LCT_ERR_VALID, .data.tableParam = {params}}
-#define LCT_TABLE_LIST(name, params)  { LCT_TYPE_TABLE_LIST, name, NULL, LCT_FLAG_PARAM, LCT_ERR_VALID, .data.tableParam = {params}}
+#define LCT_TABLE(name, desc, params)       { LCT_TYPE_TABLE,      name, desc, LCT_FLAG_PARAM, LCT_ERR_VALID, .data.tableParam = {params}}
+#define LCT_TABLE_LIST(name, desc, params)  { LCT_TYPE_TABLE_LIST, name, desc, LCT_FLAG_PARAM, LCT_ERR_VALID, .data.tableParam = {params}}
 
 #define LCT_ARG_INT()      { LCT_TYPE_INTEGER,      "", NULL, LCT_FLAG_ARG, LCT_ERR_VALID, .data.boolParam = {0,0} }
 #define LCT_ARG_DBL()      { LCT_TYPE_DOUBLE,       "", NULL, LCT_FLAG_ARG, LCT_ERR_VALID, .data.boolParam = {0,0} }
@@ -92,8 +92,8 @@ extern "C" {
 #define LCT_FUNCTION(name, params, returns)   { LCT_TYPE_FUNCTION, name, NULL, 0, LCT_ERR_VALID, .data.function={params, returns, 0, 0} }
 #define LCT_API(name, params, function)       { LCT_TYPE_API,      name, NULL, 0, LCT_ERR_VALID, .data.api = {params, function} }
 
-#define LCT_COMMENT(cmt)   {LCT_TYPE_COMMENT, cmt, NULL, 0, LCT_ERR_VALID, .data.boolParam = {0,0} }
-#define LCT_LAST()         {LCT_TYPE_LAST,    "",  NULL, 0, LCT_ERR_VALID, .data.boolParam = {0,0} }
+#define LCT_COMMENT(cmt)   {LCT_TYPE_COMMENT, "", cmt,  0, LCT_ERR_VALID, .data.boolParam = {0,0} }
+#define LCT_LAST()         {LCT_TYPE_LAST,    "", NULL, 0, LCT_ERR_VALID, .data.boolParam = {0,0} }
 
 
 
@@ -360,6 +360,8 @@ char* LCT_paramLimits(luaConf *param);
 int LCT_IsParam(luaConf *param);
 
 void LCT_PrintParamFile(luaConf *param, FILE *f);
+
+	
 void LCT_File(luaConf *conf);
 
 
