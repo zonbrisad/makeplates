@@ -37,6 +37,13 @@ AppAuthor   = "Peter Malmberg <peter.malmberg@gmail.com>"
 
 # Code ----------------------------------------------------------------------
 
+class CConf():
+    main    = 0
+    gtk     = 0
+    qt      = 0
+    signals = 0
+    sigint  = 0
+    
             
 def addHeader(file, fileName, brief, date, author, license):
     header = headerExample
@@ -81,46 +88,60 @@ def addCppSentinelEnd(file):
     "#endif\n")
   
 def addMethod(file, className, methodName): 
-  file.write(className+"::"+methodName+"() {\n")
-  file.write("\n}\n\n")
-
+    file.write(className+"::"+methodName+"() {\n")
+    file.write("\n}\n\n")
+    
 def addClass(file, className):
-  file.write("class "+className+" {\n")
-  file.write("    public:\n")    
-  file.write("      "+className+"();\n")
-  file.write("}\n")
+    file.write("class "+className+" {\n")
+    file.write("    public:\n")    
+    file.write("      "+className+"();\n")
+    file.write("}\n")
 
 def addInclude(file, includeFile):  
-  file.write("#include <"+includeFile+">\n")  
+    file.write("#include <"+includeFile+">\n")  
     
-def addCIncludes(file):
+def addCIncludes(file, conf):
     addInclude(file, "stdio.h")
     addInclude(file, "stdlib.h")
     addInclude(file, "stdint.h")
-    addInclude(file, "unistd.h")
     addInclude(file, "string.h")
+    addInclude(file, "unistd.h")
     addInclude(file, "sys/types.h")
-    addInclude(file, "signal.h")
     addInclude(file, "errno.h")
-  
-def addGLIBIncludes(file):
-    return
     
-def addGTKIncludes(file):
-    addInclude(file, "gtk/gtk.h")
+    if (conf.signals):
+        addInclude(file, "signal.h")
+
+    if (conf.gtk):    
+        addInclude(file, "gtk/gtk.h")
+
+    if (conf.qt):    
+        addInclude(file, "QApplication")
+        addInclude(file, "QCoreApplication")
+        addInclude(file, "QDebug")
+        addInclude(file, "QMainWindow")
+        addInclude(file, "QPushbutton")
+        addInclude(file, "QLabel")
   
-def addQtIncludes(file):
-    addInclude(file, "QApplication")
-    addInclude(file, "QCoreApplication")
-    addInclude(file, "QDebug")
-    addInclude(file, "QMainWindow")
-    addInclude(file, "QPushbutton")
-    addInclude(file, "QLabel")
-        
-def addMain(file):
-  file.write("int main(int argc, char *argv[]) {\n\n")
-  file.write("  return 0;\n")    
-  file.write("}\n")
+def addSignalHandler(file, handler):    
+    file.write("void "+handler+"(int sig) {\n\n}\n\n")
+    
+def addSignal(file, signal, handler):
+    file.write("  signal("+signal+", "+handler+");\n") 
+    
+def addMain(file, conf):
+    if conf.signals:
+        addSignalHandler(file, "sigint")
+        addSignalHandler(file, "sighup")
+    
+    file.write("int main(int argc, char *argv[]) {\n\n")
+    
+    if conf.signals:
+        addSignal(file, "SIGINT", "sigint")
+        addSignal(file, "SIGHUP", "sighup")
+    
+    file.write("  return 0;\n")    
+    file.write("}\n")
 
 def addDefine(file, name, value):
     file.write("#define "+name+" "+value)
@@ -134,7 +155,10 @@ def addAppDefines(file, name):
 #    addDefine("APP_LOGFILE",     "glib.log")
 #    addDefine("APP_PIDFILE",     "/tmp/glibtest.pid")
     
-    
+
+def addComment(file, comment):
+    file.write("  // "+comment+"\n")
+
 def newFile(dir, fileName):
   # Open files to be generated
   try:
@@ -160,22 +184,21 @@ def newCppModule(dir, author, licence):
     newModule(dir, author, licence, "cpp")
 
 def newModule(dir, author, licence, lan):
-    
+    conf = CConf()
+
     # ask for some information
     fName, brief, date = askInfo("C module")
 
-    main = query_yn("Add main() function", "no")
+    conf.main = query_yn("Add main() function", "no")
 
-    
-    if main and lan=="c":
-        gtkMain = query_yn("GTK project", "no")
-    else:
-        gtkMain = 0
+   # conf.gtk = 0
+    if conf.main and lan=="c":
+        conf.gtk = query_yn("GTK project", "no")
+        conf.signals = query_yn("Include signals", "no")
+  
         
     if main and lan=="cpp":    
         qtMain = query_yn("Qt project", "no")
-    else:
-        qtMain = 0
     
     fileNameC = fName + "."+lan
     fileNameH = fName + ".h"
@@ -187,30 +210,21 @@ def newModule(dir, author, licence, lan):
     # Populate C file
     addHeader(fileC, fileNameC, brief, date, author, licence)
 
+    # Includes
     addSection(fileC, "Includes")
-    
-    if (main):
-        addCIncludes(fileC)
-        
-#        if qtkMain:
- #           addInclude
-    
-        
-        
+    addCIncludes(fileC, conf)
     fileC.write("#include \""+fileNameH+"\"\n\n");
-    
+
+    # Sections
     addSection(fileC, "Macros")
     addSection(fileC, "Variables")
     addSection(fileC, "Prototypes")
     addSection(fileC, "Code")    
-    
-    if (gtkMain):
-        fileC.write(gtkMainExample)
-    else:
-        if (main):
-            fileC.write(mainExample)
-        
 
+    # Main function
+    if (conf.main):
+        addMain(fileC, conf)
+        
     # Populate H file
     addHeader(fileH, fileNameH, brief, date, author, licence)
     addSentinelBegin(fileH, fName.upper())

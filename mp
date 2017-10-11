@@ -10,9 +10,18 @@
 #  [Author] 
 #    Peter Malmberg <peter.malmberg@gmail.com>
 #
-#  [Licence] 
+#  [License] 
 #     MIT
 #    
+#---------------------------------------------------------------------
+# [Bashplates]
+# This script is generated from bashplates template generator.
+# 
+# Bashplates is developed by:
+# Peter Malmberg <peter.malmberg@gmail.com>
+#
+# Bashplates is available at:
+# https://github.com/zonbrisad/bashplates
 #---------------------------------------------------------------------
 #
 
@@ -38,27 +47,6 @@ scriptName=$(basename "$0")
 # User defined Settings
 #---------------------------------------------------------------------
 
-MPT_DIR=makeplate_files
-MPT_INSTALL_DIR=~/bin/${MPT_DIR}
-
-# Check if MPT file exists
-if [ -e ${scriptPath}/MPT ]; then
-  MPT=1
-else
-  NEW=1
-fi
-
-# Set correct scriptPath
-if [ "$MPT" !=  "1" ]; then
-	scriptPath=${scriptPath}/${MPT_DIR}
-fi
-
-# Local install directory
-MP_LOCALDIR=~/bin
-
-# system wide install directory
-MP_SYSDIR=/usr/local/bin
-
 # Settings directory
 MP_CONFIG_DIR=~/.config/makeplates
 
@@ -68,110 +56,6 @@ MP_3DPARTY_DIR=${scriptPath}/3dparty
 #---------------------------------------------------------------------
 # User defined functions
 #---------------------------------------------------------------------
-
-# Install single makeplate
-#
-# arg1 source directory 
-# arg2 destination directory
-# arg3 makeplate
-#
-installMp() {
-
-  # First remove all possible object files etc.
-  cd ${1}/${3}
-  make clean
-	rm -rf backup
-	rm -rf archive
-  cd -
-	
-  # Copy makeplate
-  mkdir -p ${2}
-  cp -rf ${1}/${3}  ${2}/.
-	
-
-  # Check if tools link exists	
-  if [ -L ${2}/${3}/tools ]; then 
-  
-    # Remove symbolic link
-    rm -f ${2}/${3}/tools
-	
-    # Copy tools to project
-    cp -rf ${2}/tools ${2}/${3}/.
-  fi
-}
-
-# Create a directory if it does not exist
-mpCreateDir() {
- if [ ! -d $1 ]; then
-		 mkdir -p $1
- fi
-}
-
-createLink() {
- bpInfo "Creating link ${2}"
- if [ ! -L $1 ]; then
-   	ln -sf ${1} ${2}
- fi
-}
-
-#
-# arg1 install dir
-# arg2 symbolic link dir
-#
-mpInstall() {
-
-  # Create dir
-  mkdir -p ${1}
-	
-  cp -rf ${scriptPath}/mp      ${1}/.
-  cp -rf ${scriptPath}/tools   ${1}/. 
-	cp -rf ${scriptPath}/3dparty ${1}/.
-
-  # Install makeplates
-  installMp ${scriptPath}  ${1}  mp-c 
-  installMp ${scriptPath}  ${1}  mp-cpp
-  installMp ${scriptPath}  ${1}  mp-simple-c
-  installMp ${scriptPath}  ${1}  mp-simple-cpp
-	
- 	
-  # Create symlinks
-#  ln -s ${1}/mp ${2}
-#	ln -s ${1}/tools/ctemplate.py ${2}/mptemplate
-
-  createLink ${1}/mp ${2}
-	createLink ${1}/tools/ctemplate.py ${2}/mptemplate
-	
-	# Remove sentinel file
-  rm -f ${1}/MPT
-}
-
-##CN- MPT Install
-
-install() { #C MPT Install makeplates on system
-  assertRoot
-  echo -e "Installing makeplates"
-  rm -rf ${MP_SYSDIR}/${MPT_DIR}
-  rm -rf ${MP_SYSDIR}/mp	
-  mpInstall /usr/local/bin/makeplate_files  /usr/local/bin
-}
-
-install-local() { ##C MPT Install makeplates localy for easy creating new projects
-  echo -e "Installing makeplates locally"
-  rm -rf ${MP_LOCALDIR}/${MPT_DIR}
-  rm -rf ${MP_LOCALDIR}/mp
-  mpInstall ~/bin/makeplate_files  ~/bin
-}
-
-clean() { ##C MPT Clean out old files
-  find . -name "*~"     -delete
-  find . -name "*.orig" -delete
-}
-
-installPlate() {
-  rm -rf ${1}/*
-  cp -rf ${1}/* .
-}
-
 
 #
 # Ask yes/no question
@@ -192,25 +76,54 @@ bpQuestionDy() {  ##D Ask yes/no question default yes
 	done 	
 }
 
+# Create a directory if it does not exist
+bpMkDir() {
+  if [ ! -d $1 ]; then
+    bpInfo "Creating directory \"${1}\""
+		mkdir -p $1
+  fi
+}
+
+bpLn() {
+ bpInfo "Creating link \"${2}\""
+ if [ ! -L $1 ]; then
+   	ln -s ${1} ${2}
+ fi
+}
+
+bpCp() {
+  bpInfo "Copying \"${1}\" to \"${2}\""
+  cp -rf $1 $2
+}
+
+bpMv() {
+  bpInfo "Moving file \"${1}\" \"${2}\""
+  mv $1 $2
+}
+
+bpRm() {
+  bpInfo "Removing file \"${1}\""
+  rm -rf ${1}
+}
 
 createProject() {
   echo -e ${1}
 	read -p "Project name>" pn
 	bpQuestionDy "Create subdirectory?" res
 	if [ ${res} == 'y' ]; then
-	  echo "Creating directory"
-		mkdir -p ${pn}
-		cp -rf ${2}/* ${pn}/.
-#		cp -rf ${scriptPath}/tools ${pn}/.
+    bpMkDir ${pn}
+		dst=${pn}/.
 	else
-		cp -rf ${2}/* .
-#		cp -rf ${scriptPath}/tools .
+	  dst=.
 	fi
+
+  bpCp "${2}/*" "${dst}"
+	rm -f ${dst}/tools
+	bpCp "${scriptPath}/tools" "${dst}"
 }
 
 
-#NEW=1
-##CN- NEW Project cmds
+##N- Project
 
 newc() { ##C NEW Create a new standard C makeplate project
   createProject "Creating new makeplate C project" ${scriptPath}/mp-c 
@@ -229,23 +142,17 @@ newscpp() { ##C NEW Create a new simple C++ makeplate project
 }
 
 
-# check for local version of mp and execute it
-preCheck() {
-echo XXX $0 $1 $2 $3
-	# Check if local dir contains MPT
-  if [ -f ${PWD}/MPT ]; then
-	  if [ $(dirname $0) != "." ]; then
-#		   ./mp "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8" "$9" "${10}"
-			 ./mp 
-			 bpExit 
-		fi		
-  fi
+##N- Code
+
+cTemplate=${scriptPath}/tools/ctemplate.py
+
+newcf() { ## Create new C module
+  ${cTemplate} --newc --dir . --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
 }
 
-newmodule() { ##C NEW Create new C module
-  ${scriptPath}/tools/ctemplate.py
+newclass() { ## Create new C++ class
+  ${cTemplate} --newclass --dir . --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
 }
-
 
 
 ##CN- NEW 3d party
@@ -311,12 +218,24 @@ examples() { ## List examples
   ls -1  ${scriptPath}/examples/ 
 }
 
+
+##N- Various
+
+clean() { ## Clean out old files
+  find . -name "*~"     -delete
+  find . -name "*.orig" -delete
+}
+
+utools() { ## Update makaplate tools in project
+  bpCp ${scriptPath}/tools/* tools/. 
+}
+
 #--------------------------------------------------------------------- 
 # Bashplate settings
 #---------------------------------------------------------------------
 
 # Script version info
-VERSION="1.01"
+VERSION="1.12beta"
 
 ##V Bashplate version
 BPVERSION="1.11"   
@@ -359,6 +278,15 @@ DEFAULT=help
 
 ##V Lock file (uncomment to use lock file feature )
 #LOCK_FILE=/tmp/${scriptName}.lock
+
+# Activate settings function (will create settings file when run)
+SETTINGS=1
+
+# Create settings file if non existent
+#CREATEPLSETTINGS=1
+
+bpSettingsDir=~/.config/bashplates
+bpSettings=${bpSettingsDir}/bashplates.conf
 
 #--------------------------------------------------------------------- 
 # Signal traps
@@ -406,7 +334,7 @@ bpErrorExit() {  ##D Safely exit script with a error
 }
 
 #--------------------------------------------------------------------- 
-# System functions and settings
+# Bashplate internal functions
 #---------------------------------------------------------------------
 
 # ANSI foreground colors codes
@@ -465,14 +393,14 @@ BP_C_INFO=$E_BR_CYAN
 BP_C_WARNING=$E_BR_YELLOW
 BP_C_ERROR=$E_BR_RED
 BP_C_CRITICAL=$E_ON_RED$E_WHITE
-BP_C_LINE=$E_GRAY
-BP_C_LINE_TEXT=$E_GRAY
+BP_C_LINE=$E_DARKGRAY
+BP_C_LINE_TEXT=$E_YELLOW
 
 # Exit codes 
 #
 BP_E_OK=0            # successful termination 
 
-##-
+
 
 # Print text with row
 #
@@ -501,13 +429,12 @@ bpTextLineC() { ##D Print text with adjusted line after with selectable colors
 }
 
 bpTextLine() { ##D Print text with line after
-#	bpPrintLineC "$1" "${C_LINE_TEXT}" "${C_LINE}" " " "-"
-	bpPrintLineC "$1" "${E_WHITE}" "${E_GRAY}" " " "-"
+  bpTextLineC "$1" "${BP_C_LINE_TEXT}" "${BP_C_LINE}"
 }
 
 # Print a divider row
 bpLine() { ##D Print a line  
-  bpPrintLineC "" "${E_GRAY}" "${E_GRAY}" "" "-" 
+  bpPrintLineC "" "${BP_C_LINE}" "${BP_C_LINE}" "" "-" 
 }
 
 # Legacy function (do not use in new applications)
@@ -521,7 +448,7 @@ printLine() {
 # arg1 text for column 1
 # arg2 text for column 2
 printInfo() {  
-  printf "${E_BR_CYAN}%-20s${E_END} ${E_BR_GREEN}%s${E_END}\n" "$1" "$2"
+  printf "${E_CYAN}%-20s${E_END} ${E_GREEN}%s${E_END}\n" "$1" "$2"
 }
 
 # Print a variable + text into two columns
@@ -543,6 +470,73 @@ printVar() {
 # 
 #---------------------------------------------------------------------
 
+# Settings file ------------------------------------------------------
+
+
+bpAddSetting() {
+  echo "# "${3}    >> ${bpSettings}
+	echo ${1}"=\""${2}"\"" >> ${bpSettings}
+	echo >> ${bpSettings}
+}
+			
+bpCreateSettings() {
+			
+  echo "Creating new bashplates settings file. ${bpSettings}"
+	mkdir -p ${bpSettingsDir}
+					
+	echo "# " >> ${bpSettings}
+	echo "# Bashplates common settings" > ${bpSettings}
+	echo "# " >> ${bpSettings}
+	echo      >> ${bpSettings}
+	
+	bpAddSetting "BP_NAME"  "John Doe"        "Name of user"
+	bpAddSetting "BP_EMAIL" "JohnDoe@foo.bar" "Email of user"
+	bpAddSetting "BP_EDITOR" "vi"             "Default editor"
+	bpAddSetting "BP_LICENSE" "MIT"           "Default project license"
+}
+
+bpLoadSettings() {
+  if [ -n "${bpSettings}" ]; then
+	  if [ -e ${bpSettings} ]; then
+	    source ${bpSettings}
+	  else
+		  bpCreateSettings
+			source ${bpSettings}
+		fi
+	fi
+}
+																														
+##N- Settings
+printSettings() { ## Print plate information
+	bpTextLine "Bashplates settings"
+	printVar BP_NAME      "Name:"
+	printVar BP_EMAIL     "Email:"
+	printVar BP_LICENSE   "Default license:"
+	printVar BP_EDITOR    "Default editor"
+	bpLine
+}
+
+setname() { ## Set name
+	chSetting ${bpSettings} "BP_NAME" "\"${2}\""	
+}
+
+setemail() { ## Set email address
+	chSetting ${bpSettings} "BP_EMAIL" "\"${2}\""	
+}
+
+seteditor() { ## Set default editor
+	chSetting ${bpSettings} "BP_EDITOR" "\"${2}\""	
+}
+
+setlic() { ## Set default license
+	chSetting ${bpSettings} "BP_LICENSE" "\"${2}\""	
+}
+
+
+##-
+
+# Logging ---------------------------------------------------------
+
 #
 # Function logging to file
 #
@@ -558,7 +552,7 @@ bpLog() { ##D Log to file command
 
 log() { ##C LOGFILE View logfile
   if [ -n "$LOGFILE" ]; then
-	  if [ -f ${LOGFILE} ]; then  # Check that logfile exists
+    if [ -f ${LOGFILE} ]; then  # Check that logfile exists
 	
       D=$(sed -r -e "s|\[Info\]|\[\\${BP_C_INFO}Info\\${E_END}\]|"  \
             -e "s|\[Warn\]|\[\\${BP_C_WARNING}Warn\\${E_END}\]|"  \
@@ -568,7 +562,7 @@ log() { ##C LOGFILE View logfile
             -e "s|\[Crit\]|\[\\${E_ON_RED}\\${E_WHITE}Crit\\${E_END}\]|" < "${LOGFILE}" ) 
 
       echo -e "$D"
-		fi
+    fi
   else
     bpInfo "Logging is not activated"
     exit
@@ -633,6 +627,7 @@ assertRoot() { ##D Assert that user is root
   fi
 }
 
+# Various  ---------------------------------------------------------
 
 assertNoLockFile() { ##D Assert that lockfile is not present
   if [ -n "$LOCK_FILE" ]; then 
@@ -690,6 +685,16 @@ chSetting() {
   VAL="$3"
   sed -i "s/^\(${SETTING}\s*=\s*\).*\$/\1$VAL/" "$1"
 }
+
+# Replace text in file
+#
+# arg1 file 
+# arg2 text to replace
+# arg3 new text
+bpReplace() {  ##D Replace text in file
+  sed -i -e "s/${2}/${3}/g"  $1
+}
+	 
 
 printCommand() { 
   help_line=$1
@@ -855,6 +860,9 @@ trap  signalHup  SIGHUP
 trap  signalTerm SIGTERM
 
 bpArguments=$#
+
+# Load configuration file settings
+bpLoadSettings
 
 # execute prescript hook if existing
 if [ -n "$PREHOOK" ]; then

@@ -40,7 +40,7 @@
 //static FILE mystdout = FDEV_SETUP_STREAM(simul_putchar, NULL, _FDEV_SETUP_WRITE);
 static FILE mystdout = FDEV_SETUP_STREAM(uart_putc, uart_getc, _FDEV_SETUP_WRITE);
 
-volatile int timer2_ticks;
+volatile int timer2_ticks = 0;
 
 
 const I2S numbersDb[] PROGMEM = {
@@ -63,6 +63,22 @@ ISR(TIMER2_COMPA_vect) {
 	   timer2_ticks++;
 }
 
+
+int timer3 = 0;
+ISR(TIMER0_COMPA_vect) {
+	TIMER0_RELOAD(0);
+	timer3++;
+	
+	if (timer3>=100) {
+		timer3 = 0;
+	}
+}
+
+
+
+
+
+
 void hw_init(void) {
 	//wdt_disable();                            // disable watchdog timer
 	stdout = &mystdout;                       // configure stdout to UART 0
@@ -72,13 +88,21 @@ void hw_init(void) {
 	
 	uart_init(UART_BAUD_SELECT(UART_BAUD_RATE,F_CPU));      // init uart
 	
-	timer2_ticks = 0;
+	// Timer 0
+	TIMER0_CLK_PRES_1024();  // set prescaler to 1/1024
+	TIMER0_OCA_IE();         // enable output compare A interrupt
+	TIMER0_OCA_SET(156);
+	
+	
+//	timer2_ticks = 0;
 	/* Set up our timers and enable interrupts */
-	TCNT2 = 0;    /* Timer 1 by CLK/64 */
+	//TCNT2 = 0;    /* Timer 1 by CLK/64 */
 	OCR2A = 115;   /* ~1ms */
 	TIMSK2 = _BV(OCIE2A);
 	TCCR2B |= (1 << CS11) | (1 << CS10) ; 
-	sei();
+	
+	
+	sei();  // enable all interrupts
 }
 
 int kalle(int a, char b);
@@ -239,6 +263,7 @@ int main(void) {
 	ERRORPRINT("Error\n");
 	FATALPRINT("Fatal\n");
 	
+<<<<<<< HEAD
 /*	
 	
 	while (1) {
@@ -268,6 +293,13 @@ int main(void) {
 		}
 		_delay_ms(200);
 
+=======
+	while (1) {
+		tmp = timer2_ticks;
+		printf_P(PSTR("Timer counter %-5d %-3d  Timer0: %4d\n"), tmp, TCNT2, timer3);
+//		printf("Input char %c\n", simul_getchar());
+		_delay_ms(100);
+>>>>>>> bb0d9446efe2014b618c723b52f2562bab9e3a1b
 		ARD_LED_TOGGLE();
 		
 		counter++;

@@ -10,6 +10,28 @@
  * -----------------------------------------------------------------
  */
 
+// Settings  ---------------------------------------------------------------
+
+// Enable all debugmessages
+//#define DEBUGALL
+
+// Enable debug messsage printouts
+//#define DEBUGPRINT
+
+// Enable warning messsage printouts
+//#define WARNINGPRINT
+
+// Enable error messsage printouts
+//#define ERRORPRINT
+
+// Enable info messsage printouts
+//#define INFOPRINT
+
+// Enable fatal messsage printouts
+//#define FATALPRINT
+
+// uncomment to remove color printout on debug messages
+//#define NO_DEBUG_COLOR
 
 // Platform detection ------------------------------------------------------
 
@@ -52,17 +74,6 @@
 
 #ifndef DEF_H_
 #define DEF_H_
-
-
-//#define DEBUGALL
-
-//#define DEBUGPRINT
-//#define DEBUGPRINT
-//#define WARNINGPRINT
-//#define ERRORPRINT
-//#define INFOPRINT
-//#define FATALPRINT
-
 
 // Types ------------------------------------------------------------------
 
