@@ -92,7 +92,8 @@ typedef double                  F64;  //!< 64-bit floating-point number.
 typedef uint32_t                iram_size_t;
 
 
-/*! \name Aliasing Aggregate Types
+/** 
+ * @name Aliasing Aggregate Types
  */
 //! @{
 
@@ -237,7 +238,7 @@ typedef struct
 
 //#endif  // #ifndef __ASSEMBLY__
 
-/*! \name Usual Constants
+/** \name Usual Constants
  */
 //! @{
 #define DISABLE   0
@@ -375,7 +376,8 @@ typedef unsigned long       ulong;
 #define TRUE    (1)
 #endif
 
-/*! \name Mathematics
+
+/** @name Mathematics
  *
  * The same considerations as for clz and ctz apply here but GCC does not
  * provide built-in functions to access the assembly instructions abs, min and
@@ -388,59 +390,64 @@ typedef unsigned long       ulong;
  */
 //! @{
 
-/*! \brief Takes the absolute value of \a a.
+/** 
+ * @brief Takes the absolute value of \a a.
  *
- * \param a Input value.
+ * @param a Input value.
  *
- * \return Absolute value of \a a.
+ * @return Absolute value of \a a.
  *
- * \note More optimized if only used with values known at compile time.
+ * @note More optimized if only used with values known at compile time.
  */
 #define Abs(a)              (((a) <  0 ) ? -(a) : (a))
 
-/*! \brief Takes the minimal value of \a a and \a b.
+/**  
+ * @brief Takes the minimal value of \a a and \a b.
  *
- * \param a Input value.
- * \param b Input value.
+ * @param a Input value.
+ * @param b Input value.
  *
- * \return Minimal value of \a a and \a b.
+ * @return Minimal value of \a a and \a b.
  *
- * \note More optimized if only used with values known at compile time.
+ * @note More optimized if only used with values known at compile time.
  */
 #define Min(a, b)           (((a) < (b)) ?  (a) : (b))
 
-/*! \brief Takes the maximal value of \a a and \a b.
+/** 
+ * @brief Takes the maximal value of \a a and \a b.
  *
- * \param a Input value.
- * \param b Input value.
+ * @param a Input value.
+ * @param b Input value.
  *
- * \return Maximal value of \a a and \a b.
+ * @return Maximal value of \a a and \a b.
  *
- * \note More optimized if only used with values known at compile time.
+ * @note More optimized if only used with values known at compile time.
  */
 #define Max(a, b)           (((a) > (b)) ?  (a) : (b))
 
 // abs() is already defined by stdlib.h
 
-/*! \brief Takes the minimal value of \a a and \a b.
+/** 
+ * @brief Takes the minimal value of \a a and \a b.
  *
- * \param a Input value.
- * \param b Input value.
+ * @param a Input value.
+ * @param b Input value.
  *
- * \return Minimal value of \a a and \a b.
+ * @return Minimal value of \a a and \a b.
  *
- * \note More optimized if only used with values unknown at compile time.
+ * @note More optimized if only used with values unknown at compile time.
  */
 #define min(a, b)   Min(a, b)
 
-/*! \brief Takes the maximal value of \a a and \a b.
+/** 
+ * @brief Takes the maximal value of \a a and \a b.
  *
- * \param a Input value.
- * \param b Input value.
+ * @param a Input value.
+ * @param b Input value.
  *
- * \return Maximal value of \a a and \a b.
+ * @return Maximal value of \a a and \a b.
  *
- * \note More optimized if only used with values unknown at compile time.
+ * @note More optimized if only used with values unknown at compile time.
  */
 #define max(a, b)   Max(a, b)
 
@@ -452,7 +459,8 @@ typedef unsigned long       ulong;
 
 
 
-/*! \name Endianism Conversion
+/** 
+ * @name Endianism Conversion
  *
  * The same considerations as for clz and ctz apply here but GCC's
  * __builtin_bswap_32 and __builtin_bswap_64 do not behave like macros when
@@ -464,56 +472,61 @@ typedef unsigned long       ulong;
  */
 //! @{
 
-/*! \brief Toggles the endianism of \a u16 (by swapping its bytes).
+/** 
+ * @brief Toggles the endianism of \a u16 (by swapping its bytes).
  *
- * \param u16 U16 of which to toggle the endianism.
+ * @param u16 U16 of which to toggle the endianism.
  *
- * \return Value resulting from \a u16 with toggled endianism.
+ * @return Value resulting from \a u16 with toggled endianism.
  *
- * \note More optimized if only used with values known at compile time.
+ * @note More optimized if only used with values known at compile time.
  */
 #define Swap16(u16) ((U16)(((U16)(u16) >> 8) |\
                            ((U16)(u16) << 8)))
 
-/*! \brief Toggles the endianism of \a u32 (by swapping its bytes).
+/** 
+ * @brief Toggles the endianism of \a u32 (by swapping its bytes).
  *
- * \param u32 U32 of which to toggle the endianism.
+ * @param u32 U32 of which to toggle the endianism.
  *
- * \return Value resulting from \a u32 with toggled endianism.
+ * @return Value resulting from \a u32 with toggled endianism.
  *
- * \note More optimized if only used with values known at compile time.
+ * @note More optimized if only used with values known at compile time.
  */
 #define Swap32(u32) ((U32)(((U32)Swap16((U32)(u32) >> 16)) |\
                            ((U32)Swap16((U32)(u32)) << 16)))
 
-/*! \brief Toggles the endianism of \a u64 (by swapping its bytes).
+/** 
+ * @brief Toggles the endianism of \a u64 (by swapping its bytes).
  *
- * \param u64 U64 of which to toggle the endianism.
+ * @param u64 U64 of which to toggle the endianism.
  *
- * \return Value resulting from \a u64 with toggled endianism.
+ * @return Value resulting from \a u64 with toggled endianism.
  *
- * \note More optimized if only used with values known at compile time.
+ * @note More optimized if only used with values known at compile time.
  */
 #define Swap64(u64) ((U64)(((U64)Swap32((U64)(u64) >> 32)) |\
                            ((U64)Swap32((U64)(u64)) << 32)))
 
-/*! \brief Toggles the endianism of \a u16 (by swapping its bytes).
+/** 
+ * @brief Toggles the endianism of \a u16 (by swapping its bytes).
  *
- * \param u16 U16 of which to toggle the endianism.
+ * @param u16 U16 of which to toggle the endianism.
  *
- * \return Value resulting from \a u16 with toggled endianism.
+ * @return Value resulting from \a u16 with toggled endianism.
  *
- * \note More optimized if only used with values unknown at compile time.
+ * @note More optimized if only used with values unknown at compile time.
  */
 #define swap16(u16) Swap16(u16)
 
-/*! \brief Toggles the endianism of \a u32 (by swapping its bytes).
+/** 
+ * @brief Toggles the endianism of \a u32 (by swapping its bytes).
  *
- * \param u32 U32 of which to toggle the endianism.
+ * @param u32 U32 of which to toggle the endianism.
  *
- * \return Value resulting from \a u32 with toggled endianism.
+ * @return Value resulting from \a u32 with toggled endianism.
  *
- * \note More optimized if only used with values unknown at compile time.
+ * @note More optimized if only used with values unknown at compile time.
  */
 #if (defined __GNUC__)
 #   define swap32(u32) ((U32)__builtin_bswap32((U32)(u32)))
@@ -535,89 +548,97 @@ typedef unsigned long       ulong;
 
 // Bit manipulation ---------------------------------------------------------
 
-/*! \name Bit-Field Handling
+/** @name Bit-Field Handling
  */
 //! @{
 
-/*! \brief Reads the bits of a value specified by a given bit-mask.
+/** 
+ * @brief Reads the bits of a value specified by a given bit-mask.
  *
- * \param value Value to read bits from.
- * \param mask  Bit-mask indicating bits to read.
+ * @param value Value to read bits from.
+ * @param mask  Bit-mask indicating bits to read.
  *
- * \return Read bits.
+ * @return Read bits.
  */
 #define Rd_bits( value, mask)        ((value) & (mask))
 
-/*! \brief Writes the bits of a C lvalue specified by a given bit-mask.
+/** 
+ * @brief Writes the bits of a C lvalue specified by a given bit-mask.
  *
- * \param lvalue  C lvalue to write bits to.
- * \param mask    Bit-mask indicating bits to write.
- * \param bits    Bits to write.
+ * @param lvalue  C lvalue to write bits to.
+ * @param mask    Bit-mask indicating bits to write.
+ * @param bits    Bits to write.
  *
- * \return Resulting value with written bits.
+ * @return Resulting value with written bits.
  */
 #define Wr_bits(lvalue, mask, bits)  ((lvalue) = ((lvalue) & ~(mask)) |\
                                                  ((bits  ) &  (mask)))
 
-/*! \brief Tests the bits of a value specified by a given bit-mask.
+/** 
+ * @brief Tests the bits of a value specified by a given bit-mask.
  *
- * \param value Value of which to test bits.
- * \param mask  Bit-mask indicating bits to test.
+ * @param value Value of which to test bits.
+ * @param mask  Bit-mask indicating bits to test.
  *
- * \return \c 1 if at least one of the tested bits is set, else \c 0.
+ * @return \c 1 if at least one of the tested bits is set, else \c 0.
  */
 #define Tst_bits( value, mask)  (Rd_bits(value, mask) != 0)
 
-/*! \brief Clears the bits of a C lvalue specified by a given bit-mask.
+/** 
+ * @brief Clears the bits of a C lvalue specified by a given bit-mask.
  *
- * \param lvalue  C lvalue of which to clear bits.
- * \param mask    Bit-mask indicating bits to clear.
+ * @param lvalue  C lvalue of which to clear bits.
+ * @param mask    Bit-mask indicating bits to clear.
  *
- * \return Resulting value with cleared bits.
+ * @return Resulting value with cleared bits.
  */
 #define Clr_bits(lvalue, mask)  ((lvalue) &= ~(mask))
 
-/*! \brief Sets the bits of a C lvalue specified by a given bit-mask.
+/** 
+ * @brief Sets the bits of a C lvalue specified by a given bit-mask.
  *
- * \param lvalue  C lvalue of which to set bits.
- * \param mask    Bit-mask indicating bits to set.
+ * @param lvalue  C lvalue of which to set bits.
+ * @param mask    Bit-mask indicating bits to set.
  *
- * \return Resulting value with set bits.
+ * @return Resulting value with set bits.
  */
 #define Set_bits(lvalue, mask)  ((lvalue) |=  (mask))
 
-/*! \brief Toggles the bits of a C lvalue specified by a given bit-mask.
+/** 
+ * @brief Toggles the bits of a C lvalue specified by a given bit-mask.
  *
- * \param lvalue  C lvalue of which to toggle bits.
- * \param mask    Bit-mask indicating bits to toggle.
+ * @param lvalue  C lvalue of which to toggle bits.
+ * @param mask    Bit-mask indicating bits to toggle.
  *
- * \return Resulting value with toggled bits.
+ * @return Resulting value with toggled bits.
  */
 #define Tgl_bits(lvalue, mask)  ((lvalue) ^=  (mask))
 
-/*! \brief Reads the bit-field of a value specified by a given bit-mask.
+/** 
+ * @brief Reads the bit-field of a value specified by a given bit-mask.
  *
- * \param value Value to read a bit-field from.
- * \param mask  Bit-mask indicating the bit-field to read.
+ * @param value Value to read a bit-field from.
+ * @param mask  Bit-mask indicating the bit-field to read.
  *
- * \return Read bit-field.
+ * @return Read bit-field.
  */
 #define Rd_bitfield( value, mask)           (Rd_bits( value, mask) >> ctz(mask))
 
-/*! \brief Writes the bit-field of a C lvalue specified by a given bit-mask.
+/** 
+ * @brief Writes the bit-field of a C lvalue specified by a given bit-mask.
  *
- * \param lvalue    C lvalue to write a bit-field to.
- * \param mask      Bit-mask indicating the bit-field to write.
- * \param bitfield  Bit-field to write.
+ * @param lvalue    C lvalue to write a bit-field to.
+ * @param mask      Bit-mask indicating the bit-field to write.
+ * @param bitfield  Bit-field to write.
  *
- * \return Resulting value with written bit-field.
+ * @return Resulting value with written bit-field.
  */
 #define Wr_bitfield(lvalue, mask, bitfield) (Wr_bits(lvalue, mask, (U32)(bitfield) << ctz(mask)))
 
 //! @}
 
 
-/*! \name Zero-Bit Counting
+/** @name Zero-Bit Counting
  *
  * Under GCC, __builtin_clz and __builtin_ctz behave like macros when
  * applied to constant expressions (values known at compile time), so they are
@@ -631,11 +652,12 @@ typedef unsigned long       ulong;
  */
 //! @{
 
-/*! \brief Counts the leading zero bits of the given value considered as a 32-bit integer.
+/** 
+ * @brief Counts the leading zero bits of the given value considered as a 32-bit integer.
  *
- * \param u Value of which to count the leading zero bits.
+ * @param u Value of which to count the leading zero bits.
  *
- * \return The count of leading zero bits in \a u.
+ * @return The count of leading zero bits in \a u.
  */
 #if (defined __GNUC__) || (defined __CC_ARM)
 #   define clz(u)              __builtin_clz(u)
@@ -678,11 +700,12 @@ typedef unsigned long       ulong;
                                 31)
 #endif
 
-/*! \brief Counts the trailing zero bits of the given value considered as a 32-bit integer.
+/** 
+ * @brief Counts the trailing zero bits of the given value considered as a 32-bit integer.
  *
- * \param u Value of which to count the trailing zero bits.
+ * @param u Value of which to count the trailing zero bits.
  *
- * \return The count of trailing zero bits in \a u.
+ * @return The count of trailing zero bits in \a u.
  */
 #if (defined __GNUC__) || (defined __CC_ARM)
 #   define ctz(u)              __builtin_ctz(u)
@@ -725,39 +748,43 @@ typedef unsigned long       ulong;
 //! @}
 
 
-/*! \name Bit Reversing
+/** @name Bit Reversing
  */
 //! @{
 
-/*! \brief Reverses the bits of \a u8.
+/** 
+ * @brief Reverses the bits of \a u8.
  *
- * \param u8  U8 of which to reverse the bits.
+ * @param u8  U8 of which to reverse the bits.
  *
- * \return Value resulting from \a u8 with reversed bits.
+ * @return Value resulting from \a u8 with reversed bits.
  */
 #define bit_reverse8(u8)    ((U8)(bit_reverse32((U8)(u8)) >> 24))
 
-/*! \brief Reverses the bits of \a u16.
+/** 
+ * @brief Reverses the bits of \a u16.
  *
- * \param u16 U16 of which to reverse the bits.
+ * @param u16 U16 of which to reverse the bits.
  *
- * \return Value resulting from \a u16 with reversed bits.
+ * @return Value resulting from \a u16 with reversed bits.
  */
 #define bit_reverse16(u16)  ((U16)(bit_reverse32((U16)(u16)) >> 16))
 
-/*! \brief Reverses the bits of \a u32.
+/** 
+ * @brief Reverses the bits of \a u32.
  *
- * \param u32 U32 of which to reverse the bits.
+ * @param u32 U32 of which to reverse the bits.
  *
- * \return Value resulting from \a u32 with reversed bits.
+ * @return Value resulting from \a u32 with reversed bits.
  */
 #define bit_reverse32(u32)   __RBIT(u32)
 
-/*! \brief Reverses the bits of \a u64.
+/** 
+ * @brief Reverses the bits of \a u64.
  *
- * \param u64 U64 of which to reverse the bits.
+ * @param u64 U64 of which to reverse the bits.
  *
- * \return Value resulting from \a u64 with reversed bits.
+ * @return Value resulting from \a u64 with reversed bits.
  */
 #define bit_reverse64(u64)  ((U64)(((U64)bit_reverse32((U64)(u64) >> 32)) |\
                                    ((U64)bit_reverse32((U64)(u64)) << 32)))
@@ -884,7 +911,7 @@ typedef unsigned long       ulong;
 #define E_CLEAR         "\033[2J"
 #define E_RESET         "\033c"
 
-#define E_WONR "\33[1;47\033[1;31m"
+#define E_WONR "\033[1;47\033[1;31m"
 
 // ANSI movement codes ------------------------------------------------------
 

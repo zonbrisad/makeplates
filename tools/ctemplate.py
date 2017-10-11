@@ -23,6 +23,7 @@ import os
 import traceback
 import logging
 import argparse
+from  pathlib import Path
 from datetime import datetime, date, time
 
 # Settings ------------------------------------------------------------------
@@ -46,7 +47,25 @@ class CConf():
     
             
 def addHeader(file, fileName, brief, date, author, license):
-    header = headerExample
+
+    hFileName = scriptPath + "/header.h"
+    hFile = Path(hFileName)
+
+    if hFile.is_file():            # Using external header file
+        try:
+            f = open(hFileName, 'r+')
+        except IOError:
+            logging.debug("Could not open file %s" % (hFileName))
+            exit()
+        except:
+            print ("Unexpected error:", sys.exc_info()[0])
+            exit()
+        
+        header = f.read()
+    else:                             # Using internal header
+        header = headerExample
+        
+#    print(header)
 
     header = header.replace("__FILENAME__", fileName )
     header = header.replace("__BRIEF__",    brief    )
