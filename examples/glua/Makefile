@@ -982,7 +982,7 @@ prof:  run ## Run code profiling
 .PHONY: doc
 
 doc: ## Generate doxygen documentation
-	$(DOXYGEN)
+	$(DOXYGEN) doxygen.conf
 
 
 	
