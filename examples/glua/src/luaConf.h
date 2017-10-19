@@ -111,35 +111,38 @@ extern "C" {
 // Typedefs ---------------------------------------------------------------
 
 typedef enum {
-    LCT_FLAG_REQUIRED = 0x0001,  // This parameter is required
-    LCT_FLAG_VALIDATE = 0x0002,  // Indicates if parameter should be validated
-    LCT_FLAG_PUSH     = 0x0004,  // Push global variable from c space to lua space
-    LCT_FLAG_PULL     = 0x0008,  // Pull global variable  from lua space to c space
-    LCT_FLAG_ARG      = 0x0010,  // Argument flag
-    LCT_FLAG_PARAM    = 0x0020,  //
-	LCT_FLAG_GLOBAL   = 0x0020,  // Parameter is a global variable
+    LCT_FLAG_REQUIRED = 0x0001,  //!< This parameter is required
+    LCT_FLAG_VALIDATE = 0x0002,  //!< Indicates if parameter should be validated
+    LCT_FLAG_PUSH     = 0x0004,  //!< Push global variable from c space to lua space
+    LCT_FLAG_PULL     = 0x0008,  //!< Pull global variable  from lua space to c space
+    LCT_FLAG_ARG      = 0x0010,  //!< Argument flag
+    LCT_FLAG_PARAM    = 0x0020,  //!<
+   	LCT_FLAG_GLOBAL   = 0x0020,  //!< Parameter is a global variable
 
 } LCT_FLAGS;
 
 typedef enum {
-    LCT_ERR_VALID = 0,           // parameter has valid value
-    LCT_ERR_INVALID,             // parameter has invalid value
-    LCT_ERR_OUTOFBOUND,          // parameter value out of bound
-    LCT_ERR_MISSING              // required parameter is missing
+    LCT_ERR_VALID = 0,           //!< parameter has valid value
+    LCT_ERR_INVALID,             //!< parameter has invalid value
+    LCT_ERR_OUTOFBOUND,          //!< parameter value out of bound
+    LCT_ERR_MISSING              //!< required parameter is missing
 } LCT_ERR;
 
+/**
+ * Types of configuration elements
+ */
 typedef enum {
     LCT_TYPE_FIRST   = 0,
-    LCT_TYPE_INTEGER = 0,        // Integer parameter
-    LCT_TYPE_DOUBLE,             // Double parameter
-    LCT_TYPE_STRING,             // String parameter
-    LCT_TYPE_BOOLEAN,            // Boolean parameter
+    LCT_TYPE_INTEGER = 0,        //!< Integer parameter
+    LCT_TYPE_DOUBLE,             //!< Double parameter
+    LCT_TYPE_STRING,             //!< String parameter
+    LCT_TYPE_BOOLEAN,            //!< Boolean parameter
 
-    LCT_TYPE_INTEGER_PL,         // Integer parameter pick list
-    LCT_TYPE_DOUBLE_PL,          // Double parameter pick list
+    LCT_TYPE_INTEGER_PL,         //!< Integer parameter pick list
+    LCT_TYPE_DOUBLE_PL,          //!< Double parameter pick list
 
-    LCT_TYPE_INTEGER_NL,         // Integer parameter name list
-    LCT_TYPE_DOUBLE_NL,          // Double parameter name list
+    LCT_TYPE_INTEGER_NL,         //!< Integer parameter name list
+    LCT_TYPE_DOUBLE_NL,          //!< Double parameter name list
 
     LCT_TYPE_INTEGER_LIST,
     LCT_TYPE_DOUBLE_LIST,
@@ -147,11 +150,11 @@ typedef enum {
     LCT_TYPE_BOOLEAN_LIST,
     LCT_TYPE_BYTE_LIST,
 
-    LCT_TYPE_LAST_PARAMETER,    // indicates last parameter type
+    LCT_TYPE_LAST_PARAMETER,    //!< indicates last parameter type
 
-    LCT_TYPE_INTEGER_CONST,
-    LCT_TYPE_DOUBLE_CONST,
-    LCT_TYPE_STRING_CONST,
+    LCT_TYPE_INTEGER_CONST,     //!< Integer constant
+    LCT_TYPE_DOUBLE_CONST,      //!< Double constant
+    LCT_TYPE_STRING_CONST,      //!< String constant
 
     LCT_TYPE_TABLE,
     LCT_TYPE_TABLE_LIST,
@@ -174,49 +177,49 @@ typedef enum {
 typedef struct luaConf luaConf;
 
 typedef struct {
-    LCT_TINT val;         // parameter value
-    LCT_TINT default_val; // default value
-    LCT_TINT min;         // min value of parameter
-    LCT_TINT max;         // max value of parameter
-    LCT_TINT *validList;  // list of valid values
-    uint32_t length;     // Size of list
-    LCT_TINT *list;       // list of valid values of parameter
+    LCT_TINT val;         //!< parameter value
+    LCT_TINT default_val; //!< default value
+    LCT_TINT min;         //!< min value of parameter
+    LCT_TINT max;         //!< max value of parameter
+    LCT_TINT *validList;  //!< list of valid values
+    uint32_t length;      //!< Size of list
+    LCT_TINT *list;       //!< list of valid values of parameter
 } LCT_DATA_INTEGER;
 
 typedef struct {
-    LCT_TDBL val;         // parameter value
-    LCT_TDBL default_val; // default value
-    LCT_TDBL min;         // min value of parameter
-    LCT_TDBL max;         // max value of parameter
-    LCT_TDBL *validList;  // list of valid values
-    uint32_t length;     // Size of list
-    LCT_TDBL *list;       // list of valid values of parameter
+    LCT_TDBL val;         //!< parameter value
+    LCT_TDBL default_val; //!< default value
+    LCT_TDBL min;         //!< min value of parameter
+    LCT_TDBL max;         //!< max value of parameter
+    LCT_TDBL *validList;  //!< list of valid values
+    uint32_t length;      //!< Size of list
+    LCT_TDBL *list;       //!< list of valid values of parameter
 } LCT_DATA_DOUBLE;
 
 typedef struct {
-    LCT_TSTR val;         // parameter value
-    LCT_TSTR default_val; // default value
-    uint32_t length;     // Size of list
-    LCT_TSTR *list;       // list of valid values of parameter
+    LCT_TSTR val;         //!< parameter value
+    LCT_TSTR default_val; //!< default value
+    uint32_t length;      //!< Size of list
+    LCT_TSTR *list;       //!< list of valid values of parameter
 } LCT_DATA_STRING;
 
 typedef struct {
-    LCT_TBOOL val;         // parameter value
-    LCT_TBOOL default_val; // parameter value
+    LCT_TBOOL val;         //!< parameter value
+    LCT_TBOOL default_val; //!< parameter value
 } LCT_DATA_BOOLEAN;
 
 typedef struct {
 	luaConf *params;
-    uint32_t length;
-    void *list;
+	uint32_t length;
+	void *list;
 } LCT_DATA_TABLE;
 
 
 typedef struct {
-    luaConf *params;         // call parameters
-    luaConf *returns;        // return values
-    int p;                // nr of parameters
-    int r;                // nr of returns
+    luaConf *params;         //!< call parameters
+    luaConf *returns;        //!< return values
+    int p;                   //!< nr of parameters
+    int r;                   //!< nr of returns
 } LCT_DATA_FUNCTION;
 
 
@@ -229,10 +232,10 @@ typedef void (*intArgGet)(int *);
 
 
 struct luaConf {
-    LCT_TYPES    type;                     // parameter type
-    char         name[LCT_NAME_LENGTH];    // parameter name
-    char         *desc;                    // parameter description
-    uint16_t     flags;                    // parameter control flags
+    LCT_TYPES    type;                     //!< parameter type
+    char         name[LCT_NAME_LENGTH];    //!< parameter name
+    char         *desc;                    //!< parameter description
+    uint16_t     flags;                    //!< parameter control flags
     LCT_ERR       err;
     union {
         LCT_DATA_INTEGER     intParam;

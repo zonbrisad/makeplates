@@ -23,24 +23,14 @@ TARGET = ltest
 
 # List C, C++ and assembler source files here. (C/C++ dependencies are automatically generated.)
 SRC = src/main.c                       \
-      src/argtable2-13/src/argtable2.c \
-      src/argtable2-13/src/arg_end.c   \
-      src/argtable2-13/src/arg_lit.c   \
-      src/argtable2-13/src/arg_str.c   \
-      src/argtable2-13/src/arg_file.c  \
-      src/argtable2-13/src/arg_rem.c   \
-      src/argtable2-13/src/getopt1.c   \
-      src/argtable2-13/src/arg_dbl.c   \
-      src/argtable2-13/src/arg_int.c   \
-      src/argtable2-13/src/arg_rex.c   \
-      src/argtable2-13/src/arg_date.c  \
+      src/argtable3/argtable3.c        \
 
 # List C, C++ and assembler library/3rd partry source files here. (C/C++ dependencies are automatically generated.)
 LSRC =	
 
 # Include directories
 INCLUDE = src \
-          src/argtable2-13/src 
+          src/argtable3
 
 # Libraries to link
 LIB   = -lm 
