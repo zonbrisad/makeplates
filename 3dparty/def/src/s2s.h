@@ -22,12 +22,8 @@ extern "C" {
 // Macros -----------------------------------------------------------------
 
 #define S2S_STRLEN 32
-#define S2S_LAST (int)0xFFFFFFFF
+#define S2S_LAST "#L@$t!"
 #define S2S_END S2S_LAST, ""
-
-//typedef int S2S_KEY;
-//typedef int S2S_VAL;
-	
 
 // Typedefs ---------------------------------------------------------------
 
@@ -71,7 +67,7 @@ void S2S_free(S2S *db);
  * @param key the key to be found in database
  * @return -1 if key not found, >0 index in db
  */
-int S2S_findKey(S2S *db, S2S_KEY key);
+int S2S_findKey(S2S *db, char *key);
 
 /**
  * Find index of value in database.
@@ -88,7 +84,7 @@ int S2S_findValue(S2S *db, char *value);
  * @param key key to find
  * @return
  */
-char *S2S_getValue(S2S *db, S2S_KEY key);
+char *S2S_getValue(S2S *db, char *key);
 
 /**
  * Set value to corresponding key in database
@@ -96,7 +92,7 @@ char *S2S_getValue(S2S *db, S2S_KEY key);
  * @param key the key whos value to be set
  * @param value new value
  */
-void S2S_setValue(S2S *db, S2S_KEY key, char *value);
+void S2S_setValue(S2S *db, char *key, char *value);
 
 /**
  *
@@ -105,7 +101,7 @@ void S2S_setValue(S2S *db, S2S_KEY key, char *value);
  * @param key new key
  * @param value new value
  */
-void S2S_setKeyValue(S2S *db, int idx, S2S_KEY key, char *value);
+void S2S_setKeyValue(S2S *db, int idx, char *key, char *value);
 
 
 /**

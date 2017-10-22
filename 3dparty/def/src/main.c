@@ -20,10 +20,13 @@
 #include <string.h>
 #include <errno.h>
 
+#include "unity.h"
+
 #include "def.h"
 #include "def_util.h"
 #include "i2i.h"
 #include "i2s.h"
+#include "s2s.h"
 
 // Defines ----------------------------------------------------------------
 
@@ -40,7 +43,7 @@ void I2S_test(void);
 void S2S_test(void);
 void I2I_test(void);
 void defTest(void);
-void unitTest(void);
+int unitTest(void);
 
 // Code -------------------------------------------------------------------
 
@@ -66,7 +69,7 @@ S2S fgColors[] = {
     { E_BR_BLUE,    "Br Blue"    },
     { E_BR_MAGENTA, "Br Magenta" },
     { E_BR_CYAN,    "Br Cyan"    },
-    { E_WHITE,      "White"          },
+    { E_WHITE,      "White"      },
     { S2S_END }
 };
 
@@ -89,7 +92,7 @@ void colorTest(void) {
 
     for (j = 0; j < S2S_len(bgColors); j++) {
         for (i = 0; i < S2S_len(fgColors); i++) {
-            printf("%s%s %s "E_END, bgColors[j].key, fgColors[i].key, fgColors[i].val);
+            printf("%s%s %s "E_END, bgColors[j].key, fgColors[i].key, fgColors[i].value);
         }
 
         printf("\n");
@@ -117,7 +120,7 @@ void sigHup(int sig) {
 }
 
 
-#include "unity.h"
+
 
 I2S numbersDb[] = {
     { 1, "First"  },
@@ -133,7 +136,6 @@ void setUp(void) {
 void tearDown(void) {
 }
 
-	
 void I2S_test(void) {
 	I2S *db;
 
@@ -164,9 +166,20 @@ int ia[] = { 12, 33, 54, 11, 412, -443 };
 int ix[] = { 44, 33, 54, 11, 412, -443 };
 
 void S2S_test(void) {
-	TEST_ASSERT_EQUAL_INT(12,12);
-	ia[0] = 44;
-	TEST_ASSERT_EQUAL_INT_ARRAY( ix,  ia, 6);
+	S2S *db;
+	db = fgColors;
+
+	TEST_ASSERT_EQUAL_INT(  16, S2S_len(db));
+	TEST_ASSERT_EQUAL_INT(   6, S2S_findKey(db, E_CYAN));
+//	TEST_ASSERT_EQUAL_INT(  4, i2i_findKey(db, 5));
+	TEST_ASSERT_EQUAL_STRING("Cyan", S2S_getValue(db, E_CYAN));
+	TEST_ASSERT_EQUAL_INT(0,   S2S_first(db));
+	TEST_ASSERT_EQUAL_INT(15,  S2S_last(db));
+
+
+//	TEST_ASSERT_EQUAL_INT(12,12);
+//	ia[0] = 44;
+//	TEST_ASSERT_EQUAL_INT_ARRAY( ix,  ia, 6);
 
 
 }
@@ -181,10 +194,9 @@ i2i ii[] = {
 		{ I2I_END }
 };
 
-
 void I2I_test(void) {
   i2i *db;
-  int i;
+
   db = ii;
   TEST_ASSERT_EQUAL_INT(  5, i2i_len(db));
   TEST_ASSERT_EQUAL_INT(  1, i2i_findKey(db, 2));
@@ -206,7 +218,6 @@ void I2I_test(void) {
 
   i2i_printDb(ii);
 }
-
 
 void defTest(void) {
 	TEST_ASSERT_EQUAL_INT(10, Max( 10,   5));
@@ -242,8 +253,7 @@ void defTest(void) {
 	
 }
 
-
-void unitTest(void) {
+int unitTest(void) {
 	
 	printf("Swap %X\n", Swap16(0xFF00));
 	
@@ -256,22 +266,23 @@ void unitTest(void) {
 	return UNITY_END();
 }
 
-
-//#define SOMETEXT  This_is_some_text
-
 int main(int argc, char *argv[]) {
 	int x;
+	char buf[64];
 
 	UNUSED(argc);
 	UNUSED(argv);
 	
 	unitTest();
 
-	printf("Binary %s\n", int2bin(0xAA, 8));
-	printf("Binary %s\n", int2bin(0xFF, 8));
-	printf("Binary %s\n", int2bin(0xAAAA,16));
-	printf("Binary %s\n", int2bin(0xAAFFAAFF,32));
-	printf("Binary %s\n", int2bin(0xAAFFAAFF,48));
+    printSysInfo();
+	printf("Path to program: %s\n", getPathToSelf());
+
+	printf("Binary %s\n", int2bin(buf, 0xAA, 8));
+	printf("Binary %s\n", int2bin(buf, 0xFF, 8));
+	printf("Binary %s\n", int2bin(buf, 0xAAAA,16));
+	printf("Binary %s\n", int2bin(buf, 0xAAFFAAFF,32));
+	printf("Binary %s\n", int2bin(buf, 0xAAFFAAFF,48));
 	
 /*
 	printf("|||||||+--\n");
@@ -286,23 +297,25 @@ int main(int argc, char *argv[]) {
 
 
 	x = 0;
-	printf("x = %s\n", int2bin(x, 8));
-  Set_bits(x, 0x2);
-	printf("x = %s\n", int2bin(x, 8));
+	printf("x = %s\n", int2bin(buf, x, 8));
+    Set_bits(x, 0x2);
+	printf("x = %s\n", int2bin(buf, x, 8));
 
 	Set_bits(x, 0xF0);
-	printf("x = %s\n", int2bin(x, 8));
+	printf("x = %s\n", int2bin(buf, x, 8));
 
 	Clr_bits(x, 0xA0);
-	printf("x = %s\n", int2bin(x, 8));
+	printf("x = %s\n", int2bin(buf, x, 8));
 
 	Tgl_bits(x, 0x8);
-	printf("x = %s\n", int2bin(x, 8));
+	printf("x = %s\n", int2bin(buf, x, 8));
 
 //	x = bit_reverse8(x);
 //	printf("x = %s\n", int2bin(x, 8));
 	
-	
+	printLine();
+	printTextLine("Kalle");
+	printTextLine("A test");
 
 	return 0;
 }

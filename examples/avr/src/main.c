@@ -263,7 +263,6 @@ int main(void) {
 	ERRORPRINT("Error\n");
 	FATALPRINT("Fatal\n");
 	
-<<<<<<< HEAD
 /*	
 	
 	while (1) {
@@ -293,13 +292,13 @@ int main(void) {
 		}
 		_delay_ms(200);
 
-=======
-	while (1) {
-		tmp = timer2_ticks;
-		printf_P(PSTR("Timer counter %-5d %-3d  Timer0: %4d\n"), tmp, TCNT2, timer3);
+
+//	while (1) {
+//		tmp = timer2_ticks;
+//		printf_P(PSTR("Timer counter %-5d %-3d  Timer0: %4d\n"), tmp, TCNT2, timer3);
 //		printf("Input char %c\n", simul_getchar());
-		_delay_ms(100);
->>>>>>> bb0d9446efe2014b618c723b52f2562bab9e3a1b
+//		_delay_ms(100);
+
 		ARD_LED_TOGGLE();
 		
 		counter++;
