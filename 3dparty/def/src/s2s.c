@@ -2,10 +2,10 @@
  *---------------------------------------------------------------------------
  * @brief   Some usefull C routines.
  *
- * @file    i2s.c
- * @author  Peter Malmberg <peter.malmberg@gmail.com>
+ * @file    s2s.c
+ * @author  Your Name <your.name@yourdomain.org>
  * @date    2017-05-04
- * @license GPLv2
+ * @licence GPLv2
  *
  *---------------------------------------------------------------------------
  */
@@ -13,7 +13,7 @@
 // Includes ---------------------------------------------------------------
 
 #include "def.h"
-#include "i2s.h"
+#include "s2s.h"
 
 
 // Code -------------------------------------------------------------------
