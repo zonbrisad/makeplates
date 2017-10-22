@@ -39,11 +39,6 @@ extern "C" {
 // Typedefs ---------------------------------------------------------------
 
 typedef struct {
-    int  key;
-    char val[I2S_STRLEN];
-} I2S;
-
-typedef struct {
     char key[S2S_STRLEN];
     char val[S2S_STRLEN];
 } S2S;
@@ -52,25 +47,6 @@ typedef struct {
 // Variables --------------------------------------------------------------
 
 // Prototypes -------------------------------------------------------------
-
-I2S *I2S_new(int size);
-I2S *I2S_copy(I2S *db);
-void I2S_free(I2S *db);
-
-int I2S_findIdx(I2S *db, int key);
-int I2S_findIdxStr(I2S *db, char *value);
-char *I2S_getValue(I2S *db, int key);
-void I2S_setValue(I2S *db, int key, char *value);
-
-void I2S_setKeyValue(I2S *db, int idx, int key, char *value);
-
-int I2S_last(I2S *db);
-int I2S_first(I2S *db);
-int I2S_len(I2S *db);
-
-void I2S_print(I2S *db);
-	
-
 
 int S2S_findIdx(S2S *db, char *key);
 int S2S_findIdxStr(S2S *db, char *value);

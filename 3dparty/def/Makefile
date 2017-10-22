@@ -30,7 +30,8 @@ TARGET = defTest
 SRC = src/main.c        \
       src/def_util.c    \
       Unity/src/unity.c \
-			src/i2i.c         \
+      src/i2i.c         \
+      src/i2s.c
 
 # List C, C++ and assembler library/3rd partry source files here. (C/C++ dependencies are automatically generated.)
 LSRC =	

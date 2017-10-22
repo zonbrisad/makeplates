@@ -22,6 +22,8 @@
 
 #include "def.h"
 #include "def_util.h"
+#include "i2i.h"
+#include "i2s.h"
 
 // Defines ----------------------------------------------------------------
 
@@ -36,6 +38,7 @@ void sigHup(int sig);
 void colorTest(void);
 void I2S_test(void);
 void S2S_test(void);
+void I2I_test(void);
 void defTest(void);
 void unitTest(void);
 
@@ -135,23 +138,25 @@ void I2S_test(void) {
 	I2S *db;
 
 	db = I2S_copy(numbersDb);
-	TEST_ASSERT_EQUAL_INT(2, I2S_findIdxStr(db, "Third"));
+	TEST_ASSERT_EQUAL_INT(2, I2S_findValue(db, "Third"));
 
 	TEST_ASSERT_EQUAL_INT(4, I2S_len(numbersDb));
 	TEST_ASSERT_EQUAL_STRING("Last", I2S_getValue(numbersDb, 4));
-	TEST_ASSERT_EQUAL_INT(2, I2S_findIdx(numbersDb, 3));
-	TEST_ASSERT_EQUAL_INT(2, I2S_findIdxStr(numbersDb, "Third"));
+	TEST_ASSERT_EQUAL_INT(2, I2S_findKey(numbersDb, 3));
+	TEST_ASSERT_EQUAL_INT(2, I2S_findValue(numbersDb, "Third"));
 	
 	I2S_setValue(numbersDb, 4, "Nisse");
 	TEST_ASSERT_EQUAL_STRING("Nisse", I2S_getValue(numbersDb, 4));
 
 	I2S_setKeyValue(numbersDb, 0, 22, "kv22");
-	TEST_ASSERT_EQUAL_INT(0, I2S_findIdx(numbersDb, 22));
+	TEST_ASSERT_EQUAL_INT(0, I2S_findKey(numbersDb, 22));
 	TEST_ASSERT_EQUAL_STRING("kv22", I2S_getValue(numbersDb, 22));
 	
 	db = I2S_new(12);
 	TEST_ASSERT_EQUAL_INT(12, I2S_len(db));
 	
+	I2S_printDb(numbersDb);
+
 }
 
 int ia[] = { 12, 33, 54, 11, 412, -443 };
@@ -165,6 +170,43 @@ void S2S_test(void) {
 
 
 }
+
+
+i2i ii[] = {
+		{ 1, 111 },
+		{ 2, 222 },
+		{ 3, 333 },
+		{ 4, 444 },
+		{ 5, 555 },
+		{ I2I_END }
+};
+
+
+void I2I_test(void) {
+  i2i *db;
+  int i;
+  db = ii;
+  TEST_ASSERT_EQUAL_INT(  5, i2i_len(db));
+  TEST_ASSERT_EQUAL_INT(  1, i2i_findKey(db, 2));
+  TEST_ASSERT_EQUAL_INT(  4, i2i_findKey(db, 5));
+  TEST_ASSERT_EQUAL_INT(333, i2i_getValue(db, 3));
+  TEST_ASSERT_EQUAL_INT(0,   i2i_first(db));
+  TEST_ASSERT_EQUAL_INT(4,   i2i_last(db));
+
+  db = i2i_new(10);
+  TEST_ASSERT_EQUAL_INT(10, i2i_len(db));
+
+  db = i2i_copy(ii);
+  TEST_ASSERT_EQUAL_INT(  5, i2i_len(db));
+  TEST_ASSERT_EQUAL_INT(  1, i2i_findKey(db, 2));
+  TEST_ASSERT_EQUAL_INT(  4, i2i_findKey(db, 5));
+  TEST_ASSERT_EQUAL_INT(333, i2i_getValue(db, 3));
+  TEST_ASSERT_EQUAL_INT(0,   i2i_first(db));
+  TEST_ASSERT_EQUAL_INT(4,   i2i_last(db));
+
+  i2i_printDb(ii);
+}
+
 
 void defTest(void) {
 	TEST_ASSERT_EQUAL_INT(10, Max( 10,   5));
@@ -208,13 +250,14 @@ void unitTest(void) {
 	UNITY_BEGIN();
 	RUN_TEST(I2S_test);
 	RUN_TEST(S2S_test);
+	RUN_TEST(I2I_test);
 	RUN_TEST(defTest);
+
 	return UNITY_END();
 }
 
 
 //#define SOMETEXT  This_is_some_text
-
 
 int main(int argc, char *argv[]) {
 	int x;
@@ -259,7 +302,7 @@ int main(int argc, char *argv[]) {
 //	x = bit_reverse8(x);
 //	printf("x = %s\n", int2bin(x, 8));
 	
-	I2S_print(numbersDb);
 	
+
 	return 0;
 }
