@@ -5,7 +5,7 @@
  * @file    i2i.h
  * @author  Peter Malmberg <peter.malmberg@gmail.com>
  * @date    2017-05-04
- * @license GPLv2
+ * @license MIT
  *
  *---------------------------------------------------------------------------
  */
