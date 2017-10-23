@@ -142,14 +142,14 @@ def addMain(file):
   file.write("}\n")
 
 def addDefine(file, name, value):
-    file.write("#define "+name+" "+value)
+    file.write("#define "+name+" "+value+"\n")
 
 def addAppDefines(file, name):
-    addDefine("APP_NAME        ", "\""+name+"\"")
-    addDefine("APP_VERSION     ", "0.01")
-    addDefine("APP_DESCRIPTION ", "\"\"")
-    addDefine("APP_AUTHOR      ", "\"\"")
-    addDefine("APP_LICENSE     ", "\"\"")
+    addDefine(file, "APP_NAME        ", "\""+name+"\"")
+    addDefine(file,"APP_VERSION     ", "0.01")
+    addDefine(file,"APP_DESCRIPTION ", "\"\"")
+    addDefine(file,"APP_AUTHOR      ", "\"\"")
+    addDefine(file,"APP_LICENSE     ", "\"\"")
 #    addDefine("APP_LOGFILE",     "glib.log")
 #    addDefine("APP_PIDFILE",     "/tmp/glibtest.pid")
     
@@ -236,6 +236,9 @@ def newModule(dir, author, licence, lan):
     addCppSentinel(fileH)
     addSection(fileH, "Includes")
     addSection(fileH, "Macros")
+    if main:
+        addAppDefines(fileH, fName)
+    
     addSection(fileH, "Typedefs")
     addSection(fileH, "Variables")
     addSection(fileH, "Prototypes")
@@ -311,7 +314,17 @@ def newProject(dir, author, license):
 scriptPath = os.path.abspath(os.path.dirname(sys.argv[0]))
 mpPath     = scriptPath+"/.."    
 
+
+# Get Bashplate settings
+def bp():
+    name    = os.getenv('BP_NAME', "")
+    email   = os.getenv('BP_EMAIL', "")
+    license = os.getenv('BP_LICENSE', "")
+    return name, email, license
+
 def main():
+    bpName, bpEmail, bpLicense = bp()
+    
     logging.basicConfig(level=logging.DEBUG)
     
     # options parsing
@@ -323,10 +336,9 @@ def main():
     parser.add_argument("--newgtk",   action="store_true", help="Create a new GTK project")
     parser.add_argument("--newproj",  action="store_true", help="Create a new Makeplate project")
     parser.add_argument("--giti",     action="store_true", help="Create a .gitignore file")
-    
-    parser.add_argument("--license",  type=str,            help="License of new file",           default="")
-    parser.add_argument("--author",   type=str,            help="Author of file",                default="")
-    parser.add_argument("--dir",      type=str,            help="Directory where to store file", default=".")
+    parser.add_argument("--license",  type=str,  help="License of new file",           default=bpLicense)
+    parser.add_argument("--author",   type=str,  help="Author of file",                default=bpName+" <"+bpEmail+">")
+    parser.add_argument("--dir",      type=str,  help="Directory where to store file", default=".")
 #    parser.add_argument("--header",   type=str,            help="External header file",  default="headerExample")
     
     args = parser.parse_args()
