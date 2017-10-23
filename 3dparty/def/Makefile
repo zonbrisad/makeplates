@@ -30,7 +30,10 @@ TARGET = defTest
 SRC = src/main.c        \
       src/def_util.c    \
       Unity/src/unity.c \
-			src/i2i.c         \
+      src/i2i.c         \
+      src/i2s.c         \
+      src/s2s.c         \
+      src/def_linux.c
 
 # List C, C++ and assembler library/3rd partry source files here. (C/C++ dependencies are automatically generated.)
 LSRC =	
@@ -125,7 +128,7 @@ CFLAGS += -Wstrict-prototypes    # non correct prototypes i.e. void fun() => voi
 CFLAGS += -Wredundant-decls      # Warn if something is declared more than ones
 CFLAGS += -Wunreachable-code     # if code is not used
 CFLAGS += -Wshadow               # if local variable has same name as global
-CFLAGS += -Wformat=2             # check printf and scanf for problems
+#CFLAGS += -Wformat=2             # check printf and scanf for problems
 #CFLAGS += -Wno-format-nonliteral # 
 CFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void pointer
 #CFLAGS += -Wsign-compare
@@ -159,7 +162,7 @@ CPPFLAGS += -Wmissing-declarations # Warn if global function is not declared
 CPPFLAGS += -Wredundant-decls      # Warn if something is declared more than ones
 CPPFLAGS += -Wunreachable-code     # if code is not used
 #CPPFLAGS += -Wshadow               # if local variable has same name as global (problematic?)
-CPPFLAGS += -Wformat=2             # check printf and scanf for problems
+#CPPFLAGS += -Wformat=2             # check printf and scanf for problems
 #CPPFLAGS += -Wno-format-nonliteral # 
 CPPFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void pointer
 #CPPFLAGS += -Wsign-compare

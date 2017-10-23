@@ -226,7 +226,7 @@ TCHAIN_PREFIX=
 # Handle pkg-config libraries -----------------------------------------------
 CFLAGS   += $(foreach X, $(PKGLIBS), $(shell pkg-config --cflags $(X)) )
 CPPFLAGS += $(foreach X, $(PKGLIBS), $(shell pkg-config --cflags $(X)) )
-LDFLAGS  += $(foreach X, $(PKGLIBS), $(shell pkg-config --libs $(X)) )
+LDFLAGS  += $(foreach X, $(PKGLIBS), $(shell pkg-config --libs $(X))   )
 
 # Size flags ----------------------------------------------------------------
 SIZEFLAGS = --format=berkley  # format = {sysv|berkeley}
@@ -283,6 +283,7 @@ endif
 # Atmel AVR options ---------------------------------------------------------
 
 ifeq ($(TARGET_PLATFORM), avr)
+
 # MCU name
 MCU = atmega2560
 
@@ -290,12 +291,7 @@ MCU = atmega2560
 # Some common values:
 #  1000000  1843200  2000000 3686400 4000000 7372800 8000000 11059200 14745600
 F_CPU = 8000000
-
-CDEFS   += F_CPU=$(F_CPU)UL
-ADEFS   += F_CPU=$(F_CPU)UL
-CPPDEFS += F_CPU=$(F_CPU)UL
-
-# 
+ 
 CFLAGS   += -mmcu=$(MCU)
 CPPFLAGS += -mmcu=$(MCU)
 ASFLAGS  += -mmcu=$(MCU)
@@ -317,6 +313,10 @@ OCFLAGS = -O $(FORMAT) -R .eeprom -R .fuse -R .lock -R .signature
 #     AVR Studio 4.10 requires dwarf-2.
 #     AVR [Extended] COFF format requires stabs, plus an avr-objcopy run.
 DEBUG = dwarf-2
+
+CDEFS   += F_CPU=$(F_CPU)UL
+ADEFS   += F_CPU=$(F_CPU)UL
+CPPDEFS += F_CPU=$(F_CPU)UL
 
 # Toolchain base directory
 TCHAIN_BASE=/usr/bin

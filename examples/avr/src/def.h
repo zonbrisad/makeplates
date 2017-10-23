@@ -52,6 +52,7 @@
 # endif
 #endif
 
+
 // Includes ---------------------------------------------------------------
 
 #include <stdio.h>
@@ -69,6 +70,7 @@
 #ifdef DEF_PLATFORM_AVR
 #include "def_avr.h"
 #endif
+
 
 #ifndef DEF_H_
 #define DEF_H_

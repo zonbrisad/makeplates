@@ -1,73 +1,54 @@
 /**
  *---------------------------------------------------------------------------
- * @brief   Some usefull C routines.
+ * @brief   SInteger 2 integer associative array.
  *
- * @file    pmutil.c
- * @author  Your Name <your.name@yourdomain.org>
+ * @file    i2i.c
+ * @author  Peter Malmberg <peter.malmberg@gmail.com>
  * @date    2017-05-04
- * @licence GPLv2
+ * @license MIT
  *
  *---------------------------------------------------------------------------
  */
 
 // Includes ---------------------------------------------------------------
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <errno.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-
 #include "def.h"
 #include "i2i.h"
 
-// Macros -----------------------------------------------------------------
-
-// Variables --------------------------------------------------------------
-
-// Prototypes -------------------------------------------------------------
 
 // Code -------------------------------------------------------------------
 
-// i2i ----------------------------------------------------------------------
-
-
 i2i *i2i_new(int size) {
-  i2i *db;
-	
-	db = malloc((size+1) * sizeof(i2i));
+    i2i *db;
 
-	db[size].key = I2I_LAST;
-	db[size].val = 0;
-	
-	return db;
+    db = malloc((size + 1) * sizeof(i2i));
+
+    db[size].key = I2I_LAST;
+    db[size].value = 0;
+
+    return db;
 }
 
 i2i *i2i_copy(i2i *db) {
-	i2i *dst;
-	int len;
+    i2i *dst;
+    int len;
 
-	len = i2i_len(db);
+    len = i2i_len(db);
+    dst = i2i_new(len);
+    memcpy(dst, db, len * sizeof(i2i));
 
-	dst = i2i_new(len);
-
-	memcpy(dst, db, len * sizeof(i2i));
-
-	return dst;
+    return dst;
 }
 
 void i2i_free(i2i *db) {
-  free(db);
+    free(db);
 }
 
-int i2i_findIdx(i2i *db, int val) {
+int i2i_findKey(i2i *db, int key) {
     int i = 0;
 
     while (db[i].key != I2I_LAST) {
-        if (db[i].key == val) {
+        if (db[i].key == key) {
             return i;
         }
 
@@ -77,13 +58,14 @@ int i2i_findIdx(i2i *db, int val) {
     return -1;
 }
 
-int i2i_findIdxStr(i2i *db, int str) {
+int i2i_findValue(i2i *db, I2I_VAL value) {
     int i = 0;
 
     while (db[i].key != I2I_LAST) {
-//        if (!strncmp(db[i].val, str, I2S_STRLEN)) {
-//            return i;
- //       }
+
+        if (db[i].value == value) {
+            return i;
+        }
 
         i++;
     }
@@ -91,34 +73,35 @@ int i2i_findIdxStr(i2i *db, int str) {
     return -1;
 }
 
-char *i2i_getValue(i2i *db, int val) {
+I2I_VAL i2i_getValue(i2i *db, I2I_KEY key) {
     int idx = 0;
 
-    idx = i2i_findIdx(db, val);
+    idx = i2i_findKey(db, key);
 
     if (idx != -1) {
-        return db[idx].val;
+        return db[idx].value;
     } else {
-        return NULL;
+        return 0;
     }
 }
 
-void i2i_setValue(i2i *db, int val, int str) {
+void i2i_setValue(i2i *db, I2I_KEY key, I2I_VAL value) {
     int idx = 0;
 
-    idx = i2i_findIdx(db, val);
+    idx = i2i_findValue(db, key);
 
     if (idx != -1) {
- //       strncpy(db[idx].val, str, i2i_STRLEN);
+        //db[idx].key = key;
+        db[idx].value = value;
     }
 }
 
-void i2i_setKeyValue(i2i *db, int idx, int key, int value) {
+void i2i_setKeyValue(i2i *db, int idx, I2I_KEY key, I2I_VAL value) {
 
-	if (isWithin(idx, 0, i2i_len(db)-1)) {
-		db[idx].key = key;
-//		strncpy(db[idx].val, value, I2S_STRLEN);
-	}
+    if (isWithin(idx, 0, i2i_len(db) - 1)) {
+        db[idx].key = key;
+        db[idx].value = value;
+    }
 }
 
 
@@ -139,6 +122,14 @@ int i2i_last(i2i *db) {
 int i2i_first(i2i *db) {
     UNUSED(db);
     return 0;
+}
+
+void i2i_printDb(i2i *db) {
+    int i;
+
+    for (i = 0; i < i2i_len(db); i++) {
+        printf("%8d   %8d\n", db[i].key, db[i].value);
+    }
 }
 
 

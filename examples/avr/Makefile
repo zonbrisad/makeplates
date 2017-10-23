@@ -25,7 +25,7 @@ TARGET = avrtest
 SRC = src/main.c \
       src/avrsimul.c \
       src/uart.c  \
-			src/def_util.c \
+			src/def_util.c
 #      src/twimaster.c \
 #      src/lcd.c
 # 
@@ -999,7 +999,7 @@ AVRDUDE = avrdude
 AVRDUDE_PROGRAMMER = arduino
  
 # com1 = serial port. Use lpt1 to connect to parallel port.
-AVRDUDE_PORT = /dev/ttyUSB0    # programmer connected to serial device
+AVRDUDE_PORT = /dev/ttyUSB1    # programmer connected to serial device
 
 AVRDUDE_BITRATE = 57600 
  
@@ -1035,7 +1035,9 @@ program: $(TARGET).hex # $(TARGET).eep  ## Burn program into flash
 .PHONY: sim
 
 sim:  ## Run AVR simulator 
-	simulavr -d $(MCU) -F $(F_CPU) --file $(TRGFILE) -W 0x20,- -R 0x22,- -T exit --irqstatistic
+	simavr --mcu $(MCU) --freq $(F_CPU)  $(TRGFILE) 
+# -W 0x20,- -R 0x22,- -T exit --irqstatistic
+	#simulavr -d $(MCU) -F $(F_CPU) --file $(TRGFILE) -W 0x20,- -R 0x22,- -T exit --irqstatistic
 	
 # Listing of phony targets.
 .PHONY : all clean gccversion build begin finished end elf lss sym archive edit help backup list-src list-flags newproj run install

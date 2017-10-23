@@ -1,12 +1,11 @@
 /**
  * -----------------------------------------------------------------
- * @file  def.h
  * @brief Makeplate common definitions file.
  *
- *
+ * @file  def.h
  * @author Peter Malmberg <peter.malmberg@gmail.com>
  *
- * License MIT
+ * @license MIT
  * -----------------------------------------------------------------
  */
 
@@ -636,7 +635,6 @@ typedef unsigned long       ulong;
 #define Wr_bitfield(lvalue, mask, bitfield) (Wr_bits(lvalue, mask, (U32)(bitfield) << ctz(mask)))
 
 //! @}
-
 
 /** @name Zero-Bit Counting
  *
