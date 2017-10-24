@@ -212,14 +212,15 @@ def newModule(dir, author, licence, lan):
 
    # conf.gtk = 0
     if conf.main and lan=="c":
-        conf.gtk = query_yn("GTK project", "no")
-        conf.signals = query_yn("Include signals", "no")
-  
+        conf.gtk      = query_yn("GTK project", "no")
+        conf.signals  = query_yn("Include signals", "no")
+        conf.argtable = query_yn("Include argtable", "no")
         
     if main and lan=="cpp":    
+        conf.argtable = query_yn("Include argtable", "no")
         qtMain = query_yn("Qt project", "no")
     
-    fileNameC = fName + "."+lan
+    fileNameC = fName + "." + lan
     fileNameH = fName + ".h"
 
     # Open files to be generated
@@ -595,6 +596,11 @@ ui_*.h
 # QtCtreator CMake
 CMakeLists.txt.user*
 """
+
+
+argTable="""
+"""
+
 
 
 if __name__ == "__main__":

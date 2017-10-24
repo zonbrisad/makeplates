@@ -91,20 +91,20 @@ bpLn() {
  fi
 }
 
-bpCp() {
-  bpInfo "Copying \"${1}\" to \"${2}\""
-  cp -rf $1 $2
-}
+#bpCp() {
+#  bpInfo "Copying \"${1}\" to \"${2}\""
+#  cp -rf $1 $2
+#}
 
 bpMv() {
   bpInfo "Moving file \"${1}\" \"${2}\""
   mv $1 $2
 }
 
-bpRm() {
-  bpInfo "Removing file \"${1}\""
-  rm -rf ${1}
-}
+#bpRm() {
+#  bpInfo "Removing file \"${1}\""
+#  rm -rf ${1}
+#}
 
 createProject() {
   echo -e ${1}
@@ -118,7 +118,7 @@ createProject() {
 	fi
 
   bpCp "${2}/*" "${dst}"
-	rm -f ${dst}/tools
+	bpRm "${dst}/tools"
 	bpCp "${scriptPath}/tools" "${dst}"
 }
 
@@ -126,19 +126,19 @@ createProject() {
 ##N- Project
 
 newc() { ##C NEW Create a new standard C makeplate project
-  createProject "Creating new makeplate C project" ${scriptPath}/mp-c 
+  createProject "Creating new makeplate C project" "${scriptPath}/mp-c" 
 }
 
 newcpp() { ##C NEW Create a new standard C++ makeplate project
-  createProject  "Creating new makeplate C++ project" ${scriptPath}/mp-cpp
+  createProject  "Creating new makeplate C++ project" "${scriptPath}/mp-cpp"
 }
 
 newsc() { ##C NEW Create a new simple C makeplate project
-  createProject "Creating new simple makeplate C project"  ${scriptPath}/mp-simple-c
+  createProject "Creating new simple makeplate C project"  "${scriptPath}/mp-simple-c"
 }
 
 newscpp() { ##C NEW Create a new simple C++ makeplate project
-  createProject "Creating new simple makeplate C++ project" ${scriptPath}/mp-simple-cpp
+  createProject "Creating new simple makeplate C++ project" "${scriptPath}/mp-simple-cpp"
 }
 
 

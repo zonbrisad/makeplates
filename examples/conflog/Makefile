@@ -83,11 +83,8 @@ CPPDEFS =
 # 1 = minimal debug information
 # 2 = normal debug information 
 # 3 = maximal debug information
-<<<<<<< HEAD
 DEBUG=3
-=======
-DEBUG=0
->>>>>>> fb0c280f2781ae6705620f645a6f85b93a0ce448
+
 
 #
 # Compiler and Linker options
@@ -115,13 +112,8 @@ CFLAGS += -Wall                  # Standard warnings
 CFLAGS += -Wextra                # Some extra warnings
 CFLAGS += -Wmissing-braces 
 CFLAGS += -Wmissing-declarations # Warn if global function is not declared
-<<<<<<< HEAD
-#CFLAGS += -Wmissing-prototypes   # if a function is missing its prototype
-#CFLAGS += -Wstrict-prototypes    # non correct prototypes i.e. void fun() => void fun(void) 
-=======
 CFLAGS += -Wmissing-prototypes   # if a function is missing its prototype
 CFLAGS += -Wstrict-prototypes    # non correct prototypes i.e. void fun() => void fun(void) 
->>>>>>> fb0c280f2781ae6705620f645a6f85b93a0ce448
 CFLAGS += -Wredundant-decls      # Warn if something is declared more than ones
 CFLAGS += -Wunreachable-code     # if code is not used
 CFLAGS += -Wshadow               # if local variable has same name as global
@@ -149,10 +141,6 @@ CPPFLAGS += -funsigned-bitfields
 #CPPFLAGS += -fpack-struct
 CPPFLAGS += -fshort-enums
 CPPFLAGS += -fno-exceptions
-<<<<<<< HEAD
-=======
-
->>>>>>> fb0c280f2781ae6705620f645a6f85b93a0ce448
 #CPPFLAGS += -mshort-calls
 #CPPFLAGS += -fno-unit-at-a-time
 #CPPFLAGS += -fPIC                  # Position independet code
@@ -171,13 +159,6 @@ CPPFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void 
 #CPPFLAGS += -Wsign-compare
 #CPPFLAGS += -Wundef
 #CPPFLAGS += -Werror              # All warnings will be treated as errors
-
-<<<<<<< HEAD
-# Library compiler flags C++ ------------------------------------------------
-CPPFLAGS += $(foreach X, $(PKGLIBS), $(shell pkg-config --cflags $(X)) )
-
-=======
->>>>>>> fb0c280f2781ae6705620f645a6f85b93a0ce448
 
 # Linker Options ------------------------------------------------------------
 #  -Wl,...:     tell GCC to pass this to linker.
@@ -322,11 +303,7 @@ E_ATTR_REVERSE=\e[7m
 
 # System color definitions
 C_OK=$(E_BR_GREEN)
-<<<<<<< HEAD
-C_WARNING=$(E_BR_YELLOW)$(E_ATTR_UNDERLINE)
-=======
 C_WARNING=$(E_BR_YELLOW)
->>>>>>> fb0c280f2781ae6705620f645a6f85b93a0ce448
 C_ERROR=$(E_BR_RED)
 C_FILE=$(E_BR_CYAN)
 C_DIR=$(E_CYAN)
@@ -441,14 +418,10 @@ ASRC   = $(patsubst %.cpp,  , $(ASRC_1))
 # Define all object files.
 COBJS    = $(patsubst %.c,   $(BUILDDIR)/%.o, $(CSRC))
 CPPOBJS  = $(patsubst %.cpp, $(BUILDDIR)/%.o, $(CPPSRC))
-<<<<<<< HEAD
-
-OBJS    = $(COBJS) $(CPPOBJS) 
-=======
 AOBJS    = $(patsubst %.S,   $(BUILDDIR)/%.o, $(ASRC))
 
 OBJS    = $(COBJS) $(CPPOBJS) $(AOBJS)
->>>>>>> fb0c280f2781ae6705620f645a6f85b93a0ce448
+
 
 # Define all listing files.
 LST = $(patsubst %.c, $(OBJDIR)/%.lst, $(CSRC)) $(patsubst %.cpp, $(OBJDIR)/%.lst, $(CPPSRC)) $(patsubst %.S, $(OBJDIR)/%.lst, $(ASRC))
@@ -456,20 +429,8 @@ LST = $(patsubst %.c, $(OBJDIR)/%.lst, $(CSRC)) $(patsubst %.cpp, $(OBJDIR)/%.ls
 # Default target.
 all:	begin build finished end
 
-<<<<<<< HEAD
-# Remove colorfilter
-nocolor:
-	$(eval C_FILTER:= )
-
-#
-# Build with no color filter on compiler output
-# Useful for Netbeans, Eclipse builds etc. 
-#	
-nc: nocolor all   ## Build with no color filter on compiler output
-=======
 nc: C_FILTER:= 
 nc: all   ## Build with no color filter on compiler output
->>>>>>> fb0c280f2781ae6705620f645a6f85b93a0ce448
 
 #test: ALL_CFLAGS   += -DUNIT_TEST
 #test: ALL_CPPFLAGS += -DUNIT_TEST
@@ -497,20 +458,11 @@ end:
 finished:
 	@echo
 
-<<<<<<< HEAD
-
-# Link target
-.PRECIOUS : $(OBJS)
-$(TRGFILE): $(OBJS) $(OUTDIR)
-	@echo -en "\n"$(MSG_LINKING)"       "
-	@echo -e $@ $(F_SOURCE) 
-=======
 # Linking targets from object files
 .PRECIOUS : $(OBJS)
 $(TRGFILE): $(OBJS) $(OUTDIR)
 	@echo -en "\n"$(MSG_LINKING)"\n               "
 	@echo -e $@ $(F_SOURCE)
->>>>>>> fb0c280f2781ae6705620f645a6f85b93a0ce448
 	@$(CPP) $(ALL_CFLAGS) $(OBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)
 	
 # Create extended listing file/disassambly from ELF output file.
@@ -518,11 +470,7 @@ $(TRGFILE): $(OBJS) $(OUTDIR)
 %.lss:	$(TRGFILE)
 	@echo -en "\n"$(MSG_EXTENDED_LISTING) "\n               "
 	@echo -e $@ $(F_SOURCE)
-<<<<<<< HEAD
-	@$(OBJDUMP) -h -S -C -r $< > $@
-=======
 	@$(OBJDUMP) $(ODFLAGS) $< > $@
->>>>>>> fb0c280f2781ae6705620f645a6f85b93a0ce448
 	
 # Create a symbol table from ELF output file.
 %.sym: $(TRGFILE)
@@ -535,11 +483,7 @@ $(TRGFILE): $(OBJS) $(OUTDIR)
 	@echo
 	@echo -en $(MSG_HEX_FILE) "\n               "
 	@echo -e $@ $(F_SOURCE)
-<<<<<<< HEAD
-	@$(OBJCOPY) -O ihex $< $@
-=======
 	@$(OBJCOPY) $(OCFLAGS) $< $@
->>>>>>> fb0c280f2781ae6705620f645a6f85b93a0ce448
 
 # Compile: create object files from C source files.
 $(COBJS): $(BUILDDIR)/%.o : %.c
@@ -549,11 +493,7 @@ $(COBJS): $(BUILDDIR)/%.o : %.c
 	@$(CC) -c $(ALL_CFLAGS) $< -o $@ 2>&1  $(C_FILTER)
 
 # Compile: create object files from C++ source files.
-<<<<<<< HEAD
-$(CPPOBJS): $(BUILDDIR)/%.o : %.cpp
-=======
 $(CPPOBJS): $(BUILDDIR)/%.o : src/%.cpp
->>>>>>> fb0c280f2781ae6705620f645a6f85b93a0ce448
 	@$(MKDIR) $(@D)                                       # Create directory for object file
 	@echo -en $(MSG_COMPILING_CPP)" " 
 	@echo -e $< $(F_SOURCE)
@@ -593,18 +533,12 @@ $(BUILDDIR):
 size: $(TRGFILE)
 	@echo
 	@echo -e $(MSG_SIZE_AFTER)
-<<<<<<< HEAD
-	@$(SIZE) $(TRGFILE)
-=======
 	@$(SIZE) $(SIZEFLAGS) $(TRGFILE)
->>>>>>> fb0c280f2781ae6705620f645a6f85b93a0ce448
 
 strip: $(TRGFILE) ## Strip target binary from symbols
 	@echo -e $(MSG_STRIP)
 	@$(STRIP) $(TRGFILE)
 
-<<<<<<< HEAD
-=======
 
 # 
 # Qt5 Specific objects and targets
@@ -629,7 +563,7 @@ $(UIH): src/ui_%.h: src/%.ui
 	@$(UIC) $(INCDIRS) $< -o $@
 
 
->>>>>>> fb0c280f2781ae6705620f645a6f85b93a0ce448
+
 # 
 # Debug rules
 #============================================================================
@@ -662,10 +596,6 @@ clean:  ## Remove all build files
 	@$(REMOVEDIR) $(BUILDDIR)	
 	@find . -name "*~" -delete
 	@find . -name "*.orig" -delete
-<<<<<<< HEAD
-
-=======
->>>>>>> fb0c280f2781ae6705620f645a6f85b93a0ce448
 
 # Directory where to store archives
 ARCHIVEDIR = archive
@@ -747,12 +677,6 @@ edit:   ## Open source and makefile in editor
 
 run:    ## Run application
 	@$(OUTDIR)/$(TARGET)
-<<<<<<< HEAD
-
-debug:  ## Debug application
-
-=======
->>>>>>> fb0c280f2781ae6705620f645a6f85b93a0ce448
 
 # Include the dependency files.
 -include $(shell mkdir .dep 2>/dev/null) $(wildcard .dep/*)
@@ -834,17 +758,10 @@ list-ldflags: ## List linker flags
 	done                       \
 
 list-objs: ## List objects 
-<<<<<<< HEAD
-	@echo -e $(MSG_INCLUDES)
-	@export IFS=" "
-	@for f in $(OBJS); do   \
-	  echo $${f} ;             \
-=======
 	@echo -e $(MSG_OBJECTS)
 	@export IFS=" "
 	@for f in $(OBJS); do   \
 	  echo $${f} ;          \
->>>>>>> fb0c280f2781ae6705620f645a6f85b93a0ce448
 	done        
 
 
@@ -871,11 +788,7 @@ list-info:
 	@echo -e $(MSG_PROJECT)
 	@echo "Target:     $(TARGET)"
 	@echo "Platform:   $(TARGET_PLATFORM)"
-<<<<<<< HEAD
-	@echo "Licence:    $(LICENSE)"
-=======
 	@echo "License:    $(LICENSE)"
->>>>>>> fb0c280f2781ae6705620f645a6f85b93a0ce448
 	@echo "Outdir:     $(OUTDIR)"
 	@echo "C standard: $(CSTANDARD)"
 	@echo "MCU:        $(MCU)"
@@ -970,72 +883,9 @@ acheck: ## Static code analysis using cppcheck(all warnings)
 .PHONY: astyle
 
 TABSIZE=4
-<<<<<<< HEAD
 
 # Bracket style options
 AST  = --style=java
-
-# Tab options
-AST += --indent=spaces=$(TABSIZE)
-
-# Indentation options
-AST += --indent-switches
-AST += --indent-cases
-#AST += --indent-preproc-cond
-AST += --indent-col1-comments
-AST += --max-instatement-indent=40
- 
-# C++ specific indentation
-AST += --indent-modifiers
-
-# Padding options
-AST += --break-blocks
-AST += --pad-oper
-#AST += --pad-comma
-AST += --pad-header
-AST += --align-pointer=name
-AST += --align-reference=name 
-
-# Formatting options
-AST += --add-brackets 
-AST += --convert-tabs
-
-# Other options
-AST += --lineend=linux
-#AST += --recursive
-#AST += --exclude=
-AST +=--preserve-date
-
-PSRCH = $(PSRC:%.c=%.h) 
-
-astyle: ## Format source to conform to a standard
-	@$(ASTYLE) $(AST) src/*.c src/*.cpp src/*.h
-
-
-#
-# GProf profiling tool
-#============================================================================
-.PHONY: prof
-
-PROF = -a
-PROG += -b
-
-prof:  run ## Run code profiling
-	gprof $(PROF) $(TRGFILE) gmon.out 
-
-
-#
-# Doxygen documentation generation
-#============================================================================
-.PHONY: doc
-
-doc: ## Generate doxygen documentation
-	$(DOXYGEN)
-=======
-
-# Bracket style options
-AST  = --style=java
->>>>>>> fb0c280f2781ae6705620f645a6f85b93a0ce448
 
 # Tab options
 AST += --indent=spaces=$(TABSIZE)
@@ -1080,15 +930,6 @@ astyle: ## Format source to conform to a standard
 #
 # Makeplate internal targets
 #============================================================================
-<<<<<<< HEAD
-mpType=mp-cpp
-
-utools: # Update tools from locally installed tools
-	@echo -e "${C_ACTION}Updating makeplate tools${E_END}"
-	@$(COPY) ~/bin/makeplate_files/tools/* tools/.
-
-meld: # Meld Makefile with locally installed makefile
-=======
 mpType=mp-c
 
 utools: # Update tools from installed tools
@@ -1096,5 +937,4 @@ utools: # Update tools from installed tools
 	@$(COPY) ~/bin/makeplate_files/tools/* tools/.
 
 meld: # Meld with installed 
->>>>>>> fb0c280f2781ae6705620f645a6f85b93a0ce448
 	@meld ~/bin/makeplate_files/${mpType}/Makefile  Makefile
