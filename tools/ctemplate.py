@@ -37,6 +37,23 @@ AppAuthor   = "Peter Malmberg <peter.malmberg@gmail.com>"
 #LogFile     = "pyplate.log"
 
 # Code ----------------------------------------------------------------------
+class CFile():
+    header  = ""
+    main    = ""
+    include = ""
+    defines = ""
+    prototypes = ""
+    def __init__(self, conf):
+        self.conf = conf
+        return
+   
+    def addInclude(self, fileName):
+        return
+    def addHeader(self, header):
+        return
+    def saveFile(self, fileName):
+        return
+
 
 class CConf():
     main    = 0
@@ -44,6 +61,19 @@ class CConf():
     qt      = 0
     signals = 0
     sigint  = 0
+    appName = ""
+    author  = ""
+    license = ""
+    brief   = ""
+    date    = ""
+    org     = ""
+    def __init__(self):
+        self.date = datetime.now().strftime("%Y-%m-%d")
+#        self.name    = os.getenv('BP_NAME', "")
+#        self.email   = os.getenv('BP_EMAIL', "")
+#        self.license = os.getenv('BP_LICENSE', "")
+#        self.org     = os.getenv('BP_ORG', "")
+
     
             
 def addHeader(file, fileName, brief, date, author, license):
@@ -163,14 +193,14 @@ def addMain(file, conf):
     file.write("}\n")
 
 def addDefine(file, name, value):
-    file.write("#define "+name+" "+value)
+    file.write("#define "+name+" "+value+"\n")
 
-def addAppDefines(file, name):
-    addDefine("APP_NAME        ", "\""+name+"\"")
-    addDefine("APP_VERSION     ", "0.01")
-    addDefine("APP_DESCRIPTION ", "\"\"")
-    addDefine("APP_AUTHOR      ", "\"\"")
-    addDefine("APP_LICENSE     ", "\"\"")
+def addAppDefines(file, conf):
+    addDefine(file,"APP_NAME        ", "\""+conf.appName+"\"")
+    addDefine(file,"APP_VERSION     ", "0.01")
+    addDefine(file,"APP_DESCRIPTION ", "\"\"")
+    addDefine(file,"APP_AUTHOR      ", "\""+conf.author+"\"")
+    addDefine(file,"APP_LICENSE     ", "\""+conf.license+ "\"")
 #    addDefine("APP_LOGFILE",     "glib.log")
 #    addDefine("APP_PIDFILE",     "/tmp/glibtest.pid")
     
@@ -196,19 +226,25 @@ def askInfo(module):
     date = datetime.now().strftime("%Y-%m-%d")    
     return fName, brief, date
   
-def newCModule(dir, author, licence):
-    newModule(dir, author, licence, "c")
+#def newCModule(dir, author, licence):
+def newCModule(dir, conf):
+    newModule(dir, conf, "c")
 
 def newCppModule(dir, author, licence):
     newModule(dir, author, licence, "cpp")
 
-def newModule(dir, author, licence, lan):
-    conf = CConf()
-
+#def newModule(dir, author, licence, lan):
+def newModule(dir, conf, lan):
+    
     # ask for some information
     fName, brief, date = askInfo("C module")
 
     conf.main = query_yn("Add main() function", "no")
+    
+    conf.appName = fName
+    conf.brief   = brief
+#    conf.date    = date
+    
 
    # conf.gtk = 0
     if conf.main and lan=="c":
@@ -228,7 +264,7 @@ def newModule(dir, author, licence, lan):
     fileH = newFile(dir, fileNameH)
 
     # Populate C file
-    addHeader(fileC, fileNameC, brief, date, author, licence)
+    addHeader(fileC, fileNameC, brief, date, conf.author, conf.license)
 
     # Includes
     addSection(fileC, "Includes")
@@ -246,11 +282,14 @@ def newModule(dir, author, licence, lan):
         addMain(fileC, conf)
         
     # Populate H file
-    addHeader(fileH, fileNameH, brief, date, author, licence)
+    addHeader(fileH, fileNameH, brief, date, conf.author, conf.license)
     addSentinelBegin(fileH, fName.upper())
     addCppSentinel(fileH)
     addSection(fileH, "Includes")
     addSection(fileH, "Macros")
+    if main:
+        addAppDefines(fileH, conf)
+    
     addSection(fileH, "Typedefs")
     addSection(fileH, "Variables")
     addSection(fileH, "Prototypes")
@@ -326,7 +365,21 @@ def newProject(dir, author, license):
 scriptPath = os.path.abspath(os.path.dirname(sys.argv[0]))
 mpPath     = scriptPath+"/.."    
 
+
+# Get Bashplate settings
+def bp():
+    name    = os.getenv('BP_NAME', "")
+    email   = os.getenv('BP_EMAIL', "")
+    license = os.getenv('BP_LICENSE', "")
+    org     = os.getenv('BP_ORG', "")
+    
+    return name, email, license
+
 def main():
+    
+    # Get bashplates environment variables (if available)
+    bpName, bpEmail, bpLicense = bp()
+    
     logging.basicConfig(level=logging.DEBUG)
     
     # options parsing
@@ -338,16 +391,20 @@ def main():
     parser.add_argument("--newgtk",   action="store_true", help="Create a new GTK project")
     parser.add_argument("--newproj",  action="store_true", help="Create a new Makeplate project")
     parser.add_argument("--giti",     action="store_true", help="Create a .gitignore file")
-    
-    parser.add_argument("--license",  type=str,            help="License of new file",           default="")
-    parser.add_argument("--author",   type=str,            help="Author of file",                default="")
-    parser.add_argument("--dir",      type=str,            help="Directory where to store file", default=".")
+    parser.add_argument("--license",  type=str,  help="License of new file",           default=bpLicense)
+    parser.add_argument("--author",   type=str,  help="Author of file",                default=bpName+" <"+bpEmail+">")
+    parser.add_argument("--dir",      type=str,  help="Directory where to store file", default=".")
 #    parser.add_argument("--header",   type=str,            help="External header file",  default="headerExample")
     
     args = parser.parse_args()
+    
+    conf = CConf()
+    conf.author = args.author
+    conf.license = args.license
 
     if args.newc:
-        newCModule(args.dir, args.author, args.license)
+        #newCModule(args.dir, args.author, args.license)
+        newCModule(args.dir, conf)
         exit(0)
         
     if args.newclass:

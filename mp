@@ -76,48 +76,19 @@ bpQuestionDy() {  ##D Ask yes/no question default yes
 	done 	
 }
 
-# Create a directory if it does not exist
-bpMkDir() {
-  if [ ! -d $1 ]; then
-    bpInfo "Creating directory \"${1}\""
-		mkdir -p $1
-  fi
-}
-
-bpLn() {
- bpInfo "Creating link \"${2}\""
- if [ ! -L $1 ]; then
-   	ln -s ${1} ${2}
- fi
-}
-
-#bpCp() {
-#  bpInfo "Copying \"${1}\" to \"${2}\""
-#  cp -rf $1 $2
-#}
-
-bpMv() {
-  bpInfo "Moving file \"${1}\" \"${2}\""
-  mv $1 $2
-}
-
-#bpRm() {
-#  bpInfo "Removing file \"${1}\""
-#  rm -rf ${1}
-#}
 
 createProject() {
   echo -e ${1}
 	read -p "Project name>" pn
-	bpQuestionDy "Create subdirectory?" res
-	if [ ${res} == 'y' ]; then
-    bpMkDir ${pn}
-		dst=${pn}/.
-	else
-	  dst=.
-	fi
+#	bpQuestionDy "Create subdirectory?" res
+#	if [ ${res} == 'y' ]; then
+    dst="${pn}"
+		bpCp "${2}" "${pn}"
+#	else
+#	  dst=.
+#		bpCp "${2}/*" "${dst}"
+#	fi
 
-  bpCp "${2}/*" "${dst}"
 	bpRm "${dst}/tools"
 	bpCp "${scriptPath}/tools" "${dst}"
 }
