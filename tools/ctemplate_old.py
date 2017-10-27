@@ -7,14 +7,12 @@
 # File:   ctemplate.py
 # Author: Peter Malmberg <peter.malmberg@gmail.com>
 # Date:   2016-02-19
-# Version: 0.3
+# Version: 0.2
 # Python:  >=3
 # Licence: MIT
 # 
 # -----------------------------------------------------------------------
 # History
-# - Ver 0.3 
-# Major rewrite for better code generation
 #
 # Todo 
 #
@@ -39,276 +37,36 @@ AppAuthor   = "Peter Malmberg <peter.malmberg@gmail.com>"
 #LogFile     = "pyplate.log"
 
 # Code ----------------------------------------------------------------------
-class CClass():
-    className = ""
-    header    = ""
-    body      = ""
-    
-    def __init__(self, className, isHeader):
-        self.className = className
-        
-    def addMethod(self, methodName):
-        body += className+"::"+methodName+"() {\n"
-        body += "\n}\n\n"
-            
-    def addClass(self):
-        header += "class "+className+" {\n"
-        header += "    public:\n"
-        header += "      "+className+"();\n"
-        header += "}\n"
-                                
-        
 class CFile():
-    moduleName = ""
-    fileName   = ""
-    header     = ""
-    include    = ""
-    defines    = ""
-    variables  = ""
+    header  = ""
+    main    = ""
+    include = ""
+    defines = ""
     prototypes = ""
-    code       = ""
-    main       = ""
-
-    buf        = ""
-    isHeader   = False 
-    isCpp      = False
-    
-    def __init__(self, moduleName, conf, isHeader, isCpp):
-        self.conf       = conf
-        self.moduleName = moduleName
-        self.isHeader   = isHeader
-        self.isCpp      = isCpp
-        
-        if isHeader: 
-            self.fileName = moduleName + ".h"
-        else:
-            if isCpp:
-                self.fileName = moduleName + ".cpp"
-            else:
-                self.fileName = moduleName + ".c"
-                
-    def addHeader(self):
-        hFileName = scriptPath + "/header.h"
-        hFile = Path(hFileName)
-
-        if hFile.is_file():            # Using external header file if existing
-            try:
-                f = open(hFileName, 'r+')
-            except IOError:
-                logging.debug("Could not open file %s" % (hFileName))
-                exit()
-            except:
-                print ("Unexpected error:", sys.exc_info()[0])
-                exit()
-        
-                self.header = f.read()
-        else:                             # Using internal header example
-            self.header = headerExample
+    def __init__(self, conf):
+        self.conf = conf
+        return
+   
+    def addInclude(self, fileName):
+        return
+    def addHeader(self, header):
+        return
+    def saveFile(self, fileName):
         return
     
-    def addInclude(self, fileName, local = False):
-        if local:
-            self.include += ("#include \""+fileName+"\"\n")
-        else:
-            self.include += ("#include <"+fileName+">\n")
-    
-    def addDefine(self, name, value):
-        self.defines += ("#define  " + name + "  "+ value + "\n")
-
-    def addVariable(self, name):
-        self.variables += name
-
-    def addPrototype(self, prototype):
-        self.prototypes += prototype
-    
-    def addSection(self, desc):
-        line = '-' * (73 - len(desc))
-        self.buf += "\n// " + desc + " " + line + "\n\n"
-        
-    def addSentinelBegin(self, sentinel):
-        self.buf +=  \
-        "#ifndef "+sentinel+"_H\n"      \
-        "#define "+sentinel+"_H\n\n" 
-    
-    def addSentinelEnd(self):
-        self.buf += "#endif\n\n"
-
-    def addCppSentinel(self):
-        self.buf += \
-        "#ifdef __cplusplus\n"   \
-        "extern \"C\" {\n"       \
-        "#endif\n\n"
-     
-    def addCppSentinelEnd(self): 
-        self.buf +=                        \
-        "#ifdef __cplusplus\n"             \
-        "} //end brace for extern \"C\"\n" \
-        "#endif\n"
-
-    def addAppDefines(self):
-        self.addDefine("APP_NAME        ", "\""+self.moduleName+"\"")
-        self.addDefine("APP_VERSION     ", "0.01")
-        self.addDefine("APP_DESCRIPTION ", "\"\"")
-        self.addDefine("APP_AUTHOR      ", "\""+self.conf.author+"\"")
-        self.addDefine("APP_LICENSE     ", "\""+self.conf.license+ "\"")
-        self.addDefine("APP_ORG         ", "\"\"")
-#    addDefine("APP_LOGFILE",     "glib.log")
-#    addDefine("APP_PIDFILE",     "/tmp/glibtest.pid")
-
-    def addComment(self, comment):
-        self.buf += "  // "+comment+"\n"
-
-    def save(self, dir):
-        # Open files to be generated
-        try:
-            file = open(dir+"/"+self.fileName, 'w')
-            file.write(self.buf)
-            file.close()
-        except IOError:
-            logging.debug("Could not open file %s" % (fileName))
-            exit()
-    
-    def addSignal(self, signal, handler):
-        self.prototypes += "void "+handler+"(int sig);\n"
-        self.code       += "void "+handler+"(int sig) {\n\n}\n\n"
-        self.main       += "  signal("+signal+", "+handler+");\n"
-    
-    def addSignals(self):
-        self.addInclude("signal.h")
-        self.addSignal("SIGINT", "sigint")
-        self.addSignal("SIGHUP", "sighup")
-        
-    def addGtk(self):
-        #if (conf.gtk):    
-        self.addInclude("gtk/gtk.h")
-        
-
-    def addQt(self):    
-        #if (conf.qt):    
-        self.addInclude("QApplication")
-        self.addInclude("QCoreApplication")
-        self.addInclude("QDebug")
-        self.addInclude("QMainWindow")
-        self.addInclude("QPushbutton")
-        self.addInclude("QLabel")
-        
-        self.main += "  Q_INIT_RESOURCE(application);\n\n"
-        self.main += "  QApplication app(argc, argv);\n"
-        self.main += "  QCoreApplication::setOrganizationName(APP_ORG);\n"
-        self.main += "  QCoreApplication::setApplicationName(APP_NAME);\n"
-        self.main += "  QCoreApplication::setApplicationVersion(APP_VERSION);\n\n"
-#        self.main += "  QCommandLineParser parser;\n"
-#        self.main += "  parser.setApplicationDescription(QCoreApplication::applicationName());\n"
-#        self.main += "  parser.addHelpOption();\n"
-#        self.main += "  parser.addVersionOption();\n"
-#        self.main += "  parser.addPositionalArgument("file", "The file to open.");\n"
-#        self.main += "  parser.process(app);\n"
-        
-        self.main += "  MainWindow mainWin;\n"
-#        self.main += "  if (!parser.positionalArguments().isEmpty())\n"
-#        self.main += "  mainWin.loadFile(parser.positionalArguments().first());\n"
-        self.main += "  mainWin.show();\n"
-        self.main += "  return app.exec();\n"
-        
-        
-    def addMain(self):
-        self.main = "int main(int argc, char *argv[]) {\n\n" + self.main
-        self.main += "  return 0;\n"
-        self.main += "}\n"
-        
-    def addCIncludes(self):
-        self.addInclude("stdio.h")
-        self.addInclude("stdlib.h")
-        self.addInclude("stdint.h")
-        self.addInclude("string.h")
-        self.addInclude("unistd.h")
-        self.addInclude("sys/types.h")
-        self.addInclude("errno.h")
- 
-        
-    def replace(self, str, newStr):
-        self.buf = self.buf.replace(str, newStr)
-
-    def newLine(self):
-        self.buf += "\n"
-    
-    def create(self):
-        
-        self.addHeader()
-        
-        if self.conf.main and not self.isHeader:
-            self.addCIncludes()
-        
-        if self.conf.signals and not self.isHeader:
-            self.addSignals()
-            
-        if self.conf.qt:
-            self.addQt()
-        
-        
-        if self.conf.main and self.isHeader:
-            self.addAppDefines()
-
-        if self.conf.main and not self.isHeader:
-            self.addMain()
-            
-        if not self.isHeader:
-            self.addInclude(self.moduleName+".h", True)
-
-        # Sections
-        self.buf = ""
-        self.buf = self.buf + self.header
-        
-        if self.isHeader:
-            self.addSentinelBegin(self.moduleName.upper())
-
-        if self.isHeader and not self.isCpp:
-            self.addCppSentinel()
-        
-        self.newLine()
-        self.addSection("Includes")
-        self.buf += self.include
-        
-        self.addSection("Macros")
-        self.buf += self.defines
-
-        self.addSection("Variables")
-        self.buf += self.variables
-
-        self.addSection("Prototypes")
-        self.buf += self.prototypes
-        
-        if not self.isHeader:
-            self.addSection("Code")
-            self.buf = self.buf + self.code
-        
-        self.buf += self.main    
-            
-        if self.isHeader:
-            self.addSentinelEnd()
-        
-        if self.isHeader and not self.isCpp:
-            self.addCppSentinelEnd()
-
-        self.replace("__FILENAME__", self.fileName     )
-        self.replace("__BRIEF__",    self.conf.brief   )
-        self.replace("__DATE__",     self.conf.date    )
-        self.replace("__AUTHOR__",   self.conf.author  )    
-        self.replace("__LICENSE__",  self.conf.license )
-    
-            
-        
     def print(self):
-        self.create()
-        print(self.buf)
+        print(header)
+        print(include)
+        print(defines)
+        print(prototypes)
 
 
 class CConf():
-    main    = False
-    gtk     = False
-    qt      = False
-    signals = False
-    sigint  = False
+    main    = 0
+    gtk     = 0
+    qt      = 0
+    signals = 0
+    sigint  = 0
     appName = ""
     author  = ""
     license = ""
@@ -324,7 +82,65 @@ class CConf():
 
     
             
+def addHeader(file, fileName, brief, date, author, license):
 
+    hFileName = scriptPath + "/header.h"
+    hFile = Path(hFileName)
+
+    if hFile.is_file():            # Using external header file
+        try:
+            f = open(hFileName, 'r+')
+        except IOError:
+            logging.debug("Could not open file %s" % (hFileName))
+            exit()
+        except:
+            print ("Unexpected error:", sys.exc_info()[0])
+            exit()
+        
+        header = f.read()
+    else:                             # Using internal header
+        header = headerExample
+        
+#    print(header)
+
+    header = header.replace("__FILENAME__", fileName )
+    header = header.replace("__BRIEF__",    brief    )
+    header = header.replace("__DATE__",     date     )
+    header = header.replace("__AUTHOR__",   author   )    
+    header = header.replace("__LICENSE__",  license  )
+    file.write(header)
+
+    
+def addSection(file, desc):
+    line = '-' * (71 - len(desc))
+    file.write("// " + desc + " " + line + "\n\n")
+    
+def addSection2(file, desc):
+    file.write(                \
+    "/**\n"                    \
+    " * "+desc+"\n"            \
+    " *------------------------------------------------------------------\n" \
+    " */\n\n") 
+    
+def addSentinelBegin(file, sentinel):
+    file.write(                     \
+    "#ifndef "+sentinel+"_H\n"      \
+    "#define "+sentinel+"_H\n\n") 
+    
+def addSentinelEnd(file):
+    file.write("#endif\n\n")
+
+def addCppSentinel(file):
+    file.write(              \
+    "#ifdef __cplusplus\n"   \
+    "extern \"C\" {\n"       \
+    "#endif\n\n")
+     
+def addCppSentinelEnd(file): 
+    file.write(                        \
+    "#ifdef __cplusplus\n"             \
+    "} //end brace for extern \"C\"\n" \
+    "#endif\n")
   
 def addMethod(file, className, methodName): 
     file.write(className+"::"+methodName+"() {\n")
@@ -336,6 +152,77 @@ def addClass(file, className):
     file.write("      "+className+"();\n")
     file.write("}\n")
 
+def addInclude(file, includeFile):  
+    file.write("#include <"+includeFile+">\n")  
+    
+def addCIncludes(file, conf):
+    addInclude(file, "stdio.h")
+    addInclude(file, "stdlib.h")
+    addInclude(file, "stdint.h")
+    addInclude(file, "string.h")
+    addInclude(file, "unistd.h")
+    addInclude(file, "sys/types.h")
+    addInclude(file, "errno.h")
+    
+    if (conf.signals):
+        addInclude(file, "signal.h")
+
+    if (conf.gtk):    
+        addInclude(file, "gtk/gtk.h")
+
+    if (conf.qt):    
+        addInclude(file, "QApplication")
+        addInclude(file, "QCoreApplication")
+        addInclude(file, "QDebug")
+        addInclude(file, "QMainWindow")
+        addInclude(file, "QPushbutton")
+        addInclude(file, "QLabel")
+  
+def addSignalHandler(file, handler):    
+    file.write("void "+handler+"(int sig) {\n\n}\n\n")
+    
+def addSignal(file, signal, handler):
+    file.write("  signal("+signal+", "+handler+");\n") 
+    
+def addMain(file, conf):
+    if conf.signals:
+        addSignalHandler(file, "sigint")
+        addSignalHandler(file, "sighup")
+    
+    file.write("int main(int argc, char *argv[]) {\n\n")
+    
+    if conf.signals:
+        addSignal(file, "SIGINT", "sigint")
+        addSignal(file, "SIGHUP", "sighup")
+    
+    file.write("  return 0;\n")    
+    file.write("}\n")
+
+def addDefine(file, name, value):
+    file.write("#define "+name+" "+value+"\n")
+
+def addAppDefines(file, conf):
+    addDefine(file,"APP_NAME        ", "\""+conf.appName+"\"")
+    addDefine(file,"APP_VERSION     ", "0.01")
+    addDefine(file,"APP_DESCRIPTION ", "\"\"")
+    addDefine(file,"APP_AUTHOR      ", "\""+conf.author+"\"")
+    addDefine(file,"APP_LICENSE     ", "\""+conf.license+ "\"")
+#    addDefine("APP_LOGFILE",     "glib.log")
+#    addDefine("APP_PIDFILE",     "/tmp/glibtest.pid")
+    
+
+def addComment(file, comment):
+    file.write("  // "+comment+"\n")
+
+def newFile(dir, fileName):
+  # Open files to be generated
+  try:
+    file = open(dir+"/"+fileName, 'w')
+    return file
+  except IOError:
+    logging.debug("Could not open file %s" % (fileName))
+    exit()
+
 
 def askInfo(module):
     print("Creating new "+module)
@@ -345,13 +232,15 @@ def askInfo(module):
     date = datetime.now().strftime("%Y-%m-%d")    
     return fName, brief, date
   
+#def newCModule(dir, author, licence):
 def newCModule(dir, conf):
-    newModule(dir, conf, False)
+    newModule(dir, conf, "c")
 
-def newCppModule(dir, conf):
-    newModule(dir, conf, True)
+def newCppModule(dir, author, licence):
+    newModule(dir, author, licence, "cpp")
 
-def newModule(dir, conf, isCpp):
+#def newModule(dir, author, licence, lan):
+def newModule(dir, conf, lan):
     
     # ask for some information
     fName, brief, date = askInfo("C module")
@@ -360,25 +249,62 @@ def newModule(dir, conf, isCpp):
     
     conf.appName = fName
     conf.brief   = brief
+#    conf.date    = date
+    
 
-    if conf.main and not isCpp:
+   # conf.gtk = 0
+    if conf.main and lan=="c":
         conf.gtk = query_yn("GTK project", "no")
         conf.signals = query_yn("Include signals", "no")
-          
-    if conf.main and isCpp:    
-        conf.qt = query_yn("Qt project", "no")
+  
+        
+    if main and lan=="cpp":    
+        qtMain = query_yn("Qt project", "no")
     
-    fileC = CFile(fName, conf, False, isCpp)
-    fileH = CFile(fName, conf, True,  isCpp)
+    fileNameC = fName + "."+lan
+    fileNameH = fName + ".h"
 
-    fileH.print()
-    fileC.print()
-    
-    fileH.save(dir)
-    fileC.save(dir)
-    
-    return
+    # Open files to be generated
+    fileC = newFile(dir, fileNameC)
+    fileH = newFile(dir, fileNameH)
 
+    # Populate C file
+    addHeader(fileC, fileNameC, brief, date, conf.author, conf.license)
+
+    # Includes
+    addSection(fileC, "Includes")
+    addCIncludes(fileC, conf)
+    fileC.write("#include \""+fileNameH+"\"\n\n");
+
+    # Sections
+    addSection(fileC, "Macros")
+    addSection(fileC, "Variables")
+    addSection(fileC, "Prototypes")
+    addSection(fileC, "Code")    
+
+    # Main function
+    if (conf.main):
+        addMain(fileC, conf)
+        
+    # Populate H file
+    addHeader(fileH, fileNameH, brief, date, conf.author, conf.license)
+    addSentinelBegin(fileH, fName.upper())
+    addCppSentinel(fileH)
+    addSection(fileH, "Includes")
+    addSection(fileH, "Macros")
+    if main:
+        addAppDefines(fileH, conf)
+    
+    addSection(fileH, "Typedefs")
+    addSection(fileH, "Variables")
+    addSection(fileH, "Prototypes")
+    addCppSentinelEnd(fileH)
+    addSentinelEnd(fileH)
+ 
+    # Close down files
+    fileC.close()
+    fileH.close()
+    
 def newClass(dir, author, licence):
 
     # ask for some information
@@ -468,7 +394,7 @@ def main():
     parser.add_argument("--newclass", action="store_true", help="Create a new C++ class")
     parser.add_argument("--newQt",    action="store_true", help="Create a new Qt project")
     parser.add_argument("--newgtk",   action="store_true", help="Create a new GTK project")
-#    parser.add_argument("--newproj",  action="store_true", help="Create a new Makeplate project")
+    parser.add_argument("--newproj",  action="store_true", help="Create a new Makeplate project")
     parser.add_argument("--giti",     action="store_true", help="Create a .gitignore file")
     parser.add_argument("--license",  type=str,  help="License of new file",           default=bpLicense)
     parser.add_argument("--author",   type=str,  help="Author of file",                default=bpName+" <"+bpEmail+">")
@@ -487,24 +413,24 @@ def main():
         exit(0)
         
     if args.newclass:
-        newClass(args.dir, conf)
+        newClass(args.dir, args.author, args.license)
         exit(0)
         
     if args.newcpp:
-        newCppModule(args.dir, conf)
+        newCppModule(args.dir, args.author, args.license)
         exit(0)
 
     if args.newgtk:
-        newCppModule(args.dir, conf)
+        newCppModule(args.dir, args.author, args.license)
         exit(0)
         
     if args.newQt:
-        newCppModule(args.dir, conf)
+        newCppModule(args.dir, args.author, args.license)
         exit(0)
         
-#    if args.newproj:
-#        newProject(args.dir, args.author, args.license)
-#        exit(0)
+    if args.newproj:
+        newProject(args.dir, args.author, args.license)
+        exit(0)
         
     if args.giti:
         file = newFile(args.dir, ".gitignore")
@@ -732,11 +658,6 @@ ui_*.h
 # QtCtreator CMake
 CMakeLists.txt.user*
 """
-
-
-argTable="""
-"""
-
 
 
 if __name__ == "__main__":

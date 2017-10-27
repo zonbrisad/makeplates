@@ -24,3 +24,13 @@ mpInst src/def.h      $1
 mpInst src/def_util.h $1
 mpInst src/def_util.c $1
 
+mpInst src/i2i.c $1
+mpInst src/i2i.h $1
+
+mpInst src/i2s.c $1
+mpInst src/i2s.h $1
+
+mpInst src/s2s.c $1
+mpInst src/s2s.h $1
+
+

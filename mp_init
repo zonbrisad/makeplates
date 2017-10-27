@@ -16,3 +16,4 @@ scriptPath=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 export PATH=${PATH}:${scriptPath}:${scriptPath}/tools
 
+export MP_PATH=${scriptPath}

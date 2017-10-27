@@ -198,7 +198,7 @@ clean() { ## Clean out old files
 }
 
 utools() { ## Update makaplate tools in project
-  bpCp ${scriptPath}/tools/* tools/. 
+	bpCp "${scriptPath}/tools/*" "tools/."
 }
 
 #--------------------------------------------------------------------- 
@@ -476,7 +476,7 @@ bpLn() { ##D Create symbolic link
 #
 bpCp() { ##D Copy file(s)
   bpInfo "Copying \"${1}\" to \"${2}\""
-	cp -rf "$1" "$2"
+  cp -rf $*
 }
 
 #
