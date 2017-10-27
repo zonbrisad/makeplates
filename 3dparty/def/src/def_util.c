@@ -20,6 +20,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/ioctl.h>
 
 #include "def.h"
 #include "def_util.h"
@@ -86,6 +87,18 @@ void printTextLine(char *text) {
     buf[COLS - len + 1] = '\0';
 
     printf("%s%s", text, buf);
+}
+
+
+void terminalSize(int *cols, int *lines) {	
+	struct winsize ts;
+	*cols  = 0;
+	*lines = 0;
+
+	ioctl(STDIN_FILENO,  TIOCGWINSZ , &ts);
+	*cols = ts.ws_col;
+	*lines = ts.ws_row;
+	//printf("Terminal is %dx%d\n", cols, lines);
 }
 
 
