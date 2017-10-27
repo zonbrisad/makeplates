@@ -89,19 +89,21 @@ createProject() {
 #		bpCp "${2}/*" "${dst}"
 #	fi
 
-	bpRm "${dst}/tools"
-	bpCp "${scriptPath}/tools" "${dst}"
+  if [ "$3" == "tools" ]; then
+  	bpRm "${dst}/tools"
+	  bpCp "${scriptPath}/tools" "${dst}"
+	fi
 }
 
 
 ##N- Project
 
 newc() { ##C NEW Create a new standard C makeplate project
-  createProject "Creating new makeplate C project" "${scriptPath}/mp-c" 
+  createProject "Creating new makeplate C project" "${scriptPath}/mp-c" "tools"
 }
 
 newcpp() { ##C NEW Create a new standard C++ makeplate project
-  createProject  "Creating new makeplate C++ project" "${scriptPath}/mp-cpp"
+  createProject  "Creating new makeplate C++ project" "${scriptPath}/mp-cpp" "tools"
 }
 
 newsc() { ##C NEW Create a new simple C makeplate project
