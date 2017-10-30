@@ -35,11 +35,8 @@ LICENSE = __LICENSE__
 # Target file name (without extension).
 TARGET = __NAME__
 
-# List C source files here. (C dependencies are automatically generated.)
-SRC = main.c 
-
-# List C++ source files here. (C dependencies are automatically generated.)
-CPPSRC = 
+# List C, C++ and assembler source files here. (C/C++ dependencies are automatically generated.)
+SRC = main.c  
 
 # Include directories
 INCLUDE = 
@@ -94,6 +91,8 @@ DEBUG=0
 #
 # Compiler and Linker options
 #============================================================================
+
+##N- Build
 
 # Compiler Options C --------------------------------------------------------
 CFLAGS = -g$(DEBUG)                            # Debugging information
@@ -590,8 +589,6 @@ list-defs:
 info: list-info list-includes list-defs list-flags list-ldflags  ## Print information about project
 
 files: list-src ## List source files
-
-
 
 # Listing of phony targets.
 .PHONY : all clean gccversion build begin finished end elf lss sym archive edit help backup list-src list-flags newproj run install
