@@ -44,7 +44,7 @@ LIB   = -lm
 #PKGLIBS += glib-2.0
 #PKGLIBS += gthread-2.0
 #PKGLIBS += gio-2.0
-PKGLIBS += ncurses
+#PKGLIBS += ncurses
 #PKGLIBS += lua5.1
 #PKGLIBS += sqlite3
 

@@ -80,6 +80,7 @@ bpQuestionDy() {  ##D Ask yes/no question default yes
 createProject() {
   echo -e ${1}
 	read -p "Project name>" pn
+	read -p "Brief description>" brief
 #	bpQuestionDy "Create subdirectory?" res
 #	if [ ${res} == 'y' ]; then
     dst="${pn}"
@@ -89,19 +90,29 @@ createProject() {
 #		bpCp "${2}/*" "${dst}"
 #	fi
 
-	bpRm "${dst}/tools"
-	bpCp "${scriptPath}/tools" "${dst}"
+  if [ "$3" == "tools" ]; then
+  	bpRm "${dst}/tools"
+	  bpCp "${scriptPath}/tools" "${dst}"
+	fi
+	
+  bpReplace "${pn}/Makefile" "__NAME__" "${pn}"
+	bpReplace "${pn}/Makefile" "__AUTHOR__"  "${BP_NAME} <${BP_EMAIL}>"
+	bpReplace "${pn}/Makefile" "__DATE__" "${DATE}"
+	bpReplace "${pn}/Makefile" "__BRIEF__" "${brief}"
+	bpReplace "${pn}/Makefile" "__LICENSE__" "${BP_LICENSE}"
+	bpReplace "${pn}/Makefile" "__ORG__" "${BP_ORG}"
+
 }
 
 
 ##N- Project
 
 newc() { ##C NEW Create a new standard C makeplate project
-  createProject "Creating new makeplate C project" "${scriptPath}/mp-c" 
+  createProject "Creating new makeplate C project" "${scriptPath}/mp-c" "tools"
 }
 
 newcpp() { ##C NEW Create a new standard C++ makeplate project
-  createProject  "Creating new makeplate C++ project" "${scriptPath}/mp-cpp"
+  createProject  "Creating new makeplate C++ project" "${scriptPath}/mp-cpp" "tools"
 }
 
 newsc() { ##C NEW Create a new simple C makeplate project
@@ -1022,6 +1033,7 @@ runCommand() {
 
   funks=$(grep "##" "$0" | grep -v grep | grep -v help_line)
   for line in ${funks}; do
+
     command=$(echo "$line" | sed -s 's/(.*//')
     if [ "$command" == "$1" ]; then
 
