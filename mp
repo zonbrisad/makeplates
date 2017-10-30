@@ -194,25 +194,64 @@ new3p() { ##C NEW Create new 3d party install script
 	chmod +x ${MPINSTALL}
 }
 
-##N- Examples
+##N- Various
 
 examples() { ## List examples
   ls -1  ${scriptPath}/examples/ 
-}
-
-
-##N- Various
-
-clean() { ## Clean out old files
-  find . -name "*~"     -delete
-  find . -name "*.orig" -delete
 }
 
 utools() { ## Update makaplate tools in project
 	bpCp "${scriptPath}/tools/*" "tools/."
 }
 
-#--------------------------------------------------------------------- 
+##N- Project management (git)
+
+clean() { ## Remove leftover files 
+  cd "${scriptPath}"
+
+  find . -name "*~"     -delete
+  find . -name "*.orig" -delete
+
+  # Remove untraced files
+  git clean -df
+  cd -
+}
+
+commit() { ## Commit project to repository
+  cd "${scriptPath}"
+  git commit -a
+#  git push --tags -a
+  cd - || bpExit
+}
+
+tag() { ## Make a new tag
+  cd "${scriptPath}"
+  # List existing tags
+  git tag
+
+  # read tag name/description
+  tag=$( bpRead "Tagname" "")
+  desc=$( bpRead "description" "")
+  read -p "Description: " desc
+
+  # Tag revision
+  git tag -a "$tag" -m "$desc"
+  cd - || bpExit
+}
+
+push() { ## Push to GITHUB
+  cd "${scriptPath}"
+  git push --progress
+  cd - || bpExit
+} 
+
+pull() { ## Pull bashplates from GITHUB
+  cd "${scriptPath}"
+  git pull --progress
+  cd - || bpExit
+} 
+
+#---------------------------------------------------------------------
 # Bashplate settings
 #---------------------------------------------------------------------
 
@@ -911,7 +950,7 @@ ihelp() { ##D Print internal help information
   LOGFILE=1  # Force log documentation
 
   help_lines=$(grep -h '##' "$0" | grep -v -e 'grep' -e '\*"##[ A-Z]"\*' -e 'help_line' -e ' printLine' -e 'awk' -e 'printInfo')
-	for help_line in ${help_lines} ; do
+  for help_line in ${help_lines} ; do
     case "$help_line" in
 #      "##-")    bpLine ;;
       *"##D"*)  printCommand  "$help_line" '##D' ;;
@@ -940,7 +979,7 @@ vhelp() { ##D Print internal variable information
   echo
   IFS=$'\n'
   help_lines=$( grep -v -e 'help_lines' -e 'help_line' "$0" | grep -A 1 '##V'   ) # | sed "s/--//" )
-	for line in ${help_lines}; do
+  for line in ${help_lines}; do
     if [ "$line" == "--" ]; then
       echo
     else
@@ -969,7 +1008,8 @@ runCommand() {
   fi
 
   funks=$(grep "##" "$0" | grep -v grep | grep -v help_line)
-	for line in ${funks}; do
+  for line in ${funks}; do
+
     command=$(echo "$line" | sed -s 's/(.*//')
     if [ "$command" == "$1" ]; then
 

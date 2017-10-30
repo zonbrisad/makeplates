@@ -41,21 +41,48 @@ AppAuthor   = "Peter Malmberg <peter.malmberg@gmail.com>"
 # Code ----------------------------------------------------------------------
 class CClass():
     className = ""
+    parrent   = ""
     header    = ""
     body      = ""
     
-    def __init__(self, className, isHeader):
+    qt        = False
+    
+    def __init__(self, className, parrent):
         self.className = className
+        self.parrent   = parrent
         
     def addMethod(self, methodName):
-        body += className+"::"+methodName+"() {\n"
-        body += "\n}\n\n"
+        self.body += self.className+"::"+methodName+"() {\n"
+        self.body += "\n}\n\n"
             
-    def addClass(self):
-        header += "class "+className+" {\n"
-        header += "    public:\n"
-        header += "      "+className+"();\n"
-        header += "}\n"
+    def generate(self):
+        if (self.parrent == ""):
+            self.header += "class "+self.className+" {\n"
+        else:
+            self.header += "class "+self.className+": public "+self.parrent+" {\n"
+            
+        if self.qt:
+            self.header += "  Q_OBJECT\n"
+            
+        self.header += "  public:\n"
+        self.header += "      "+self.className+"();\n"
+        self.header += "      ~"+self.className+"();\n"
+        
+        self.header += "  private slots:\n"
+        
+        self.header += "  private:\n"
+        
+        self.header += "}\n"
+        
+        self.addMethod(self.className)
+        self.addMethod("~"+self.className)
+            
+    def print(self):
+        self.generate()
+        print(self.header)
+        print(self.body)
+        
+        
                                 
         
 class CFile():
@@ -296,8 +323,6 @@ class CFile():
         self.replace("__AUTHOR__",   self.conf.author  )    
         self.replace("__LICENSE__",  self.conf.license )
     
-            
-        
     def print(self):
         self.create()
         print(self.buf)
@@ -323,20 +348,6 @@ class CConf():
 #        self.org     = os.getenv('BP_ORG', "")
 
     
-            
-
-  
-def addMethod(file, className, methodName): 
-    file.write(className+"::"+methodName+"() {\n")
-    file.write("\n}\n\n")
-    
-def addClass(file, className):
-    file.write("class "+className+" {\n")
-    file.write("    public:\n")    
-    file.write("      "+className+"();\n")
-    file.write("}\n")
-
-
 def askInfo(module):
     print("Creating new "+module)
     fName = input("Enter "+module+" name(no extention:>")
@@ -379,42 +390,21 @@ def newModule(dir, conf, isCpp):
     
     return
 
-def newClass(dir, author, licence):
+def newClass(dir, conf):
+    
+    c = CClass("Kalle", "")
+    c.print()
+    
+    d = CClass("Nisse", "Kalle")
+    d.print()
+
+    q = CClass("MainWindow", "QMainWindow")
+    q.print()
+
+    return
 
     # ask for some information
     fName, brief, date = askInfo("C++ Class")
-
-    fileNameC = fName + ".cpp"
-    fileNameH = fName + ".h"
-
-    # Open files to be generated
-    fileC = newFile(dir, fileNameC)
-    fileH = newFile(dir, fileNameH)
-
-    # Populate C++ file
-    addHeader(fileC, fileNameC, brief, date, author, licence)
-    addSection(fileC, "Includes")
-    fileC.write("#include \""+fileNameH+"\"\n\n");
-    
-    addSection(fileC, "Macros")
-    addSection(fileC, "Variables")
-    addSection(fileC, "Prototypes")
-    addSection(fileC, "Code")    
-    
-    addMethod(fileC, fName, fName)
-    
-    # Populate H file
-    addHeader(fileH, fileNameH, brief, date, author, licence)
-
-    addSentinelBegin(fileH, fName.upper())    
-    addSection(fileH, "Includes")
-    addSection(fileH, "Macros")
-    addSection(fileH, "Typedefs")
-    addSection(fileH, "Variables")
-    
-    addClass(fileH, fName)
-      
-    addSentinelEnd(fileH)
     
     # Close down files
     fileC.close()
