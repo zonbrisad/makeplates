@@ -83,8 +83,6 @@ class CClass():
         print(self.body)
         
         
-                                
-        
 class CFile():
     moduleName = ""
     fileName   = ""
@@ -437,10 +435,10 @@ mpPath     = scriptPath+"/.."
 
 # Get Bashplate settings
 def bp():
-    name    = os.getenv('BP_NAME', "")
-    email   = os.getenv('BP_EMAIL', "")
+    name    = os.getenv('BP_NAME',    "")
+    email   = os.getenv('BP_EMAIL',   "")
     license = os.getenv('BP_LICENSE', "")
-    org     = os.getenv('BP_ORG', "")
+    org     = os.getenv('BP_ORG',     "")
     
     return name, email, license
 
@@ -452,27 +450,66 @@ def main():
     logging.basicConfig(level=logging.DEBUG)
     
     # options parsing
-    parser = argparse.ArgumentParser(description="Makeplate C/C++ template generator")
+    parser = argparse.ArgumentParser(
+             prog=AppName+'.py',
+             description="Makeplate C/C++ template generator", 
+             epilog = "XXX"
+             )
+    
+    group1 = parser.add_argument_group('Qt5')
+
+    group1.add_argument("qtmain",      help="Create a Qt5 main application")
+    group1.add_argument("qtwin",       help="Create a Qt5 main window")
+    group1.add_argument("qtdia",       help="Create a Qt5 dialog")
+
+#    group1.add_argument("--qtmain",     action="store_true", help="Create a Qt5 main application")
+#    group1.add_argument("qtdes",      action="store_true", help="Create a Qt5 main QtDesigner")
+ #   group1.add_argument("qtwin",      action="store_true", help="Create a Qt5 main window")
+#    group1.add_argument("qtdia",      action="store_true", help="Create a Qt5 dialog")
+#    group.add_argument("qtdia",      action="store_true", help="Qt5 dialog")
+    
+#    group2 = parser.add_argument_group('Standard C/C++')
+#    group2.add_argument("newc",     action="store_true", help="Create a new C and H file set")
+#    group2.add_argument("newcpp",   action="store_true", help="Create a new C++ and H file set")
+#    group2.add_argument("newclass", action="store_true", help="Create a new C++ class")
+
     parser.add_argument("--newc",     action="store_true", help="Create a new C and H file set")
     parser.add_argument("--newcpp",   action="store_true", help="Create a new C++ and H file set")
     parser.add_argument("--newclass", action="store_true", help="Create a new C++ class")
-    parser.add_argument("--newQt",    action="store_true", help="Create a new Qt project")
-    parser.add_argument("--newgtk",   action="store_true", help="Create a new GTK project")
+
+#    parser.add_argument("--newQt",    action="store_true", help="Create a new Qt project")
+#    parser.add_argument("--newgtk",   action="store_true", help="Create a new GTK project")
 #    parser.add_argument("--newproj",  action="store_true", help="Create a new Makeplate project")
+
     parser.add_argument("--giti",     action="store_true", help="Create a .gitignore file")
     parser.add_argument("--license",  type=str,  help="License of new file",           default=bpLicense)
     parser.add_argument("--author",   type=str,  help="Author of file",                default=bpName+" <"+bpEmail+">")
     parser.add_argument("--dir",      type=str,  help="Directory where to store file", default=".")
+    
+    parser.add_argument("--version",  action='version',  help="Directory where to store file", version=AppVersion)
+    
 #    parser.add_argument("--header",   type=str,            help="External header file",  default="headerExample")
     
     args = parser.parse_args()
     
     conf = CConf()
-    conf.author = args.author
+    conf.author  = args.author
     conf.license = args.license
+    
+    if args.qtmain:
+        print("aaa")
+#        exit(0)
+        
+    if args.qtwin:
+        print("bbb")
+#        exit(0)
+        
+    if args.qtdia:
+        print("ccc")
+#        exit(0)
 
+    exit(0)
     if args.newc:
-        #newCModule(args.dir, args.author, args.license)
         newCModule(args.dir, conf)
         exit(0)
         
@@ -484,13 +521,13 @@ def main():
         newCppModule(args.dir, conf)
         exit(0)
 
-    if args.newgtk:
-        newCppModule(args.dir, conf)
-        exit(0)
+#    if args.newgtk:
+#        newCppModule(args.dir, conf)
+#        exit(0)
         
-    if args.newQt:
-        newCppModule(args.dir, conf)
-        exit(0)
+#    if args.newQt:
+#        newCppModule(args.dir, conf)
+#        exit(0)
         
 #    if args.newproj:
 #        newProject(args.dir, args.author, args.license)
