@@ -1,35 +1,62 @@
 # Hey Emacs, this is a -*- makefile -*-
 #----------------------------------------------------------------------------
+#
+# Brief:   __BRIEF__
 # 
-# Makeplate simple C++ project
-#
-# author: Peter Malmberg <peter.malmberg@gmail.com>
-#
-#  
+# Name:    __NAME__
+# Author:  __AUTHOR__
+# Date:    __DATE__
+# Org:     __ORG__
+# 
+# License: __LICENSE__
+# 
 #----------------------------------------------------------------------------
-# On command line:
-# >make help 
+# [Makeplates]
+# This script is generated from makeplates Makefile project generator.
+#
+# Makeplates is developed by:
+# Peter Malmberg <peter.malmberg@gmail.com>
+#
+# Makeplates is available at:
+# https://github.com/zonbrisad/makeplates
+# 
+# [Disclaimer] 
+# Use on your own risk.
 #----------------------------------------------------------------------------
+# [Help]
+# 
+# Enter "make help" to get information about different targets.
+# 
+#----------------------------------------------------------------------------
+
+# Project License (GPL, GPLv2, MIT, BSD, Apache, etc.) 
+LICENSE = __LICENSE__
 
 # Target file name (without extension).
-TARGET = makeplate
+TARGET = __NAME__
 
-# List C source files here. (C dependencies are automatically generated.)
-SRC = 
-
-# List C++ source files here. (C dependencies are automatically generated.)
-CPPSRC = main.cpp 
+# List C, C++ and assembler source files here. (C/C++ dependencies are automatically generated.)
+SRC = main.c 
 
 # Include directories
 INCLUDE = 
 
 # Libraries to link
 LIB   = -lm 
-#LIB += $(shell pkg-config --libs glib-2.0)
-#LIB += $(shell pkg-config --libs gthread-2.0)
-#LIB += $(shell pkg-config --libs ncurses)
-#LIB += $(shell pkg-config --libs lua5.1)
-#LIB += $(shell pkg-config --libs sqlite3)
+#LIB  += -lpthread
+
+# Libraries to use in pkg-config system
+#PKGLIBS  = Qt5Core 
+#PKGLIBS += Qt5Gui 
+#PKGLIBS += Qt5Widgets
+#PKGLIBS += Qt5SerialPort
+#PKGLIBS += Qt5Network
+#PKGLIBS += glib-2.0
+#PKGLIBS += gthread-2.0
+#PKGLIBS += gio-2.0
+#PKGLIBS += ncurses
+#PKGLIBS += lua5.1
+#PKGLIBS += sqlite3
 
 # Object files directory
 #     To put object files in current directory, use a dot (.), do NOT make
@@ -43,7 +70,7 @@ OUTDIR = .
 #     0 = turn off optimization. s = optimize for size.
 OPT = 2
 
-# Compiler flag to set the C Standard level.
+# Compiler flag to set the C and C++ Standard level.
 # [ gnu99 gnu11 c++98 c++03 c++11 c++14 ] 
 CSTANDARD   = gnu99
 CPPSTANDARD = c++11
@@ -80,6 +107,7 @@ CFLAGS += -funsigned-char
 #CFLAGS += -fshort-enums
 #CFLAGS += -fno-unit-at-a-time
 #CFLAGS += -mshort-calls
+#CFLAGS += -fPIC                  # Position independet code
 
 # Compiler Warnings C -------------------------------------------------------
 CFLAGS += -Wall                  # Standard warnings
@@ -97,12 +125,6 @@ CFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void po
 #CFLAGS += -Wsign-compare
 #CFLAGS += -Wundef
 #CFLAGS += -Werror               # All warnings will be treated as errors
-
-# Library compiler flags C --------------------------------------------------
-#CFLAGS += $(shell pkg-config --cflags glib-2.0)
-#CFLAGS += $(shell pkg-config --cflags gthread-2.0)
-#CFLAGS += $(shell pkg-config --cflags lua5.1)
-#CFLAGS += $(shell pkg-config --cflags sqlite3)
 
 
 # Compiler Options C++ ------------------------------------------------------
@@ -138,12 +160,6 @@ CPPFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void 
 #CPPFLAGS += -Wundef
 #CPPFLAGS += -Werror              # All warnings will be treated as errors
 
-# Library compiler flags C++ ------------------------------------------------
-#CPPFLAGS += $(shell pkg-config --cflags glib-2.0)
-#CPPFLAGS += $(shell pkg-config --cflags gthread-2.0)
-#CPPFLAGS += $(shell pkg-config --cflags lua5.1)
-#CPPFLAGS += $(shell pkg-config --cflags sqlite3)
-
 
 # Linker Options ------------------------------------------------------------
 #  -Wl,...:     tell GCC to pass this to linker.
@@ -151,15 +167,15 @@ CPPFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void 
 #    --cref:    add cross reference to  map file
 LDFLAGS = -Wl,-Map=$(OUTDIR)/$(TARGET).map,--cref
 LDFLAGS += $(EXTMEMOPTS)
+LDFLAGS += $(patsubst %,-L%,$(INCLUDE))
 LDFLAGS += -g
-#LDFLAGS += $(foreach X, $(PKGLIBS), $(shell pkg-config --libs $(X)) )
+LDFLAGS += $(foreach X, $(PKGLIBS), $(shell pkg-config --libs $(X)) )
 
 #
 # Platform specific options
 #============================================================================
 
 # Linux options -------------------------------------------------------------
-#ifeq ($(TARGET_PLATFORM), linux)
 
 # Target filename
 TRGFILE=$(OUTDIR)/$(TARGET)
@@ -170,7 +186,25 @@ TCHAIN_BASE=/usr/bin
 # Toolchain prefix 
 TCHAIN_PREFIX=
 
-#endif
+# Handle pkg-config libraries -----------------------------------------------
+CFLAGS   += $(foreach X, $(PKGLIBS), $(shell pkg-config --cflags $(X)) )
+CPPFLAGS += $(foreach X, $(PKGLIBS), $(shell pkg-config --cflags $(X)) )
+LDFLAGS  += $(foreach X, $(PKGLIBS), $(shell pkg-config --libs $(X))   )
+
+# Size flags ----------------------------------------------------------------
+SIZEFLAGS = --format=berkley  # format = {sysv|berkeley}
+
+# objdump flags -------------------------------------------------------------
+ODFLAGS  = -h  # Display the contents of the section headers  
+ODFLAGS += -S  # Intermix source code with disassembly
+ODFLAGS += -C  #
+ODFLAGS += -r  # Display the relocation entries in the file
+
+# Output format. (can be srec, ihex, binary) --------------------------------
+FORMAT = ihex
+
+# object copy flags ---------------------------------------------------------
+OCFLAGS = -O $(FORMAT) 
 
 #
 # Tool settings
@@ -178,19 +212,23 @@ TCHAIN_PREFIX=
 
 # Define programs and commands ----------------------------------------------
 SHELL     = bash
+WINSHELL  = cmd
 REMOVE    = rm -f
 REMOVEDIR = rm -rf
 COPY      = cp -f 
 MOVE      = mv -f
-WINSHELL  = cmd
 MKDIR     = mkdir -p
-SED       = sed
-MOC       = moc
-QMAKE     = qmake
+SED       = sed              # stream editor program
+MOC       = moc              # Qt meta object compiler
+QMAKE     = qmake            # Qt make program
+UIC       = uic              # Qt resource file compiler
+CTEMPLATE = python3 tools/ctemplate.py # C/C++ template tool
+BIN2ARRAY = python3 tools/bin2array.py # Binary to array tool
+MPTOOL    = tools/mptools    # Makeplate tools
 CPPCHECK  = cppcheck
 INSTALL   = install
-ASTYLE    = astyle
-DOXYGEN   = doxygen
+ASTYLE    = astyle           # Code beatyfier
+DOXYGEN   = doxygen          # Code documetation program
 
 TCHAIN = $(TCHAIN_BASE)/$(TCHAIN_PREFIX)
 
@@ -203,6 +241,7 @@ AR        = ${TCHAIN}ar rcs
 NM        = ${TCHAIN}nm
 AS        = ${TCHAIN}as
 GDB       = ${TCHAIN}gdb
+STRIP     = ${TCHAIN}strip
 
 #
 # Message/Filter settings
@@ -259,6 +298,7 @@ MSG_LINE             = "$(E_WHITE)----------------------------------------------
 MSG_BEGIN            = "${E_WHITE}-------------------------------- Begin ---------------------------${E_END}"
 MSG_END              = "${E_WHITE}-------------------------------- End -----------------------------${E_END}"
 MSG_ERRORS_NONE      = "${C_OK}Errors: none ${E_END}"
+MSG_STRIP            = "${C_ACTION}Striping:${E_END}"
 MSG_LINKING          = "${C_ACTION}Linking:${E_END}"
 MSG_COMPILING        = "${C_ACTION}Compiling C:  ${E_END}"
 MSG_COMPILING_CPP    = "${C_ACTION}Compiling C++:${E_END}"
@@ -278,12 +318,15 @@ MSG_FLASH            = "${C_ACTION}Creating load file for Flash:${E_END}"
 MSG_EEPROM           = "${C_ACTION}Creating load file for EEPROM:${E_END}"
 MSG_COFF             = "${C_ACTION}Converting to AVR COFF:${E_END}"
 MSG_EXTENDED_COFF    = "${C_ACTION}Converting to AVR Extended COFF:${E_END}"
-MSG_BACKUP           = "${E_BR_GREEN}Making incremental backup of project:${E_END}"
+MSG_MOC              = "${C_ACTION}Creating MOC file:${E_END}"
+MSG_UI               = "${C_ACTION}Generating UI header:${E_END}"
+MSG_BACKUP           = "${C_ACTION}Making incremental backup of project:${E_END}"
 MSG_SRC              = "${C_MSG}Source files $(E_GREEN)-----------------------------------------------------${E_END}"
 MSG_FLAGS            = "${C_MSG}Compiler Flags $(E_GREEN)---------------------------------------------------${E_END}"
 MSG_LINKER           = "${C_MSG}Linker Flags $(E_GREEN)-----------------------------------------------------${E_END}"
 MSG_PROJECT          = "${C_MSG}Project info $(E_GREEN)-----------------------------------------------------${E_END}"
 MSG_INCLUDES         = "${C_MSG}Include directories $(E_GREEN)----------------------------------------------${E_END}"
+MSG_OBJECTS          = "${C_MSG}Object files $(E_GREEN)-----------------------------------------------------${E_END}"	
 MSG_DEFS             = "${C_MSG}Macro definitions $(E_GREEN)------------------------------------------------${E_END}"
 MSG_INSTALL_INFO     = "${C_MSG}Install settings $(E_GREEN)-------------------------------------------------${E_END}"
 MSG_INSTALLING       = "${C_ACTION}Installing:   ${E_END}"
@@ -304,7 +347,6 @@ F_WARNING5="s/value computed is not used/$$(printf "$(C_WARNING)")&$$(printf "$(
 F_BRACKET="s/\[\(.*\)\]/[$$(printf "$(E_GREEN)")\1$$(printf "$(E_END)")]/"	
 F_VARIABLE="s/\‘\(.*\)[\’\‘]/'$$(printf "$(C_IDENTIFIER)")\1$$(printf "$(E_END)")'/g"
 F_FILE="s/[^: ]*/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/"
-#F_FILE="s/\(.*\/\)\(.*\):/$$(printf "$(C_DIR)")\1$$(printf "$(C_FILE)")\2$$(printf "$(E_END)"):/1"
 F_ROWNR="s/:\([0-9]*\):\([0-9]*\):/:$$(printf "$(C_VALUE)")\1$$(printf "$(E_END)"):$$(printf "$(C_VALUE)")\2$$(printf "$(E_END)"):/"
 
 C_FILTER   = | sed -u -e $(F_BRACKET) -e $(F_FILE) -e $(F_ROWNR)          \
@@ -340,17 +382,10 @@ OBJS = $(SRC:%.c=$(OBJDIR)/%.o) $(CPPSRC:%.cpp=$(OBJDIR)/%.o) $(ASRC:%.S=$(OBJDI
 LST = $(SRC:%.c=$(OBJDIR)/%.lst) $(CPPSRC:%.cpp=$(OBJDIR)/%.lst) $(ASRC:%.S=$(OBJDIR)/%.lst) 
 
 # Default target.
-all:	begin build finished end
+all:	begin build finished end ## Build project (default)
 
-# Remove colorfilter
-nocolor:
-	$(eval C_FILTER:= )
-	
-#
-# Build with no color filter on compiler output
-# Useful for Netbeans, Eclipse builds etc. 
-#	
-nc: nocolor all   ## Build with no color on compiler output
+nc: C_FILTER:= 
+nc: all   ## Build with no color filter on compiler output
 
 
 build: elf lss sym size
@@ -362,7 +397,6 @@ hex: $(OUTDIR)/$(TARGET).hex
 bin: $(OUTDIR)/$(TARGET).bin
 eep: $(OUTDIR)/$(TARGET).eep
 
-# Eye candy.
 begin:
 	@echo -e $(MSG_BEGIN)
 	@echo -e ${MSG_BUILDING}" $(E_BR_GREEN)$(TARGET) $(E_END)"
@@ -374,21 +408,19 @@ end:
 finished:
 	@echo
 
-
-# Link target
-#.SECONDARY : $(TARGET)
+# Linking targets from object files
 .PRECIOUS : $(OBJS)
 $(TRGFILE): $(OBJS) $(OUTDIR)
-	@echo -en "\n"$(MSG_LINKING)"\n               "
-	@echo -e $@ $(F_SOURCE)
-	@$(CC) $(ALL_CFLAGS) $(OBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)
+	@echo -en "\n"$(MSG_LINKING)"       "
+	@echo -e $@ $(F_SOURCE) 
+	@$(CPP) $(ALL_CFLAGS) $(OBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)
 	
 # Create extended listing file/disassambly from ELF output file.
 # using objdump testing: option -C
 %.lss:	$(TRGFILE)
 	@echo -en "\n"$(MSG_EXTENDED_LISTING) "\n               "
 	@echo -e $@ $(F_SOURCE)
-	@$(OBJDUMP) -h -S -C -r $< > $@
+	@$(OBJDUMP) $(ODFLAGS) $< > $@
 	
 # Create a symbol table from ELF output file.
 %.sym: $(TRGFILE)
@@ -399,8 +431,9 @@ $(TRGFILE): $(OBJS) $(OUTDIR)
 # Create hex file from ELF output file.
 %.hex: $(TRGFILE)
 	@echo
-	@echo -e $(MSG_HEX_FILE) "\n               $(C_FILE)" $@ "$(E_END)"
-	@$(OBJCOPY) -O ihex $< $@
+	@echo -en $(MSG_HEX_FILE) "\n               "
+	@echo -e $@ $(F_SOURCE)
+	@$(OBJCOPY) $(OCFLAGS) $< $@
 
 # Compile: create object files from C source files.
 $(OBJDIR)/%.o : %.c
@@ -438,8 +471,11 @@ $(BUILDDIR):
 size: $(TRGFILE)
 	@echo
 	@echo -e $(MSG_SIZE_AFTER)
-	@$(SIZE) $(TRGFILE)
-	
+	@$(SIZE) $(SIZEFLAGS) $(TRGFILE)
+
+strip: $(TRGFILE) ## Strip target binary from symbols
+	@echo -e $(MSG_STRIP)
+	@$(STRIP) $(TRGFILE)	
 #
 # Various utility rules	
 #============================================================================
@@ -459,6 +495,8 @@ clean:  ## Remove all build files
 	@$(REMOVE) $(OUTDIR)/$(TARGET).cof
 	@$(REMOVE) $(OBJS)
 	@$(REMOVE) $(LST)
+	@$(REMOVE) $(MOCSRC)
+	@$(REMOVE) $(UIH)
 	@$(REMOVEDIR) .dep
 	@$(REMOVEDIR) $(BUILDDIR)	
 	@find . -name "*~" -delete
@@ -511,11 +549,18 @@ list-ldflags: ## List linker flags
 	  echo $${f} ;             \
 	done                       \
 
+list-objs: ## List objects 
+	@echo -e $(MSG_OBJECTS)
+	@export IFS=" "
+	@for f in $(OBJS); do   \
+	  echo $${f} ;          \
+	done        
+
 list-info: 
 	@echo -e $(MSG_PROJECT)
 	@echo "Target:     $(TARGET)"
 	@echo "Platform:   $(TARGET_PLATFORM)"
-	@echo "Licence:    $(LICENCE)"
+	@echo "License:    $(LICENSE)"
 	@echo "Outdir:     $(OUTDIR)"
 	@echo "C standard: $(CSTANDARD)"
 	@echo "MCU:        $(MCU)"
@@ -546,7 +591,7 @@ list-defs:
 
 
 
-info: list-info list-includes list-defs list-flags list-ldflags list-installinfo ## Print information about project
+info: list-info list-includes list-defs list-flags list-ldflags  ## Print information about project
 
 files: list-src ## List source files
 

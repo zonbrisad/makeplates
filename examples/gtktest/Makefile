@@ -1,14 +1,14 @@
 # Hey Emacs, this is a -*- makefile -*-
 #----------------------------------------------------------------------------
 #
-# Brief:   __BRIEF__
+# Brief:   A simple test of Gtk.
 # 
-# Name:    __NAME__
-# Author:  __AUTHOR__
-# Date:    __DATE__
-# Org:     __ORG__
+# Name:    gtktest
+# Author:  Peter Malmberg <peter.malmberg@gmail.com>
+# Date:    2017-10-30
+# Org:     ABELKO AB
 # 
-# License: __LICENSE__
+# License: BSD
 # 
 #----------------------------------------------------------------------------
 # [Makeplates]
@@ -33,10 +33,10 @@
 TARGET_PLATFORM = linux
 
 # Project License (GPL, GPLv2, MIT, BSD, Apache, etc.) 
-LICENSE = __LICENSE__
+LICENSE = BSD
 
 # Target file name (without extension).
-TARGET = __NAME__
+TARGET = gtktest
 
 # List C, C++ and assembler source files here. (C/C++ dependencies are automatically generated.)
 SRC = src/main.c 
@@ -53,17 +53,10 @@ LIB   = -lm
 #LIB  += -lpthread
 
 # Libraries to use in pkg-config system
-#PKGLIBS  = Qt5Core 
-#PKGLIBS += Qt5Gui 
-#PKGLIBS += Qt5Widgets
-#PKGLIBS += Qt5SerialPort
-#PKGLIBS += Qt5Network
-#PKGLIBS += glib-2.0
-#PKGLIBS += gthread-2.0
-#PKGLIBS += gio-2.0
-#PKGLIBS += ncurses
-#PKGLIBS += lua5.1
-#PKGLIBS += sqlite3
+PKGLIBS  = glib-2.0
+PKGLIBS += gthread-2.0
+PKGLIBS += gio-2.0
+PKGLIBS += gtk+-3.0
 
 # Object files directory
 #     To put object files in current directory, use a dot (.), do NOT make

@@ -1,25 +1,42 @@
 # Hey Emacs, this is a -*- makefile -*-
 #----------------------------------------------------------------------------
+#
+# Brief:   __BRIEF__
 # 
-# Makeplate example project
-#
-# author: Peter Malmberg <peter.malmberg@gmail.com>
-#
-#  
+# Name:    __NAME__
+# Author:  __AUTHOR__
+# Date:    __DATE__
+# Org:     __ORG__
+# 
+# License: __LICENSE__
+# 
 #----------------------------------------------------------------------------
-# On command line:
-# >make help 
+# [Makeplates]
+# This script is generated from makeplates Makefile project generator.
+#
+# Makeplates is developed by:
+# Peter Malmberg <peter.malmberg@gmail.com>
+#
+# Makeplates is available at:
+# https://github.com/zonbrisad/makeplates
+# 
+# [Disclaimer] 
+# Use on your own risk.
+#----------------------------------------------------------------------------
+# [Help]
+# 
+# Enter "make help" to get information about different targets.
+# 
 #----------------------------------------------------------------------------
 
-# Target platform
-# linux win32 avr arm osx
+# Target platform (linux, win32, avr, arm, osx)
 TARGET_PLATFORM = linux
 
 # Project License (GPL, GPLv2, MIT, BSD, Apache, etc.) 
-LICENSE = GPLv2
+LICENSE = __LICENSE__
 
 # Target file name (without extension).
-TARGET = makeplate
+TARGET = __NAME__
 
 # List C, C++ and assembler source files here. (C/C++ dependencies are automatically generated.)
 SRC = src/main.cpp
@@ -43,6 +60,7 @@ LIB   = -lm
 #PKGLIBS += Qt5Network
 #PKGLIBS += glib-2.0
 #PKGLIBS += gthread-2.0
+#PKGLIBS += gio-2.0
 #PKGLIBS += ncurses
 #PKGLIBS += lua5.1
 #PKGLIBS += sqlite3
@@ -230,7 +248,7 @@ TCHAIN_PREFIX=
 endif
 
 # 
-# Qt5 Specific objects
+# Qt5 Specific objects and targets
 #============================================================================
 
 # Qt objects ----------------------------------------------------------------
@@ -905,7 +923,7 @@ mpType=mp-cpp
 
 utools: # Update tools from locally installed tools
 	@echo -e "${C_ACTION}Updating makeplate tools${E_END}"
-	@$(COPY) ~/bin/makeplate_files/tools/* tools/.
+	@mp utools
 
 meld: # Meld Makefile with locally installed makefile
 	@meld ~/bin/makeplate_files/${mpType}/Makefile  Makefile
