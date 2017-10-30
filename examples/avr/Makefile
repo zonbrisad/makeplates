@@ -18,6 +18,9 @@ TARGET_PLATFORM = avr
 # Project License (GPL, GPLv2, MIT, BSD, Apache, etc.) 
 LICENSE = GPLv2
 
+# Program Version
+VERSION = 0.1
+
 # Target file name (without extension).
 TARGET = avrtest
 
@@ -889,9 +892,6 @@ files: list-src ## List source files
 
 gccversion :    ## Display compiler version
 	@$(CC) --version
-
-libs: ## List system wide libraries (pkg-config)
-	@pkg-config --list-all
 	
 #
 # Personal settings
