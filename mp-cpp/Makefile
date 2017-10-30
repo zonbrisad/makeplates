@@ -1,7 +1,7 @@
 # Hey Emacs, this is a -*- makefile -*-
 #----------------------------------------------------------------------------
 # 
-# Makeplate example project
+# Makeplate C++example project
 #
 # author: Peter Malmberg <peter.malmberg@gmail.com>
 #
@@ -230,7 +230,7 @@ TCHAIN_PREFIX=
 endif
 
 # 
-# Qt5 Specific objects
+# Qt5 Specific objects and targets
 #============================================================================
 
 # Qt objects ----------------------------------------------------------------
@@ -905,7 +905,7 @@ mpType=mp-cpp
 
 utools: # Update tools from locally installed tools
 	@echo -e "${C_ACTION}Updating makeplate tools${E_END}"
-	@$(COPY) ~/bin/makeplate_files/tools/* tools/.
+	@mp utools
 
 meld: # Meld Makefile with locally installed makefile
 	@meld ~/bin/makeplate_files/${mpType}/Makefile  Makefile

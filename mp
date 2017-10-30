@@ -467,7 +467,7 @@ printLine() {
 # arg1 text for column 1
 # arg2 text for column 2
 printInfo() {
-  printf "${BP_C_ID}%-24s${E_END} ${BP_C_COMMENT}%s${E_END}\n" "$1" "$2"
+  printf "${BP_C_ID}  %-24s${E_END} ${BP_C_COMMENT}%s${E_END}\n" "$1" "$2"
 }
 
 # Print a variable + text into two columns
@@ -479,7 +479,7 @@ printVar() {
   if [ "${!var}" ]; then
     printInfo "$2" "${!var}"
   else
-    printf "${BP_C_ID}%-24s${E_END} ${E_RED}N/A${E_END}\n" "$2"
+    printf "${BP_C_ID}  %-24s${E_END} ${E_RED}N/A${E_END}\n" "$2"
   fi
 }
 
@@ -628,11 +628,11 @@ bpAddSetting() {
 }
 
 bpAddSettings() { 
-	bpAddSetting "BP_NAME"  "John Doe"        "Name of user"
-	bpAddSetting "BP_EMAIL" "JohnDoe@foo.bar" "Email of user"
-	bpAddSetting "BP_EDITOR" "vi"             "Default editor"
-	bpAddSetting "BP_LICENSE" "MIT"           "Default project license"
-	bpAddSetting "BP_ORG"     "ACME"          "Default organisation"
+  bpAddSetting "BP_NAME"  "John Doe"        "Name of user"
+  bpAddSetting "BP_EMAIL" "JohnDoe@foo.bar" "Email of user"
+  bpAddSetting "BP_EDITOR" "vi"             "Default editor"
+  bpAddSetting "BP_LICENSE" "MIT"           "Default project license"
+  bpAddSetting "BP_ORG"     "ACME"          "Default organisation"
 }
 
 # Change setting in config file (key value pair)
@@ -677,33 +677,33 @@ bpLoadSettings() {
 }
 
 printSettings() { ##C BPSETTINGS Print plate information
-	bpTextLine "Bashplates settings"
-	printVar BP_NAME      "Name:"
-	printVar BP_EMAIL     "Email:"
-	printVar BP_LICENSE   "Default license:"
-	printVar BP_EDITOR    "Default editor"
-	printVar BP_ORG       "Default organisation"
-	bpLine
+  bpTextLine "Bashplates settings"
+  printVar BP_NAME      "Name:"
+  printVar BP_EMAIL     "Email:"
+  printVar BP_LICENSE   "Default license:"
+  printVar BP_EDITOR    "Default editor"
+  printVar BP_ORG       "Default organisation"
+  bpLine
 }
 
 setname() { ##C BPSETTINGS Set name
-	chSetting "${bpSettingsFile}" "BP_NAME" "\"${2}\""	
+  chSetting "${bpSettingsFile}" "BP_NAME" "\"${2}\""	
 }
 
 setemail() { ##C BPSETTINGS Set email address
-	chSetting "${bpSettingsFile}" "BP_EMAIL" "\"${2}\""	
+  chSetting "${bpSettingsFile}" "BP_EMAIL" "\"${2}\""	
 }
 
 seteditor() { ##C BPSETTINGS Set default editor
-	chSetting "${bpSettingsFile}" "BP_EDITOR" "\"${2}\""	
+  chSetting "${bpSettingsFile}" "BP_EDITOR" "\"${2}\""	
 }
 
 setlic() { ##C BPSETTINGS Set default license
-	chSetting "${bpSettingsFile}" "BP_LICENSE" "\"${2}\""	
+  chSetting "${bpSettingsFile}" "BP_LICENSE" "\"${2}\""	
 }
 
 setorg() { ##C BPSETTINGS Set default organisation
-	chSetting "${bpSettingsFile}" "BP_ORG" "\"${2}\""	
+  chSetting "${bpSettingsFile}" "BP_ORG" "\"${2}\""	
 }
 
 
@@ -726,12 +726,33 @@ bpLog() { ##D Log to file command
   fi
 }
 
+bpLogOk() { ##D Log Ok message to file
+  bpLog "[ Ok ] $1"
+}
+
+bpLogInfo() {  ##D Log Info message to file
+  bpLog "[Info] $1"
+}
+
+bpLogWarning() {  ##D Log OK message to file
+  bpLog "[Warn] $1"
+}
+
+bpLogError() {  ##D Log Error message to file
+  bpLog "[Erro] $1"
+}
+
+bpLogCritical() {  ##D Log Critical message to file
+  bpLog "[Crit] $1"
+}
+
 log() { ##C LOGFILE View logfile
   if [ -n "$LOGFILE" ]; then
     if [ -f "${LOGFILE}" ]; then  # Check that logfile exists
       D=$(sed -r -e "s|\[Info\]|\[\\${BP_C_INFO}Info\\${E_END}\]|"  \
             -e "s|\[Warn\]|\[\\${BP_C_WARNING}Warn\\${E_END}\]|"  \
             -e "s|\[Erro\]|\[\\${BP_C_ERROR}Erro\\${E_END}\]|"    \
+            -e "s|\[ Ok \]|\[\\${BP_C_OK} Ok \\${E_END}\]|"    \
             -e "s/[-0-9]+/\\${E_GREEN}&\\${E_END}/1"            \
             -e "s/[:0-9]+/\\${E_BR_GREEN}&\\${E_END}/6"            \
             -e "s|\[Crit\]|\[\\${E_ON_RED}\\${E_WHITE}Crit\\${E_END}\]|" < "${LOGFILE}" )
@@ -750,6 +771,7 @@ mlog() {   ##C LOGFILE Monitor logfile
       tail -f "${LOGFILE}" | sed -r -e "s|\[Info\]|\[\\${BP_C_INFO}Info\\${E_END}\]|"  \
             -e "s|\[Warn\]|\[\\${BP_C_WARNING}Warn\\${E_END}\]|"  \
             -e "s|\[Erro\]|\[\\${BP_C_ERROR}Erro\\${E_END}\]|"    \
+            -e "s|\[ Ok \]|\[\\${BP_C_OK}Erro\\${E_END}\]|"    \
             -e "s/[-0-9]+/\\${E_GREEN}&\\${E_END}/1"            \
             -e "s/[:0-9]+/\\${E_BR_GREEN}&\\${E_END}/6"            \
             -e "s|\[Crit\]|\[\\${E_ON_RED}\\${E_WHITE}Crit\\${E_END}\]|"
@@ -764,34 +786,36 @@ mlog() {   ##C LOGFILE Monitor logfile
 ##CN- IHELP Message
 
 bpOk() { ##D Success message
-  bpLog "[ Ok ] $1"
+  if [ -n "$LOG_OK" ]; then
+    bpLogOk "$1"
+  fi	
   echo -e "[${BP_C_OK}Ok${E_END}] $1"
 }
 
 bpInfo() { ##D Info message
   if [ -n "$LOG_INFO" ]; then
-    bpLog "[Info] $1"
+    bpLogInfo "$1"
   fi
   echo -e "[${BP_C_INFO}Info${E_END}] $1"
 }
 
 bpWarning() { ##D Warning message
   if [ -n "$LOG_WARNING" ]; then
-    bpLog "[Warn] $1"
+    bpLogWarning "$1"
   fi
   echo -e "[${BP_C_WARNING}Warning${E_END}] $1"
 }
 
 bpError() { ##D Error message
   if [ -n "$LOG_ERROR" ]; then
-    bpLog "[Erro] $1"
+    bpLogError "$1"
   fi
   echo -e "[${BP_C_ERROR}Error${E_END}] $1"
 }
 
 bpCritical() { ##D Critical error message
   if [ -n "$LOG_CRITICAL" ]; then
-    bpLog "[Crit] $1"
+    bpLogCritical "$1"
   fi
   echo -e "[${BP_C_CRITICAL}Critical${E_END}] $1"
   bpExit
