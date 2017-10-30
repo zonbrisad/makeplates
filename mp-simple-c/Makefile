@@ -1,18 +1,39 @@
 # Hey Emacs, this is a -*- makefile -*-
 #----------------------------------------------------------------------------
+#
+# Brief:   __BRIEF__
 # 
-# Makeplate simple project
-#
-# author: Peter Malmberg <peter.malmberg@gmail.com>
-#
-#  
+# Name:    __NAME__
+# Author:  __AUTHOR__
+# Date:    __DATE__
+# Org:     __ORG__
+# 
+# License: __LICENSE__
+# 
 #----------------------------------------------------------------------------
-# On command line:
-# >make help 
+# [Makeplates]
+# This script is generated from makeplates Makefile project generator.
+#
+# Makeplates is developed by:
+# Peter Malmberg <peter.malmberg@gmail.com>
+#
+# Makeplates is available at:
+# https://github.com/zonbrisad/makeplates
+# 
+# [Disclaimer] 
+# Use on your own risk.
+#----------------------------------------------------------------------------
+# [Help]
+# 
+# Enter "make help" to get information about different targets.
+# 
 #----------------------------------------------------------------------------
 
+# Project License (GPL, GPLv2, MIT, BSD, Apache, etc.) 
+LICENSE = __LICENSE__
+
 # Target file name (without extension).
-TARGET = makeplate
+TARGET = __NAME__
 
 # List C source files here. (C dependencies are automatically generated.)
 SRC = main.c 
@@ -25,11 +46,20 @@ INCLUDE =
 
 # Libraries to link
 LIB   = -lm 
-#LIB += $(shell pkg-config --libs glib-2.0)
-#LIB += $(shell pkg-config --libs gthread-2.0)
-#LIB += $(shell pkg-config --libs ncurses)
-#LIB += $(shell pkg-config --libs lua5.1)
-#LIB += $(shell pkg-config --libs sqlite3)
+#LIB  += -lpthread
+
+# Libraries to use in pkg-config system
+#PKGLIBS  = Qt5Core 
+#PKGLIBS += Qt5Gui 
+#PKGLIBS += Qt5Widgets
+#PKGLIBS += Qt5SerialPort
+#PKGLIBS += Qt5Network
+#PKGLIBS += glib-2.0
+#PKGLIBS += gthread-2.0
+#PKGLIBS += gio-2.0
+#PKGLIBS += ncurses
+#PKGLIBS += lua5.1
+#PKGLIBS += sqlite3
 
 # Object files directory
 #     To put object files in current directory, use a dot (.), do NOT make
@@ -99,17 +129,11 @@ CFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void po
 #CFLAGS += -Wundef
 #CFLAGS += -Werror               # All warnings will be treated as errors
 
-# Library compiler flags C --------------------------------------------------
-#CFLAGS += $(shell pkg-config --cflags glib-2.0)
-#CFLAGS += $(shell pkg-config --cflags gthread-2.0)
-#CFLAGS += $(shell pkg-config --cflags lua5.1)
-#CFLAGS += $(shell pkg-config --cflags sqlite3)
-
 
 # Compiler Options C++ ------------------------------------------------------
 CPPFLAGS = -g$(DEBUG)                              # Debugging information
 CPPFLAGS += -O$(OPT)                               # Optimisation level
-CPPFLAGS += -std=$(CPPSTANDARD)                      # C standard
+CPPFLAGS += -std=$(CPPSTANDARD)                    # C++ standard
 CPPFLAGS += $(patsubst %,-I%,$(INCLUDE))           # Include directories 
 CPPFLAGS += $(patsubst %,-D%,$(CPPDEFS))           # Macro definitions
 CPPFLAGS += -Wa,-adhlns=$(<:%.cpp=$(OBJDIR)/%.lst) # Generate assembler listing
@@ -139,12 +163,6 @@ CPPFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void 
 #CPPFLAGS += -Wundef
 #CPPFLAGS += -Werror              # All warnings will be treated as errors
 
-# Library compiler flags C++ ------------------------------------------------
-#CPPFLAGS += $(shell pkg-config --cflags glib-2.0)
-#CPPFLAGS += $(shell pkg-config --cflags gthread-2.0)
-#CPPFLAGS += $(shell pkg-config --cflags lua5.1)
-#CPPFLAGS += $(shell pkg-config --cflags sqlite3)
-
 
 # Linker Options ------------------------------------------------------------
 #  -Wl,...:     tell GCC to pass this to linker.
@@ -161,7 +179,6 @@ LDFLAGS += $(foreach X, $(PKGLIBS), $(shell pkg-config --libs $(X)) )
 #============================================================================
 
 # Linux options -------------------------------------------------------------
-#ifeq ($(TARGET_PLATFORM), linux)
 
 # Target filename
 TRGFILE=$(OUTDIR)/$(TARGET)
@@ -191,8 +208,6 @@ FORMAT = ihex
 
 # object copy flags ---------------------------------------------------------
 OCFLAGS = -O $(FORMAT) 
-
-#endif
 
 #
 # Tool settings
@@ -419,8 +434,9 @@ $(TRGFILE): $(OBJS) $(OUTDIR)
 # Create hex file from ELF output file.
 %.hex: $(TRGFILE)
 	@echo
-	@echo -e $(MSG_HEX_FILE) "\n               $(C_FILE)" $@ "$(E_END)"
-	@$(OBJCOPY) -O ihex $< $@
+	@echo -en $(MSG_HEX_FILE) "\n               "
+	@echo -e $@ $(F_SOURCE)
+	@$(OBJCOPY) $(OCFLAGS) $< $@
 
 # Compile: create object files from C source files.
 $(OBJDIR)/%.o : %.c
@@ -571,7 +587,7 @@ list-defs:
 
 
 
-info: list-info list-includes list-defs list-flags list-ldflags list-installinfo ## Print information about project
+info: list-info list-includes list-defs list-flags list-ldflags  ## Print information about project
 
 files: list-src ## List source files
 

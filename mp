@@ -80,6 +80,7 @@ bpQuestionDy() {  ##D Ask yes/no question default yes
 createProject() {
   echo -e ${1}
 	read -p "Project name>" pn
+	read -p "Brief description>" brief
 #	bpQuestionDy "Create subdirectory?" res
 #	if [ ${res} == 'y' ]; then
     dst="${pn}"
@@ -93,6 +94,14 @@ createProject() {
   	bpRm "${dst}/tools"
 	  bpCp "${scriptPath}/tools" "${dst}"
 	fi
+	
+  bpReplace "${pn}/Makefile" "__NAME__" "${pn}"
+	bpReplace "${pn}/Makefile" "__AUTHOR__"  "${BP_NAME} <${BP_EMAIL}>"
+	bpReplace "${pn}/Makefile" "__DATE__" "${DATE}"
+	bpReplace "${pn}/Makefile" "__BRIEF__" "${brief}"
+	bpReplace "${pn}/Makefile" "__LICENSE__" "${BP_LICENSE}"
+	bpReplace "${pn}/Makefile" "__ORG__" "${BP_ORG}"
+
 }
 
 
@@ -396,9 +405,9 @@ bpPrintLineC() { ##D Print text with adjusted line after with selectable colors
   len4="${#4}"
 
   echo -en "${2}${1}${4}${3}"
-  l=$((${COLUMNS} - ${len1} - ${len4} - 3 ))
-  seq -s${5} ${l}|tr -d '[:digit:]'
-  echo -en ${E_END}
+  l=$((COLUMNS - len1 - len4 - 3 ))
+  seq -s"${5}" "${l}"|tr -d '[:digit:]'
+  echo -en ${E_END} 
 }
 
 # Print text with row
@@ -557,9 +566,9 @@ bpStrExist() { ##D Check if string exist in file
 bpRead() { ##D Read from commandline
 
 	if [ "${2}" == "" ]; then
-    read -p "${1} >" result
+    read -erp "${1} >" result
 	else
-	  read -p "${1} [$2] >" result
+	  read -erp "${1} [$2] >" result
 		if [ "${result}" == "" ]; then
 		  result="${2}"
 		fi
@@ -584,7 +593,7 @@ bpAddSetting() {
   S=$(bpStrExist $bpSettingsFile "${1}" )
 
 	if [ "${S}" == "0" ]; then
-		echo "# "${3}    >>  ${bpSettingsFile}
+		echo "# ${3}"    >>  ${bpSettingsFile}
     echo "${1}=\"${2}\"" >> ${bpSettingsFile}
 	  echo >> ${bpSettingsFile}
   fi
@@ -595,6 +604,7 @@ bpAddSettings() {
 	bpAddSetting "BP_EMAIL" "JohnDoe@foo.bar" "Email of user"
 	bpAddSetting "BP_EDITOR" "vi"             "Default editor"
 	bpAddSetting "BP_LICENSE" "MIT"           "Default project license"
+	bpAddSetting "BP_ORG"     "ACME"          "Default organisation"
 }
 
 # Change setting in config file (key value pair)
@@ -644,6 +654,7 @@ printSettings() { ##C BPSETTINGS Print plate information
 	printVar BP_EMAIL     "Email:"
 	printVar BP_LICENSE   "Default license:"
 	printVar BP_EDITOR    "Default editor"
+	printVar BP_ORG       "Default organisation"
 	bpLine
 }
 
@@ -661,6 +672,10 @@ seteditor() { ##C BPSETTINGS Set default editor
 
 setlic() { ##C BPSETTINGS Set default license
 	chSetting "${bpSettingsFile}" "BP_LICENSE" "\"${2}\""	
+}
+
+setorg() { ##C BPSETTINGS Set default organisation
+	chSetting "${bpSettingsFile}" "BP_ORG" "\"${2}\""	
 }
 
 
@@ -703,8 +718,8 @@ log() { ##C LOGFILE View logfile
 
 mlog() {   ##C LOGFILE Monitor logfile
   if [ -n "$LOGFILE" ]; then
-    if [ -f ${LOGFILE} ]; then  # Check that logfile exists
-      tail -f ${LOGFILE} | sed -r -e "s|\[Info\]|\[\\${BP_C_INFO}Info\\${E_END}\]|"  \
+    if [ -f "${LOGFILE}" ]; then  # Check that logfile exists
+      tail -f "${LOGFILE}" | sed -r -e "s|\[Info\]|\[\\${BP_C_INFO}Info\\${E_END}\]|"  \
             -e "s|\[Warn\]|\[\\${BP_C_WARNING}Warn\\${E_END}\]|"  \
             -e "s|\[Erro\]|\[\\${BP_C_ERROR}Erro\\${E_END}\]|"    \
             -e "s/[-0-9]+/\\${E_GREEN}&\\${E_END}/1"            \
@@ -777,7 +792,7 @@ assertNoLockFile() { ##D Assert that lockfile is not present
 
 assertRequiredProgs() { ##D Assert that required programs are available on the system
   if [ -n "${REQUIRED_PROGRAMS}" ]; then
-    for p in ${REQUIRED_PROGRAMS[@]}; do
+    for p in ${REQUIRED_PROGRAMS}; do
       hash "$p" 2>&- || \
         { bpError "Required program \"$p\" not found."; exit 1; }
 #      { echo -e >&2 "${BP_C_ERROR}Required program \"$p\" not found.${E_END}"; exit 1; }
@@ -858,13 +873,11 @@ printCondNamedLine() {
 help() { ## Print this help information
   echo "$USAGE"
   echo -e "$DESC"
-  echo
-#  printf "%-20s  %s\n" "Command" "Help"
-#  bpLine
+  echo 
   IFS=$'\n'
   SC="$1"
   help_lines=$(grep -h '##' "$0" | grep -v -e 'grep' -e '##D' -e '##V' -e '\*##C' -e '\*##C-' -e '\"##' -e '##N-//' -e 'help_line' -e 'printLine')
-  for help_line in ${help_lines[@]} ; do
+	for help_line in ${help_lines} ; do
     case "$help_line" in
       *"##-"*)   bpLine ;;
       *"##C-"*)  printCondLine       "$help_line" ;;
@@ -898,7 +911,7 @@ ihelp() { ##D Print internal help information
   LOGFILE=1  # Force log documentation
 
   help_lines=$(grep -h '##' "$0" | grep -v -e 'grep' -e '\*"##[ A-Z]"\*' -e 'help_line' -e ' printLine' -e 'awk' -e 'printInfo')
-  for help_line in ${help_lines[@]}; do
+	for help_line in ${help_lines} ; do
     case "$help_line" in
 #      "##-")    bpLine ;;
       *"##D"*)  printCommand  "$help_line" '##D' ;;
@@ -927,11 +940,11 @@ vhelp() { ##D Print internal variable information
   echo
   IFS=$'\n'
   help_lines=$( grep -v -e 'help_lines' -e 'help_line' "$0" | grep -A 1 '##V'   ) # | sed "s/--//" )
-  for line in ${help_lines[@]}; do
+	for line in ${help_lines}; do
     if [ "$line" == "--" ]; then
       echo
     else
-      help_line=$(echo ${line} | sed -u -e "s/##V[ ]/${BP_C_COMMENT}/i" -e "s/^.*=/${BP_C_ID}&${E_END}/i" -e "s/=/${E_END}=/" )
+      help_line=$(echo "${line}" | sed -u -e "s/##V[ ]/${BP_C_COMMENT}/i" -e "s/^.*=/${BP_C_ID}&${E_END}/i" -e "s/=/${E_END}=/" )
       echo -e "$help_line"
       echo -en "$E_END"
   fi
@@ -956,7 +969,7 @@ runCommand() {
   fi
 
   funks=$(grep "##" "$0" | grep -v grep | grep -v help_line)
-  for line in ${funks[@]}; do
+	for line in ${funks}; do
     command=$(echo "$line" | sed -s 's/(.*//')
     if [ "$command" == "$1" ]; then
 
