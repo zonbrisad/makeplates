@@ -95,8 +95,6 @@ extern "C" {
 #define LCT_COMMENT(cmt)   {LCT_TYPE_COMMENT, "", cmt,  0, LCT_ERR_VALID, .data.boolParam = {0,0} }
 #define LCT_LAST()         {LCT_TYPE_LAST,    "", NULL, 0, LCT_ERR_VALID, .data.boolParam = {0,0} }
 
-
-
 #define LCT_IS_REQUIRED(param)    (param->flags & LCT_FLAG_REQUIRED)
 
 #define PARAM_IS_INVALID(param)  (param->err  == LCT_ERR_INVALID)
@@ -285,6 +283,15 @@ LCT *LCT_New(luaConf *params);
 void LCT_Free(LCT *lct);
 
 /**
+ * Copy entire configuration
+ *
+ * @param lct
+ * @return
+ */
+LCT *LCT_Copy(LCT *lct);
+
+
+/**
  * Find a resource in parameter list.
  *
  * @param params List of parameters
@@ -362,7 +369,7 @@ char* LCT_paramLimits(luaConf *param);
 
 int LCT_IsParam(luaConf *param);
 
-void LCT_PrintParamFile(luaConf *param, FILE *f);
+void LCT_PrintParamFile(luaConf *param, FILE *f, int isTable);
 
 	
 void LCT_File(luaConf *conf);

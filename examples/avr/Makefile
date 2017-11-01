@@ -1035,9 +1035,9 @@ program: $(TARGET).hex # $(TARGET).eep  ## Burn program into flash
 .PHONY: sim
 
 sim:  ## Run AVR simulator 
-	simavr --mcu $(MCU) --freq $(F_CPU)  $(TRGFILE) 
+#	simavr --mcu $(MCU) --freq $(F_CPU)  $(TRGFILE) 
 # -W 0x20,- -R 0x22,- -T exit --irqstatistic
-	#simulavr -d $(MCU) -F $(F_CPU) --file $(TRGFILE) -W 0x20,- -R 0x22,- -T exit --irqstatistic
+	simulavr -d $(MCU) -F $(F_CPU) --file $(TRGFILE) -W 0x20,- -R 0x22,- -T exit --irqstatistic
 	
 # Listing of phony targets.
 .PHONY : all clean gccversion build begin finished end elf lss sym archive edit help backup list-src list-flags newproj run install

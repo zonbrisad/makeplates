@@ -83,8 +83,7 @@ class CClass():
         print(self.body)
         
         
-                                
-        
+                            
 class CFile():
     moduleName = ""
     fileName   = ""
@@ -204,6 +203,9 @@ class CFile():
         self.addInclude("signal.h")
         self.addSignal("SIGINT", "sigint")
         self.addSignal("SIGHUP", "sighup")
+        self.addSignal("SIGUSR1", "sigusr1")
+        self.addSignal("SIGUSR2", "sigusr2")
+        self.addSignal("SIGTERM", "sigterm")
         
     def addGtk(self):
         #if (conf.gtk):    
