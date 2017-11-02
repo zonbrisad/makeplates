@@ -252,7 +252,7 @@ char *LCT_int2string(int2str *i2s, LCT_TYPES type) {
     int i;
     i = 0;
 
-    while (i2s[i].type != type) {
+    while (i2s[i].type != (int)type) {
         i++;
 
         if (i2s[i].type == LCT_TYPE_LAST) {
@@ -530,8 +530,8 @@ void LCT_SetDefaults(luaConf *params) {
 }
 
 int list[] = {
-		LCT_TYPE_COMMENT,
-		LCT_TYPE_TABLE,
+    LCT_TYPE_COMMENT,
+    LCT_TYPE_TABLE,
 
     LCT_TYPE_INTEGER,
     LCT_TYPE_DOUBLE,
@@ -608,7 +608,7 @@ void LCT_PrintParamFile(luaConf *param, FILE *f, int isTable) {
         	if (param->type == LCT_TYPE_STRING) {
         		fprintf(f, "%s%s = \"%s\"%s\n", pad, param->name, LCT_val2string(param), comma);
         	} else {
-        		fprintf(f, "%s%s = %s%s\n", pad, param->name, LCT_val2string(param), comma);
+        		fprintf(f, "%s%s = %s\n", pad, param->name, LCT_val2string(param), comma);
         	}
 
         	if (!isTable) {
@@ -1057,7 +1057,7 @@ void LCT_StackDump(lua_State *l) {
 
 void LCT_read(LCT *lct, char *confFile) {
     int i;
-    int err;
+//    int err;
     luaConf *param;
 
     luaConf *params = lct->params;
@@ -1271,6 +1271,7 @@ void LCT_PushStrArray(LCT *lct, LCT_TSTR v[], int len) {
 void LCT_PushParameter(LCT *lct, luaConf *param, void *value) {
     int i = 0;
     luaConf *params;
+
 
     switch (param->type) {
         case LCT_TYPE_INTEGER:
@@ -1771,7 +1772,7 @@ void LCT_PrintProblems(luaConf *params) {
 void LCT_Test(void) {
     LCT     *lct;
     luaConf *ret;
-    luaConf *prm;
+ //   luaConf *prm;
     int i;
 
 

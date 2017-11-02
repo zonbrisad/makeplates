@@ -180,7 +180,7 @@ typedef struct {
     LCT_TINT min;         //!< min value of parameter
     LCT_TINT max;         //!< max value of parameter
     LCT_TINT *validList;  //!< list of valid values
-    uint32_t length;      //!< Size of list
+    int32_t length;      //!< Size of list
     LCT_TINT *list;       //!< list of valid values of parameter
 } LCT_DATA_INTEGER;
 
@@ -190,14 +190,14 @@ typedef struct {
     LCT_TDBL min;         //!< min value of parameter
     LCT_TDBL max;         //!< max value of parameter
     LCT_TDBL *validList;  //!< list of valid values
-    uint32_t length;      //!< Size of list
+    int32_t length;      //!< Size of list
     LCT_TDBL *list;       //!< list of valid values of parameter
 } LCT_DATA_DOUBLE;
 
 typedef struct {
     LCT_TSTR val;         //!< parameter value
     LCT_TSTR default_val; //!< default value
-    uint32_t length;      //!< Size of list
+    int32_t length;      //!< Size of list
     LCT_TSTR *list;       //!< list of valid values of parameter
 } LCT_DATA_STRING;
 
@@ -208,7 +208,7 @@ typedef struct {
 
 typedef struct {
 	luaConf *params;
-	uint32_t length;
+	int32_t length;
 	void *list;
 } LCT_DATA_TABLE;
 
