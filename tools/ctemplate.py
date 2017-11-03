@@ -83,7 +83,6 @@ class CClass():
         print(self.body)
         
         
-                            
 class CFile():
     moduleName = ""
     fileName   = ""
@@ -173,7 +172,7 @@ class CFile():
 
     def addAppDefines(self):
         self.addDefine("APP_NAME        ", "\""+self.moduleName+"\"")
-        self.addDefine("APP_VERSION     ", "0.01")
+        self.addDefine("APP_VERSION     ", "\"0.01\"")
         self.addDefine("APP_DESCRIPTION ", "\"\"")
         self.addDefine("APP_AUTHOR      ", "\""+self.conf.author+"\"")
         self.addDefine("APP_LICENSE     ", "\""+self.conf.license+ "\"")
@@ -211,14 +210,13 @@ class CFile():
         #if (conf.gtk):    
         self.addInclude("gtk/gtk.h")
         
-
     def addQt(self):    
         #if (conf.qt):    
         self.addInclude("QApplication")
         self.addInclude("QCoreApplication")
         self.addInclude("QDebug")
         self.addInclude("QMainWindow")
-        self.addInclude("QPushbutton")
+        self.addInclude("QPushButton")
         self.addInclude("QLabel")
         
         self.main += "  Q_INIT_RESOURCE(application);\n\n"
@@ -238,8 +236,7 @@ class CFile():
 #        self.main += "  mainWin.loadFile(parser.positionalArguments().first());\n"
         self.main += "  mainWin.show();\n"
         self.main += "  return app.exec();\n"
-        
-        
+                
     def addMain(self):
         self.main = "int main(int argc, char *argv[]) {\n\n" + self.main
         self.main += "  return 0;\n"
@@ -254,7 +251,6 @@ class CFile():
         self.addInclude("sys/types.h")
         self.addInclude("errno.h")
  
-        
     def replace(self, str, newStr):
         self.buf = self.buf.replace(str, newStr)
 
@@ -311,7 +307,7 @@ class CFile():
             self.addSection("Code")
             self.buf = self.buf + self.code
         
-        self.buf += self.main    
+            self.buf += self.main    
             
         if self.isHeader:
             self.addSentinelEnd()
@@ -326,7 +322,7 @@ class CFile():
         self.replace("__LICENSE__",  self.conf.license )
     
     def print(self):
-        self.create()
+        #self.create()
         print(self.buf)
 
 
@@ -383,12 +379,16 @@ def newModule(dir, conf, isCpp):
     
     fileC = CFile(fName, conf, False, isCpp)
     fileH = CFile(fName, conf, True,  isCpp)
-
-    fileH.print()
-    fileC.print()
+    
+    fileH.create()
+    fileC.create()
     
     fileH.save(dir)
     fileC.save(dir)
+
+#    fileH.print()
+#    fileC.print()
+    
     
     return
 
@@ -439,12 +439,36 @@ mpPath     = scriptPath+"/.."
 
 # Get Bashplate settings
 def bp():
-    name    = os.getenv('BP_NAME', "")
-    email   = os.getenv('BP_EMAIL', "")
+    name    = os.getenv('BP_NAME',    "")
+    email   = os.getenv('BP_EMAIL',   "")
     license = os.getenv('BP_LICENSE', "")
-    org     = os.getenv('BP_ORG', "")
+    org     = os.getenv('BP_ORG',     "")
     
     return name, email, license
+
+def cmd_qtmain(args, conf):
+    print("qtmain")
+    return
+
+def cmd_qtwin(args, conf):
+    print("qtwin")
+    return
+
+def cmd_qtdia(args, conf):
+    print("qtdia")
+    return
+
+def cmd_newc(args, conf):
+    newCModule(args.dir, conf)
+    return
+
+def cmd_newcpp(args, conf):
+    newCppModule(args.dir, conf)
+    return
+
+def cmd_newclass(args, conf):
+    newClass(args.dir, conf)    
+    return
 
 def main():
     
@@ -454,60 +478,55 @@ def main():
     logging.basicConfig(level=logging.DEBUG)
     
     # options parsing
-    parser = argparse.ArgumentParser(description="Makeplate C/C++ template generator")
-    parser.add_argument("--newc",     action="store_true", help="Create a new C and H file set")
-    parser.add_argument("--newcpp",   action="store_true", help="Create a new C++ and H file set")
-    parser.add_argument("--newclass", action="store_true", help="Create a new C++ class")
-    parser.add_argument("--newQt",    action="store_true", help="Create a new Qt project")
-    parser.add_argument("--newgtk",   action="store_true", help="Create a new GTK project")
-#    parser.add_argument("--newproj",  action="store_true", help="Create a new Makeplate project")
+    parser = argparse.ArgumentParser(
+             prog=AppName+'.py',
+             description="Makeplate C/C++ template generator", 
+             epilog = ""
+             )
+    
+    subparsers = parser.add_subparsers(help="")
+    parser_newc  = subparsers.add_parser("newc",    help="Create a new C and H file set")
+    parser_newc.set_defaults(func=cmd_newc)
+    parser_newclass  = subparsers.add_parser("newclass",    help="Create a new C++ class")
+    parser_newclass.set_defaults(func=cmd_newclass)
+    parser_newcpp  = subparsers.add_parser("newcpp",    help="Create a new C++ file")
+    parser_newcpp.set_defaults(func=cmd_newcpp)
+    parser_qtdia  = subparsers.add_parser("qtdia",    help="Create a Qt5 dialog")
+    parser_qtdia.set_defaults(func=cmd_qtdia)
+    parser_qtmain = subparsers.add_parser("qtmain",   help="Create a Qt5 main application")
+    parser_qtmain.set_defaults(func=cmd_qtmain)
+    parser_qtwin  = subparsers.add_parser("qtwin",    help="Create a Qt5 main window")
+    parser_qtwin.set_defaults(func=cmd_qtwin)
+    parser_qtdia  = subparsers.add_parser("qtdia",    help="Create a Qt5 dialog")
+    parser_qtdia.set_defaults(func=cmd_qtdia)
+
     parser.add_argument("--giti",     action="store_true", help="Create a .gitignore file")
     parser.add_argument("--license",  type=str,  help="License of new file",           default=bpLicense)
     parser.add_argument("--author",   type=str,  help="Author of file",                default=bpName+" <"+bpEmail+">")
     parser.add_argument("--dir",      type=str,  help="Directory where to store file", default=".")
+    parser.add_argument("--version",  action='version',  help="Directory where to store file", version=AppVersion)
+    
 #    parser.add_argument("--header",   type=str,            help="External header file",  default="headerExample")
-    
+#    subparsers = parser.add_subparsers(title='subcommands', help="sfda fdsa fdsa afsd")
+
     args = parser.parse_args()
-    
     conf = CConf()
-    conf.author = args.author
+    conf.author  = args.author
     conf.license = args.license
 
-    if args.newc:
-        #newCModule(args.dir, args.author, args.license)
-        newCModule(args.dir, conf)
+    if hasattr(args, 'func'):
+        args.func(args, conf)
         exit(0)
-        
-    if args.newclass:
-        newClass(args.dir, conf)
-        exit(0)
-        
-    if args.newcpp:
-        newCppModule(args.dir, conf)
-        exit(0)
+    
+    parser.print_help()
+    exit(0)
 
-    if args.newgtk:
-        newCppModule(args.dir, conf)
-        exit(0)
-        
-    if args.newQt:
-        newCppModule(args.dir, conf)
-        exit(0)
-        
-#    if args.newproj:
-#        newProject(args.dir, args.author, args.license)
-#        exit(0)
-        
     if args.giti:
         file = newFile(args.dir, ".gitignore")
         file.write(gitIgnore)
         file.close()
         exit(0)
-        
-    parser.print_help()
-    exit(0)    
 
-    
 def query_list(question, db, default="yes"):
     prompt = " >"
 
