@@ -129,11 +129,11 @@ newscpp() { ##C NEW Create a new simple C++ makeplate project
 cTemplate=${scriptPath}/tools/ctemplate.py
 
 newcf() { ## Create new C module
-  ${cTemplate} --newc --dir . --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
+  ${cTemplate} newc --dir . --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
 }
 
 newclass() { ## Create new C++ class
-  ${cTemplate} --newclass --dir . --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
+  ${cTemplate} newclass --dir . --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
 }
 
 
