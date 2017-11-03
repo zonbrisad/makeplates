@@ -1,7 +1,7 @@
 # Hey Emacs, this is a -*- makefile -*-
 #----------------------------------------------------------------------------
-# 
-# Qt5 makeplates example.
+#
+# Brief:   Qt5 makeplates example.
 #
 # author: Peter Malmberg <peter.malmberg@gmail.com>
 #
@@ -12,12 +12,25 @@
 # https://github.com/zonbrisad/makeplates.git
 # 
 #----------------------------------------------------------------------------
-# On command line:
-# >make help 
+# [Makeplates]
+# This script is generated from makeplates Makefile project generator.
+#
+# Makeplates is developed by:
+# Peter Malmberg <peter.malmberg@gmail.com>
+#
+# Makeplates is available at:
+# https://github.com/zonbrisad/makeplates
+# 
+# [Disclaimer] 
+# Use on your own risk.
+#----------------------------------------------------------------------------
+# [Help]
+# 
+# Enter "make help" to get information about different targets.
+# 
 #----------------------------------------------------------------------------
 
-# Target platform
-# linux win32 avr arm osx
+# Target platform (linux, win32, avr, arm, osx)
 TARGET_PLATFORM = linux
 
 # Project License (GPL, GPLv2, MIT, BSD, Apache, etc.) 
@@ -245,7 +258,7 @@ TCHAIN_PREFIX=
 endif
 
 # 
-# Qt5 Specific objects
+# Qt5 Specific objects and targets
 #============================================================================
 
 # Qt objects ----------------------------------------------------------------
@@ -920,7 +933,7 @@ mpType=mp-cpp
 
 utools: # Update tools from locally installed tools
 	@echo -e "${C_ACTION}Updating makeplate tools${E_END}"
-	@$(COPY) ~/bin/makeplate_files/tools/* tools/.
+	@mp utools
 
 meld: # Meld Makefile with locally installed makefile
 	@meld ~/bin/makeplate_files/${mpType}/Makefile  Makefile

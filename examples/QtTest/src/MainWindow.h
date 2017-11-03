@@ -5,7 +5,7 @@ class QAction;
 class QMenu;
 class QPlainTextEdit;
 class QSessionManager;
-cd 
+
 
 class MainWindow : public QMainWindow {
 	    Q_OBJECT
