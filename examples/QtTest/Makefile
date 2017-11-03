@@ -7,11 +7,6 @@
 #
 # License: MIT
 #----------------------------------------------------------------------------
-# This file is part of the makeplates project.
-# Git checkout:
-# https://github.com/zonbrisad/makeplates.git
-# 
-#----------------------------------------------------------------------------
 # [Makeplates]
 # This script is generated from makeplates Makefile project generator.
 #
