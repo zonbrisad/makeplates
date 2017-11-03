@@ -1,18 +1,35 @@
 # Hey Emacs, this is a -*- makefile -*-
 #----------------------------------------------------------------------------
 # 
-# Makeplate example project
+# Brief: Makeplate example project
 #
-# author: Peter Malmberg <peter.malmberg@gmail.com>
-#
-#  
+# Name:
+# Author:  Peter Malmberg <peter.malmberg@gmail.com>
+# Date:    
+# Org:     
+# 
+# License: 
+# 
 #----------------------------------------------------------------------------
-# On command line:
-# >make help 
+# [Makeplates]
+# This script is generated from makeplates Makefile project generator.
+#
+# Makeplates is developed by:
+# Peter Malmberg <peter.malmberg@gmail.com>
+#
+# Makeplates is available at:
+# https://github.com/zonbrisad/makeplates
+# 
+# [Disclaimer] 
+# Use on your own risk.
+#----------------------------------------------------------------------------
+# [Help]
+# 
+# Enter "make help" to get information about different targets.
+# 
 #----------------------------------------------------------------------------
 
-# Target platform
-# linux win32 avr arm osx
+# Target platform (linux, win32, avr, arm, osx)
 TARGET_PLATFORM = linux
 
 # Project License (GPL, GPLv2, MIT, BSD, Apache, etc.) 
@@ -667,11 +684,11 @@ run:    ## Run application
 
 ##N- Create
 
-newfile:  ## Create a new C file
-	@${CTEMPLATE} --newc --dir src --author "$(AUTHOR)" --license "$(LICENSE)"
+newc:  ## Create a new C module
+	@${CTEMPLATE} newc --dir src --author "$(AUTHOR)" --license "$(LICENSE)"
 
 newclass:  ## Create a new C++ class
-	@${CTEMPLATE} --newclass --dir src --author "$(AUTHOR)" --license "$(LICENSE)"	
+	@${CTEMPLATE} newclass --dir src --author "$(AUTHOR)" --license "$(LICENSE)"	
 		
 #newproj:  # Create a new project
 #	@${PROJECT} newproj
@@ -912,7 +929,7 @@ mpType=mp-c
 
 utools: # Update tools from locally installed tools
 	@echo -e "${C_ACTION}Updating makeplate tools${E_END}"
-	@$(COPY) ~/bin/makeplate_files/tools/* tools/.
+	@mp utools
 
 meld: # Meld Makefile with locally installed makefile
 	@meld ~/bin/makeplate_files/${mpType}/Makefile  Makefile

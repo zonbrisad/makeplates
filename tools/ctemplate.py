@@ -483,37 +483,42 @@ def main():
              description="Makeplate C/C++ template generator", 
              epilog = ""
              )
+             
+    parrent_parser = argparse.ArgumentParser(add_help=False)         
+#    parrent_parser.add_argument("--giti",     action="store_true", help="Create a .gitignore file")
+    parrent_parser.add_argument("--license",  type=str,  help="License of new file",           default=bpLicense)
+    parrent_parser.add_argument("--author",   type=str,  help="Author of file",                default=bpName+" <"+bpEmail+">")
+    parrent_parser.add_argument("--dir",      type=str,  help="Directory where to store file", default=".")
+    parser.add_argument("--version",  action='version',  help="Directory where to store file", version=AppVersion)
+         
     
     subparsers = parser.add_subparsers(help="")
-    parser_newc  = subparsers.add_parser("newc",    help="Create a new C and H file set")
+    parser_newc = subparsers.add_parser("newc",   parents=[parrent_parser], help="Create a new C and H file set")
     parser_newc.set_defaults(func=cmd_newc)
-    parser_newclass  = subparsers.add_parser("newclass",    help="Create a new C++ class")
+    parser_newclass = subparsers.add_parser("newclass", parents=[parrent_parser],   help="Create a new C++ class")
     parser_newclass.set_defaults(func=cmd_newclass)
-    parser_newcpp  = subparsers.add_parser("newcpp",    help="Create a new C++ file")
+    parser_newcpp = subparsers.add_parser("newcpp", parents=[parrent_parser],   help="Create a new C++ file")
     parser_newcpp.set_defaults(func=cmd_newcpp)
-    parser_qtdia  = subparsers.add_parser("qtdia",    help="Create a Qt5 dialog")
+    parser_qtdia = subparsers.add_parser("qtdia", parents=[parrent_parser],   help="Create a Qt5 dialog")
     parser_qtdia.set_defaults(func=cmd_qtdia)
-    parser_qtmain = subparsers.add_parser("qtmain",   help="Create a Qt5 main application")
+    parser_qtmain = subparsers.add_parser("qtmain", parents=[parrent_parser],  help="Create a Qt5 main application")
     parser_qtmain.set_defaults(func=cmd_qtmain)
-    parser_qtwin  = subparsers.add_parser("qtwin",    help="Create a Qt5 main window")
+    parser_qtwin = subparsers.add_parser("qtwin", parents=[parrent_parser],   help="Create a Qt5 main window")
     parser_qtwin.set_defaults(func=cmd_qtwin)
-    parser_qtdia  = subparsers.add_parser("qtdia",    help="Create a Qt5 dialog")
+    parser_qtdia = subparsers.add_parser("qtdia", parents=[parrent_parser],   help="Create a Qt5 dialog")
     parser_qtdia.set_defaults(func=cmd_qtdia)
 
-    parser.add_argument("--giti",     action="store_true", help="Create a .gitignore file")
-    parser.add_argument("--license",  type=str,  help="License of new file",           default=bpLicense)
-    parser.add_argument("--author",   type=str,  help="Author of file",                default=bpName+" <"+bpEmail+">")
-    parser.add_argument("--dir",      type=str,  help="Directory where to store file", default=".")
-    parser.add_argument("--version",  action='version',  help="Directory where to store file", version=AppVersion)
     
 #    parser.add_argument("--header",   type=str,            help="External header file",  default="headerExample")
 #    subparsers = parser.add_subparsers(title='subcommands', help="sfda fdsa fdsa afsd")
 
     args = parser.parse_args()
     conf = CConf()
-    conf.author  = args.author
-    conf.license = args.license
-
+    if hasattr(args, 'author'):
+        conf.author  = args.author
+    if hasattr(args, 'license'):
+        conf.license = args.license
+    
     if hasattr(args, 'func'):
         args.func(args, conf)
         exit(0)

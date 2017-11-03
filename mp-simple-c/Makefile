@@ -39,7 +39,7 @@ TARGET = __NAME__
 SRC = main.c  
 
 # Include directories
-INCLUDE = 
+INCLUDE = .
 
 # Libraries to link
 LIB   = -lm 
@@ -515,43 +515,25 @@ run:    ## Run application
 # Help information
 #============================================================================
 
+##N- Help
+
 help: ## This help information
-	@printf "%-30s %s\n" "target" "help"
 	@echo -e $(MSG_LINE)
-	@IFS=$$'\n' ;                                    \
-	help_lines=(`fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##/:/'`); \
-	for help_line in $${help_lines[@]}; do                                     \
-	  IFS=$$':' ;                                                              \
-		help_split=($$help_line) ;                                               \
-		help_command=`echo $${help_split[0]} | sed -e 's/^ *//' -e 's/ *$$//'` ; \
-		help_info=`echo $${help_split[2]} | sed -e 's/^ *//' -e 's/ *$$//'` ;    \
-		printf "$(E_BR_CYAN)%-15s %s$(E_END)" $$help_command ;                 \
-		printf "$(E_BR_GREEN)%s$(E_END)\n" $$help_info ;                       \
-	done ; 
+	@IFS=$$'\n'; \
+	help_lines=$$( grep -h '##' $(MAKEFILE_LIST) | grep -v grep | grep -v '##D' | grep -v '##V' | grep -v '\*##C' | grep -v '\*##C-' |  grep -v '\"##' |  grep -v '##N-//' | grep -v help_line | grep -v printLine ) ; \
+	for help_line in $${help_lines[@]}; do  \
+	  case "$$help_line" in \
+			    *"##N-"*) name=$$(echo $$help_line | sed -e 's/^.*##N-//' -e 's/^[ \t]*//' ); \
+					          printf "${E_YELLOW}%s${E_END}\n" $$name ;; \
+					*"##"*)   help_command=$$(echo $$help_line | sed -s 's/:.*//') ; \
+										help_info=$$(echo $$help_line | sed -s 's/^.*##//') ; \
+										printf "${E_CYAN}  %-15s ${E_GREEN}%s${E_END}\n" $$help_command $$help_info; \
+		esac \
+  done ;
 	@echo -e $(MSG_LINE)
 
-list-src: ## List all source files
-	@echo -e $(MSG_SRC)
-	@export IFS=" "
-	@for f in $(SRC); do      \
-	  echo $${f} ;            \
-	done                      \
-	
-list-flags: ## List compiler flags
-	@echo -e $(MSG_FLAGS)
-	@export IFS=" "
-	@for f in $(CFLAGS); do   \
-	  echo $${f} ;            \
-	done                      \
 
-list-ldflags: ## List linker flags
-	@echo -e $(MSG_LINKER)
-	@export IFS=" "
-	@for f in $(LDFLAGS); do   \
-	  echo $${f} ;             \
-	done                       \
-
-list-info: 
+info: ## List project information
 	@echo -e $(MSG_PROJECT)
 	@echo "Target:     $(TARGET)"
 	@echo "Platform:   $(TARGET_PLATFORM)"
@@ -560,16 +542,15 @@ list-info:
 	@echo "C standard: $(CSTANDARD)"
 	@echo "MCU:        $(MCU)"
 	@echo "F_CPU:      $(F_CPU)"
-
 	
-list-includes: 
+	# List includefiles
 	@echo -e $(MSG_INCLUDES)
 	@export IFS=" "
 	@for f in $(INCLUDE); do   \
 	  echo $${f} ;             \
 	done        
 
-list-defs: 
+  # List definitions
 	@echo -e $(MSG_DEFS)
 	@export IFS=" "
 	@for f in $(CDEFS); do     \
@@ -584,9 +565,27 @@ list-defs:
 	  echo $${f} ;             \
 	done        
 
+  # List compiler flags
+	@echo -e $(MSG_FLAGS)
+	@export IFS=" "
+	@for f in $(CFLAGS); do   \
+	  echo $${f} ;            \
+	done                      \
 
+  # List linker flags
+	@echo -e $(MSG_LINKER)
+	@export IFS=" "
+	@for f in $(LDFLAGS); do   \
+	  echo $${f} ;             \
+	done                       \
 
-info: list-info list-includes list-defs list-flags list-ldflags  ## Print information about project
+  # List all source files
+	@echo -e $(MSG_SRC)
+	@export IFS=" "
+	@for f in $(SRC); do      \
+	  echo $${f} ;            \
+	done                      \
+	
 
 files: list-src ## List source files
 
