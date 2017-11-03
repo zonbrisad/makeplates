@@ -476,22 +476,23 @@ def main():
     bpName, bpEmail, bpLicense = bp()
     
     logging.basicConfig(level=logging.DEBUG)
-    
+
+    parrent_parser = argparse.ArgumentParser(add_help=False)         
+    #    parrent_parser.add_argument("--giti",     action="store_true", help="Create a .gitignore file")
+    parrent_parser.add_argument("--license",  type=str,  help="License of new file",           default=bpLicense)
+    parrent_parser.add_argument("--author",   type=str,  help="Author of file",                default=bpName+" <"+bpEmail+">")
+    parrent_parser.add_argument("--dir",      type=str,  help="Directory where to store file", default=".")
+
     # options parsing
     parser = argparse.ArgumentParser(
              prog=AppName+'.py',
              description="Makeplate C/C++ template generator", 
-             epilog = ""
+             epilog = "",
+             parents = [parrent_parser],
              )
              
-    parrent_parser = argparse.ArgumentParser(add_help=False)         
-#    parrent_parser.add_argument("--giti",     action="store_true", help="Create a .gitignore file")
-    parrent_parser.add_argument("--license",  type=str,  help="License of new file",           default=bpLicense)
-    parrent_parser.add_argument("--author",   type=str,  help="Author of file",                default=bpName+" <"+bpEmail+">")
-    parrent_parser.add_argument("--dir",      type=str,  help="Directory where to store file", default=".")
     parser.add_argument("--version",  action='version',  help="Directory where to store file", version=AppVersion)
-         
-    
+             
     subparsers = parser.add_subparsers(help="")
     parser_newc = subparsers.add_parser("newc",   parents=[parrent_parser], help="Create a new C and H file set")
     parser_newc.set_defaults(func=cmd_newc)
