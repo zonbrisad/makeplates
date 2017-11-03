@@ -63,6 +63,7 @@ void printInfo(void);
 
 void Task1(void *pvParameters) {
 	UNUSED(pvParameters);
+	printf("Task1 XXX\n");
 	while (1) {
 
 	}
@@ -70,6 +71,7 @@ void Task1(void *pvParameters) {
 
 void Task2(void *pvParameters) {
 	UNUSED(pvParameters);
+	printf("Task2 YYY\n");
 	while (1) {
 
 	}
@@ -79,6 +81,7 @@ void Task2(void *pvParameters) {
 
 /* Every ~ms */
 ISR(TIMER2_COMPA_vect) {
+			vPortYieldFromTick();
 	   timer2_ticks++;
 }
 
@@ -145,14 +148,14 @@ int main(void) {
 	
 	hw_init();
 	
-	printInfo();
+//	printInfo();
 
 	
 	// Starting Task 1
-	res = xTaskCreate( Task1, "Task1", 256, NULL, 3, NULL);
+	res = xTaskCreate( Task1, "Task1", 128, NULL, 3, NULL);
 	printErrorMsg("Starting Task1:", res);
 
-	res = xTaskCreate( Task2, "Task2", 256, NULL, 3, NULL);
+	res = xTaskCreate( Task2, "Task2", 128, NULL, 3, NULL);
 	printErrorMsg("Starting Task2:", res);
 
 	// Creating main event queue
@@ -162,7 +165,7 @@ int main(void) {
 	 
 	 printf("Starting FreeRTOS scheduler\n");
 	 
-	 //vTaskStartScheduler();
+	 vTaskStartScheduler();
 	 
 	 // Should never come here
 	 return 0;

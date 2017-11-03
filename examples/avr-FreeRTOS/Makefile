@@ -1,7 +1,7 @@
 # Hey Emacs, this is a -*- makefile -*-
 #----------------------------------------------------------------------------
 # 
-# General Atmel AVR  Makefile template.
+# Brief: General Atmel AVR  Makefile template.
 #
 # author: Peter Malmberg <peter.malmberg@gmail.com>
 #
@@ -16,8 +16,7 @@
 # >make help 
 #----------------------------------------------------------------------------
 
-# Target platform
-# linux win32 avr arm osx
+# Target platform (linux, win32, avr, arm, osx)
 TARGET_PLATFORM = avr
 
 # Project License (GPL, GPLv2, MIT, BSD, Apache, etc.) 
@@ -285,7 +284,7 @@ endif
 ifeq ($(TARGET_PLATFORM), avr)
 
 # MCU name
-MCU = atmega2560
+MCU = atmega328
 
 # Processor frequency.
 # Some common values:
@@ -1070,9 +1069,9 @@ program: $(TARGET).hex # $(TARGET).eep  ## Burn program into flash
 .PHONY: sim
 
 sim:  ## Run AVR simulator 
-	simavr --mcu $(MCU) --freq $(F_CPU)  $(TRGFILE) 
+#	simavr --mcu $(MCU) --freq $(F_CPU)  $(TRGFILE) 
 # -W 0x20,- -R 0x22,- -T exit --irqstatistic
-	#simulavr -d $(MCU) -F $(F_CPU) --file $(TRGFILE) -W 0x20,- -R 0x22,- -T exit --irqstatistic
+	simulavr -d $(MCU) -F $(F_CPU) --file $(TRGFILE) -W 0x20,- -R 0x22,- -T exit --irqstatistic
 	
 # Listing of phony targets.
 .PHONY : all clean gccversion build begin finished end elf lss sym archive edit help backup list-src list-flags newproj run install
@@ -1084,7 +1083,7 @@ mpType=mp-c
 
 utools: # Update tools from locally installed tools
 	@echo -e "${C_ACTION}Updating makeplate tools${E_END}"
-	@$(COPY) ~/bin/makeplate_files/tools/* tools/.
+	@mp utools
 
 meld: # Meld Makefile with locally installed makefile
 	@meld ~/bin/makeplate_files/${mpType}/Makefile  Makefile

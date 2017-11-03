@@ -446,10 +446,13 @@ uint8_t ucHighByte, ucLowByte;
 	 */
 //	void SIG_OUTPUT_COMPARE1A( void ) __attribute__ ( ( signal, naked ) );
 //	void SIG_OUTPUT_COMPARE1A( void )
-//	{
-//		vPortYieldFromTick();
-//		asm volatile ( "reti" );
-//	}
+//	
+ISR(TIMER1_COMPA_vect) {
+	
+		printf("A");
+		vPortYieldFromTick();
+		asm volatile ( "reti" );
+	}
 #else
 
 	/*
