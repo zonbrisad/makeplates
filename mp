@@ -77,10 +77,20 @@ bpQuestionDy() {  ##D Ask yes/no question default yes
 }
 
 
+#
+# Create a new Makeplate project
+#
+# $1 Create text
+# $2 source directory
+# $3 tools directory
+# $4 language c/cpp
+#
 createProject() {
   echo -e ${1}
-	read -p "Project name>" pn
-	read -p "Brief description>" brief
+
+	pn=$(bpRead  "Project name>" "" )
+ 	brief=$(bpRead "Brief description>" "" )
+
 #	bpQuestionDy "Create subdirectory?" res
 #	if [ ${res} == 'y' ]; then
     dst="${pn}"
@@ -90,37 +100,60 @@ createProject() {
 #		bpCp "${2}/*" "${dst}"
 #	fi
 
+  srcDst="${dst}"
+	
+	# Check tool dir is present then full project otherwise simple
   if [ "$3" == "tools" ]; then
   	bpRm "${dst}/tools"
 	  bpCp "${scriptPath}/tools" "${dst}"
+		srcDst="${dst}/src"
 	fi
 	
-  bpReplace "${pn}/Makefile" "__NAME__" "${pn}"
+  bpReplace "${pn}/Makefile" "__NAME__"    "${pn}"
 	bpReplace "${pn}/Makefile" "__AUTHOR__"  "${BP_NAME} <${BP_EMAIL}>"
-	bpReplace "${pn}/Makefile" "__DATE__" "${DATE}"
-	bpReplace "${pn}/Makefile" "__BRIEF__" "${brief}"
+	bpReplace "${pn}/Makefile" "__DATE__"    "${DATE}"
+	bpReplace "${pn}/Makefile" "__BRIEF__"   "${brief}"
 	bpReplace "${pn}/Makefile" "__LICENSE__" "${BP_LICENSE}"
-	bpReplace "${pn}/Makefile" "__ORG__" "${BP_ORG}"
+	bpReplace "${pn}/Makefile" "__ORG__"     "${BP_ORG}"
 
+  if [ $4 == "cpp" ]; then
+	  ${cTemplate} newcpp --main --name "main" --dir "${srcDst}" --brief "${brief}" --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
+		if [ "$3" == "tools" ]; then
+      bpReplaceLine "${dst}/Makefile" "SRC" "SRC = src\/main.cpp"
+		else
+		  bpReplaceLine "${dst}/Makefile" "SRC" "SRC = main.cpp"
+		fi
+	else
+    ${cTemplate} newc   --main --name "main" --dir "${srcDst}" --brief "${brief}" --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
+		if [ "$3" == "tools" ]; then
+		  bpReplaceLine "${dst}/Makefile" "SRC" "SRC = src\/main.c"
+		else
+  		bpReplaceLine "${dst}/Makefile" "SRC" "SRC = main.c"
+		fi
+	fi
+	
 }
 
+replaceTest() { ## Replace test
+		bpReplaceLine Makefile "SRC" "SRC = main.c"
+}
 
 ##N- Project
 
 newc() { ##C NEW Create a new standard C makeplate project
-  createProject "Creating new makeplate C project" "${scriptPath}/mp-c" "tools"
+  createProject "Creating new makeplate C project" "${scriptPath}/mp-c" "tools" "c"
 }
 
 newcpp() { ##C NEW Create a new standard C++ makeplate project
-  createProject  "Creating new makeplate C++ project" "${scriptPath}/mp-cpp" "tools"
+  createProject  "Creating new makeplate C++ project" "${scriptPath}/mp-c" "tools" "cpp"
 }
 
 newsc() { ##C NEW Create a new simple C makeplate project
-  createProject "Creating new simple makeplate C project"  "${scriptPath}/mp-simple-c"
+  createProject "Creating new simple makeplate C project"  "${scriptPath}/mp-simple-c" "" "c"
 }
 
 newscpp() { ##C NEW Create a new simple C++ makeplate project
-  createProject "Creating new simple makeplate C++ project" "${scriptPath}/mp-simple-cpp"
+  createProject "Creating new simple makeplate C++ project" "${scriptPath}/mp-simple-c" "" "cpp"
 }
 
 
@@ -128,8 +161,12 @@ newscpp() { ##C NEW Create a new simple C++ makeplate project
 
 cTemplate=${scriptPath}/tools/ctemplate.py
 
-newcf() { ## Create new C module
+newcm() { ## Create new C module
   ${cTemplate} newc --dir . --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
+}
+
+newcppm() { ## Create new C++ module
+  ${cTemplate} newcpp --dir . --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
 }
 
 newclass() { ## Create new C++ class
@@ -554,8 +591,19 @@ bpRm() { ##D Remove file
 # $1 file 
 # $2 text to replace
 # $3 new text
+#
 bpReplace() {  ##D Replace text in file
   sed -i -e "s/${2}/${3}/g"  "$1"
+}
+
+# Replace entire line matching pattern
+#
+# $1 file 
+# $2 pattern matching line
+# $3 new text
+#
+bpReplaceLine() {  ##D Replace text in file
+	sed -i -e "0,/${2}/s/${2}.*/${3}/" "${1}"
 }
 
 # Appends a line to a file if it is not present in that file.

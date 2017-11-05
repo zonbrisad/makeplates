@@ -39,7 +39,7 @@ LICENSE = __LICENSE__
 TARGET = __NAME__
 
 # List C, C++ and assembler source files here. (C/C++ dependencies are automatically generated.)
-SRC = src/main.c 
+SRC = src/main.c.xxx 
 
 # List C, C++ and assembler library/3rd partry source files here. (C/C++ dependencies are automatically generated.)
 LSRC =	

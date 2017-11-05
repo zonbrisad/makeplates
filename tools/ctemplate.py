@@ -4,9 +4,9 @@
 # 
 # C/C++ template generator
 #
-# File:   ctemplate.py
-# Author: Peter Malmberg <peter.malmberg@gmail.com>
-# Date:   2016-02-19
+# File:    ctemplate.py
+# Author:  Peter Malmberg <peter.malmberg@gmail.com>
+# Date:    2016-02-19
 # Version: 0.3
 # Python:  >=3
 # Licence: MIT
@@ -39,6 +39,42 @@ AppAuthor   = "Peter Malmberg <peter.malmberg@gmail.com>"
 #LogFile     = "pyplate.log"
 
 # Code ----------------------------------------------------------------------
+
+# 
+# Configuration class
+#
+class CConf():
+    main       = False
+    gtk        = False
+    qt         = False
+    signals    = False
+    sigint     = False
+    author     = ""
+    license    = ""
+    brief      = ""
+    date       = ""
+    org        = ""
+    isCpp      = False
+    moduleName = ""
+    
+    name       = ""
+    email      = ""
+    license    = ""
+    org        = ""
+    author     = ""
+    
+    def __init__(self):
+        self.date = datetime.now().strftime("%Y-%m-%d")
+        self.bp()
+
+    # Get bashplates environment variables (if available)
+    def bp(self):
+        self.name    = os.getenv('BP_NAME',    "")
+        self.email   = os.getenv('BP_EMAIL',   "")
+        self.license = os.getenv('BP_LICENSE', "")
+        self.org     = os.getenv('BP_ORG',     "")
+        self.author  = self.name+" <"+self.email+">"
+    
 class CClass():
     className = ""
     parrent   = ""
@@ -98,19 +134,19 @@ class CFile():
     isHeader   = False 
     isCpp      = False
     
-    def __init__(self, moduleName, conf, isHeader, isCpp):
+    def __init__(self, conf, isHeader):
         self.conf       = conf
-        self.moduleName = moduleName
+        self.moduleName = conf.moduleName
         self.isHeader   = isHeader
-        self.isCpp      = isCpp
+        self.isCpp      = conf.isCpp
         
         if isHeader: 
-            self.fileName = moduleName + ".h"
+            self.fileName = self.moduleName + ".h"
         else:
-            if isCpp:
-                self.fileName = moduleName + ".cpp"
+            if self.isCpp:
+                self.fileName = self.moduleName + ".cpp"
             else:
-                self.fileName = moduleName + ".c"
+                self.fileName = self.moduleName + ".c"
                 
     def addHeader(self):
         hFileName = scriptPath + "/header.h"
@@ -242,15 +278,18 @@ class CFile():
         self.main += "  return 0;\n"
         self.main += "}\n"
         
-    def addCIncludes(self):
-        self.addInclude("stdio.h")
-        self.addInclude("stdlib.h")
-        self.addInclude("stdint.h")
-        self.addInclude("string.h")
-        self.addInclude("unistd.h")
-        self.addInclude("sys/types.h")
-        self.addInclude("errno.h")
- 
+    def addStdIncludes(self):
+        if self.isCpp:
+            self.addInclude("iostream")
+        else:
+            self.addInclude("stdio.h")
+            self.addInclude("stdlib.h")
+            self.addInclude("stdint.h")
+            self.addInclude("string.h")
+            self.addInclude("unistd.h")
+            self.addInclude("sys/types.h")
+            self.addInclude("errno.h")
+        
     def replace(self, str, newStr):
         self.buf = self.buf.replace(str, newStr)
 
@@ -262,7 +301,7 @@ class CFile():
         self.addHeader()
         
         if self.conf.main and not self.isHeader:
-            self.addCIncludes()
+            self.addStdIncludes()
         
         if self.conf.signals and not self.isHeader:
             self.addSignals()
@@ -325,27 +364,22 @@ class CFile():
         #self.create()
         print(self.buf)
 
-
-class CConf():
-    main    = False
-    gtk     = False
-    qt      = False
-    signals = False
-    sigint  = False
-    appName = ""
-    author  = ""
-    license = ""
-    brief   = ""
-    date    = ""
-    org     = ""
-    def __init__(self):
-        self.date = datetime.now().strftime("%Y-%m-%d")
-#        self.name    = os.getenv('BP_NAME', "")
-#        self.email   = os.getenv('BP_EMAIL', "")
-#        self.license = os.getenv('BP_LICENSE', "")
-#        self.org     = os.getenv('BP_ORG', "")
-
+def newFile(dir, fileName):
+    # Open files to be generated
+    try:
+        file = open(dir+"/"+fileName, 'w')
+        return file
+    except IOError:
+        logging.debug("Could not open file %s" % (fileName))
+        exit()
+                            
     
+def textToFile(args, fileName, text):
+    file = newFile(args.dir, fileName)
+    file.write(text)
+    file.close()
+
+        
 def askInfo(module):
     print("Creating new "+module)
     fName = input("Enter "+module+" name(no extention:>")
@@ -353,32 +387,52 @@ def askInfo(module):
     
     date = datetime.now().strftime("%Y-%m-%d")    
     return fName, brief, date
-  
+
+
+def askInfo2(module, conf):
+    print("Creating new "+module)
+    
+    if conf.moduleName == "":
+        conf.moduleName = input("Enter "+module+" name(no extention):>")
+        
+    if conf.brief == "":
+        conf.brief      = input("Enter brief description:> ")
+        
+    conf.date       = datetime.now().strftime("%Y-%m-%d")
+    return conf
+
+
+
 def newCModule(dir, conf):
-    newModule(dir, conf, False)
+    conf.isCpp = False
+    newModule(dir, conf)
 
 def newCppModule(dir, conf):
-    newModule(dir, conf, True)
+    conf.isCpp = True
+    newModule(dir, conf)
 
-def newModule(dir, conf, isCpp):
+def newModule(dir, conf):
     
     # ask for some information
-    fName, brief, date = askInfo("C module")
-
-    conf.main = query_yn("Add main() function", "no")
+#    fName, brief, date = askInfo("C module")
+    conf = askInfo2("C/C++ module", conf)
     
-    conf.appName = fName
-    conf.brief   = brief
+    if not conf.main:
+        conf.main = query_yn("Add main() function", "no")
+    
+#    conf.appName = fName
+#    conf.fileName = fName
+#    conf.brief   = brief
 
-    if conf.main and not isCpp:
+    if conf.main and not conf.isCpp:
         conf.gtk = query_yn("GTK project", "no")
         conf.signals = query_yn("Include signals", "no")
           
-    if conf.main and isCpp:    
+    if conf.main and conf.isCpp:    
         conf.qt = query_yn("Qt project", "no")
     
-    fileC = CFile(fName, conf, False, isCpp)
-    fileH = CFile(fName, conf, True,  isCpp)
+    fileC = CFile(conf, False)
+    fileH = CFile(conf, True)
     
     fileH.create()
     fileC.create()
@@ -386,11 +440,6 @@ def newModule(dir, conf, isCpp):
     fileH.save(dir)
     fileC.save(dir)
 
-#    fileH.print()
-#    fileC.print()
-    
-    
-    return
 
 def newClass(dir, conf):
     
@@ -416,7 +465,6 @@ def printInfo():
     print("Script name    " + AppName)
     print("Script version " + AppVersion)
     print("Script path    " + os.path.realpath(__file__))
-
 
     
 def newProject(dir, author, license):
@@ -446,42 +494,59 @@ def bp():
     
     return name, email, license
 
+
+
 def cmd_qtmain(args, conf):
     print("qtmain")
-    return
+    exit(0)   
 
 def cmd_qtwin(args, conf):
     print("qtwin")
-    return
+    exit(0)
 
 def cmd_qtdia(args, conf):
     print("qtdia")
-    return
+    exit(0)
 
 def cmd_newc(args, conf):
     newCModule(args.dir, conf)
-    return
+    exit(0)
 
 def cmd_newcpp(args, conf):
     newCppModule(args.dir, conf)
-    return
+    exit(0)
 
 def cmd_newclass(args, conf):
     newClass(args.dir, conf)    
-    return
+    exit(0)
+        
+def cmd_giti(args, conf):
+    textToFile(args, ".gitignore", gitIgnore)
+    exit(0)
 
 def main():
     
+    conf = CConf()
+    
     # Get bashplates environment variables (if available)
-    bpName, bpEmail, bpLicense = bp()
+#    bpName, bpEmail, bpLicense = bp()
     
     logging.basicConfig(level=logging.DEBUG)
 
     parrent_parser = argparse.ArgumentParser(add_help=False)         
     #    parrent_parser.add_argument("--giti",     action="store_true", help="Create a .gitignore file")
-    parrent_parser.add_argument("--license",  type=str,  help="License of new file",           default=bpLicense)
-    parrent_parser.add_argument("--author",   type=str,  help="Author of file",                default=bpName+" <"+bpEmail+">")
+#    parrent_parser.add_argument("--license",  type=str,  help="License of new file",           default=bpLicense)
+#    parrent_parser.add_argument("--author",   type=str,  help="Author of file",                default=bpName+" <"+bpEmail+">")
+    parrent_parser.add_argument("--license",  type=str,  help="License of new file",           default=conf.license)
+    parrent_parser.add_argument("--author",   type=str,  help="Author of file",                default=conf.name+" <"+conf.email+">")
+
     parrent_parser.add_argument("--dir",      type=str,  help="Directory where to store file", default=".")
+    
+    parrent_parser.add_argument("--main",     action="store_true",  help="Include main() function into module", default=False)
+    parrent_parser.add_argument("--cpp",      action="store_true",  help="Module is a C++ file", default=False)
+    parrent_parser.add_argument("--name",     type=str,  help="Name of C/C++ module", default="")
+    parrent_parser.add_argument("--brief",    type=str,  help="Brief description",    default="")
+    
 
     # options parsing
     parser = argparse.ArgumentParser(
@@ -494,31 +559,41 @@ def main():
     parser.add_argument("--version",  action='version',  help="Directory where to store file", version=AppVersion)
              
     subparsers = parser.add_subparsers(help="")
-    parser_newc = subparsers.add_parser("newc",   parents=[parrent_parser], help="Create a new C and H file set")
+    parser_newc = subparsers.add_parser("newc",     parents=[parrent_parser],  help="Create a new C and H file set")
     parser_newc.set_defaults(func=cmd_newc)
     parser_newclass = subparsers.add_parser("newclass", parents=[parrent_parser],   help="Create a new C++ class")
     parser_newclass.set_defaults(func=cmd_newclass)
-    parser_newcpp = subparsers.add_parser("newcpp", parents=[parrent_parser],   help="Create a new C++ file")
+    parser_newcpp = subparsers.add_parser("newcpp", parents=[parrent_parser],  help="Create a new C++ file")
     parser_newcpp.set_defaults(func=cmd_newcpp)
-    parser_qtdia = subparsers.add_parser("qtdia", parents=[parrent_parser],   help="Create a Qt5 dialog")
-    parser_qtdia.set_defaults(func=cmd_qtdia)
-    parser_qtmain = subparsers.add_parser("qtmain", parents=[parrent_parser],  help="Create a Qt5 main application")
-    parser_qtmain.set_defaults(func=cmd_qtmain)
-    parser_qtwin = subparsers.add_parser("qtwin", parents=[parrent_parser],   help="Create a Qt5 main window")
-    parser_qtwin.set_defaults(func=cmd_qtwin)
-    parser_qtdia = subparsers.add_parser("qtdia", parents=[parrent_parser],   help="Create a Qt5 dialog")
-    parser_qtdia.set_defaults(func=cmd_qtdia)
-
+#    parser_qtdia = subparsers.add_parser("qtdia",   parents=[parrent_parser],  help="Create a Qt5 dialog")
+#    parser_qtdia.set_defaults(func=cmd_qtdia)
+#    parser_qtmain = subparsers.add_parser("qtmain", parents=[parrent_parser],  help="Create a Qt5 main application")
+#    parser_qtmain.set_defaults(func=cmd_qtmain)
+#    parser_qtwin = subparsers.add_parser("qtwin",   parents=[parrent_parser],  help="Create a Qt5 main window")
+#    parser_qtwin.set_defaults(func=cmd_qtwin)
+#    parser_qtdia = subparsers.add_parser("qtdia",   parents=[parrent_parser],  help="Create a Qt5 dialog")
+#    parser_qtdia.set_defaults(func=cmd_qtdia)
+    parser_qtdia = subparsers.add_parser("giti",    parents=[parrent_parser],  help="Create .gitignore file")
+    parser_qtdia.set_defaults(func=cmd_giti)
     
 #    parser.add_argument("--header",   type=str,            help="External header file",  default="headerExample")
 #    subparsers = parser.add_subparsers(title='subcommands', help="sfda fdsa fdsa afsd")
 
     args = parser.parse_args()
-    conf = CConf()
     if hasattr(args, 'author'):
         conf.author  = args.author
     if hasattr(args, 'license'):
-        conf.license = args.license
+        conf.license = args.license        
+    
+    if hasattr(args, 'main'):
+        conf.main = args.main
+    if hasattr(args, 'cpp'):
+        conf.isCpp = args.cpp
+    if hasattr(args, 'name'):
+        conf.moduleName = args.name
+    if hasattr(args, 'brief'):
+        conf.brief = args.brief
+
     
     if hasattr(args, 'func'):
         args.func(args, conf)
@@ -526,12 +601,6 @@ def main():
     
     parser.print_help()
     exit(0)
-
-    if args.giti:
-        file = newFile(args.dir, ".gitignore")
-        file.write(gitIgnore)
-        file.close()
-        exit(0)
 
 def query_list(question, db, default="yes"):
     prompt = " >"
@@ -648,6 +717,7 @@ int main(int argc, char *argv[]) {
     return app.exec();
 }
 """
+
 
 
 gitIgnore="""
