@@ -74,54 +74,21 @@ class CConf():
         self.license = os.getenv('BP_LICENSE', "")
         self.org     = os.getenv('BP_ORG',     "")
         self.author  = self.name+" <"+self.email+">"
+        
+    def ask(self, module):
+        print("Creating new "+module)
     
-class CClass():
-    className = ""
-    parrent   = ""
-    header    = ""
-    body      = ""
+        if self.moduleName == "":
+            self.moduleName = input("Enter "+module+" name(no extention):>")
+        
+        if self.brief == "":
+            self.brief = input("Enter brief description:> ")
+
     
-    qt        = False
-    
-    def __init__(self, className, parrent):
-        self.className = className
-        self.parrent   = parrent
-        
-    def addMethod(self, methodName):
-        self.body += self.className+"::"+methodName+"() {\n"
-        self.body += "\n}\n\n"
-            
-    def generate(self):
-        if (self.parrent == ""):
-            self.header += "class "+self.className+" {\n"
-        else:
-            self.header += "class "+self.className+": public "+self.parrent+" {\n"
-            
-        if self.qt:
-            self.header += "  Q_OBJECT\n"
-            
-        self.header += "  public:\n"
-        self.header += "      "+self.className+"();\n"
-        self.header += "      ~"+self.className+"();\n"
-        
-        self.header += "  private slots:\n"
-        
-        self.header += "  private:\n"
-        
-        self.header += "}\n"
-        
-        self.addMethod(self.className)
-        self.addMethod("~"+self.className)
-            
-    def print(self):
-        self.generate()
-        print(self.header)
-        print(self.body)
-        
-        
 class CFile():
     moduleName = ""
     fileName   = ""
+
     header     = ""
     include    = ""
     defines    = ""
@@ -364,50 +331,60 @@ class CFile():
         #self.create()
         print(self.buf)
 
-class CClass2(CFile):
+class CClass(CFile):
     className = ""
     parrent   = ""
-#    header    = ""
-#    body      = ""
-    
+    methods   = ""
+    classBuf  = ""
     qt        = False
     
-    def __init__(self, className, parrent, isHeader):
+    def __init__(self, conf, parrent, isHeader):
+        conf.isCpp = True
         super().__init__(conf, isHeader)
-        self.className = className
+        self.className = self.moduleName
         self.parrent   = parrent
         
-    def addMethod(self, methodName):
         
-        self.body += self.className+"::"+methodName+"() {\n"
-        self.body += "\n}\n\n"
-            
-    def generate(self):
-        if (self.parrent == ""):
-            self.header += "class "+self.className+" {\n"
+    def addMethod(self, dataType, methodName, arguments):
+        if self.isHeader:
+            if dataType=="":
+                self.classBuf += "    " + methodName+"("+arguments+");\n"
+            else:
+                self.classBuf += "    " +dataType + " " + methodName+"("+arguments+");\n"
         else:
-            self.header += "class "+self.className+": public "+self.parrent+" {\n"
+            self.code += self.className+"::"+methodName+"() {\n"
+            self.code += "\n}\n\n"
             
-        if self.qt:
-            self.header += "  Q_OBJECT\n"
+    def create(self):
+        
+        self.addMethod("", self.className, "")
+        self.addMethod("", "~"+self.className, "")
+
+        if self.isHeader:
+            if (self.parrent == ""):
+                self.prototypes += "class "+self.className+" {\n"
+            else:
+                self.prototypes += "class "+self.className+": public "+self.parrent+" {\n"
             
-        self.header += "  public:\n"
-        self.header += "      "+self.className+"();\n"
-        self.header += "      ~"+self.className+"();\n"
-        
-        self.header += "  private slots:\n"
-        
-        self.header += "  private:\n"
-        
-        self.header += "}\n"
-        
-        self.addMethod(self.className)
-        self.addMethod("~"+self.className)
+            if self.qt:
+                self.prototypes += "  Q_OBJECT\n"
             
-    def print(self):
-        self.generate()
-        print(self.header)
-        print(self.body)
+            self.prototypes += "  public:\n"
+            self.prototypes += self.classBuf
+            self.prototypes += "  private slots:\n"
+            self.prototypes += "  private:\n"
+            self.prototypes += "}\n"
+        
+        
+        super().create()
+            
+    def __str__(self):
+        return
+    
+#    def print(self):
+#        self.create()
+#        print(self.buf)
+#        print(self.code)
         
         
         
@@ -419,57 +396,20 @@ def newFile(dir, fileName):
     except IOError:
         logging.debug("Could not open file %s" % (fileName))
         exit()
-                            
-    
+                                
 def textToFile(args, fileName, text):
     file = newFile(args.dir, fileName)
     file.write(text)
     file.close()
 
-        
-def askInfo(module):
-    print("Creating new "+module)
-    fName = input("Enter "+module+" name(no extention:>")
-    brief = input("Enter brief description:> ")
-    
-    date = datetime.now().strftime("%Y-%m-%d")    
-    return fName, brief, date
-
-
-def askInfo2(module, conf):
-    print("Creating new "+module)
-    
-    if conf.moduleName == "":
-        conf.moduleName = input("Enter "+module+" name(no extention):>")
-        
-    if conf.brief == "":
-        conf.brief      = input("Enter brief description:> ")
-        
-    conf.date       = datetime.now().strftime("%Y-%m-%d")
-    return conf
-
-
-
-def newCModule(dir, conf):
-    conf.isCpp = False
-    newModule(dir, conf)
-
-def newCppModule(dir, conf):
-    conf.isCpp = True
-    newModule(dir, conf)
-
 def newModule(dir, conf):
     
     # ask for some information
-    conf = askInfo2("C/C++ module", conf)
+    conf.ask("C/C++ module")
     
     if not conf.main:
         conf.main = query_yn("Add main() function", "no")
     
-#    conf.appName = fName
-#    conf.fileName = fName
-#    conf.brief   = brief
-
     if conf.main and not conf.isCpp:
         conf.gtk = query_yn("GTK project", "no")
         conf.signals = query_yn("Include signals", "no")
@@ -488,27 +428,18 @@ def newModule(dir, conf):
 
 
 def newClass(dir, conf):
-    
-    c = CClass("Kalle", "")
-    c.print()
-    
-    d = CClass("Nisse", "Kalle")
-    d.print()
 
-    q = CClass("MainWindow", "QMainWindow")
-    q.print()
-
-    return
-
-    
     # ask for some information
-    conf = askInfo2("C/C++ module", conf)
+    conf.ask("C++ class")
 
-    #fName, brief, date = askInfo("C++ Class")
+    fileH = CClass(conf, "", True)
+    fileC = CClass(conf, "", False)
     
-    # Close down files
-    fileC.close()
-    fileH.close()
+    fileH.create()
+    fileC.create()
+    
+    fileH.save(dir)
+    fileC.save(dir)
 
 def printInfo():
     print("Script name    " + AppName)
@@ -516,33 +447,9 @@ def printInfo():
     print("Script path    " + os.path.realpath(__file__))
 
     
-def newProject(dir, author, license):
-    print(scriptPath)
-    print(mpPath)
- 
-#    projName = input("Enter project name:> ")
-#    subDir = query_yn("Create subdirectory?", "yes")
-    
-    lan = query_list("Enter language", [ "C", "C++" ], "C")
-    return 
-    if subDir:
-        os.mkdir(projName)
-    
-        
 # Absolute path to script itself        
 scriptPath = os.path.abspath(os.path.dirname(sys.argv[0]))
 mpPath     = scriptPath+"/.."    
-
-
-# Get Bashplate settings
-def bp():
-    name    = os.getenv('BP_NAME',    "")
-    email   = os.getenv('BP_EMAIL',   "")
-    license = os.getenv('BP_LICENSE', "")
-    org     = os.getenv('BP_ORG',     "")
-    
-    return name, email, license
-
 
 
 def cmd_qtmain(args, conf):
@@ -558,11 +465,13 @@ def cmd_qtdia(args, conf):
     exit(0)
 
 def cmd_newc(args, conf):
-    newCModule(args.dir, conf)
+    conf.isCpp = False
+    newModule(args.dir, conf)
     exit(0)
 
 def cmd_newcpp(args, conf):
-    newCppModule(args.dir, conf)
+    conf.isCpp = True
+    newModule(args.dir, conf)
     exit(0)
 
 def cmd_newclass(args, conf):
@@ -577,15 +486,9 @@ def main():
     
     conf = CConf()
     
-    # Get bashplates environment variables (if available)
-#    bpName, bpEmail, bpLicense = bp()
-    
     logging.basicConfig(level=logging.DEBUG)
 
     parrent_parser = argparse.ArgumentParser(add_help=False)         
-    #    parrent_parser.add_argument("--giti",     action="store_true", help="Create a .gitignore file")
-#    parrent_parser.add_argument("--license",  type=str,  help="License of new file",           default=bpLicense)
-#    parrent_parser.add_argument("--author",   type=str,  help="Author of file",                default=bpName+" <"+bpEmail+">")
     parrent_parser.add_argument("--license",  type=str,  help="License of new file",           default=conf.license)
     parrent_parser.add_argument("--author",   type=str,  help="Author of file",                default=conf.name+" <"+conf.email+">")
 
