@@ -364,6 +364,53 @@ class CFile():
         #self.create()
         print(self.buf)
 
+class CClass2(CFile):
+    className = ""
+    parrent   = ""
+#    header    = ""
+#    body      = ""
+    
+    qt        = False
+    
+    def __init__(self, className, parrent, isHeader):
+        super().__init__(conf, isHeader)
+        self.className = className
+        self.parrent   = parrent
+        
+    def addMethod(self, methodName):
+        
+        self.body += self.className+"::"+methodName+"() {\n"
+        self.body += "\n}\n\n"
+            
+    def generate(self):
+        if (self.parrent == ""):
+            self.header += "class "+self.className+" {\n"
+        else:
+            self.header += "class "+self.className+": public "+self.parrent+" {\n"
+            
+        if self.qt:
+            self.header += "  Q_OBJECT\n"
+            
+        self.header += "  public:\n"
+        self.header += "      "+self.className+"();\n"
+        self.header += "      ~"+self.className+"();\n"
+        
+        self.header += "  private slots:\n"
+        
+        self.header += "  private:\n"
+        
+        self.header += "}\n"
+        
+        self.addMethod(self.className)
+        self.addMethod("~"+self.className)
+            
+    def print(self):
+        self.generate()
+        print(self.header)
+        print(self.body)
+        
+        
+        
 def newFile(dir, fileName):
     # Open files to be generated
     try:
@@ -414,7 +461,6 @@ def newCppModule(dir, conf):
 def newModule(dir, conf):
     
     # ask for some information
-#    fName, brief, date = askInfo("C module")
     conf = askInfo2("C/C++ module", conf)
     
     if not conf.main:
@@ -454,8 +500,11 @@ def newClass(dir, conf):
 
     return
 
+    
     # ask for some information
-    fName, brief, date = askInfo("C++ Class")
+    conf = askInfo2("C/C++ module", conf)
+
+    #fName, brief, date = askInfo("C++ Class")
     
     # Close down files
     fileC.close()
