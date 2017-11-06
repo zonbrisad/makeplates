@@ -2,18 +2,35 @@
 # Hey Emacs, this is a -*- makefile -*-
 #----------------------------------------------------------------------------
 # 
-# Makeplate glib lua example project
+# Brief:   Makeplate glib lua example project
 #
-# author: Peter Malmberg <peter.malmberg@gmail.com>
-#
-#  
+# Name:    
+# Author:  Peter Malmberg <peter.malmberg@gmail.com>
+# Date:    __DATE__
+# Org:     __ORG__
+# 
+# License: __LICENSE__
+# 
 #----------------------------------------------------------------------------
-# On command line:
-# >make help 
+# [Makeplates]
+# This script is generated from makeplates Makefile project generator.
+#
+# Makeplates is developed by:
+# Peter Malmberg <peter.malmberg@gmail.com>
+#
+# Makeplates is available at:
+# https://github.com/zonbrisad/makeplates
+# 
+# [Disclaimer] 
+# Use on your own risk.
+#----------------------------------------------------------------------------
+# [Help]
+# 
+# Enter "make help" to get information about different targets.
+# 
 #----------------------------------------------------------------------------
 
-# Target platform
-# linux win32 avr arm osx
+# Target platform (linux, win32, avr, arm, osx)
 TARGET_PLATFORM = linux
 
 # Project License (GPL, GPLv2, MIT, BSD, Apache, etc.) 
@@ -79,6 +96,7 @@ LIB   = -lm
 #PKGLIBS += Qt5Network
 PKGLIBS += glib-2.0
 PKGLIBS += gthread-2.0
+#PKGLIBS += gio-2.0
 #PKGLIBS += ncurses
 #PKGLIBS += lua5.1
 #PKGLIBS += sqlite3
@@ -204,6 +222,16 @@ LDFLAGS += $(EXTMEMOPTS)
 LDFLAGS += $(patsubst %,-L%,$(INCLUDE))
 LDFLAGS += -g
 
+
+# Misc settings -------------------------------------------------------------
+MPFLAGS  = -DLICENSE=$(LICENSE)
+MPFLAGS += -DTARGET=$(TARGET)
+MPFLAGS += -DVERSION=$(VERSION)
+ 
+CFLAGS   += $(MPFLAGS)
+CPPFLAGS += $(MPFLAGS)
+ASFLAGS  += $(MPFLAGS)
+
 #
 # Platform specific options
 #============================================================================
@@ -225,7 +253,7 @@ TCHAIN_PREFIX=
 # Handle pkg-config libraries -----------------------------------------------
 CFLAGS   += $(foreach X, $(PKGLIBS), $(shell pkg-config --cflags $(X)) )
 CPPFLAGS += $(foreach X, $(PKGLIBS), $(shell pkg-config --cflags $(X)) )
-LDFLAGS  += $(foreach X, $(PKGLIBS), $(shell pkg-config --libs $(X)) )
+LDFLAGS  += $(foreach X, $(PKGLIBS), $(shell pkg-config --libs $(X))   )
 
 # Size flags ----------------------------------------------------------------
 SIZEFLAGS = --format=berkley  # format = {sysv|berkeley}
@@ -258,11 +286,15 @@ TCHAIN_PREFIX=
 
 endif
 
+# 
+# Qt5 Specific objects
+#============================================================================
 
-# Qt stuff -----------------------------------------------------------------
-MOCSRC = $(patsubst %.h,%_moc.cpp,$(MOCS))      # Generate moc source files
-SRC += $(MOCSRC)
-UIH = $(patsubst src/%.ui, src/ui_%.h, $(UI) )  # Generate UI header files
+# Qt objects ----------------------------------------------------------------
+MOCSRC = $(patsubst %.h,%_moc.cpp,$(MOCS))         # Generate moc source files
+SRC   += $(MOCSRC)
+UIH    = $(patsubst src/%.ui, src/ui_%.h, $(UI) )  # Generate UI header files
+
 
 #
 # Tool settings
@@ -511,7 +543,7 @@ finished:
 
 # Linking targets from object files
 .PRECIOUS : $(OBJS)
-$(TRGFILE): $(OBJS) $(OUTDIR)
+$(TRGFILE): $(UIH) $(OBJS) $(OUTDIR)
 	@echo -en "\n"$(MSG_LINKING)"       "
 	@echo -e $@ $(F_SOURCE) 
 	@$(CPP) $(ALL_CFLAGS) $(OBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)
@@ -586,8 +618,7 @@ size: $(TRGFILE)
 	@echo -e $(MSG_SIZE_AFTER)
 	@$(SIZE) $(SIZEFLAGS) $(TRGFILE)
 
-
-strip: $(TRGFILE)  ## Strip target binary from symbols
+strip: $(TRGFILE) ## Strip target binary from symbols
 	@echo -e $(MSG_STRIP)
 	@$(SIZE) $(SIZEFLAGS) $(TRGFILE)
 	@$(STRIP) $(TRGFILE)
@@ -707,20 +738,20 @@ debug:  ## Debug application
 
 
 # Project options -----------------------------------------------------------
+.PHONY: newc newclass 
 
 ##N- Create
 
-newfile:  ## Create a new C file
-	@${CTEMPLATE} --newc --dir src --author "$(AUTHOR)" --license "$(LICENSE)"
+newc:  ## Create a new C module
+	@${CTEMPLATE} newc --dir src --author "$(AUTHOR)" --license "$(LICENSE)"
 
 newclass:  ## Create a new C++ class
-	@${CTEMPLATE} --newclass --dir src --author "$(AUTHOR)" --license "$(LICENSE)"	
+	@${CTEMPLATE} newclass --dir src --author "$(AUTHOR)" --license "$(LICENSE)"	
 		
-#newproj:  # Create a new project
-#	@${PROJECT} newproj
 
 
 # Install options -----------------------------------------------------------
+.PHONY: install 
 
 # Install directory
 INSTALL_DIR      = ~/bin
@@ -985,19 +1016,18 @@ doc: ## Generate doxygen documentation
 
 	
 # Listing of phony targets.
-.PHONY : all clean gccversion build begin finished end elf lss sym archive edit help backup list-src list-flags newproj run install
+.PHONY : all clean gccversion build begin finished end elf lss sym archive edit help backup list-src list-flags run
 
 #
 # Makeplate internal targets
 #============================================================================
-mpType=mp-c
 
 utools: # Update tools from locally installed tools
 	@echo -e "${C_ACTION}Updating makeplate tools${E_END}"
-	@$(COPY) ~/bin/makeplate_files/tools/* tools/.
+	@mp utools
 
 meld: # Meld Makefile with locally installed makefile
-	@meld ~/bin/makeplate_files/${mpType}/Makefile  Makefile
+	@meld Makefile $${MP_PATH}/mp-c/Makefile  
 
 
 ##-

@@ -41,7 +41,7 @@ TARGET = __NAME__
 # List C, C++ and assembler source files here. (C/C++ dependencies are automatically generated.)
 SRC = src/main.c.xxx 
 
-# List C, C++ and assembler library/3rd partry source files here. (C/C++ dependencies are automatically generated.)
+# List C, C++ and assembler library/3rd party source files here. (C/C++ dependencies are automatically generated.)
 LSRC =	
 
 # Include directories
@@ -517,6 +517,13 @@ $(CPPOBJS): $(BUILDDIR)/%.o : %.cpp
 	@echo -e $< $(F_SOURCE)
 	@$(CPP) -c $(ALL_CPPFLAGS) $< -o $@ 2>&1  $(CPP_FILTER)
 	
+# Assemble: create object files from assembler source files.
+$(AOBJS): $(BUILDDIR)/%.o : %.S
+	@$(MKDIR) $(@D)                                       # Create directory for object file
+	@echo -en $(MSG_ASSEMBLING) "  "
+	@echo -e $< $(F_SOURCE)
+	@$(CC) -c $(ALL_ASFLAGS) $< -o $@ 2>&1
+
 # Compile: create assembler files from C source files.
 $(OBJDIR)/%.s : %.c
 	@$(CC) -S $(ALL_CFLAGS) $< -o $@
@@ -677,6 +684,7 @@ run:    ## Run application
 
 
 # Project options -----------------------------------------------------------
+.PHONY: newc newclass 
 
 ##N- Create
 
@@ -686,11 +694,10 @@ newc:  ## Create a new C module
 newclass:  ## Create a new C++ class
 	@${CTEMPLATE} newclass --dir src --author "$(AUTHOR)" --license "$(LICENSE)"	
 		
-#newproj:  # Create a new project
-#	@${PROJECT} newproj
 
 
 # Install options -----------------------------------------------------------
+.PHONY: install 
 
 # Install directory
 INSTALL_DIR      = ~/bin
@@ -916,7 +923,7 @@ astyle: ## Format source to conform to a standard
 
 	
 # Listing of phony targets.
-.PHONY : all clean gccversion build begin finished end elf lss sym archive edit help backup list-src list-flags newproj run install
+.PHONY : all clean gccversion build begin finished end elf lss sym archive edit help backup list-src list-flags run
 
 #
 # Makeplate internal targets

@@ -11,8 +11,7 @@
 # >make help 
 #----------------------------------------------------------------------------
 
-# Target platform
-# linux win32 avr arm osx
+# Target platform (linux, win32, avr, arm, osx)
 TARGET_PLATFORM = arm
 
 # Project License (GPL, GPLv2, MIT, BSD, Apache, etc.) 
@@ -380,7 +379,7 @@ endif
 
 
 # 
-# Qt5 Specific objects and targets
+# Qt5 Specific objects
 #============================================================================
 
 # Qt objects ----------------------------------------------------------------
@@ -388,18 +387,6 @@ MOCSRC = $(patsubst %.h,%_moc.cpp,$(MOCS))         # Generate moc source files
 SRC   += $(MOCSRC)
 UIH    = $(patsubst src/%.ui, src/ui_%.h, $(UI) )  # Generate UI header files
 
-
-# Qt Meta Object Compiler target --------------------------------------------
-$(MOCSRC): %_moc.cpp : %.h 	
-	@echo -en $(MSG_MOC) "\n               "
-	@echo -e $@ $(F_SOURCE)
-	@$(MOC) $(INCDIRS) $< -o $@
-
-# Qt user interface header file generation target ---------------------------
-$(UIH): src/ui_%.h: src/%.ui
-	@echo -en $(MSG_UI) "\n               "
-	@echo -e $@  $(F_SOURCE)  
-	@$(UIC) $(INCDIRS) $< -o $@
 
 #
 # Tool settings
@@ -622,7 +609,7 @@ finished:
 
 # Linking targets from object files
 .PRECIOUS : $(OBJS)
-$(TRGFILE): $(OBJS) $(OUTDIR)
+$(TRGFILE): $(UIH) $(OBJS) $(OUTDIR)
 	@echo -en "\n"$(MSG_LINKING)"       "
 	@echo -e $@ $(F_SOURCE) 
 	@$(CPP) $(ALL_CFLAGS) $(OBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)
@@ -693,6 +680,23 @@ size: $(TRGFILE)
 strip: $(TRGFILE) ## Strip target binary from symbols
 	@echo -e $(MSG_STRIP)
 	@$(STRIP) $(TRGFILE)
+
+# 
+# Qt5 Specific targets
+#============================================================================
+
+# Qt Meta Object Compiler target --------------------------------------------
+$(MOCSRC): %_moc.cpp : %.h 	
+	@echo -en $(MSG_MOC) "\n               "
+	@echo -e $@ $(F_SOURCE)
+	@$(MOC) $(INCDIRS) $< -o $@
+
+# Qt user interface header file generation target ---------------------------
+$(UIH): src/ui_%.h: src/%.ui
+	@echo -en $(MSG_UI) "\n               "
+	@echo -e $@  $(F_SOURCE)  
+	@$(UIC) $(INCDIRS) $< -o $@
+
 
 # 
 # Debug rules
@@ -814,11 +818,11 @@ run:    ## Run application
 
 ##N- Create
 
-newfile:  ## Create a new C file
-	@${CTEMPLATE} --newc --dir src --author "$(AUTHOR)" --license "$(LICENSE)"
+newc:  ## Create a new C module
+	@${CTEMPLATE} newc --dir src --author "$(AUTHOR)" --license "$(LICENSE)"
 
 newclass:  ## Create a new C++ class
-	@${CTEMPLATE} --newclass --dir src --author "$(AUTHOR)" --license "$(LICENSE)"	
+	@${CTEMPLATE} newclass --dir src --author "$(AUTHOR)" --license "$(LICENSE)"	
 		
 #newproj:  # Create a new project
 #	@${PROJECT} newproj
@@ -1059,14 +1063,13 @@ astyle: ## Format source to conform to a standard
 #
 # Makeplate internal targets
 #============================================================================
-mpType=mp-c
 
 utools: # Update tools from locally installed tools
 	@echo -e "${C_ACTION}Updating makeplate tools${E_END}"
-	@$(COPY) ~/bin/makeplate_files/tools/* tools/.
+	@mp utools
 
 meld: # Meld Makefile with locally installed makefile
-	@meld ~/bin/makeplate_files/${mpType}/Makefile  Makefile
+	@meld Makefile $${MP_PATH}/mp-c/Makefile  
 
 
 ##-

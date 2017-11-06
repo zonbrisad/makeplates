@@ -11,8 +11,7 @@
 # >make help 
 #----------------------------------------------------------------------------
 
-# Target platform
-# linux win32 avr arm osx
+# Target platform (linux, win32, avr, arm, osx)
 TARGET_PLATFORM = avr
 
 # Project License (GPL, GPLv2, MIT, BSD, Apache, etc.) 
@@ -550,7 +549,7 @@ finished:
 
 # Linking targets from object files
 .PRECIOUS : $(OBJS)
-$(TRGFILE): $(OBJS) $(OUTDIR)
+$(TRGFILE): $(UIH) $(OBJS) $(OUTDIR)
 	@echo -en "\n"$(MSG_LINKING)"       "
 	@echo -e $@ $(F_SOURCE) 
 	@$(CPP) $(ALL_CFLAGS) $(OBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)
@@ -622,8 +621,10 @@ strip: $(TRGFILE) ## Strip target binary from symbols
 	@$(STRIP) $(TRGFILE)
 
 
-
+#
 # AVR specific targets
+#============================================================================
+
 coff: $(TRGFILE)
 	@echo
 	@echo -e $(MSG_COFF)"\n             $(E_BR_CYAN)" $(TARGET).cof "$(E_END)"
@@ -755,11 +756,11 @@ edit:   ## Open source and makefile in editor
 
 ##N- Create
 
-newfile:  ## Create a new C file
-	@${CTEMPLATE} --newc --dir src --author "$(AUTHOR)" --license "$(LICENSE)"
+newc:  ## Create a new C module
+	@${CTEMPLATE} newc --dir src --author "$(AUTHOR)" --license "$(LICENSE)"
 
 newclass:  ## Create a new C++ class
-	@${CTEMPLATE} --newclass --dir src --author "$(AUTHOR)" --license "$(LICENSE)"	
+	@${CTEMPLATE} newclass --dir src --author "$(AUTHOR)" --license "$(LICENSE)"	
 		
 #newproj:  # Create a new project
 #	@${PROJECT} newproj
@@ -1045,14 +1046,13 @@ sim:  ## Run AVR simulator
 #
 # Makeplate internal targets
 #============================================================================
-mpType=mp-c
 
 utools: # Update tools from locally installed tools
 	@echo -e "${C_ACTION}Updating makeplate tools${E_END}"
-	@$(COPY) ~/bin/makeplate_files/tools/* tools/.
+	@mp utools
 
 meld: # Meld Makefile with locally installed makefile
-	@meld ~/bin/makeplate_files/${mpType}/Makefile  Makefile
+	@meld Makefile $${MP_PATH}/mp-c/Makefile  
 
 
 ##-

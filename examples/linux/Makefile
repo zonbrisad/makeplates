@@ -42,7 +42,7 @@ TARGET = ltest
 SRC = src/main.c                       \
       src/argtable3/argtable3.c        \
 
-# List C, C++ and assembler library/3rd partry source files here. (C/C++ dependencies are automatically generated.)
+# List C, C++ and assembler library/3rd party source files here. (C/C++ dependencies are automatically generated.)
 LSRC =	
 
 # Include directories
@@ -257,7 +257,7 @@ TCHAIN_PREFIX=
 endif
 
 # 
-# Qt5 Specific objects and targets
+# Qt5 Specific objects
 #============================================================================
 
 # Qt objects ----------------------------------------------------------------
@@ -265,18 +265,6 @@ MOCSRC = $(patsubst %.h,%_moc.cpp,$(MOCS))         # Generate moc source files
 SRC   += $(MOCSRC)
 UIH    = $(patsubst src/%.ui, src/ui_%.h, $(UI) )  # Generate UI header files
 
-
-# Qt Meta Object Compiler target --------------------------------------------
-$(MOCSRC): %_moc.cpp : %.h 	
-	@echo -en $(MSG_MOC) "\n               "
-	@echo -e $@ $(F_SOURCE)
-	@$(MOC) $(INCDIRS) $< -o $@
-
-# Qt user interface header file generation target ---------------------------
-$(UIH): src/ui_%.h: src/%.ui
-	@echo -en $(MSG_UI) "\n               "
-	@echo -e $@  $(F_SOURCE)  
-	@$(UIC) $(INCDIRS) $< -o $@
 
 #
 # Tool settings
@@ -499,7 +487,7 @@ finished:
 
 # Linking targets from object files
 .PRECIOUS : $(OBJS)
-$(TRGFILE): $(OBJS) $(OUTDIR)
+$(TRGFILE): $(UIH) $(OBJS) $(OUTDIR)
 	@echo -en "\n"$(MSG_LINKING)"       "
 	@echo -e $@ $(F_SOURCE) 
 	@$(CPP) $(ALL_CFLAGS) $(OBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)
@@ -538,6 +526,13 @@ $(CPPOBJS): $(BUILDDIR)/%.o : %.cpp
 	@echo -e $< $(F_SOURCE)
 	@$(CPP) -c $(ALL_CPPFLAGS) $< -o $@ 2>&1  $(CPP_FILTER)
 	
+# Assemble: create object files from assembler source files.
+$(AOBJS): $(BUILDDIR)/%.o : %.S
+	@$(MKDIR) $(@D)                                       # Create directory for object file
+	@echo -en $(MSG_ASSEMBLING) "  "
+	@echo -e $< $(F_SOURCE)
+	@$(CC) -c $(ALL_ASFLAGS) $< -o $@ 2>&1
+
 # Compile: create assembler files from C source files.
 $(OBJDIR)/%.s : %.c
 	@$(CC) -S $(ALL_CFLAGS) $< -o $@
@@ -563,6 +558,23 @@ size: $(TRGFILE)
 strip: $(TRGFILE) ## Strip target binary from symbols
 	@echo -e $(MSG_STRIP)
 	@$(STRIP) $(TRGFILE)
+
+# 
+# Qt5 Specific targets
+#============================================================================
+
+# Qt Meta Object Compiler target --------------------------------------------
+$(MOCSRC): %_moc.cpp : %.h 	
+	@echo -en $(MSG_MOC) "\n               "
+	@echo -e $@ $(F_SOURCE)
+	@$(MOC) $(INCDIRS) $< -o $@
+
+# Qt user interface header file generation target ---------------------------
+$(UIH): src/ui_%.h: src/%.ui
+	@echo -en $(MSG_UI) "\n               "
+	@echo -e $@  $(F_SOURCE)  
+	@$(UIC) $(INCDIRS) $< -o $@
+
 
 # 
 # Debug rules
@@ -681,6 +693,7 @@ run:    ## Run application
 
 
 # Project options -----------------------------------------------------------
+.PHONY: newc newclass 
 
 ##N- Create
 
@@ -690,11 +703,10 @@ newc:  ## Create a new C module
 newclass:  ## Create a new C++ class
 	@${CTEMPLATE} newclass --dir src --author "$(AUTHOR)" --license "$(LICENSE)"	
 		
-#newproj:  # Create a new project
-#	@${PROJECT} newproj
 
 
 # Install options -----------------------------------------------------------
+.PHONY: install 
 
 # Install directory
 INSTALL_DIR      = ~/bin
@@ -920,19 +932,18 @@ astyle: ## Format source to conform to a standard
 
 	
 # Listing of phony targets.
-.PHONY : all clean gccversion build begin finished end elf lss sym archive edit help backup list-src list-flags newproj run install
+.PHONY : all clean gccversion build begin finished end elf lss sym archive edit help backup list-src list-flags run
 
 #
 # Makeplate internal targets
 #============================================================================
-mpType=mp-c
 
 utools: # Update tools from locally installed tools
 	@echo -e "${C_ACTION}Updating makeplate tools${E_END}"
 	@mp utools
 
 meld: # Meld Makefile with locally installed makefile
-	@meld ~/bin/makeplate_files/${mpType}/Makefile  Makefile
+	@meld Makefile $${MP_PATH}/mp-c/Makefile  
 
 
 ##-
