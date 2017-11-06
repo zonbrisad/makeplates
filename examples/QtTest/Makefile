@@ -3,9 +3,13 @@
 #
 # Brief:   Qt5 makeplates example.
 #
-# author: Peter Malmberg <peter.malmberg@gmail.com>
+# Name:   QtTest
+# Author: Peter Malmberg <peter.malmberg@gmail.com>
+# Date:    
+# Org:    PMG
 #
 # License: MIT
+#
 #----------------------------------------------------------------------------
 # [Makeplates]
 # This script is generated from makeplates Makefile project generator.
@@ -253,7 +257,7 @@ TCHAIN_PREFIX=
 endif
 
 # 
-# Qt5 Specific objects and targets
+# Qt5 Specific objects
 #============================================================================
 
 # Qt objects ----------------------------------------------------------------
@@ -530,21 +534,6 @@ $(OBJDIR)/%.s : %.c
 $(OBJDIR)/%.s : %.cpp
 	@$(CC) -S $(ALL_CPPFLAGS) $< -o $@
 
-
-# Qt targets ----------------------------------------------------------------
-
-# Qt Meta Object Compiler target 
-$(MOCSRC): %_moc.cpp : %.h 	
-	@echo -en $(MSG_MOC) "\n               "
-	@echo -e $@ $(F_SOURCE)
-	@$(MOC) $(INCDIRS) $< -o $@
-
-# Qt user interface header file generation target
-$(UIH): src/ui_%.h: src/%.ui
-	@echo -en $(MSG_UI) "\n               "
-	@echo -e $@  $(F_SOURCE)  
-	@$(UIC) $(INCDIRS) $< -o $@
-
 # Create output dir
 $(OUTDIR):
 	@$(MKDIR) $@
@@ -562,6 +551,23 @@ size: $(TRGFILE)
 strip: $(TRGFILE) ## Strip target binary from symbols
 	@echo -e $(MSG_STRIP)
 	@$(STRIP) $(TRGFILE)
+
+# 
+# Qt5 Specific targets
+#============================================================================
+
+# Qt Meta Object Compiler target --------------------------------------------
+$(MOCSRC): %_moc.cpp : %.h 	
+	@echo -en $(MSG_MOC) "\n               "
+	@echo -e $@ $(F_SOURCE)
+	@$(MOC) $(INCDIRS) $< -o $@
+
+# Qt user interface header file generation target ---------------------------
+$(UIH): src/ui_%.h: src/%.ui
+	@echo -en $(MSG_UI) "\n               "
+	@echo -e $@  $(F_SOURCE)  
+	@$(UIC) $(INCDIRS) $< -o $@
+
 
 # 
 # Debug rules
@@ -683,11 +689,11 @@ run:    ## Run application
 
 ##N- Create
 
-newfile:  ## Create a new C file
-	@${CTEMPLATE} --newc --dir src --author "$(AUTHOR)" --license "$(LICENSE)"
+newc:  ## Create a new C module
+	@${CTEMPLATE} newc --dir src --author "$(AUTHOR)" --license "$(LICENSE)"
 
 newclass:  ## Create a new C++ class
-	@${CTEMPLATE} --newclass --dir src --author "$(AUTHOR)" --license "$(LICENSE)"	
+	@${CTEMPLATE} newclass --dir src --author "$(AUTHOR)" --license "$(LICENSE)"	
 		
 #newproj:  # Create a new project
 #	@${PROJECT} newproj
@@ -931,7 +937,7 @@ utools: # Update tools from locally installed tools
 	@mp utools
 
 meld: # Meld Makefile with locally installed makefile
-	@meld ~/bin/makeplate_files/${mpType}/Makefile  Makefile
+	@meld Makefile $${MP_PATH}/mp-c/Makefile  
 
 
 ##-

@@ -402,7 +402,6 @@ def askInfo2(module, conf):
     return conf
 
 
-
 def newCModule(dir, conf):
     conf.isCpp = False
     newModule(dir, conf)
@@ -414,16 +413,11 @@ def newCppModule(dir, conf):
 def newModule(dir, conf):
     
     # ask for some information
-#    fName, brief, date = askInfo("C module")
     conf = askInfo2("C/C++ module", conf)
     
     if not conf.main:
         conf.main = query_yn("Add main() function", "no")
     
-#    conf.appName = fName
-#    conf.fileName = fName
-#    conf.brief   = brief
-
     if conf.main and not conf.isCpp:
         conf.gtk = query_yn("GTK project", "no")
         conf.signals = query_yn("Include signals", "no")
@@ -528,15 +522,9 @@ def main():
     
     conf = CConf()
     
-    # Get bashplates environment variables (if available)
-#    bpName, bpEmail, bpLicense = bp()
-    
     logging.basicConfig(level=logging.DEBUG)
 
     parrent_parser = argparse.ArgumentParser(add_help=False)         
-    #    parrent_parser.add_argument("--giti",     action="store_true", help="Create a .gitignore file")
-#    parrent_parser.add_argument("--license",  type=str,  help="License of new file",           default=bpLicense)
-#    parrent_parser.add_argument("--author",   type=str,  help="Author of file",                default=bpName+" <"+bpEmail+">")
     parrent_parser.add_argument("--license",  type=str,  help="License of new file",           default=conf.license)
     parrent_parser.add_argument("--author",   type=str,  help="Author of file",                default=conf.name+" <"+conf.email+">")
 
@@ -552,7 +540,7 @@ def main():
     parser = argparse.ArgumentParser(
              prog=AppName+'.py',
              description="Makeplate C/C++ template generator", 
-             epilog = "",
+             epilog = "  ",
              parents = [parrent_parser],
              )
              
