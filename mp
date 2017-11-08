@@ -535,9 +535,9 @@ printVar() {
 #
 bpMkDir() { ##D Create directory
   if [ ! -d "$1" ]; then
-	  bpInfo "Creating directory \"${1}\""
-		mkdir -p "$1"
-	fi
+    bpInfo "Creating directory \"${1}\""
+    mkdir -p "$1"
+  fi
 }
 
 #
@@ -546,9 +546,9 @@ bpMkDir() { ##D Create directory
 #
 bpLn() { ##D Create symbolic link
   bpInfo "Creating link \"${2}\""
-	if [ ! -L "$1" ]; then
-	  ln -s "${1}" "${2}"
-	fi
+  if [ ! -L "$1" ]; then
+    ln -s "${1}" "${2}"
+  fi
 }
 
 # 
@@ -569,7 +569,7 @@ bpCp() { ##D Copy file(s)
 # $2 destination
 bpMv() { ##D Move file(s)
   bpInfo "Moving file \"${1}\" \"${2}\""
-	mv "$1" "$2"
+  mv "$1" "$2"
 }
 
 # 
@@ -579,7 +579,7 @@ bpMv() { ##D Move file(s)
 #
 bpRm() { ##D Remove file
   bpInfo "Removing file \"${1}\""
-	rm -rf "${1}"
+  rm -rf "${1}"
 }
 
 # Replace text in file
@@ -598,7 +598,7 @@ bpReplace() {  ##D Replace text in file
 # $2 pattern matching line
 # $3 new text
 #
-bpReplaceLine() {  ##D Replace text in file
+bpReplaceLine() {  ##D Replace entire line in file
 	sed -i -e "0,/${2}/s/${2}.*/${3}/" "${1}"
 }
 
@@ -618,7 +618,7 @@ bpAppendIfNoSuchLine() { ##D Append a line if it does not exist in file
 #
 bpRemoveLineContaining() { ##D Remove line in file if it contains given string
   grep -v "$2" "$1" > "${1}_tmp"
-	mv -f "${1}_tmp" "${1}"
+  mv -f "${1}_tmp" "${1}"
 }
 
 #
@@ -630,17 +630,17 @@ bpRemoveLineContaining() { ##D Remove line in file if it contains given string
 #
 bpStrExist() { ##D Check if string exist in file
   grep -q -F "$2" "$1" 
-	if [ $? == "0" ]; then
-	  echo "1"
-	else
-	  echo "0"
-	fi
+  if [ $? == "0" ]; then
+    echo "1"
+  else
+    echo "0"
+  fi
 }
 
 ##CN- IHELP Input
 
 #
-# Read from commandline
+# Read string from commandline
 #
 # $1  Question string
 # $2  Default value
@@ -648,18 +648,46 @@ bpStrExist() { ##D Check if string exist in file
 #
 bpRead() { ##D Read from commandline
 
-	if [ "${2}" == "" ]; then
+  if [ "${2}" == "" ]; then
     read -erp "${1} >" result
-	else
-	  read -erp "${1} [$2] >" result
-		if [ "${result}" == "" ]; then
-		  result="${2}"
-		fi
-	fi
+  else
+    read -erp "${1} [$2] >" result
+    if [ "${result}" == "" ]; then
+      result="${2}"
+    fi
+  fi
 
-	echo "${result}"
+  echo "${result}"
 }
 
+#
+# Read integer from commandline
+#
+# $1  Question string
+# $2  Default value
+# $3  min value
+# $4  max value
+# return integer read from cmdline/default if enter pressed
+#
+bpReadInt() { ##D Read integer from commandline
+  while true; do
+    if [ "${2}" == "" ]; then
+      read -erp "${1} ($3-$4) >" result
+      if [ "${result}" == "" ]; then
+        result=$(($3 - 1))
+      fi
+    else
+      read -erp "${1} ($3-$4) [$2] >" result
+      if [ "${result}" == "" ]; then
+        result="${2}"
+      fi
+    fi
+    if [ $((result)) -ge $3 ] && [ $((result)) -le $4 ]; then
+      break
+    fi
+  done
+  echo "${result}"
+}
 
 
 #---------------------------------------------------------------------
@@ -675,10 +703,10 @@ bpAddSetting() {
   # Check if setting exist in file
   S=$(bpStrExist $bpSettingsFile "${1}" )
 
-	if [ "${S}" == "0" ]; then
-		echo "# ${3}"    >>  ${bpSettingsFile}
+  if [ "${S}" == "0" ]; then
+    echo "# ${3}"    >>  ${bpSettingsFile}
     echo "${1}=\"${2}\"" >> ${bpSettingsFile}
-	  echo >> ${bpSettingsFile}
+    echo >> ${bpSettingsFile}
   fi
 }
 
@@ -700,35 +728,35 @@ chSetting() {
   SETTING="$2"
   VAL="$3"
 	
-	S=$(bpStrExist "${1}" "${2}" )
-	if [ "${S}" == "0" ]; then
-	  bpAddSettings
-	fi
+  S=$(bpStrExist "${1}" "${2}" )
+  if [ "${S}" == "0" ]; then
+    bpAddSettings
+  fi
   sed -i "s/^\(${SETTING}\s*=\s*\).*\$/\1$VAL/" "$1"
 }
 
 bpCreateSettings() {
 			
   echo "Creating new bashplates settings file. ${bpSettingsFile}"
-	bpMkDir ${bpSettingsDir}
+  bpMkDir ${bpSettingsDir}
 					
-	echo "# " >> ${bpSettingsFile}
-	echo "# Bashplates common settings" > ${bpSettingsFile}
-	echo "# " >> ${bpSettingsFile}
-	echo      >> ${bpSettingsFile}
-	
-	bpAddSettings
+  echo "# " >> ${bpSettingsFile}
+  echo "# Bashplates common settings" > ${bpSettingsFile}
+  echo "# " >> ${bpSettingsFile}
+  echo      >> ${bpSettingsFile}
+
+  bpAddSettings
 }
 
 bpLoadSettings() {
   if [ -n "${bpSettingsFile}" ]; then
-	  if [ -e "${bpSettingsFile}" ]; then
-	    source "${bpSettingsFile}"
-	  else
-		  bpCreateSettings
-			source "${bpSettingsFile}"
-		fi
-	fi
+    if [ -e "${bpSettingsFile}" ]; then
+      source "${bpSettingsFile}"
+    else
+      bpCreateSettings
+      source "${bpSettingsFile}"
+    fi
+  fi
 }
 
 printSettings() { ##C BPSETTINGS Print plate information
@@ -1002,13 +1030,13 @@ ihelp() { ##D Print internal help information
 
   # Singe command documentation
   if [ "$2" != "" ]; then
-	  echo
-	  bpTextLine "$2"
-		echo
-		grep --no-filename -B 10 "$0" -e "${2}()" | grep "#" | grep -v "##"
-		bpLine
-		exit
-	fi
+    echo
+    bpTextLine "$2"
+    echo
+    grep --no-filename -B 10 "$0" -e "${2}()" | grep "#" | grep -v "##"
+    bpLine
+    exit
+  fi
 
   IFS=$'\n'
   SC="$1"
@@ -1077,7 +1105,6 @@ runCommand() {
 
   funks=$(grep "##" "$0" | grep -v grep | grep -v help_line)
   for line in ${funks}; do
-
     command=$(echo "$line" | sed -s 's/(.*//')
     if [ "$command" == "$1" ]; then
 

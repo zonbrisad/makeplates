@@ -25,6 +25,7 @@ import os
 import traceback
 import logging
 import argparse
+import shutil
 from  pathlib import Path
 from datetime import datetime, date, time
 
@@ -45,17 +46,19 @@ AppAuthor   = "Peter Malmberg <peter.malmberg@gmail.com>"
 #
 class CConf():
     main       = False
-    gtk        = False
-    qt         = False
-    signals    = False
     sigint     = False
     author     = ""
-    license    = ""
     brief      = ""
     date       = ""
     org        = ""
     isCpp      = False
     moduleName = ""
+
+    # Libraries
+    gtk        = False
+    qt         = False
+    signals    = False
+    argtable   = False
     
     name       = ""
     email      = ""
@@ -296,6 +299,9 @@ class CFile():
         if self.conf.signals and not self.isHeader:
             self.addSignals()
             
+        if self.conf.argtable and not self.isHeader:
+            self.addInclude('argtable3.h', True)
+            
         if self.conf.qt:
             self.addQt()
         
@@ -463,6 +469,12 @@ def textToFile(args, fileName, text):
     file.write(text)
     file.close()
 
+def copyLib(lib, dst):
+    print('Copying library \"'+lib+'\" to \"'+dst+'\"')
+    print('Add  \"'+dst+'/'+lib+'\" to include path.')
+    shutil.copytree(scriptPath+'/libs/'+lib, dst+'/'+lib)
+
+    
 def newModule(dir, conf):
     
     # ask for some information
@@ -472,8 +484,9 @@ def newModule(dir, conf):
         conf.main = query_yn("Add main() function", "no")
     
     if conf.main and not conf.isCpp:
-        conf.gtk = query_yn("GTK project", "no")
-        conf.signals = query_yn("Include signals", "no")
+        conf.gtk      = query_yn("GTK project",       "no")
+        conf.signals  = query_yn("Include signals",   "no")
+        conf.argtable = query_yn("Include argtable3", "no")
           
     if conf.main and conf.isCpp:    
         conf.qt = query_yn("Qt project", "no")
@@ -486,7 +499,11 @@ def newModule(dir, conf):
     
     fileH.save(dir)
     fileC.save(dir)
-
+    
+    if conf.argtable: 
+        copyLib('argtable3', dir)
+    
+    
 
 def newClass(dir, conf):
 
@@ -532,7 +549,7 @@ def cmd_qtwin(args, conf):
 def cmd_qtdia(args, conf):
     print("qtdia")
     exit(0)
-
+    
 def cmd_newc(args, conf):
     conf.isCpp = False
     newModule(args.dir, conf)
