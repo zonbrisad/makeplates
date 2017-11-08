@@ -134,10 +134,6 @@ createProject() {
 	
 }
 
-replaceTest() { ## Replace test
-		bpReplaceLine Makefile "SRC" "SRC = main.c"
-}
-
 ##N- Project
 
 newc() { ##C NEW Create a new standard C makeplate project

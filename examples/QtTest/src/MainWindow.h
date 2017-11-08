@@ -3,6 +3,7 @@
 
 
 #include <QMainWindow>
+#include <QComboBox>
 
 class QAction;
 class QMenu;
@@ -24,16 +25,19 @@ class QSessionManager;
 
 
 class MainWindow : public QMainWindow {
-	    Q_OBJECT
+
+	 Q_OBJECT
 		 
 	public:
 		 explicit MainWindow();
 
 	private slots:
-	void button1_clicked();
-	void combo1Handler(int a);
-		 
+		 void button1_clicked();
+	 void combo1Handler(int a);
+	 void checkboxHandler(int state);
+	 void sliderHandler(int a);
 	private: 
 		 QPlainTextEdit *textEdit;
+	 	 QComboBox *combo1;
 	 
 };

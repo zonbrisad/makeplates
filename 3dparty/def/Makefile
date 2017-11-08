@@ -93,7 +93,7 @@ CPPDEFS =
 # 1 = minimal debug information
 # 2 = normal debug information 
 # 3 = maximal debug information
-DEBUG=0
+DEBUG=2
 
 #
 # Compiler and Linker options

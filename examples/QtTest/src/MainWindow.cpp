@@ -1,13 +1,19 @@
 
 #include <QMainWindow>
 #include <QtWidgets>
-#include <QTextEdit>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
-#include <QPushButton>
 #include <QSpacerItem>
 #include <QMenuBar>
+#include <QPushButton>
 #include <QComboBox>
+#include <QTextEdit>
+#include <QCheckBox>
+#include <QSpinBox>
+#include <QSlider>
+#include <QLabel>
+#include <QRadioButton>
+
 
 #include "MainWindow.h"
 
@@ -43,18 +49,26 @@ MainWindow::MainWindow() {
 	vLayout->addWidget(button2);
 	vLayout->addWidget(button3);
 	
+	// Combobox
+	this->combo1 = new QComboBox();
+	combo1->addItem("Item a", 101);
+	combo1->addItem("Item b", 102);
+	combo1->addItem("Item c", 103);
+	connect(combo1, SIGNAL (activated(int)),this, SLOT (combo1Handler(int)));
+	vLayout->addWidget(combo1);
 
-    QComboBox *combo1 = new QComboBox();
-    combo1->addItem("Item a", 101);
-    combo1->addItem("Item b", 102);
-    combo1->addItem("Item c", 103);
-
-    connect(combo1, SIGNAL (activated()),this, SLOT (combo1Handler()));
-    //connect(combo1, SIGNAL (currentIndexChanged()),this, SLOT (combo1Handler()));
-
-    vLayout->addWidget(combo1);
-
-
+	// Checkbox
+	QCheckBox *checkbox = new QCheckBox();
+	vLayout->addWidget(checkbox);
+	connect(checkbox, SIGNAL (stateChanged(int)), this, SLOT (checkboxHandler(int)));
+	
+	// Slider
+	QSlider *slider = new QSlider();
+	vLayout->addWidget(slider);
+	connect(slider, SIGNAL (valueChanged(int)), this, SLOT (sliderHandler(int)));
+	
+	
+	
 	// Spacer for left side panel
 	vLayout->addItem(new QSpacerItem(20, 20, QSizePolicy::Expanding, QSizePolicy::Expanding));
 
@@ -62,15 +76,15 @@ MainWindow::MainWindow() {
 	hLayout->addWidget(textEdit);
 	
 	// Statusbar
-    QStatusBar *statusbar = new QStatusBar();
-    statusbar->setLayoutDirection(Qt::RightToLeft);
-    setStatusBar(statusbar);
+	QStatusBar *statusbar = new QStatusBar();
+	statusbar->setLayoutDirection(Qt::RightToLeft);
+	setStatusBar(statusbar);
 
-    // Menubar
-    QMenuBar *menubar = new QMenuBar();
+	// Menubar
+	QMenuBar *menubar = new QMenuBar();
   //  menubar->setGeometry(new QRect(0, 0, 855, 25));
-    setMenuBar(menubar);
-
+	setMenuBar(menubar);
+	
 	
 
 	window->setLayout(hLayout);
@@ -85,5 +99,13 @@ void MainWindow::button1_clicked() {
 
 
 void MainWindow::combo1Handler(int a) {
-	qDebug() << "Combo 1handler\n";
+	qDebug() << "Combo 1handler: " << this->combo1->currentText() << "  " << this->combo1->currentData() << endl ;
+}
+
+void MainWindow::checkboxHandler(int state) {
+	qDebug() << "Checkbox" << endl;
+}
+
+void MainWindow::sliderHandler(int a) {
+	qDebug() << "Slider" << endl;
 }

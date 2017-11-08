@@ -174,14 +174,29 @@ class MainForm(QMainWindow):
         self.pbExit.pressed.connect(self.appExit)
         self.verticalLayout.addWidget(self.pbExit)
 
+        
+        self.vlText = QtWidgets.QVBoxLayout()
+        self.vlText.setSpacing(2)
+        self.horizontalLayout.addLayout(self.vlText)
+        self.label = QtWidgets.QLabel("TextEdit", self.centralwidget)
+        self.vlText.addWidget(self.label)
+        
+        
         # TextEdit
         self.textEdit = QtWidgets.QTextEdit(self.centralwidget)
-        self.horizontalLayout.addWidget(self.textEdit)
+        self.textEdit.setReadOnly(True)
+        self.vlText.addWidget(self.textEdit)
+        
+        self.vlPlain = QtWidgets.QVBoxLayout()
+        self.vlPlain.setSpacing(2)
+        self.horizontalLayout.addLayout(self.vlPlain)
+        self.label = QtWidgets.QLabel("PlainTextEdit", self.centralwidget)
+        self.vlPlain.addWidget(self.label)
         
         # PlaintTextEdit
         self.plainTextEdit = QtWidgets.QPlainTextEdit(self)
         self.plainTextEdit.setReadOnly(True)
-        self.horizontalLayout.addWidget(self.plainTextEdit)
+        self.vlPlain.addWidget(self.plainTextEdit)
 
         # Checkbox
         self.checkBox = QtWidgets.QCheckBox("Checkbox", self.centralwidget)
@@ -325,8 +340,18 @@ class MainForm(QMainWindow):
                         
         
     def append(self, str):    
-        self.textEdit.append(str)
+#        self.textEdit.append(str)
+#        self.plainTextEdit.insertPlainText(str)
+
+        td = self.plainTextEdit.document()
+        print(td)
+        tc = QTextCursor(td)
+        print(tc)
+#        tc.movePosition(QTextCursor.End)
+#        tc.movePosition(QTextCursor.Up)
+#        self.plainTextEdit.appendPlainText(str)
         self.plainTextEdit.insertPlainText(str)
+#        self.plainTextEdit.appendHtml(str)
         
         
     def _message(self,msg):

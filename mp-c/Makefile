@@ -684,16 +684,18 @@ run:    ## Run application
 
 
 # Project options -----------------------------------------------------------
-.PHONY: newc newclass 
+.PHONY: newc newcpp newclass 
 
 ##N- Create
 
 newc:  ## Create a new C module
 	@${CTEMPLATE} newc --dir src --author "$(AUTHOR)" --license "$(LICENSE)"
 
+newcpp:  ## Create a new C++ module
+	@${CTEMPLATE} newcpp --dir src --author "$(AUTHOR)" --license "$(LICENSE)"
+
 newclass:  ## Create a new C++ class
 	@${CTEMPLATE} newclass --dir src --author "$(AUTHOR)" --license "$(LICENSE)"	
-		
 
 
 # Install options -----------------------------------------------------------
