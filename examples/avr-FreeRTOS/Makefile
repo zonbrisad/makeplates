@@ -3,17 +3,30 @@
 # 
 # Brief: General Atmel AVR  Makefile template.
 #
-# author: Peter Malmberg <peter.malmberg@gmail.com>
-#
+# Name:    AVR FreeRTOS test
+# Author:  Peter Malmberg <peter.malmberg@gmail.com>
+# Date:    __DATE__
+# Org:     __ORG__
+# 
 # License: MIT
-#----------------------------------------------------------------------------
-# This file is part of the makeplates project.
-# Git checkout:
-# https://github.com/zonbrisad/makeplates.git
 # 
 #----------------------------------------------------------------------------
-# On command line:
-# >make help 
+# [Makeplates]
+# This script is generated from makeplates Makefile project generator.
+#
+# Makeplates is developed by:
+# Peter Malmberg <peter.malmberg@gmail.com>
+#
+# Makeplates is available at:
+# https://github.com/zonbrisad/makeplates
+# 
+# [Disclaimer] 
+# Use on your own risk.
+#----------------------------------------------------------------------------
+# [Help]
+# 
+# Enter "make help" to get information about different targets.
+# 
 #----------------------------------------------------------------------------
 
 # Target platform (linux, win32, avr, arm, osx)
@@ -71,19 +84,6 @@ OPT = s
 # [ gnu99 gnu11 c++98 c++03 c++11 c++14 ] 
 CSTANDARD   = gnu99
 CPPSTANDARD = c++11
-
-# Place -D or -U options here for C sources
-#CDEFS = -DF_CPU=$(F_CPU)UL
-
-
-# Place -D or -U options here for ASM sources
-#ADEFS = -DF_CPU=$(F_CPU)
-
-
-# Place -D or -U options here for C++ sources
-#CPPDEFS = -DF_CPU=$(F_CPU)UL
-#CPPDEFS += -D__STDC_LIMIT_MACROS
-#CPPDEFS += -D__STDC_CONSTANT_MACROS
 
 # C Macro definitions
 CDEFS = ARDUINO 
@@ -185,7 +185,7 @@ CPPFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void 
 #  -listing-cont-lines: Sets the maximum number of continuation lines of hex 
 #       dump that will be displayed for a given single line of source input.
 ASFLAGS =  $(patsubst %,-D%,$(ADEFS))
-ASFLAGS += -Wa,-adhlns=$(<:%.S=$(BUILDDIR)/%.lst),-gstabs,--listing-cont-lines=100
+ASFLAGS += -Wa,-adhlns=$(<:%.S=$(OBJDIR)/%.lst),-gstabs,--listing-cont-lines=100
 
 # Linker Options ------------------------------------------------------------
 #  -Wl,...:     tell GCC to pass this to linker.
@@ -194,8 +194,6 @@ ASFLAGS += -Wa,-adhlns=$(<:%.S=$(BUILDDIR)/%.lst),-gstabs,--listing-cont-lines=1
 LDFLAGS = -Wl,-Map=$(OUTDIR)/$(TARGET).map,--cref
 LDFLAGS += $(EXTMEMOPTS)
 LDFLAGS += $(patsubst %,-L%,$(INCLUDE))
-LDFLAGS += -g
-
 
 # Misc settings -------------------------------------------------------------
 MPFLAGS  = -DLICENSE=$(LICENSE)
@@ -789,11 +787,11 @@ edit:   ## Open source and makefile in editor
 
 ##N- Create
 
-newfile:  ## Create a new C file
-	@${CTEMPLATE} --newc --dir src --author "$(AUTHOR)" --license "$(LICENSE)"
+newc:  ## Create a new C module
+	@${CTEMPLATE} newc --dir src --author "$(AUTHOR)" --license "$(LICENSE)"
 
 newclass:  ## Create a new C++ class
-	@${CTEMPLATE} --newclass --dir src --author "$(AUTHOR)" --license "$(LICENSE)"	
+	@${CTEMPLATE} newclass --dir src --author "$(AUTHOR)" --license "$(LICENSE)"	
 		
 #newproj:  # Create a new project
 #	@${PROJECT} newproj

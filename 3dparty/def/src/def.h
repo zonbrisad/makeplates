@@ -913,11 +913,11 @@ typedef unsigned long       ulong;
 
 // ANSI movement codes ------------------------------------------------------
 
-#define E_CUR_RETURN  "\033[;0F"      // cursor return
-#define E_CUR_UP      "\033[;0A"      // cursor up
-#define E_CUR_DOWN    "\033[;0B"      // cursor down
-#define E_CUR_FORWARD "\033[;0C"      // cursor forward
-#define E_CUR_BACK    "\033[;0D"      // cursor back
+#define E_CUR_HOME    "\033[H"        // cursor to left upper corner
+#define E_CUR_UP      "\033[A"        // cursor up one line
+#define E_CUR_DOWN    "\033[B"        // cursor down one lin
+#define E_CUR_FORWARD "\033[C"        // cursor right one character
+#define E_CUR_BACK    "\033[D"        // cursor left one charachter
 
 #define E_HIDE_CURSOR "\033[?25l"     // hide cursor
 #define E_SHOW_CURSOR "\033[?25h"     // show cursor
