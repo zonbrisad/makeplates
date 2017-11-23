@@ -59,6 +59,7 @@ class CConf():
     qt         = False
     signals    = False
     argtable   = False
+    glib       = False
     
     name       = ""
     email      = ""
@@ -98,6 +99,7 @@ class CFile():
     variables  = ""
     prototypes = ""
     code       = ""
+    mainVars   = ""
     main       = ""
 
     buf        = ""
@@ -147,7 +149,7 @@ class CFile():
         self.defines += ("#define  " + name + "  "+ value + "\n")
 
     def addVariable(self, name):
-        self.variables += name
+        self.variables += name + "\n"
 
     def addPrototype(self, prototype):
         self.prototypes += prototype
@@ -211,11 +213,7 @@ class CFile():
         self.addSignal("SIGUSR1", "sigusr1")
         self.addSignal("SIGUSR2", "sigusr2")
         self.addSignal("SIGTERM", "sigterm")
-        
-    def addGtk(self):
-        #if (conf.gtk):    
-        self.addInclude("gtk/gtk.h")
-        
+                
     def addQt(self):    
         #if (conf.qt):    
         self.addInclude("QApplication")
@@ -243,8 +241,9 @@ class CFile():
         self.main += "  mainWin.show();\n"
         self.main += "  return app.exec();\n"
                 
+        
     def addMain(self):
-        self.main = "int main(int argc, char *argv[]) {\n\n" + self.main
+        self.main = "int main(int argc, char *argv[]) {\n\n" + self.mainVars + self.main
         self.main += "  return 0;\n"
         self.main += "}\n"
         
@@ -266,12 +265,29 @@ class CFile():
     def newLine(self):
         self.buf += "\n"
     
+    def addGlib(self):
+        self.addInclude("glib-2.0/glib.h")
+        self.addVariable("GMainLoop *mLoop;")
+        self.addVariable("static gboolean opt_verbose;")
+        self.addVariable(glibVars)
+        self.mainVars += glibMainVars
+        self.main += glibMain
+        self.code += glibCode
+        self.prototypes += glibPrototypes
+    
+    def addGtk(self):
+        self.addInclude("gtk/gtk.h")
+    
+        
     def create(self):
         
         self.addHeader()
         
         if self.conf.main and not self.isHeader:
             self.addStdIncludes()
+            
+        if self.conf.main and not self.isHeader and self.conf.glib:
+            self.addGlib()
         
         if self.conf.signals and not self.isHeader:
             self.addSignals()
@@ -279,10 +295,8 @@ class CFile():
         if self.conf.argtable and not self.isHeader:
             self.addInclude('argtable3.h', True)
             
-            
         if self.conf.qt:
             self.addQt()
-        
         
         if self.conf.main and self.isHeader:
             self.addAppDefines()
@@ -292,8 +306,12 @@ class CFile():
             
         if not self.isHeader:
             self.addInclude(self.moduleName+".h", True)
+            
+        self.generate()    
 
-        # Sections
+        
+    def generate(self):
+        # Assemble all sections into one complete source file
         self.buf = ""
         self.buf = self.buf + self.header
         
@@ -309,18 +327,18 @@ class CFile():
         
         self.addSection("Macros")
         self.buf += self.defines
+        
+        self.addSection("Prototypes")
+        self.buf += self.prototypes
 
         self.addSection("Variables")
         self.buf += self.variables
 
-        self.addSection("Prototypes")
-        self.buf += self.prototypes
-        
         if not self.isHeader:
             self.addSection("Code")
             self.buf = self.buf + self.code
-        
-            self.buf += self.main    
+       
+            self.buf += self.main
             
         if self.isHeader:
             self.addSentinelEnd()
@@ -335,7 +353,6 @@ class CFile():
         self.replace("__LICENSE__",  self.conf.license )
     
     def print(self):
-        #self.create()
         print(self.buf)
 
 class CClass(CFile):
@@ -424,9 +441,11 @@ def newModule(dir, conf):
         conf.main = query_yn("Add main() function", "no")
     
     if conf.main and not conf.isCpp:
+        conf.glib     = query_yn("glib project",      "no")
         conf.gtk      = query_yn("GTK project",       "no")
         conf.signals  = query_yn("Include signals",   "no")
-        conf.argtable = query_yn("Include argtable3", "no")
+        if not conf.glib or not conf.gtk:
+            conf.argtable = query_yn("Include argtable3", "no")
           
     if conf.main and conf.isCpp:    
         conf.qt = query_yn("Qt project", "no")
@@ -516,6 +535,7 @@ def main():
     parrent_parser.add_argument("--cpp",      action="store_true",  help="Module is a C++ file", default=False)
     parrent_parser.add_argument("--name",     type=str,  help="Name of C/C++ module", default="")
     parrent_parser.add_argument("--brief",    type=str,  help="Brief description",    default="")
+    parrent_parser.add_argument("--glib",     action="store_true",  help="Use glib library",     default=False)
     
 
     # options parsing
@@ -563,6 +583,9 @@ def main():
         conf.moduleName = args.name
     if hasattr(args, 'brief'):
         conf.brief = args.brief
+
+    if hasattr(args, 'glib'):
+        conf.glib = args.glib
 
     
     if hasattr(args, 'func'):
@@ -659,6 +682,62 @@ int main(int argc, char *argv[]) {
 """
 
 glibMainExample="""
+"""
+
+glibVars="""
+static gint      opt_integer = 42;
+static gdouble   opt_double  = 42.42;
+static gchar    *opt_string  = "Kalle";
+static gchar    *opt_file    = "F";
+static gboolean  opt_bool    = FALSE;
+
+static gboolean  opt_verbose = FALSE;
+static gboolean  opt_version = FALSE;
+
+static GOptionEntry entries[] = {
+  { "bool",     'b', 0, G_OPTION_ARG_NONE,     &opt_bool,     "Boolean option", NULL },
+  { "integer",  'i', 0, G_OPTION_ARG_INT,      &opt_integer,  "Integer option", "nr" },
+  { "string",   's', 0, G_OPTION_ARG_STRING,   &opt_string,   "String option",  "nr" },
+  { "double",   'd', 0, G_OPTION_ARG_DOUBLE,   &opt_double,   "Double option",  "d"  },
+  { "file",     'f', 0, G_OPTION_ARG_FILENAME, &opt_file,     "File option",  NULL  },
+  { "callback", 'c', 0, G_OPTION_ARG_CALLBACK, opt_callback,  "CallBack",  NULL  },
+  
+  { "verbose",  'v', 0, G_OPTION_ARG_NONE,     &opt_verbose,  "Be verbose", NULL },
+  { "version",   0,  0, G_OPTION_ARG_NONE,     &opt_version,  "Version info", NULL },
+  { NULL }
+};                                                                                                                                      
+"""
+
+glibPrototypes="""
+gboolean opt_callback(const gchar *option_name, const gchar *value, gpointer data, GError **error);
+"""
+glibCode="""
+gboolean opt_callback(const gchar *option_name, const gchar *value, gpointer data, GError **error) {
+  printf("Callback function for option %s,  value=%s\\n", option_name, value);
+}
+"""
+
+glibMainVars="""
+  GError *error = NULL;
+  GOptionContext *context;
+"""
+
+glibMain="""
+  context = g_option_context_new ("- what the program does");
+  g_option_context_add_main_entries (context, entries, NULL);
+  
+  g_option_context_set_summary(context, "My summary text...");
+  g_option_context_set_description(context, "My description text");
+  
+  if (!g_option_context_parse (context, &argc, &argv, &error)) {
+    g_print ("option parsing failed: %s\\n", error->message);
+    exit (1);
+  }
+                  
+  if (opt_version) {
+    printf("Application version %s\\n", APP_VERSION);
+    exit(0);
+  }
 """
 
 mainExample="""
