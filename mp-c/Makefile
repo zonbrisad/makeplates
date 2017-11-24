@@ -45,8 +45,7 @@ SRC = src/main.c.xxx
 LSRC =	
 
 # Include directories
-INCLUDE = inc \
-          src \
+INCLUDE = src 
 
 # Libraries to link
 LIB   = -lm 

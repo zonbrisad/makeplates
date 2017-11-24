@@ -67,6 +67,8 @@ class CConf():
     org        = ""
     author     = ""
     
+    makefile   = ""
+    
     def __init__(self):
         self.date = datetime.now().strftime("%Y-%m-%d")
         self.bp()
@@ -294,6 +296,7 @@ class CFile():
             
         if self.conf.argtable and not self.isHeader:
             self.addInclude('argtable3.h', True)
+            self.main += argtableMain
             
         if self.conf.qt:
             self.addQt()
@@ -441,10 +444,15 @@ def newModule(dir, conf):
         conf.main = query_yn("Add main() function", "no")
     
     if conf.main and not conf.isCpp:
-        conf.glib     = query_yn("glib project",      "no")
+        if not conf.glib:
+            conf.glib     = query_yn("glib project",      "no")
+            
         conf.gtk      = query_yn("GTK project",       "no")
+        if conf.gtk:
+            conf.glib = True
+        
         conf.signals  = query_yn("Include signals",   "no")
-        if not conf.glib or not conf.gtk:
+        if not conf.glib:
             conf.argtable = query_yn("Include argtable3", "no")
           
     if conf.main and conf.isCpp:    
@@ -458,11 +466,13 @@ def newModule(dir, conf):
     
     fileH.save(dir)
     fileC.save(dir)
-    
+     
     if conf.argtable: 
         copyLib('argtable3', dir)
-    
-    
+        # Edit makefile
+        os.system("make mp-add-include FILE=src/argtable3 " + conf.makefile )
+        #os.system("sed -i '/INCLUDE/s/.*/&\\nINCLUDE += src\/argtable3/1' " + conf.makefile)
+        #os.system("sed -i 's/INCLUDE.*/&\\nINCLUDE += src\/argtable3/1' " + conf.makefile)
 
 def newClass(dir, conf):
 
@@ -536,6 +546,7 @@ def main():
     parrent_parser.add_argument("--name",     type=str,  help="Name of C/C++ module", default="")
     parrent_parser.add_argument("--brief",    type=str,  help="Brief description",    default="")
     parrent_parser.add_argument("--glib",     action="store_true",  help="Use glib library",     default=False)
+    parrent_parser.add_argument("--makefile", type=str,  help="Makefile",    default="")
     
 
     # options parsing
@@ -587,6 +598,8 @@ def main():
     if hasattr(args, 'glib'):
         conf.glib = args.glib
 
+    if hasattr(args, 'makefile'):
+        conf.makefile = args.makefile
     
     if hasattr(args, 'func'):
         args.func(args, conf)
@@ -695,15 +708,15 @@ static gboolean  opt_verbose = FALSE;
 static gboolean  opt_version = FALSE;
 
 static GOptionEntry entries[] = {
-  { "bool",     'b', 0, G_OPTION_ARG_NONE,     &opt_bool,     "Boolean option", NULL },
-  { "integer",  'i', 0, G_OPTION_ARG_INT,      &opt_integer,  "Integer option", "nr" },
-  { "string",   's', 0, G_OPTION_ARG_STRING,   &opt_string,   "String option",  "nr" },
-  { "double",   'd', 0, G_OPTION_ARG_DOUBLE,   &opt_double,   "Double option",  "d"  },
-  { "file",     'f', 0, G_OPTION_ARG_FILENAME, &opt_file,     "File option",  NULL  },
-  { "callback", 'c', 0, G_OPTION_ARG_CALLBACK, opt_callback,  "CallBack",  NULL  },
+  { "bool",     'b', 0, G_OPTION_ARG_NONE,     &opt_bool,     "Boolean option",  NULL },
+  { "integer",  'i', 0, G_OPTION_ARG_INT,      &opt_integer,  "Integer option",  "nr" },
+  { "string",   's', 0, G_OPTION_ARG_STRING,   &opt_string,   "String option",   "nr" },
+  { "double",   'd', 0, G_OPTION_ARG_DOUBLE,   &opt_double,   "Double option",   "d"  },
+  { "file",     'f', 0, G_OPTION_ARG_FILENAME, &opt_file,     "File option",     NULL },
+  { "callback", 'c', 0, G_OPTION_ARG_CALLBACK, opt_callback,  "Callback option", NULL },
   
-  { "verbose",  'v', 0, G_OPTION_ARG_NONE,     &opt_verbose,  "Be verbose", NULL },
-  { "version",   0,  0, G_OPTION_ARG_NONE,     &opt_version,  "Version info", NULL },
+  { "verbose",  'v', 0, G_OPTION_ARG_NONE,     &opt_verbose,  "Verbose output",  NULL },
+  { "version",   0,  0, G_OPTION_ARG_NONE,     &opt_version,  "Version info",    NULL },
   { NULL }
 };                                                                                                                                      
 """
@@ -714,6 +727,7 @@ gboolean opt_callback(const gchar *option_name, const gchar *value, gpointer dat
 glibCode="""
 gboolean opt_callback(const gchar *option_name, const gchar *value, gpointer data, GError **error) {
   printf("Callback function for option %s,  value=%s\\n", option_name, value);
+  return 1;
 }
 """
 
@@ -739,6 +753,58 @@ glibMain="""
     exit(0);
   }
 """
+
+argtableMain="""
+  struct arg_lit  *list    = arg_lit0("lL",NULL,                      "list files");
+  struct arg_lit  *recurse = arg_lit0("R",NULL,                       "recurse through subdirectories");
+  struct arg_int  *repeat  = arg_int0("k","scalar",NULL,              "define scalar value k (default is 3)");
+  struct arg_str  *defines = arg_strn("D","define","MACRO",0,argc+2,  "macro definitions");
+  struct arg_file *outfile = arg_file0("o",NULL,"<output>",           "output file (default is \\"-\\")");
+  struct arg_lit  *verbose = arg_lit0("v","verbose,debug",            "verbose messages");
+  struct arg_lit  *help    = arg_lit0(NULL,"help",                    "print this help and exit");
+  struct arg_lit  *version = arg_lit0(NULL,"version",                 "print version information and exit");
+  //  struct arg_file *infiles = arg_filen(NULL,NULL,NULL,1,argc+2,       "input file(s)");
+  struct arg_end  *end     = arg_end(20);
+  void* argtable[] = {list,recurse,repeat,defines,outfile,verbose,help,version,end};
+  
+  int nerrors;
+  int exitcode=0;
+  
+  /* verify the argtable[] entries were allocated sucessfully */
+  if (arg_nullcheck(argtable) != 0) {
+    /* NULL entries were detected, some allocations must have failed */
+    printf("%s: insufficient memory\\n",APP_NAME);
+    exitcode=1;
+    goto exit;
+  }
+  
+
+  /* Parse the command line as defined by argtable[] */
+  nerrors = arg_parse(argc,argv,argtable);
+  
+  /* special case: '--help' takes precedence over error reporting */
+  if (help->count > 0) {
+    printf("Usage: %s", APP_NAME);
+    arg_print_syntax(stdout,argtable,"\\n");
+    arg_print_glossary(stdout,argtable,"  %-25s %s\\n");
+    exitcode=0;
+    goto exit;
+  }
+  
+  /* special case: '--version' takes precedence error reporting */
+  if (version->count > 0) {
+    printf("'%s' example program for the \\"argtable\\" command line argument parser.\\n",APP_NAME);
+  
+    exitcode=0;
+    goto exit;
+  }
+  
+
+"""
+
+
+
+
 
 mainExample="""
 int main(int argc, char *argv[]) {
