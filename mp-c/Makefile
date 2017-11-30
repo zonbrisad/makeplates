@@ -923,5 +923,16 @@ utools: # Update tools from locally installed tools
 meld: # Meld Makefile with locally installed makefile
 	@meld ~/bin/makeplate_files/${mpType}/Makefile  Makefile
 
+mp-add-source: # Add source file (FILE=filename)
+	@$(eval F=$(shell echo "${FILE}" | sed 's/\//\\\//g' ))
+	@sed -i  '0,/SRC/s/SRC.*/&\nSRC += ${F}/1' Makefile
+
+mp-add-include: # Add include path (FILE=include path)
+	@$(eval F=$(shell echo "${FILE}" | sed 's/\//\\\//g' ))
+	@sed -i  '0,/INCLUDE/s/INCLUDE.*/&\nINCLUDE += ${F}/1' Makefile
+
+mp-add-pkglib: # Add library (pkg-conf) (LIB=lib)
+	@$(eval F=$(shell echo "${LIB}" | sed 's/\//\\\//g' ))
+	@sed -i  '0,/PKGLIBS/s/PKGLIBS.*/&\nPKGLIBS += ${F}/1' Makefile
 
 ##-

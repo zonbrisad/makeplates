@@ -60,6 +60,9 @@ void removePidFile(char *pidFile);
 void daemonize(void);
 
 
+	
+void terminalSize(int *cols, int *lines);
+	
 #ifdef __cplusplus
 } //end brace for extern "C"
 #endif

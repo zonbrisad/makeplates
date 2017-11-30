@@ -470,9 +470,10 @@ def newModule(dir, conf):
     if conf.argtable: 
         copyLib('argtable3', dir)
         # Edit makefile
-        os.system("make mp-add-include FILE=src/argtable3 " + conf.makefile )
-        #os.system("sed -i '/INCLUDE/s/.*/&\\nINCLUDE += src\/argtable3/1' " + conf.makefile)
-        #os.system("sed -i 's/INCLUDE.*/&\\nINCLUDE += src\/argtable3/1' " + conf.makefile)
+        
+        os.system("cd "+conf.basedir+";pwd; make mp-add-include FILE=src/argtable3 Makefile; cd -")
+        os.system("cd "+conf.basedir+";make mp-add-source  FILE=src/argtable3/argtable3.c ; cd -" )
+
 
 def newClass(dir, conf):
 
@@ -540,13 +541,14 @@ def main():
     parrent_parser.add_argument("--author",   type=str,  help="Author of file",                default=conf.name+" <"+conf.email+">")
 
     parrent_parser.add_argument("--dir",      type=str,  help="Directory where to store file", default=".")
+    parrent_parser.add_argument("--basedir",  type=str,  help="Project directory", default=".")
     
     parrent_parser.add_argument("--main",     action="store_true",  help="Include main() function into module", default=False)
     parrent_parser.add_argument("--cpp",      action="store_true",  help="Module is a C++ file", default=False)
     parrent_parser.add_argument("--name",     type=str,  help="Name of C/C++ module", default="")
     parrent_parser.add_argument("--brief",    type=str,  help="Brief description",    default="")
     parrent_parser.add_argument("--glib",     action="store_true",  help="Use glib library",     default=False)
-    parrent_parser.add_argument("--makefile", type=str,  help="Makefile",    default="")
+
     
 
     # options parsing
@@ -594,13 +596,11 @@ def main():
         conf.moduleName = args.name
     if hasattr(args, 'brief'):
         conf.brief = args.brief
-
     if hasattr(args, 'glib'):
         conf.glib = args.glib
-
-    if hasattr(args, 'makefile'):
-        conf.makefile = args.makefile
-    
+    if hasattr(args, 'basedir'):
+        conf.basedir = args.basedir
+        
     if hasattr(args, 'func'):
         args.func(args, conf)
         exit(0)

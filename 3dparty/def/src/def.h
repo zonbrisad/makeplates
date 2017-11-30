@@ -455,6 +455,7 @@ typedef unsigned long       ulong;
 
 #undef  Clamp
 #define Clamp(x, low, high)  (((x) > (high)) ? (high) : (((x) < (low)) ? (low) : (x)))
+//#define Clamp(x, low, high)  Min( high, Max(low, x) )
 
 
 
