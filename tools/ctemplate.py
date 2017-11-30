@@ -540,7 +540,7 @@ def main():
     parrent_parser.add_argument("--license",  type=str,  help="License of new file",           default=conf.license)
     parrent_parser.add_argument("--author",   type=str,  help="Author of file",                default=conf.name+" <"+conf.email+">")
 
-    parrent_parser.add_argument("--dir",      type=str,  help="Directory where to store file", default=".")
+    parrent_parser.add_argument("--dir",      type=str,  help="Project source directory", default=".")
     parrent_parser.add_argument("--basedir",  type=str,  help="Project directory", default=".")
     
     parrent_parser.add_argument("--main",     action="store_true",  help="Include main() function into module", default=False)
