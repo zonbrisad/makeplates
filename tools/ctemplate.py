@@ -471,7 +471,7 @@ def newModule(dir, conf):
         copyLib('argtable3', dir)
         # Edit makefile
         
-        os.system("cd "+conf.basedir+";pwd; make mp-add-include FILE=src/argtable3 Makefile; cd -")
+        os.system("cd "+conf.basedir+";make mp-add-include FILE=src/argtable3 Makefile; cd -")
         os.system("cd "+conf.basedir+";make mp-add-source  FILE=src/argtable3/argtable3.c ; cd -" )
 
 
@@ -586,8 +586,7 @@ def main():
     if hasattr(args, 'author'):
         conf.author  = args.author
     if hasattr(args, 'license'):
-        conf.license = args.license        
-    
+        conf.license = args.license            
     if hasattr(args, 'main'):
         conf.main = args.main
     if hasattr(args, 'cpp'):

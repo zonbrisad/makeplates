@@ -137,7 +137,7 @@ createProject() {
 		mainFile="main.c"
   fi
 	
-	opts="${opts} --makefile ${dst}/Makefile"
+	opts="${opts}  --basedir ${pn}"
 	
 	if [ "$3" == "tools" ]; then
     bpReplaceLine "${dst}/Makefile" "SRC" "SRC = src\/${mainFile}"
@@ -153,7 +153,7 @@ createProject() {
 		bpReplace "${dst}/Makefile" "#PKGLIBS += gio"     "PKGLIBS += gio"
 	fi
 
-  ${cTemplate} $opts --name "main" --basedir "${pn}" --dir "${srcDst}"  --brief "${brief}" --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
+  ${cTemplate} $opts --name "main" --dir "${srcDst}"  --brief "${brief}" --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
 }
 
 ##N- C Projects
