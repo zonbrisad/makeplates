@@ -24,6 +24,7 @@
 
 #include "def.h"
 #include "def_util.h"
+#include "def_linux.h"
 #include "i2i.h"
 #include "i2s.h"
 #include "s2s.h"
@@ -288,7 +289,7 @@ int main(int argc, char *argv[]) {
 
     x = 0;
     printf("x = %s\n", int2bin(buf, x, 8));
-    Set_bits(x, 0x2);
+    Set_bits(x, 0x02);
     printf("x = %s\n", int2bin(buf, x, 8));
 
     Set_bits(x, 0xF0);
@@ -297,7 +298,7 @@ int main(int argc, char *argv[]) {
     Clr_bits(x, 0xA0);
     printf("x = %s\n", int2bin(buf, x, 8));
 
-    Tgl_bits(x, 0x8);
+    Tgl_bits(x, 0x08);
     printf("x = %s\n", int2bin(buf, x, 8));
 
     //  x = bit_reverse8(x);

@@ -45,8 +45,7 @@ SRC = src/main.c.xxx
 LSRC =	
 
 # Include directories
-INCLUDE = inc \
-          src \
+INCLUDE = src 
 
 # Libraries to link
 LIB   = -lm 
@@ -184,7 +183,6 @@ LDFLAGS = -Wl,-Map=$(OUTDIR)/$(TARGET).map,--cref
 LDFLAGS += $(EXTMEMOPTS)
 LDFLAGS += $(patsubst %,-L%,$(INCLUDE))
 LDFLAGS += -g
-
 
 # Misc settings -------------------------------------------------------------
 MPFLAGS  = -DLICENSE=$(LICENSE)
@@ -938,5 +936,16 @@ utools: # Update tools from locally installed tools
 meld: # Meld Makefile with locally installed makefile
 	@meld Makefile $${MP_PATH}/mp-c/Makefile  
 
+mp-add-source: # Add source file (FILE=filename)
+	@$(eval F=$(shell echo "${FILE}" | sed 's/\//\\\//g' ))
+	@sed -i  '0,/SRC/s/SRC.*/&\nSRC += ${F}/1' Makefile
+
+mp-add-include: # Add include path (FILE=include path)
+	@$(eval F=$(shell echo "${FILE}" | sed 's/\//\\\//g' ))
+	@sed -i  '0,/INCLUDE/s/INCLUDE.*/&\nINCLUDE += ${F}/1' Makefile
+
+mp-add-pkglib: # Add library (pkg-conf) (LIB=lib)
+	@$(eval F=$(shell echo "${LIB}" | sed 's/\//\\\//g' ))
+	@sed -i  '0,/PKGLIBS/s/PKGLIBS.*/&\nPKGLIBS += ${F}/1' Makefile
 
 ##-

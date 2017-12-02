@@ -58,6 +58,17 @@ MP_3DPARTY_DIR=${scriptPath}/3dparty
 #---------------------------------------------------------------------
 
 #
+# Append line after matching string
+#
+# $1 matching string
+# $2 line to append
+# $3 file to edit
+# 
+bpInsertLineAfter() {
+  sed -i '/${1}/s/.*/&\n${2}/' "$3"
+}
+
+#
 # Ask yes/no question
 #
 # arg1 question text
@@ -84,6 +95,7 @@ bpQuestionDy() {  ##D Ask yes/no question default yes
 # $2 source directory
 # $3 tools directory
 # $4 language c/cpp
+# $5 system (glib, qt etc.)
 #
 createProject() {
   echo -e ${1}
@@ -116,44 +128,59 @@ createProject() {
 	bpReplace "${pn}/Makefile" "__LICENSE__" "${BP_LICENSE}"
 	bpReplace "${pn}/Makefile" "__ORG__"     "${BP_ORG}"
 
-  if [ $4 == "cpp" ]; then
-	  ${cTemplate} newcpp --main --name "main" --dir "${srcDst}" --brief "${brief}" --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
-		if [ "$3" == "tools" ]; then
-      bpReplaceLine "${dst}/Makefile" "SRC" "SRC = src\/main.cpp"
-		else
-		  bpReplaceLine "${dst}/Makefile" "SRC" "SRC = main.cpp"
-		fi
+	
+	if [ "$4" == "cpp" ]; then
+	  opts="newcpp --main"
+		mainFile="main.cpp"
+	else 
+    opts="newc --main"
+		mainFile="main.c"
+  fi
+	
+	opts="${opts}  --basedir ${pn}"
+	
+	if [ "$3" == "tools" ]; then
+    bpReplaceLine "${dst}/Makefile" "SRC" "SRC = src\/${mainFile}"
 	else
-    ${cTemplate} newc   --main --name "main" --dir "${srcDst}" --brief "${brief}" --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
-		if [ "$3" == "tools" ]; then
-		  bpReplaceLine "${dst}/Makefile" "SRC" "SRC = src\/main.c"
-		else
-  		bpReplaceLine "${dst}/Makefile" "SRC" "SRC = main.c"
-		fi
+	  bpReplaceLine "${dst}/Makefile" "SRC" "SRC = ${mainFile}"
 	fi
 	
+	if [ "$5" == "glib" ]; then
+	  opts="$opts --glib"
+		
+		bpReplace "${dst}/Makefile" "#PKGLIBS += glib"    "PKGLIBS += glib"
+		bpReplace "${dst}/Makefile" "#PKGLIBS += gthread" "PKGLIBS += gthread"
+		bpReplace "${dst}/Makefile" "#PKGLIBS += gio"     "PKGLIBS += gio"
+	fi
+
+  ${cTemplate} $opts --name "main" --dir "${srcDst}"  --brief "${brief}" --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
 }
 
-##N- Project
+##N- C Projects
 
-newc() { ##C NEW Create a new standard C makeplate project
+newc() { ## Create a new standard C makeplate project
   createProject "Creating new makeplate C project" "${scriptPath}/mp-c" "tools" "c"
 }
 
-newcpp() { ##C NEW Create a new standard C++ makeplate project
-  createProject  "Creating new makeplate C++ project" "${scriptPath}/mp-c" "tools" "cpp"
-}
-
-newsc() { ##C NEW Create a new simple C makeplate project
+newsc() { ## Create a new simple C makeplate project
   createProject "Creating new simple makeplate C project"  "${scriptPath}/mp-simple-c" "" "c"
 }
 
-newscpp() { ##C NEW Create a new simple C++ makeplate project
+newg() { ## Create a new GLIB/GTK based C makeplate project
+  createProject "Creating new makeplate C glib  project" "${scriptPath}/mp-c" "tools" "c" "glib"
+}
+
+##N- C++ Projects
+
+newcpp() { ## Create a new standard C++ makeplate project
+  createProject  "Creating new makeplate C++ project" "${scriptPath}/mp-c" "tools" "cpp"
+}
+
+newscpp() { ## Create a new simple C++ makeplate project
   createProject "Creating new simple makeplate C++ project" "${scriptPath}/mp-simple-c" "" "cpp"
 }
 
-
-##N- Code
+##N- Code creation
 
 cTemplate=${scriptPath}/tools/ctemplate.py
 
@@ -170,15 +197,15 @@ newclass() { ## Create new C++ class
 }
 
 
-##CN- NEW 3d party
+# NEW 3d party
 
-list() {  ##C NEW List 3d party libraries
+list() {  # List 3d party libraries
   ls -1 ${scriptPath}/3dparty
 }
 
 MPINSTALL=mpInstall
 
-install3p() { ##C NEW Install 3d party library
+install3p() { #  Install 3d party library
 
   if [ -d ${MP_3DPARTY_DIR}/${2} ]; then
 	  if [ -e ${MP_3DPARTY_DIR}/${2}/${MPINSTALL} ]; then
@@ -194,10 +221,8 @@ install3p() { ##C NEW Install 3d party library
 	  bpError "Module \"${2}\" does not exist"
 	fi
 }
-NEW=1
 
-
-new3p() { ##C NEW Create new 3d party install script
+new3p() { # Create new 3d party install script
   echo "#!/usr/bin/env bash" > mpInstall
 	echo "#" >> mpInstall
 	echo "# Makeplate 3dparty install script" >> mpInstall

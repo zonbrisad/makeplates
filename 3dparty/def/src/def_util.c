@@ -20,7 +20,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/socket.h>
-#include <sys/ioctl.h>
+
 
 #include "def.h"
 #include "def_util.h"
@@ -37,7 +37,7 @@
 
 #define MAXBITS  64
 
-char *int2bin(char *buf, int val, uint8_t bits) {
+char *int2bin(char *buf, int val, int8_t bits) {
     int i;
     int n;
     int mb;
@@ -90,15 +90,5 @@ void printTextLine(char *text) {
 }
 
 
-void terminalSize(int *cols, int *lines) {	
-	struct winsize ts;
-	*cols  = 0;
-	*lines = 0;
-
-	ioctl(STDIN_FILENO,  TIOCGWINSZ , &ts);
-	*cols = ts.ws_col;
-	*lines = ts.ws_row;
-	//printf("Terminal is %dx%d\n", cols, lines);
-}
 
 
