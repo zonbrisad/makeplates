@@ -94,15 +94,19 @@ class CConf():
 class CFile():
     moduleName = ""
     fileName   = ""
-
+    
+    # Source file sections
     header     = ""
     include    = ""
     defines    = ""
     variables  = ""
     prototypes = ""
     code       = ""
+    # main() function subsections
     mainVars   = ""
-    main       = ""
+    mainInit   = ""
+    mainCode   = ""
+    mainExit   = ""
 
     buf        = ""
     isHeader   = False 
@@ -206,7 +210,7 @@ class CFile():
     def addSignal(self, signal, handler):
         self.prototypes += "void "+handler+"(int sig);\n"
         self.code       += "void "+handler+"(int sig) {\n\n}\n\n"
-        self.main       += "  signal("+signal+", "+handler+");\n"
+        self.mainInit   += "  signal("+signal+", "+handler+");\n"
     
     def addSignals(self):
         self.addInclude("signal.h")
@@ -225,29 +229,31 @@ class CFile():
         self.addInclude("QPushButton")
         self.addInclude("QLabel")
         
-        self.main += "  Q_INIT_RESOURCE(application);\n\n"
-        self.main += "  QApplication app(argc, argv);\n"
-        self.main += "  QCoreApplication::setOrganizationName(APP_ORG);\n"
-        self.main += "  QCoreApplication::setApplicationName(APP_NAME);\n"
-        self.main += "  QCoreApplication::setApplicationVersion(APP_VERSION);\n\n"
-#        self.main += "  QCommandLineParser parser;\n"
-#        self.main += "  parser.setApplicationDescription(QCoreApplication::applicationName());\n"
-#        self.main += "  parser.addHelpOption();\n"
-#        self.main += "  parser.addVersionOption();\n"
-#        self.main += "  parser.addPositionalArgument("file", "The file to open.");\n"
-#        self.main += "  parser.process(app);\n"
+        self.mainCode += "  Q_INIT_RESOURCE(application);\n\n"
+        self.mainCode += "  QApplication app(argc, argv);\n"
+        self.mainCode += "  QCoreApplication::setOrganizationName(APP_ORG);\n"
+        self.mainCode += "  QCoreApplication::setApplicationName(APP_NAME);\n"
+        self.mainCode += "  QCoreApplication::setApplicationVersion(APP_VERSION);\n\n"
+#        self.mainCode += "  QCommandLineParser parser;\n"
+#        self.mainCode += "  parser.setApplicationDescription(QCoreApplication::applicationName());\n"
+#        self.mainCode += "  parser.addHelpOption();\n"
+#        self.mainCode += "  parser.addVersionOption();\n"
+#        self.mainCode += "  parser.addPositionalArgument("file", "The file to open.");\n"
+#        self.mainCode += "  parser.process(app);\n"
         
-        self.main += "  MainWindow mainWin;\n"
-#        self.main += "  if (!parser.positionalArguments().isEmpty())\n"
-#        self.main += "  mainWin.loadFile(parser.positionalArguments().first());\n"
-        self.main += "  mainWin.show();\n"
-        self.main += "  return app.exec();\n"
+        self.mainCode += "  MainWindow mainWin;\n"
+#        self.mainCode += "  if (!parser.positionalArguments().isEmpty())\n"
+#        self.mainCode += "  mainWin.loadFile(parser.positionalArguments().first());\n"
+        self.mainCode += "  mainWin.show();\n"
+        self.mainCode += "  return app.exec();\n"
                 
         
-    def addMain(self):
-        self.main = "int main(int argc, char *argv[]) {\n\n" + self.mainVars + self.main
-        self.main += "  return 0;\n"
-        self.main += "}\n"
+ #   def addMain(self):
+ #       
+ #       self.mainCode = "int main(int argc, char *argv[]) {\n" 
+ #       + self.mainVars + self.mainCode
+ #       self.mainCode += "  return 0;\n"
+ #       self.mainCode += "}\n"
         
     def addStdIncludes(self):
         if self.isCpp:
@@ -273,7 +279,7 @@ class CFile():
         self.addVariable("static gboolean opt_verbose;")
         self.addVariable(glibVars)
         self.mainVars += glibMainVars
-        self.main += glibMain
+        self.mainCode += glibMain
         self.code += glibCode
         self.prototypes += glibPrototypes
     
@@ -296,7 +302,9 @@ class CFile():
             
         if self.conf.argtable and not self.isHeader:
             self.addInclude('argtable3.h', True)
-            self.main += argtableMain
+            self.variables +=  argtableVars
+            self.mainVars  += argtableMainVars
+            self.mainCode  += argtableMain
             
         if self.conf.qt:
             self.addQt()
@@ -304,8 +312,8 @@ class CFile():
         if self.conf.main and self.isHeader:
             self.addAppDefines()
 
-        if self.conf.main and not self.isHeader:
-            self.addMain()
+#        if self.conf.main and not self.isHeader:
+#            self.addMain()
             
         if not self.isHeader:
             self.addInclude(self.moduleName+".h", True)
@@ -337,11 +345,16 @@ class CFile():
         self.addSection("Variables")
         self.buf += self.variables
 
-        if not self.isHeader:
+        if self.conf.main  and not self.isHeader:
             self.addSection("Code")
-            self.buf = self.buf + self.code
-       
-            self.buf += self.main
+            self.buf += self.code
+        
+            self.buf += "int main(int argc, char *argv[]) {\n"
+            self.buf += self.mainVars
+            self.buf += self.mainInit
+            self.buf += self.mainCode
+            self.buf += self.mainExit
+            self.buf += "}\n"
             
         if self.isHeader:
             self.addSentinelEnd()
@@ -753,52 +766,115 @@ glibMain="""
   }
 """
 
-argtableMain="""
-  struct arg_lit  *list    = arg_lit0("lL",NULL,                      "list files");
-  struct arg_lit  *recurse = arg_lit0("R",NULL,                       "recurse through subdirectories");
-  struct arg_int  *repeat  = arg_int0("k","scalar",NULL,              "define scalar value k (default is 3)");
-  struct arg_str  *defines = arg_strn("D","define","MACRO",0,argc+2,  "macro definitions");
-  struct arg_file *outfile = arg_file0("o",NULL,"<output>",           "output file (default is \\"-\\")");
-  struct arg_lit  *verbose = arg_lit0("v","verbose,debug",            "verbose messages");
-  struct arg_lit  *help    = arg_lit0(NULL,"help",                    "print this help and exit");
-  struct arg_lit  *version = arg_lit0(NULL,"version",                 "print version information and exit");
-  //  struct arg_file *infiles = arg_filen(NULL,NULL,NULL,1,argc+2,       "input file(s)");
-  struct arg_end  *end     = arg_end(20);
-  void* argtable[] = {list,recurse,repeat,defines,outfile,verbose,help,version,end};
-  
+argtableVars="""
+struct arg_lit  *opt_bool;
+struct arg_int  *opt_int;
+struct arg_dbl  *opt_dbl;
+struct arg_str  *opt_str;
+struct arg_file *opt_file;
+struct arg_int  *opt_intn;
+
+struct arg_lit  *opt_verbose;
+struct arg_lit  *opt_version;
+struct arg_lit  *opt_help;
+
+struct arg_end  *end;
+"""
+
+argtableMainVars="""
+  int i;
   int nerrors;
   int exitcode=0;
   
-  /* verify the argtable[] entries were allocated sucessfully */
+  void* argtable[] = {
+    opt_bool  = arg_lit0("b", "bool",                    "Bool option"),
+    opt_int   = arg_int0("i","int","<n>",                "Integer option"),
+    opt_dbl   = arg_dbl0("d","double",NULL,              "Double option"),
+    opt_str   = arg_str0("s","string",NULL,              "String option"),
+    opt_file  = arg_file0("f","file","<filename>",       "Filename option"),
+    opt_intn  = arg_intn("n","intn",NULL,0,10,           "Multiple Integer option"),
+    
+    opt_verbose = arg_lit0("v","verbose,debug",          "verbose messages"),
+    opt_help    = arg_lit0(NULL,"help",                  "print this help and exit"),
+    opt_version = arg_lit0(NULL,"version",               "print version information and exit"),
+    end         = arg_end(20)
+  };
+"""
+
+argtableMain="""  
+  // verify the argtable[] entries were allocated sucessfully 
   if (arg_nullcheck(argtable) != 0) {
-    /* NULL entries were detected, some allocations must have failed */
+    // NULL entries were detected, some allocations must have failed 
     printf("%s: insufficient memory\\n",APP_NAME);
     exitcode=1;
-    goto exit;
+    goto appexit;
   }
   
-
-  /* Parse the command line as defined by argtable[] */
+  // Parse the command line as defined by argtable[] 
   nerrors = arg_parse(argc,argv,argtable);
   
-  /* special case: '--help' takes precedence over error reporting */
-  if (help->count > 0) {
+  // special case: '--help' takes precedence over error reporting 
+  if (opt_help->count > 0) {
     printf("Usage: %s", APP_NAME);
     arg_print_syntax(stdout,argtable,"\\n");
     arg_print_glossary(stdout,argtable,"  %-25s %s\\n");
     exitcode=0;
-    goto exit;
+    goto appexit;
   }
   
-  /* special case: '--version' takes precedence error reporting */
-  if (version->count > 0) {
-    printf("'%s' example program for the \\"argtable\\" command line argument parser.\\n",APP_NAME);
+  // If the parser returned any errors then display them and exit 
+  if (nerrors > 0) {
+    // Display the error details contained in the arg_end struct.
+    arg_print_errors(stdout,end,APP_NAME);
+    printf("Try '%s --help' for more information.\\n", APP_NAME);
+    exitcode=1;
+    goto appexit;
+  }
   
+  // special case: '--version' takes precedence error reporting 
+  if (opt_version->count > 0) {
+    printf("'%s' version %s\\n",APP_NAME, APP_VERSION);
     exitcode=0;
-    goto exit;
+    goto appexit;
   }
   
-
+  if (opt_bool->count > 0) {
+    printf("Bool argument\\n");
+  }
+        
+  if (opt_int->count > 0) {
+    printf("Integer argument %d\\n", *opt_int->ival);
+  }
+                
+  if (opt_dbl->count > 0) {
+    printf("Double argument %f\\n", *opt_dbl->dval);
+  }
+  
+  if (opt_str->count > 0) {
+    printf("String argument %s\\n", *opt_str->sval);
+  }
+                                
+  if (opt_file->count > 0) {
+    printf("File argument filename  %s\\n", *opt_file->filename);
+    printf("File argument basename  %s\\n", *opt_file->basename);
+    printf("File argument extension %s\\n", *opt_file->extension);
+  }
+                                                
+  if (opt_intn->count > 0) {
+    printf("Integer arguments %d\\n", opt_intn->count);
+    for (i=0;i<opt_intn->count;i++) {
+      printf("Arg %d = %d\\n", i, opt_intn->ival[i]);
+    }
+  }
+                                                                      
+  
+  
+appexit:
+    
+  // deallocate each non-null entry in argtable[] 
+  arg_freetable(argtable,sizeof(argtable)/sizeof(argtable[0]));
+  
+  return exitcode;
 """
 
 
