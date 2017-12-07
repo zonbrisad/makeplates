@@ -260,24 +260,24 @@ UIH    = $(patsubst src/%.ui, src/ui_%.h, $(UI) )  # Generate UI header files
 #============================================================================
 
 # Define programs and commands ----------------------------------------------
-SHELL     = bash
-WINSHELL  = cmd
-REMOVE    = rm -f
-REMOVEDIR = rm -rf
-COPY      = cp -f 
-MOVE      = mv -f
-MKDIR     = mkdir -p
-SED       = sed              # stream editor program
-MOC       = moc              # Qt meta object compiler
-QMAKE     = qmake            # Qt make program
-UIC       = uic              # Qt resource file compiler
-CTEMPLATE = python3 tools/ctemplate.py # C/C++ template tool
-BIN2ARRAY = python3 tools/bin2array.py # Binary to array tool
-MPTOOL    = tools/mptools    # Makeplate tools
-CPPCHECK  = cppcheck
-INSTALL   = install
-ASTYLE    = astyle           # Code beatyfier
-DOXYGEN   = doxygen          # Code documetation program
+SHELL      = bash
+WINSHELL   = cmd
+REMOVE     = rm -f
+REMOVEDIR  = rm -rf
+COPY       = cp -f 
+MOVE       = mv -f
+MKDIR      = mkdir -p
+SED        = sed              # stream editor program
+MOC        = moc              # Qt meta object compiler
+QMAKE      = qmake            # Qt make program
+UIC        = uic              # Qt resource file compiler
+MPTEMPLATE = python3 tools/mptemplate.py # C/C++ template tool
+BIN2ARRAY  = python3 tools/bin2array.py # Binary to array tool
+MPTOOL     = tools/mptools    # Makeplate tools
+CPPCHECK   = cppcheck
+INSTALL    = install
+ASTYLE     = astyle           # Code beatyfier
+DOXYGEN    = doxygen          # Code documetation program
 
 TCHAIN = $(TCHAIN_BASE)/$(TCHAIN_PREFIX)
 
@@ -687,13 +687,20 @@ run:    ## Run application
 ##N- Create
 
 newc:  ## Create a new C module
-	@${CTEMPLATE} newc --dir src --author "$(AUTHOR)" --license "$(LICENSE)"
+	@${MPTEMPLATE} newc --dir src --author "$(AUTHOR)" --license "$(LICENSE)"
 
 newcpp:  ## Create a new C++ module
 	@${CTEMPLATE} newcpp --dir src --author "$(AUTHOR)" --license "$(LICENSE)"
 
 newclass:  ## Create a new C++ class
+<<<<<<< HEAD
 	@${CTEMPLATE} newclass --dir src --author "$(AUTHOR)" --license "$(LICENSE)"	
+=======
+	@${MPTEMPLATE} newclass --dir src --author "$(AUTHOR)" --license "$(LICENSE)"	
+		
+#newproj:  # Create a new project
+#	@${PROJECT} newproj
+>>>>>>> 7b000a6d0c65bb5a5c89f5da3beedf4af59e3e46
 
 
 # Install options -----------------------------------------------------------

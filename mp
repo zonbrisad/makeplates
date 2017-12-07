@@ -153,7 +153,7 @@ createProject() {
 		bpReplace "${dst}/Makefile" "#PKGLIBS += gio"     "PKGLIBS += gio"
 	fi
 
-  ${cTemplate} $opts --name "main" --dir "${srcDst}"  --brief "${brief}" --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
+  ${mptemplate} $opts --name "main" --dir "${srcDst}"  --brief "${brief}" --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
 }
 
 ##N- C Projects
@@ -182,18 +182,18 @@ newscpp() { ## Create a new simple C++ makeplate project
 
 ##N- Code creation
 
-cTemplate=${scriptPath}/tools/ctemplate.py
+mptemplate=${scriptPath}/tools/mptemplate.py
 
 newcm() { ## Create new C module
-  ${cTemplate} newc --dir . --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
+  ${mptemplate} newc --dir . --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
 }
 
 newcppm() { ## Create new C++ module
-  ${cTemplate} newcpp --dir . --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
+  ${mptemplate} newcpp --dir . --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
 }
 
 newclass() { ## Create new C++ class
-  ${cTemplate} newclass --dir . --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
+  ${mptemplate} newclass --dir . --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
 }
 
 
