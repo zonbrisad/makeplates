@@ -268,8 +268,6 @@ void threadTest() {
 
 }
 
-
-
 void queueTest() {
     gpointer *data;
     queue1 = g_async_queue_new();
@@ -478,22 +476,23 @@ void domainTest(void) {
     GError *error;
     GSocketAddress *sockAddr;
 
+	  // create main loop
     mLoop1 = g_main_loop_new(NULL, FALSE);
 
     // create socket address
-    sockAddr = g_unix_socket_address_new (SOCKNAME);
+    sockAddr = g_unix_socket_address_new(SOCKNAME);
 
     // create socket
     sock = g_socket_new(G_SOCKET_FAMILY_UNIX, G_SOCKET_TYPE_STREAM, G_SOCKET_PROTOCOL_DEFAULT, &error);
 
-    // bind socket
-    //    g_socket_bind(sock, sockAddr, 1 &error);
-    return;
+    // bind socket to address 
+    g_socket_bind(sock, sockAddr, 1 &error);
+	
+   // return;
 
     memset(&addr, 0, sizeof(addr));
     addr.sun_family = AF_UNIX;
     strncpy(addr.sun_path, SOCKNAME, sizeof(addr.sun_path) - 1);
-
 
     // if domain socket exists connect to it
     if (g_file_test(SOCKNAME, G_FILE_TEST_EXISTS)) {
