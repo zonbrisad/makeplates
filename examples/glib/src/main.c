@@ -486,7 +486,7 @@ void domainTest(void) {
     sock = g_socket_new(G_SOCKET_FAMILY_UNIX, G_SOCKET_TYPE_STREAM, G_SOCKET_PROTOCOL_DEFAULT, &error);
 
     // bind socket to address 
-    g_socket_bind(sock, sockAddr, 1 &error);
+    g_socket_bind(sock, sockAddr, 1, &error);
 	
    // return;
 

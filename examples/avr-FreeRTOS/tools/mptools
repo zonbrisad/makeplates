@@ -1,28 +1,16 @@
-#!/usr/bin/env bash
-# shellcheck disable=2034
+#!/bin/bash
 #---------------------------------------------------------------------
 #
 #  [Description]
-#    Makeplate help tool. This file is not part of the template itself
-#    and should be erased when creating a new project based on this
-#    template.
+#    A simple project management tools for Makeplates
+#  
 #
 #  [Author] 
 #    Peter Malmberg <peter.malmberg@gmail.com>
 #
-#  [License] 
+#  [Licence] 
 #     MIT
 #    
-#
-#---------------------------------------------------------------------
-# [Bashplates]
-# This script is generated from bashplates template generator.
-#
-# Bashplates is developed by:
-# Peter Malmberg <peter.malmberg@gmail.com>
-#
-# Bashplates is available at:
-# https://github.com/zonbrisad/bashplates
 #---------------------------------------------------------------------
 #
 
@@ -48,269 +36,72 @@ scriptName=$(basename "$0")
 # User defined Settings
 #---------------------------------------------------------------------
 
-# Settings directory
-MP_CONFIG_DIR=~/.config/makeplates
-
-# Directory for 3d party files
-MP_3DPARTY_DIR=${scriptPath}/3dparty
 
 #---------------------------------------------------------------------
 # User defined functions
 #---------------------------------------------------------------------
 
-#
-# Append line after matching string
-#
-# $1 matching string
-# $2 line to append
-# $3 file to edit
-# 
-bpInsertLineAfter() {
-  sed -i '/${1}/s/.*/&\n${2}/' "$3"
+##N- Makeplates
+
+newproj() { 
+  echo "New project name"
+	read -e -p ">" projname
+	echo $projname	
 }
 
-#
-# Ask yes/no question
-#
-# arg1 question text
-# arg2 result variable name
-#
-bpQuestionDy() {  ##D Ask yes/no question default yes 
-  local __result=$2
-  while true; do
-	  read -p "${1}"" [Y/n]>" yn
-    case $yn in
-	    [Yy]* ) eval $__result='y'; break;;
-			[Nn]* ) eval $__result='n'; break;;
-			""    ) eval $__result='y'; break;;
-			* ) echo "Please answer yes or no.";;
-		esac
-	done 	
-}
-
-
-#
-# Create a new Makeplate project
-#
-# $1 Create text
-# $2 source directory
-# $3 tools directory
-# $4 language c/cpp
-# $5 system (glib, qt etc.)
-#
-createProject() {
-  echo -e ${1}
-
-	pn=$(bpRead  "Project name>" "" )
- 	brief=$(bpRead "Brief description>" "" )
-
-#	bpQuestionDy "Create subdirectory?" res
-#	if [ ${res} == 'y' ]; then
-    dst="${pn}"
-		bpCp "${2}" "${pn}"
-#	else
-#	  dst=.
-#		bpCp "${2}/*" "${dst}"
-#	fi
-
-  srcDst="${dst}"
-	
-	# Check tool dir is present then full project otherwise simple
-  if [ "$3" == "tools" ]; then
-  	bpRm "${dst}/tools"
-	  bpCp "${scriptPath}/tools" "${dst}"
-		srcDst="${dst}/src"
-	fi
-	
-  bpReplace "${pn}/Makefile" "__NAME__"    "${pn}"
-	bpReplace "${pn}/Makefile" "__AUTHOR__"  "${BP_NAME} <${BP_EMAIL}>"
-	bpReplace "${pn}/Makefile" "__DATE__"    "${DATE}"
-	bpReplace "${pn}/Makefile" "__BRIEF__"   "${brief}"
-	bpReplace "${pn}/Makefile" "__LICENSE__" "${BP_LICENSE}"
-	bpReplace "${pn}/Makefile" "__ORG__"     "${BP_ORG}"
-
-	
-	if [ "$4" == "cpp" ]; then
-	  opts="newcpp --main"
-		mainFile="main.cpp"
-	else 
-    opts="newc --main"
-		mainFile="main.c"
-  fi
-	
-	opts="${opts}  --basedir ${pn}"
-	
-	if [ "$3" == "tools" ]; then
-    bpReplaceLine "${dst}/Makefile" "SRC" "SRC = src\/${mainFile}"
+ce() { ## Check if file exists
+  bn=$(basename $2)
+  cmd=$(command -v $2)
+	if [ $? -ne 0 ]; then
+		printf "%-30s${E_BR_RED}N/A${E_END}\n" "${bn}"
 	else
-	  bpReplaceLine "${dst}/Makefile" "SRC" "SRC = ${mainFile}"
+		dn=$(dirname ${cmd})
+		printf "%-30s${E_BR_GREEN}%s${E_END}\n" "${bn}" "$dn"
 	fi
-	
-	if [ "$5" == "glib" ]; then
-	  opts="$opts --glib"
-		
-		bpReplace "${dst}/Makefile" "#PKGLIBS += glib"    "PKGLIBS += glib"
-		bpReplace "${dst}/Makefile" "#PKGLIBS += gthread" "PKGLIBS += gthread"
-		bpReplace "${dst}/Makefile" "#PKGLIBS += gio"     "PKGLIBS += gio"
-	fi
-
-  ${mptemplate} $opts --name "main" --dir "${srcDst}"  --brief "${brief}" --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
 }
 
-##N- C Projects
-
-newc() { ## Create a new standard C makeplate project
-  createProject "Creating new makeplate C project" "${scriptPath}/mp-c" "tools" "c"
-}
-
-newsc() { ## Create a new simple C makeplate project
-  createProject "Creating new simple makeplate C project"  "${scriptPath}/mp-simple-c" "" "c"
-}
-
-newg() { ## Create a new GLIB/GTK based C makeplate project
-  createProject "Creating new makeplate C glib  project" "${scriptPath}/mp-c" "tools" "c" "glib"
-}
-
-##N- C++ Projects
-
-newcpp() { ## Create a new standard C++ makeplate project
-  createProject  "Creating new makeplate C++ project" "${scriptPath}/mp-c" "tools" "cpp"
-}
-
-newscpp() { ## Create a new simple C++ makeplate project
-  createProject "Creating new simple makeplate C++ project" "${scriptPath}/mp-simple-c" "" "cpp"
-}
-
-##N- Code creation
-
-mptemplate=${scriptPath}/tools/mptemplate.py
-
-newcm() { ## Create new C module
-  ${mptemplate} newc --dir . --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
-}
-
-newcppm() { ## Create new C++ module
-  ${mptemplate} newcpp --dir . --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
-}
-
-newclass() { ## Create new C++ class
-  ${mptemplate} newclass --dir . --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
-}
-
-
-# NEW 3d party
-
-list() {  # List 3d party libraries
-  ls -1 ${scriptPath}/3dparty
-}
-
-MPINSTALL=mpInstall
-
-install3p() { #  Install 3d party library
-
-  if [ -d ${MP_3DPARTY_DIR}/${2} ]; then
-	  if [ -e ${MP_3DPARTY_DIR}/${2}/${MPINSTALL} ]; then
-
-			${MP_3DPARTY_DIR}/${2}/${MPINSTALL} ${PWD}
-			bpOk "Module \"${2}\" installed"
-		  return
-		fi
-	
-	  cp -arf ${MP_3DPARTY_DIR}/${2}/* .
-		bpOk "Module \"${2}\" installed"
+cl() { ## Check if library exists
+  CC=$2
+	LIB=$3
+	data=$(${CC} ${LIB} 2>&1 )
+ 
+  echo $data | grep "cannot find" > /dev/null
+	if [ $? -eq 1 ]; then
+	  printf "%-30s${E_BR_GREEN}Exists${E_END}\n" "$LIB"
 	else
-	  bpError "Module \"${2}\" does not exist"
+	  printf "%-30s${E_BR_RED}Missing${E_END}\n"  "$LIB"
 	fi
 }
 
-new3p() { # Create new 3d party install script
-  echo "#!/usr/bin/env bash" > mpInstall
-	echo "#" >> mpInstall
-	echo "# Makeplate 3dparty install script" >> mpInstall
-	echo "#" >> mpInstall
-	echo '# $1 is destination directory' >> mpInstall
-	echo "#" >> mpInstall
-  echo  >> mpInstall
-	echo 'scriptPath=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )' >> mpInstall
-	echo  >> mpInstall
+
+printCommandMp() {
+	help_split=$1 ;
 	
-  echo '# Install file to dir' >> mpInstall
-  echo '# arg1 local file to copy' >> mpInstall
-  echo '# arg2 destination dir' >> mpInstall
-	 
-	echo 'mpInst() {' >> mpInstall
-	echo '  dn=$(dirname $1)' >> mpInstall
-	echo '  dst=$2/${dn}' >> mpInstall
-	echo '  if [ ! -d ${dst} ]; then' >> mpInstall
-	echo '    mkdir -p $dst' >> mpInstall
-	echo '  fi' >> mpInstall
-	echo '  cp -rf ${scriptPath}/$1 $2/${dn}/.' >> mpInstall
-	echo '}' >> mpInstall
-	echo  >> mpInstall
-	echo 'mpInst myFile $1' >> mpInstall
-								
+	help_command=$(echo $help_line | sed -s 's/:.*//')
+	help_info=$(echo $help_line | sed -s 's/^.*##//')
 	
-	chmod +x ${MPINSTALL}
+	printf "${E_CYAN}  %-15s %s${E_END}" $help_command ;                 
+	printf "${E_GREEN}%s${E_END}\n" $help_info ;                       
+
 }
 
-##N- Various
-
-examples() { ## List examples
-  ls -1  ${scriptPath}/examples/ 
+mpHelp() { ## Print makeplate makefile help
+#	printf "%-30s %s\n" "target" "help"
+#	printLine
+	IFS=$'\n'                                  
+	help_lines=$( grep -h '##' "$2" | grep -v grep | grep -v '##D' | grep -v '##V' | grep -v '\*##C' | grep -v '\*##C-' |  grep -v '\"##' |  grep -v '##N-//' | grep -v help_line | grep -v printLine )
+	for help_line in ${help_lines[@]}; do                                     
+	  case "$help_line" in                   
+	    *"##-"*)  printLine ;; 
+			*"##N-"*) printNamedLine "$help_line" ;;
+	    *"##"*)   printCommandMp "$help_line" ;;
+      *) ;; 
+	  esac 
+	done 
+#	printLine
 }
 
-utools() { ## Update makaplate tools in project
-	bpCp "${scriptPath}/tools/*" "tools/."
-}
-
-##N- Project management (git)
-
-clean() { ## Remove leftover files 
-  cd "${scriptPath}"
-
-  find . -name "*~"     -delete
-  find . -name "*.orig" -delete
-
-  # Remove untraced files
-  git clean -df
-  cd -
-}
-
-commit() { ## Commit project to repository
-  cd "${scriptPath}"
-  git commit -a
-#  git push --tags -a
-  cd - || bpExit
-}
-
-tag() { ## Make a new tag
-  cd "${scriptPath}"
-  # List existing tags
-  git tag
-
-  # read tag name/description
-  tag=$( bpRead "Tagname" "")
-  desc=$( bpRead "description" "")
-  read -p "Description: " desc
-
-  # Tag revision
-  git tag -a "$tag" -m "$desc"
-  cd - || bpExit
-}
-
-push() { ## Push to GITHUB
-  cd "${scriptPath}"
-  git push --progress
-  cd - || bpExit
-} 
-
-pull() { ## Pull bashplates from GITHUB
-  cd "${scriptPath}"
-  git pull --progress
-  cd - || bpExit
-} 
-
-#---------------------------------------------------------------------
+#--------------------------------------------------------------------- 
 # Bashplate settings
 #---------------------------------------------------------------------
 
@@ -321,21 +112,41 @@ VERSION="1.12beta"
 BPVERSION="1.11"
 
 ##V Usage info
-USAGE="Usage: ${scriptName} command [option]"
+USAGE="Usage: ${scriptName} command [option]" 
 
 # Description text
-DESC="Bashplate project management script"
+DESC="Bashplate is a bash script template to ease development of\n\
+command style shellscripts"
 
 ##V logfile (uncomment to use logfile)
-#LOGFILE=${scriptPath}/${scriptName}.log
+LOGFILE=${scriptPath}/${scriptName}.log
 
 ##V Logging options (uncomment to activate logging parameters)
-#LOG_OK=1
 #LOG_INFO=1
+
 #LOG_WARNING=1
+
 #LOG_ERROR=1
+
 #LOG_CRITICAL=1
 
+##V Default command (uncomment to use a default command )
+DEFAULTCMD=help
+
+##V Pre script hook, execute this function before every command
+#PREHOOK=preCheck
+
+##V Post script hook, execute this function after every command
+#POSTHOOK=
+
+##V Function to be executed before every other cmd except DEFAULTCMD function
+#PRECMDHOOK=
+
+##V Function to be executed after every other function except DEFAULTCMD function
+#POSTCMDHOOK=
+
+##V Function to be executed after information command
+#INFOHOOK=
 
 ##V Programs that are required to run the script (uncomment to use)
 #REQUIRED_PROGRAMS=(ls mv kalle)
@@ -352,28 +163,6 @@ bpSettingsFile=${bpSettingsDir}/bashplates.conf
 # Create settings file if non existent
 #CREATEPLSETTINGS=1
 
-
-#---------------------------------------------------------------------
-# Bashplate Hooks
-#---------------------------------------------------------------------
-
-##V Default command (uncomment to use a default command )
-DEFAULTCMD=help
-
-##V Pre script hook, execute this function before every command
-#PREHOOK=preCheck
-
-##V Post script hook, execute this function after every command
-#POSTHOOK=
-
-##V Function to be executed before every other cmd except DEFAULT function
-#PRECMDHOOK=
-
-##V Function to be executed after every other function except DEFAULT function
-#POSTCMDHOOK=
-
-##V Function to be executed after information command
-#INFOHOOK=
 
 #---------------------------------------------------------------------
 # Signal traps
@@ -400,7 +189,6 @@ signalTerm() {
 
 bpCleanUp() { ##D Cleanup function
   rm -f "$LOCK_FILE"    # remove Lock file
-  echo -e ${E_SHOW}     # Turn on cursor if turned of
 }
 
 bpExit() { ##D Function for safely exiting script
@@ -475,18 +263,18 @@ E_SHOW=$'\e[?25h'          # Show cursor
 
 E_END=$'\e[m'              # Clear Attributes
 
-# Default Bashplate colortheme
+# Internal bashplate colors
 BP_C_OK=$E_BR_GREEN
 BP_C_INFO=$E_BR_CYAN
 BP_C_WARNING=$E_BR_YELLOW
 BP_C_ERROR=$E_BR_RED
 BP_C_CRITICAL=$E_ON_RED$E_WHITE
+
 BP_C_LINE=$E_DARKGRAY
 BP_C_LINE_TEXT=$E_YELLOW
+
 BP_C_COMMENT=$E_GREEN
 BP_C_ID=$E_CYAN
-BP_C_FILENAME=$E_BR_GREEN
-BP_C_PATH=$E_GREEN
 
 # Exit codes
 #
@@ -502,7 +290,6 @@ BP_E_OK=0            # successful termination
 # arg3 line color
 # arg4 middle character
 # arg5 line character
-#
 bpPrintLineC() { ##D Print text with adjusted line after with selectable colors
   len1="${#1}"
   len4="${#4}"
@@ -518,7 +305,6 @@ bpPrintLineC() { ##D Print text with adjusted line after with selectable colors
 # arg1 text to be printed
 # arg2 text color
 # arg3 line color
-#
 bpTextLineC() { ##D Print text with adjusted line after with selectable colors
   bpPrintLineC "$1" "$2" "$3" " " "-"
 }
@@ -528,26 +314,13 @@ bpTextLine() { ##D Print text with line after
 }
 
 # Print a divider row
-#
 bpLine() { ##D Print a line
   bpPrintLineC "" "${BP_C_LINE}" "${BP_C_LINE}" "" "-"
 }
 
 # Legacy function (do not use in new applications)
-#
 printLine() {
   bpLine
-}
-
-# Generic command/description printout function
-# 
-# $1 command color
-# $2 description color
-# $3 command text
-# $4 desccription text
-#
-bpPrintInfoGeneric() {
-  printf "${1}  %-24.24s${E_END} ${2}%s${E_END}\n" "$3" "$4"
 }
 
 
@@ -555,47 +328,22 @@ bpPrintInfoGeneric() {
 #
 # arg1 text for column 1
 # arg2 text for column 2
-#
-bpPrintInfo() {
-  bpPrintInfoGeneric "${BP_C_ID}" "${BP_C_COMMENT}" "$1" "$2"
-}
-
-bpPrintInfoAlt() {
-  bpPrintInfoGeneric "${E_DARKGRAY}" "${BP_C_COMMENT}" "$1" "$2"
+printInfo() {
+  printf "${BP_C_ID}  %-24s${E_END} ${BP_C_COMMENT}%s${E_END}\n" "$1" "$2"
 }
 
 # Print a variable + text into two columns
 #
-# $1 variable for column 1
-# $2 text for column 2
-# $3 optional text form column 1
-#
-bpPrintVar() {
-  var="$1"			
+# arg1 variable for column 1
+# arg2 text for column 2
+printVar() {
+  var="$1"
   if [ "${!var}" ]; then
-    if [ ! -z "$3" ]; then
-      X=${3}
-    else 
-      X="${!var}"
-    fi
-    bpPrintInfo "$2" "${X}"
+    printInfo "$2" "${!var}"
   else
     printf "${BP_C_ID}  %-24s${E_END} ${E_RED}N/A${E_END}\n" "$2"
   fi
 }
-
-
-# Colorize string with filename
-#
-# $1 string with filename to colorize
-# ret colorized string
-#
-bpColorizeFile() { ##D Colorize string with filename
-  if [ ! -z "$1" ]; then
-    echo "${BP_C_PATH}$(dirname $1)/${BP_C_FILENAME}$(basename $1)${E_END}"
-  fi
-}
-
 
 ##CN- IHELP File operations
 
@@ -605,9 +353,9 @@ bpColorizeFile() { ##D Colorize string with filename
 #
 bpMkDir() { ##D Create directory
   if [ ! -d "$1" ]; then
-    bpInfo "Creating directory \"${1}\""
-    mkdir -p "$1"
-  fi
+	  bpInfo "Creating directory \"${1}\""
+		mkdir -p "$1"
+	fi
 }
 
 #
@@ -616,9 +364,9 @@ bpMkDir() { ##D Create directory
 #
 bpLn() { ##D Create symbolic link
   bpInfo "Creating link \"${2}\""
-  if [ ! -L "$1" ]; then
-    ln -s "${1}" "${2}"
-  fi
+	if [ ! -L "$1" ]; then
+	  ln -s "${1}" "${2}"
+	fi
 }
 
 # 
@@ -639,7 +387,7 @@ bpCp() { ##D Copy file(s)
 # $2 destination
 bpMv() { ##D Move file(s)
   bpInfo "Moving file \"${1}\" \"${2}\""
-  mv "$1" "$2"
+	mv "$1" "$2"
 }
 
 # 
@@ -649,7 +397,7 @@ bpMv() { ##D Move file(s)
 #
 bpRm() { ##D Remove file
   bpInfo "Removing file \"${1}\""
-  rm -rf "${1}"
+	rm -rf "${1}"
 }
 
 # Replace text in file
@@ -657,19 +405,8 @@ bpRm() { ##D Remove file
 # $1 file 
 # $2 text to replace
 # $3 new text
-#
 bpReplace() {  ##D Replace text in file
   sed -i -e "s/${2}/${3}/g"  "$1"
-}
-
-# Replace entire line matching pattern
-#
-# $1 file 
-# $2 pattern matching line
-# $3 new text
-#
-bpReplaceLine() {  ##D Replace entire line in file
-  sed -i -e "0,/${2}/s/${2}.*/${3}/" "${1}"
 }
 
 # Appends a line to a file if it is not present in that file.
@@ -688,7 +425,7 @@ bpAppendIfNoSuchLine() { ##D Append a line if it does not exist in file
 #
 bpRemoveLineContaining() { ##D Remove line in file if it contains given string
   grep -v "$2" "$1" > "${1}_tmp"
-  mv -f "${1}_tmp" "${1}"
+	mv -f "${1}_tmp" "${1}"
 }
 
 #
@@ -700,17 +437,17 @@ bpRemoveLineContaining() { ##D Remove line in file if it contains given string
 #
 bpStrExist() { ##D Check if string exist in file
   grep -q -F "$2" "$1" 
-  if [ $? == "0" ]; then
-    echo "1"
-  else
-    echo "0"
-  fi
+	if [ $? == "0" ]; then
+	  echo "1"
+	else
+	  echo "0"
+	fi
 }
 
 ##CN- IHELP Input
 
 #
-# Read string from commandline
+# Read from commandline
 #
 # $1  Question string
 # $2  Default value
@@ -718,46 +455,18 @@ bpStrExist() { ##D Check if string exist in file
 #
 bpRead() { ##D Read from commandline
 
-  if [ "${2}" == "" ]; then
+	if [ "${2}" == "" ]; then
     read -erp "${1} >" result
-  else
-    read -erp "${1} [$2] >" result
-    if [ "${result}" == "" ]; then
-      result="${2}"
-    fi
-  fi
+	else
+	  read -erp "${1} [$2] >" result
+		if [ "${result}" == "" ]; then
+		  result="${2}"
+		fi
+	fi
 
-  echo "${result}"
+	echo "${result}"
 }
 
-#
-# Read integer from commandline
-#
-# $1  Question string
-# $2  Default value
-# $3  min value
-# $4  max value
-# return integer read from cmdline/default if enter pressed
-#
-bpReadInt() { ##D Read integer from commandline
-  while true; do
-    if [ "${2}" == "" ]; then
-      read -erp "${1} ($3-$4) >" result
-      if [ "${result}" == "" ]; then
-        result=$(($3 - 1))
-      fi
-    else
-      read -erp "${1} ($3-$4) [$2] >" result
-      if [ "${result}" == "" ]; then
-        result="${2}"
-      fi
-    fi
-    if [ $((result)) -ge $3 ] && [ $((result)) -le $4 ]; then
-      break
-    fi
-  done
-  echo "${result}"
-}
 
 
 #---------------------------------------------------------------------
@@ -773,10 +482,10 @@ bpAddSetting() {
   # Check if setting exist in file
   S=$(bpStrExist $bpSettingsFile "${1}" )
 
-  if [ "${S}" == "0" ]; then
-    echo "# ${3}"    >>  ${bpSettingsFile}
+	if [ "${S}" == "0" ]; then
+		echo "# ${3}"    >>  ${bpSettingsFile}
     echo "${1}=\"${2}\"" >> ${bpSettingsFile}
-    echo >> ${bpSettingsFile}
+	  echo >> ${bpSettingsFile}
   fi
 }
 
@@ -797,65 +506,66 @@ bpAddSettings() {
 chSetting() {  
   SETTING="$2"
   VAL="$3"
-  
-  S=$(bpStrExist "${1}" "${2}" )
-  if [ "${S}" == "0" ]; then
-    bpAddSettings
-  fi
+	
+	S=$(bpStrExist "${1}" "${2}" )
+	if [ "${S}" == "0" ]; then
+	  bpAddSettings
+	fi
   sed -i "s/^\(${SETTING}\s*=\s*\).*\$/\1$VAL/" "$1"
 }
 
 bpCreateSettings() {
+			
   echo "Creating new bashplates settings file. ${bpSettingsFile}"
-  bpMkDir ${bpSettingsDir}
-          
-  echo "# " >> ${bpSettingsFile}
-  echo "# Bashplates common settings" > ${bpSettingsFile}
-  echo "# " >> ${bpSettingsFile}
-  echo      >> ${bpSettingsFile}
-
-  bpAddSettings
+	bpMkDir ${bpSettingsDir}
+					
+	echo "# " >> ${bpSettingsFile}
+	echo "# Bashplates common settings" > ${bpSettingsFile}
+	echo "# " >> ${bpSettingsFile}
+	echo      >> ${bpSettingsFile}
+	
+	bpAddSettings
 }
 
 bpLoadSettings() {
   if [ -n "${bpSettingsFile}" ]; then
-    if [ -e "${bpSettingsFile}" ]; then
-      source "${bpSettingsFile}"
-    else
-      bpCreateSettings
-      source "${bpSettingsFile}"
-    fi
-  fi
+	  if [ -e "${bpSettingsFile}" ]; then
+	    source "${bpSettingsFile}"
+	  else
+		  bpCreateSettings
+			source "${bpSettingsFile}"
+		fi
+	fi
 }
 
 printSettings() { ##C BPSETTINGS Print plate information
   bpTextLine "Bashplates settings"
-  bpPrintVar BP_NAME      "Name:"
-  bpPrintVar BP_EMAIL     "Email:"
-  bpPrintVar BP_LICENSE   "Default license:"
-  bpPrintVar BP_EDITOR    "Default editor"
-  bpPrintVar BP_ORG       "Default organisation"
+  printVar BP_NAME      "Name:"
+  printVar BP_EMAIL     "Email:"
+  printVar BP_LICENSE   "Default license:"
+  printVar BP_EDITOR    "Default editor"
+  printVar BP_ORG       "Default organisation"
   bpLine
 }
 
 setname() { ##C BPSETTINGS Set name
-  chSetting "${bpSettingsFile}" "BP_NAME" "\"${2}\""  
+  chSetting "${bpSettingsFile}" "BP_NAME" "\"${2}\""	
 }
 
 setemail() { ##C BPSETTINGS Set email address
-  chSetting "${bpSettingsFile}" "BP_EMAIL" "\"${2}\""  
+  chSetting "${bpSettingsFile}" "BP_EMAIL" "\"${2}\""	
 }
 
 seteditor() { ##C BPSETTINGS Set default editor
-  chSetting "${bpSettingsFile}" "BP_EDITOR" "\"${2}\""  
+  chSetting "${bpSettingsFile}" "BP_EDITOR" "\"${2}\""	
 }
 
 setlic() { ##C BPSETTINGS Set default license
-  chSetting "${bpSettingsFile}" "BP_LICENSE" "\"${2}\""  
+  chSetting "${bpSettingsFile}" "BP_LICENSE" "\"${2}\""	
 }
 
 setorg() { ##C BPSETTINGS Set default organisation
-  chSetting "${bpSettingsFile}" "BP_ORG" "\"${2}\""  
+  chSetting "${bpSettingsFile}" "BP_ORG" "\"${2}\""	
 }
 
 
@@ -928,7 +638,7 @@ mlog() {   ##C LOGFILE Monitor logfile
             -e "s/[:0-9]+/\\${E_BR_GREEN}&\\${E_END}/6"            \
             -e "s|\[Crit\]|\[\\${E_ON_RED}\\${E_WHITE}Crit\\${E_END}\]|"
 
-    fi
+		fi
   else
     bpInfo "Logging is not activated"
     exit
@@ -940,7 +650,7 @@ mlog() {   ##C LOGFILE Monitor logfile
 bpOk() { ##D Success message
   if [ -n "$LOG_OK" ]; then
     bpLogOk "$1"
-  fi  
+  fi	
   echo -e "[${BP_C_OK}Ok${E_END}] $1"
 }
 
@@ -994,7 +704,7 @@ assertNoLockFile() { ##D Assert that lockfile is not present
   fi
 }
 
-assertRequiredProgs() { ##D Assert that required programs are available on the system (deprecated)
+assertRequiredProgs() { ##D Assert that required programs are available on the system
   if [ -n "${REQUIRED_PROGRAMS}" ]; then
     for p in ${REQUIRED_PROGRAMS}; do
       hash "$p" 2>&- || \
@@ -1004,36 +714,39 @@ assertRequiredProgs() { ##D Assert that required programs are available on the s
   fi
 }
 
-#
-# $1 string list of programs that are required
-#
-assertProgs() { ##D Assert that required programs are available on the system
-  things=$1
-  e=0
-  for thing in ${things[@]} ;do
-    hash "$thing" 2>&- || \
-      { bpError "Required program \"$thing\" not found."; e=1; }
-  done
-  if [ $e -eq 1 ]; then
-    exit 1
+##CN- IHELP Help & info
+
+info() { ##D Show information about script
+  bpTextLine "Script information"
+  printVar scriptName      "Script name" 
+  printVar scriptPath      "Script path" 
+  printVar VERSION         "Script version" 
+  printVar BPVERSION       "Template version"
+  printVar bpSettingsFile  "Bashplate settings file"
+  printVar LOGFILE         "Log file" 
+  printVar LOCK_FILE       "Lock file" 
+  printVar DEFAULTCMD         "Default function" 
+  printVar "REQUIRED_PROGRAMS" "Dependencies"
+  printInfo "PID" "$$"  
+  printVar DATE "Date" 
+  printVar TIME "Time"
+
+  if [ -n "${INFOHOOK}" ]; then
+    bpTextLine "App. information"
+    ${INFOHOOK}
   fi
+	printSettings
 }
 
-##CN- IHELP Debug/Controll
-
-icheck() { ##D Make a shellcheck
-  assertProgs "shellcheck"
+check() { ##D Make a shellcheck
   shellcheck "$0"
 }
-
-
-##CN- IHELP Help & info
 
 printCommand() {
   help_line=$1
   help_command=$(echo "$help_line" | sed -s 's/(.*//')
   help_info=$(echo "$help_line" | sed -s 's/^.*'"$2"'//')
-  bpPrintInfo "$help_command" "$help_info"
+  printInfo "$help_command" "$help_info"
 }
 
 printCondCommand() {
@@ -1043,23 +756,7 @@ printCondCommand() {
   if [ -n "$D" ]; then
     help_command=$(echo "$help_line" | sed -s 's/(.*//')
     help_info=$(echo "$help_line" | sed -s 's/^.*'"$C"'//')
-    bpPrintInfo "$help_command" "$help_info"
-  fi
-}
-
-printCondCommandV() {
-  help_line="$1"
-  C=$(echo "$1" | sed -s 's/^.*##CV//' | awk '{print $1}')
-  
-  eval "D=\$$C"
-  
-  help_command=$(echo "$help_line" | sed -s 's/(.*//')
-  help_info=$(echo "$help_line" | sed -s 's/^.*'"$C"'//')
-
-  if [ -n "$D" ]; then
-    bpPrintInfo "$help_command" "$help_info"
-  else
-    bpPrintInfoAlt "$help_command" "$help_info"
+    printInfo "$help_command" "$help_info"
   fi
 }
 
@@ -1080,7 +777,7 @@ printNamedLine() {
 printCondNamedLine() {
   help_line="$1"
   C=$(echo "$1" | sed -s 's/^.*##CN-//' | awk '{print $1}')
-  name=$(echo "$help_line" | sed -e 's/^.*'"$C"'//' -e 's/^[ \t]*//' )
+	name=$(echo "$help_line" | sed -e 's/^.*'"$C"'//' -e 's/^[ \t]*//' )
   eval "D=\$$C"
   if [ -n "$D" ]; then
     bpTextLine "$name"
@@ -1094,13 +791,12 @@ help() { ## Print this help information
   IFS=$'\n'
   SC="$1"
   help_lines=$(grep -h '##' "$0" | grep -v -e 'grep' -e '##D' -e '##V' -e '\*##C' -e '\*##C-' -e '\"##' -e '##N-//' -e 'help_line' -e 'printLine')
-  for help_line in ${help_lines} ; do
+	for help_line in ${help_lines} ; do
     case "$help_line" in
       *"##-"*)   bpLine ;;
       *"##C-"*)  printCondLine       "$help_line" ;;
       *"##N-"*)  printNamedLine      "$help_line" ;;
       *"##CN-"*) printCondNamedLine  "$help_line" ;;
-      *"##CV"*)  printCondCommandV    "$help_line" ;;
       *"##C"*)   printCondCommand    "$help_line" ;;
       *"##"*)    printCommand        "$help_line" '##' ;;
       *)
@@ -1113,13 +809,13 @@ ihelp() { ##D Print internal help information
 
   # Singe command documentation
   if [ "$2" != "" ]; then
-    echo
-    bpTextLine "$2"
-    echo
-    grep --no-filename -B 10 "$0" -e "${2}()" | grep "#" | grep -v "##"
-    bpLine
-    exit
-  fi
+	  echo
+	  bpTextLine "$2"
+		echo
+		grep --no-filename -B 10 "$0" -e "${2}()" | grep "#" | grep -v "##"
+		bpLine
+		exit
+	fi
 
   IFS=$'\n'
   SC="$1"
@@ -1128,7 +824,7 @@ ihelp() { ##D Print internal help information
   IHELP=1    # Force ihelp documentations
   LOGFILE=1  # Force log documentation
 
-  help_lines=$(grep -h '##' "$0" | grep -v -e 'grep' -e '\*"##[ A-Z]"\*' -e 'help_line' -e ' printLine' -e 'awk' -e 'bpPrintInfo')
+  help_lines=$(grep -h '##' "$0" | grep -v -e 'grep' -e '\*"##[ A-Z]"\*' -e 'help_line' -e ' printLine' -e 'awk' -e 'printInfo')
   for help_line in ${help_lines} ; do
     case "$help_line" in
 #      "##-")    bpLine ;;
@@ -1142,52 +838,18 @@ ihelp() { ##D Print internal help information
   done
 
   bpTextLine "Comments"
-  bpPrintInfo "#" "Normal bash comment"
-  bpPrintInfo "##" "Subcommand information comment (shown with help)"
-  bpPrintInfo "##C" "Conditional subcommand comment (shown with help)"
-  bpPrintInfo "##-" "Separator line (shown with help)"
-  bpPrintInfo "##C-" "Conditional separator line (shown with help)"
-  bpPrintInfo "##N-" "Named separator line (shown with help)"
-  bpPrintInfo "##CN-" "Conditional named separator line (shown with help)"
-  bpPrintInfo "##D" "Internal function comment (shown ihelp)"
+  printInfo "#" "Normal bash comment"
+  printInfo "##" "Subcommand information comment (shown with help)"
+  printInfo "##C" "Conditional subcommand comment (shown with help)"
+  printInfo "##-" "Separator line (shown with help)"
+  printInfo "##C-" "Conditional separator line (shown with help)"
+  printInfo "##N-" "Named separator line (shown with help)"
+  printInfo "##CN-" "Conditional named separator line (shown with help)"
+  printInfo "##D" "Internal function comment (shown ihelp)"
   bpLine
 }
 
-iinfo() { ##D Show information about script
-  bpTextLine "Script information"
-  bpPrintVar scriptName      "Script" $( bpColorizeFile "${scriptPath}/${scriptName}" )
-  bpPrintVar VERSION         "Script version" 
-  bpPrintVar BPVERSION       "Template version"
-  bpPrintVar bpSettingsFile  "Bashplate settings file" $( bpColorizeFile "${bpSettingsFile}" )
-  bpPrintVar LOGFILE         "Log file"  $( bpColorizeFile "${LOGFILE}" )
-  bpPrintVar LOCK_FILE       "Lock file" $( bpColorizeFile "${LOCK_FILE}" )
-  bpPrintVar DEFAULTCMD         "Default function" 
-  bpPrintVar "REQUIRED_PROGRAMS" "Dependencies"
-  bpPrintInfo "PID" "$$"  
-  bpPrintVar DATE "Date" 
-  bpPrintVar TIME "Time"
-
-  if [ -n "${INFOHOOK}" ]; then
-    bpTextLine "App. information"
-    ${INFOHOOK}
-  fi
-  printSettings
-}
-
-iview() {  ##D View example
-  
-  # Singe command documentation
-  if [ "$2" != "" ]; then
-    echo
-    bpTextLine "$2"
-    echo
-    grep --no-filename -A 20  "$0" -e "${2}()" | grep -B 20 -m 1 -x "}" 
-    bpLine
-    exit
-  fi
-}
-
-ivars() { ##D Print internal variables
+vhelp() { ##D Print internal variable information
   bpTextLine "Script variables"
   echo
   IFS=$'\n'
@@ -1225,36 +887,18 @@ runCommand() {
     command=$(echo "$line" | sed -s 's/(.*//')
     if [ "$command" == "$1" ]; then
 
+
       # execute pre command hook  if existing
       if [ -n "$PRECMDHOOK" ]; then
-        "${PRECMDHOOK}" "$command"
+        "${PRECMDHOOK}"
       fi
 
-      # Check if command is conditional
-      if [[ $( grep "${command}()" "$0" ) = *"##C"* ]]; then  
-
-        # Check if condition is true and then execute else printout error message
-        C=$( grep "${command}()" "$0"  | sed -s 's/^.*##C.//' | awk '{print $1}' )
-        if [ -n "$C" ]; then
-          eval "D=\$$C"
-
-          if [ -n "$D" ]; then
-            # execute command
-            "${command}" "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8" "$9" "${10}"
-          else
-            bpError "Command \"$command\" not available right now."
-          fi
-        else
-          bpError "Command \"$command\" is conditional, but is missing conditional variable"
-        fi
-      else 
-        # command is not conditional, execute
-        "${command}" "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8" "$9" "${10}"        
-      fi
-
+      # execute command
+      "${command}" "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8" "$9" "${10}"
+      
       # execute post command hook  if existing
       if [ -n "$POSTCMDHOOK" ]; then
-        "${POSTCMDHOOK}" "$command"
+        "${POSTCMDHOOK}"
       fi      
       bpExit
     fi

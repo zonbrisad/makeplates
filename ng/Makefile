@@ -30,7 +30,7 @@
 #----------------------------------------------------------------------------
 
 # Target platform (linux, win32, avr, arm, osx)
-TARGET_PLATFORM = linux
+TARGET_PLATFORM = linux-llvm
 
 # Project License (GPL, GPLv2, MIT, BSD, Apache, etc.) 
 LICENSE = __LICENSE__
@@ -113,7 +113,7 @@ CFLAGS += -O$(OPT)                             # Optimisation level
 CFLAGS += -std=$(CSTANDARD)                    # C standard
 CFLAGS += $(patsubst %,-I%,$(INCLUDE))         # Include directories 
 CFLAGS += $(patsubst %,-D%,$(CDEFS))           # Macro definitions
-CFLAGS += -Wa,-adhlns=$(<:%.c=$(BUILDDIR)/%.lst) # Generate assembler listing
+#CFLAGS += -Wa,-adhlns=$(<:%.c=$(BUILDDIR)/%.lst) # Generate assembler listing
 
 # Compiler Tuning C ---------------------------------------------------------
 CFLAGS += -funsigned-char
@@ -233,6 +233,40 @@ OCFLAGS = -O $(FORMAT)
 
 endif
 
+# Linux LLVM options --------------------------------------------------------
+ifeq ($(TARGET_PLATFORM), linux-llvm)
+
+# Target filename
+TRGFILE=$(OUTDIR)/$(TARGET)
+
+# Toolchain base directory
+TCHAIN_BASE=/usr/bin
+
+# Toolchain prefix 
+TCHAIN_PREFIX=
+
+# Handle pkg-config libraries -----------------------------------------------
+CFLAGS   += $(foreach X, $(PKGLIBS), $(shell pkg-config --cflags $(X)) )
+CPPFLAGS += $(foreach X, $(PKGLIBS), $(shell pkg-config --cflags $(X)) )
+LDFLAGS  += $(foreach X, $(PKGLIBS), $(shell pkg-config --libs $(X))   )
+
+# Size flags ----------------------------------------------------------------
+SIZEFLAGS = -B  # format = {sysv|berkeley}
+
+# objdump flags -------------------------------------------------------------
+ODFLAGS  = -h  # Display the contents of the section headers  
+ODFLAGS += -S  # Intermix source code with disassembly
+#ODFLAGS += -C  #
+ODFLAGS += -r  # Display the relocation entries in the file
+
+# Output format. (can be srec, ihex, binary) --------------------------------
+FORMAT = ihex
+
+# object copy flags ---------------------------------------------------------
+OCFLAGS = -O $(FORMAT) 
+
+endif
+
 # Windows options -----------------------------------------------------------
 ifeq ($(TARGET_PLATFORM), win32)
 
@@ -272,7 +306,8 @@ $(UIH): src/ui_%.h: src/%.ui
 # Tool settings
 #============================================================================
 
-include tools/mp-linux.mk
+#include tools/mp-linux.mk
+include tools/mp-llvm-linux.mk
 
 #
 # Include text messages and filters

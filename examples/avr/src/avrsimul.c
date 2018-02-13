@@ -14,6 +14,7 @@
 
 #include <stdio.h>
 #include "avrsimul.h"
+#include "def.h"
 
 // Macros -----------------------------------------------------------------
 
@@ -24,6 +25,7 @@
 // Code -------------------------------------------------------------------
 
 int simul_putchar(char c, FILE *stream) {
+	UNUSED(stream);
 	special_output_port = c;
 	return 0;
 }
