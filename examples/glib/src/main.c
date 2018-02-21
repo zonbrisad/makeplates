@@ -476,7 +476,7 @@ void domainTest(void) {
     GError *error;
     GSocketAddress *sockAddr;
 
-	  // create main loop
+    // create main loop
     mLoop1 = g_main_loop_new(NULL, FALSE);
 
     // create socket address
@@ -485,10 +485,10 @@ void domainTest(void) {
     // create socket
     sock = g_socket_new(G_SOCKET_FAMILY_UNIX, G_SOCKET_TYPE_STREAM, G_SOCKET_PROTOCOL_DEFAULT, &error);
 
-    // bind socket to address 
+    // bind socket to address
     g_socket_bind(sock, sockAddr, 1, &error);
-	
-   // return;
+
+    // return;
 
     memset(&addr, 0, sizeof(addr));
     addr.sun_family = AF_UNIX;
@@ -870,29 +870,40 @@ void stdinTest() {
 }
 
 void cli_in(int ch) {
-	static int pos=0;
-	char *str;
-	char buf[16];
-	printf("%d", ch);
-	tcflush(stdout,TCIOFLUSH);
-		if (ch=='q') {
-			exit(0);
-		}
+    static int pos = 0;
+    char *str;
+    char buf[16];
+    printf("%d", ch);
+    tcflush(stdout, TCIOFLUSH);
 
-	switch (ch) {
-		case NO_CHAR:     break;
-		case ARROW_UP:    break;
-		case ARROW_DOWN:  break;
-		case ARROW_LEFT:
-			if (pos>0) {
-			  str = E_CUR_BACK;
-			  pos--;
-			}
-			break;
-		case ARROW_RIGHT:
-			break;
-		default: break;
-	}
+    if (ch == 'q') {
+        exit(0);
+    }
+
+    switch (ch) {
+        case NO_CHAR:
+            break;
+
+        case ARROW_UP:
+            break;
+
+        case ARROW_DOWN:
+            break;
+
+        case ARROW_LEFT:
+            if (pos > 0) {
+                str = E_CUR_BACK;
+                pos--;
+            }
+
+            break;
+
+        case ARROW_RIGHT:
+            break;
+
+        default:
+            break;
+    }
 
 
     //putc('a', STDOUT_FILENO);
@@ -919,10 +930,10 @@ static gboolean stdin_in_cli (GIOChannel *gio, GIOCondition condition, gpointer 
             ch = getCharX(buf[0]);
             //printf("b %x\n", ch);
             cli_in(ch);
-//            if (ch != NO_CHAR) {
-//                //printf("%s\n", char2Str(ch));
-//                cli_in(ch);
-//            }
+            //            if (ch != NO_CHAR) {
+            //                //printf("%s\n", char2Str(ch));
+            //                cli_in(ch);
+            //            }
 
 
         }

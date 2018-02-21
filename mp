@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # shellcheck disable=2034
+# shellcheck disable=1090
 #---------------------------------------------------------------------
 #
 #  [Description]
@@ -78,11 +79,12 @@ bpInsertLineAfter() {
 bpQuestionDy() {  ##D Ask yes/no question default yes 
   local __result=$2
   while true; do
-	  read -p "${1}"" [Y/n]>" yn
-    case $yn in
-	    [Yy]* ) eval $__result='y'; break;;
-			[Nn]* ) eval $__result='n'; break;;
-			""    ) eval $__result='y'; break;;
+#	  read -rp "${1}"" [Y/n]>" yn
+    yn=$( bpRead "${1} [Y/n]" ) 
+    case "$yn" in
+	    [Yy]* ) eval "$__result"='y'; break;;
+			[Nn]* ) eval "$__result"='n'; break;;
+			""    ) eval "$__result"='y'; break;;
 			* ) echo "Please answer yes or no.";;
 		esac
 	done 	
@@ -99,7 +101,7 @@ bpQuestionDy() {  ##D Ask yes/no question default yes
 # $5 system (glib, qt etc.)
 #
 createProject() {
-  echo -e ${1}
+  echo -e "${1}"
 
 	pn=$(bpRead  "Project name>" "" )
  	brief=$(bpRead "Brief description>" "" )
@@ -154,7 +156,7 @@ createProject() {
 		bpReplace "${dst}/Makefile" "#PKGLIBS += gio"     "PKGLIBS += gio"
 	fi
 
-  ${mptemplate} $opts --name "main" --dir "${srcDst}"  --brief "${brief}" --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
+  ${mptemplate} "$opts" --name "main" --dir "${srcDst}"  --brief "${brief}" --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
 }
 
 ##N- C Projects
@@ -201,54 +203,56 @@ newclass() { ## Create new C++ class
 # NEW 3d party
 
 list() {  # List 3d party libraries
-  ls -1 ${scriptPath}/3dparty
+  ls -1 "${scriptPath}/3dparty"
 }
 
 MPINSTALL=mpInstall
 
 install3p() { #  Install 3d party library
 
-  if [ -d ${MP_3DPARTY_DIR}/${2} ]; then
-	  if [ -e ${MP_3DPARTY_DIR}/${2}/${MPINSTALL} ]; then
+  if [ -d "${MP_3DPARTY_DIR}/${2}" ]; then
+	  if [ -e "${MP_3DPARTY_DIR}/${2}/${MPINSTALL}" ]; then
 
-			${MP_3DPARTY_DIR}/${2}/${MPINSTALL} ${PWD}
+			"${MP_3DPARTY_DIR}/${2}/${MPINSTALL}" "${PWD}"
 			bpOk "Module \"${2}\" installed"
 		  return
 		fi
 	
-	  cp -arf ${MP_3DPARTY_DIR}/${2}/* .
+	  cp -arf "${MP_3DPARTY_DIR}/${2}/*" .
 		bpOk "Module \"${2}\" installed"
 	else
 	  bpError "Module \"${2}\" does not exist"
 	fi
 }
 
+# shellcheck disable=2016
 new3p() { # Create new 3d party install script
-  echo "#!/usr/bin/env bash" > mpInstall
-	echo "#" >> mpInstall
-	echo "# Makeplate 3dparty install script" >> mpInstall
-	echo "#" >> mpInstall
-	echo '# $1 is destination directory' >> mpInstall
-	echo "#" >> mpInstall
-  echo  >> mpInstall
-	echo 'scriptPath=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )' >> mpInstall
-	echo  >> mpInstall
+  {
+  echo "#!/usr/bin/env bash" 
+	echo "#" 
+	echo "# Makeplate 3dparty install script" 
+	echo "#" 
+	echo '# $1 is destination directory' 
+	echo "#" 
+  echo  
+	echo 'scriptPath=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )' 
+	echo  
 	
-  echo '# Install file to dir' >> mpInstall
-  echo '# arg1 local file to copy' >> mpInstall
-  echo '# arg2 destination dir' >> mpInstall
+  echo '# Install file to dir' 
+  echo '# arg1 local file to copy' 
+  echo '# arg2 destination dir' 
 	 
-	echo 'mpInst() {' >> mpInstall
-	echo '  dn=$(dirname $1)' >> mpInstall
-	echo '  dst=$2/${dn}' >> mpInstall
-	echo '  if [ ! -d ${dst} ]; then' >> mpInstall
-	echo '    mkdir -p $dst' >> mpInstall
-	echo '  fi' >> mpInstall
-	echo '  cp -rf ${scriptPath}/$1 $2/${dn}/.' >> mpInstall
-	echo '}' >> mpInstall
-	echo  >> mpInstall
-	echo 'mpInst myFile $1' >> mpInstall
-								
+	echo 'mpInst() {' 
+	echo '  dn=$(dirname $1)' 
+	echo '  dst=$2/${dn}' 
+	echo '  if [ ! -d ${dst} ]; then' 
+	echo '    mkdir -p $dst' 
+	echo '  fi' 
+	echo '  cp -rf ${scriptPath}/$1 $2/${dn}/.' 
+	echo '}' 
+	echo  
+	echo 'mpInst myFile $1' 
+  } > mpInstall								
 	
 	chmod +x ${MPINSTALL}
 }
@@ -256,7 +260,7 @@ new3p() { # Create new 3d party install script
 ##N- Various
 
 examples() { ## List examples
-  ls -1  ${scriptPath}/examples/ 
+  ls -1  "${scriptPath}/examples/"
 }
 
 utools() { ## Update makaplate tools in project
@@ -266,48 +270,48 @@ utools() { ## Update makaplate tools in project
 ##N- Project management (git)
 
 clean() { ## Remove leftover files 
-  cd "${scriptPath}"
+  bpCd "${scriptPath}"
 
   find . -name "*~"     -delete
   find . -name "*.orig" -delete
 
   # Remove untraced files
   git clean -df
-  cd -
+  bpCd -
 }
 
 commit() { ## Commit project to repository
-  cd "${scriptPath}"
+  bpCd "${scriptPath}"
   git commit -a
 #  git push --tags -a
-  cd - || bpExit
+  bpCd - 
 }
 
 tag() { ## Make a new tag
-  cd "${scriptPath}"
+  bpCd "${scriptPath}"
   # List existing tags
   git tag
 
   # read tag name/description
   tag=$( bpRead "Tagname" "")
-  desc=$( bpRead "description" "")
-  read -p "Description: " desc
+  desc=$( bpRead "Description" "")
+#  read -p "Description: " desc
 
   # Tag revision
   git tag -a "$tag" -m "$desc"
-  cd - || bpExit
+  bpCd - 
 }
 
 push() { ## Push to GITHUB
-  cd "${scriptPath}"
+  bpCd "${scriptPath}"
   git push --progress
-  cd - || bpExit
+  bpCd - 
 } 
 
 pull() { ## Pull bashplates from GITHUB
-  cd "${scriptPath}"
+  bpCd "${scriptPath}"
   git pull --progress
-  cd - || bpExit
+  bpCd - 
 } 
 
 #---------------------------------------------------------------------
@@ -400,9 +404,12 @@ signalTerm() {
 
 bpCleanUp() { ##D Cleanup function
   rm -f "$LOCK_FILE"    # remove Lock file
-  echo -e ${E_SHOW}     # Turn on cursor if turned of
+  echo -e "${E_SHOW}"     # Turn on cursor if turned of
 }
 
+#
+# $1 exit code, if not given exit code is 0=SUCCESS
+#
 bpExit() { ##D Function for safely exiting script
   bpCleanUp
 
@@ -411,14 +418,19 @@ bpExit() { ##D Function for safely exiting script
      ${POSTHOOK}
   fi
 
-  exit
+  # Check if argument is given
+  if [ -z "$1" ]; then
+    exit "0"  # Success
+  else
+    exit "$1"
+  fi
+
 }
 
 bpErrorExit() {  ##D Safely exit script with a error
-  #echo -e "${BP_C_ERROR}${1}${E_END}"
   bpError "${1}"
   bpCleanUp
-  exit
+  exit "1"
 }
 
 #---------------------------------------------------------------------
@@ -592,12 +604,27 @@ bpPrintVar() {
 #
 bpColorizeFile() { ##D Colorize string with filename
   if [ ! -z "$1" ]; then
-    echo "${BP_C_PATH}$(dirname $1)/${BP_C_FILENAME}$(basename $1)${E_END}"
+    echo "${BP_C_PATH}$(dirname "$1")/${BP_C_FILENAME}$(basename "$1")${E_END}"
   fi
 }
 
 
+#
+# $1 string to be filtered
+#
+bpFilterEscape() { ##D Filter escape characters from string
+  echo "$1" | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g"
+}
+	
+
 ##CN- IHELP File operations
+
+#
+# $1 directory to change to
+#
+bpCd() { ##D Safe cd function (exits on fail)
+  cd "$1" || bpExit "Failed to cd to [$1]"
+}
 
 # Create a directory if it does not exist
 #
@@ -629,7 +656,7 @@ bpLn() { ##D Create symbolic link
 #
 bpCp() { ##D Copy file(s)
   bpInfo "Copying \"${1}\" to \"${2}\""
-  cp -rf $*
+  cp -rf "$@"
 }
 
 #
@@ -699,8 +726,8 @@ bpRemoveLineContaining() { ##D Remove line in file if it contains given string
 # return 1 for true, 0 for false
 #
 bpStrExist() { ##D Check if string exist in file
-  grep -q -F "$2" "$1" 
-  if [ $? == "0" ]; then
+  
+  if grep -q -F "$2" "$1" ; then
     echo "1"
   else
     echo "0"
@@ -752,7 +779,7 @@ bpReadInt() { ##D Read integer from commandline
         result="${2}"
       fi
     fi
-    if [ $((result)) -ge $3 ] && [ $((result)) -le $4 ]; then
+    if [ $((result)) -ge "$3" ] && [ $((result)) -le "$4" ]; then
       break
     fi
   done
@@ -771,21 +798,23 @@ bpReadInt() { ##D Read integer from commandline
 bpAddSetting() { 
 
   # Check if setting exist in file
-  S=$(bpStrExist $bpSettingsFile "${1}" )
+  S=$(bpStrExist "${1}" "${2}" )
 
   if [ "${S}" == "0" ]; then
-    echo "# ${3}"    >>  ${bpSettingsFile}
-    echo "${1}=\"${2}\"" >> ${bpSettingsFile}
-    echo >> ${bpSettingsFile}
+    {
+      echo "# ${4}" 
+      echo "${2}=\"${3}\"" 
+      echo 
+    } >> "${1}"
   fi
 }
 
 bpAddSettings() { 
-  bpAddSetting "BP_NAME"  "John Doe"        "Name of user"
-  bpAddSetting "BP_EMAIL" "JohnDoe@foo.bar" "Email of user"
-  bpAddSetting "BP_EDITOR" "vi"             "Default editor"
-  bpAddSetting "BP_LICENSE" "MIT"           "Default project license"
-  bpAddSetting "BP_ORG"     "ACME"          "Default organisation"
+  bpAddSetting $bpSettingsFile "BP_NAME"    "John Doe"        "Name of user"
+  bpAddSetting $bpSettingsFile "BP_EMAIL"   "JohnDoe@foo.bar" "Email of user"
+  bpAddSetting $bpSettingsFile "BP_EDITOR"  "vi"              "Default editor"
+  bpAddSetting $bpSettingsFile "BP_LICENSE" "MIT"             "Default project license"
+  bpAddSetting $bpSettingsFile "BP_ORG"     "ACME"            "Default organisation"
 }
 
 # Change setting in config file (key value pair)
@@ -794,7 +823,7 @@ bpAddSettings() {
 # arg2 setting to change
 # arg3 new value for setting
 #
-chSetting() {  
+bpChSetting() {  
   SETTING="$2"
   VAL="$3"
   
@@ -839,23 +868,23 @@ printSettings() { ##C BPSETTINGS Print plate information
 }
 
 setname() { ##C BPSETTINGS Set name
-  chSetting "${bpSettingsFile}" "BP_NAME" "\"${2}\""  
+  bpChSetting "${bpSettingsFile}" "BP_NAME" "\"${2}\""  
 }
 
 setemail() { ##C BPSETTINGS Set email address
-  chSetting "${bpSettingsFile}" "BP_EMAIL" "\"${2}\""  
+  bpChSetting "${bpSettingsFile}" "BP_EMAIL" "\"${2}\""  
 }
 
 seteditor() { ##C BPSETTINGS Set default editor
-  chSetting "${bpSettingsFile}" "BP_EDITOR" "\"${2}\""  
+  bpChSetting "${bpSettingsFile}" "BP_EDITOR" "\"${2}\""  
 }
 
 setlic() { ##C BPSETTINGS Set default license
-  chSetting "${bpSettingsFile}" "BP_LICENSE" "\"${2}\""  
+  bpChSetting "${bpSettingsFile}" "BP_LICENSE" "\"${2}\""  
 }
 
 setorg() { ##C BPSETTINGS Set default organisation
-  chSetting "${bpSettingsFile}" "BP_ORG" "\"${2}\""  
+  bpChSetting "${bpSettingsFile}" "BP_ORG" "\"${2}\""  
 }
 
 
@@ -874,7 +903,7 @@ bpLog() { ##D Log to file command
   # check for LOGFILE variable
   if [ -n "$LOGFILE" ]; then
     ts=$(date +"%Y-%m-%d %H:%M:%S")
-     echo "$ts" "$1" >> "${LOGFILE}"
+    bpFilterEscape "$ts $1"  >> "${LOGFILE}"
   fi
 }
 
@@ -886,7 +915,7 @@ bpLogInfo() {  ##D Log Info message to file
   bpLog "[Info] $1"
 }
 
-bpLogWarning() {  ##D Log OK message to file
+bpLogWarning() {  ##D Log Warning message to file
   bpLog "[Warn] $1"
 }
 
@@ -913,7 +942,7 @@ log() { ##C LOGFILE View logfile
     fi
   else
     bpInfo "Logging is not activated"
-    exit
+    bpExit
   fi
 }
 
@@ -931,7 +960,7 @@ mlog() {   ##C LOGFILE Monitor logfile
     fi
   else
     bpInfo "Logging is not activated"
-    exit
+    bpExit
   fi
 }
 
@@ -976,53 +1005,47 @@ bpCritical() { ##D Critical error message
 # Various  ---------------------------------------------------------
 
 ##CN- IHELP Assert
-assertRoot() { ##D Assert that user is root
+
+bpAssertRoot() { ##D Assert that user is root
   if [ "$(whoami)" != root ]; then
     bpError "Must be root to use this command."
-    bpExit
+    bpExit "1"
   fi
 }
 
-assertNoLockFile() { ##D Assert that lockfile is not present
+bpAssertNoLockFile() { ##D Assert that lockfile is not present
   if [ -n "$LOCK_FILE" ]; then
     if [ -f "$LOCK_FILE" ]; then
-      #echo -e "${BP_C_ERROR}Script is already running. (${LOCK_FILE})${E_END} "
       bpError "Script is already running. (${LOCK_FILE})"
-      exit  # do not use bpExit because lock belongs to other process
+      exit  "1" # do not use bpExit because lock file belongs to prexsisting process
     fi
     touch "$LOCK_FILE"
   fi
 }
 
-assertRequiredProgs() { ##D Assert that required programs are available on the system (deprecated)
-  if [ -n "${REQUIRED_PROGRAMS}" ]; then
-    for p in ${REQUIRED_PROGRAMS}; do
-      hash "$p" 2>&- || \
-        { bpError "Required program \"$p\" not found."; exit 1; }
-#      { echo -e >&2 "${BP_C_ERROR}Required program \"$p\" not found.${E_END}"; exit 1; }
-    done
-  fi
+bpAssertRequiredProgs() { # Assert that required programs are available on the system (deprecated)
+	bpAssertProgs "${REQUIRED_PROGRAMS[@]}"
 }
 
 #
 # $1 string list of programs that are required
 #
-assertProgs() { ##D Assert that required programs are available on the system
-  things=$1
+bpAssertProgs() { ##D Assert that required programs are available on the system
+  things=("$@")
   e=0
-  for thing in ${things[@]} ;do
+  for thing in "${things[@]}" ;do
     hash "$thing" 2>&- || \
       { bpError "Required program \"$thing\" not found."; e=1; }
   done
   if [ $e -eq 1 ]; then
-    exit 1
+    bpExit 1
   fi
 }
 
 ##CN- IHELP Debug/Controll
 
 icheck() { ##D Make a shellcheck
-  assertProgs "shellcheck"
+  bpAssertProgs "shellcheck"
   shellcheck "$0"
 }
 
@@ -1118,7 +1141,7 @@ ihelp() { ##D Print internal help information
     echo
     grep --no-filename -B 10 "$0" -e "${2}()" | grep "#" | grep -v "##"
     bpLine
-    exit
+    bpExit
   fi
 
   IFS=$'\n'
@@ -1155,17 +1178,16 @@ ihelp() { ##D Print internal help information
 
 iinfo() { ##D Show information about script
   bpTextLine "Script information"
-  bpPrintVar scriptName      "Script" $( bpColorizeFile "${scriptPath}/${scriptName}" )
-  bpPrintVar VERSION         "Script version" 
-  bpPrintVar BPVERSION       "Template version"
-  bpPrintVar bpSettingsFile  "Bashplate settings file" $( bpColorizeFile "${bpSettingsFile}" )
-  bpPrintVar LOGFILE         "Log file"  $( bpColorizeFile "${LOGFILE}" )
-  bpPrintVar LOCK_FILE       "Lock file" $( bpColorizeFile "${LOCK_FILE}" )
-  bpPrintVar DEFAULTCMD         "Default function" 
-  bpPrintVar "REQUIRED_PROGRAMS" "Dependencies"
+  bpPrintVar "scriptName"      "Script" "$( bpColorizeFile "${scriptPath}/${scriptName}" )"
+  bpPrintVar "VERSION"         "Script version" 
+  bpPrintVar "BPVERSION"       "Template version"
+  bpPrintVar "bpSettingsFile"  "Bashplate settings file" "$( bpColorizeFile ${bpSettingsFile} )"
+  bpPrintVar "LOGFILE"         "Log file"  "$( bpColorizeFile "${LOGFILE}" )"
+  bpPrintVar "LOCK_FILE"       "Lock file" "$( bpColorizeFile "${LOCK_FILE}" )"
+  bpPrintVar "DEFAULTCMD"      "Default function" 
   bpPrintInfo "PID" "$$"  
-  bpPrintVar DATE "Date" 
-  bpPrintVar TIME "Time"
+  bpPrintVar "DATE" "Date" 
+  bpPrintVar "TIME" "Time"
 
   if [ -n "${INFOHOOK}" ]; then
     bpTextLine "App. information"
@@ -1183,7 +1205,7 @@ iview() {  ##D View example
     echo
     grep --no-filename -A 20  "$0" -e "${2}()" | grep -B 20 -m 1 -x "}" 
     bpLine
-    exit
+    bpExit
   fi
 }
 
