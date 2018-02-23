@@ -11,7 +11,9 @@
 #  [Author] 
 #    Peter Malmberg <peter.malmberg@gmail.com>
 #
-#  [License] 
+#  [Date]
+
+#  [License]
 #     MIT
 #    
 #
@@ -120,7 +122,7 @@ createProject() {
 	# Check tool dir is present then full project otherwise simple
   if [ "$3" == "tools" ]; then
   	bpRm "${dst}/tools"
-	  bpCp "${scriptPath}/tools" "${dst}"
+	  bpCp "${BPSCRIPTPATH}/tools" "${dst}"
 		srcDst="${dst}/src"
 	fi
 	
@@ -203,7 +205,7 @@ newclass() { ## Create new C++ class
 # NEW 3d party
 
 list() {  # List 3d party libraries
-  ls -1 "${scriptPath}/3dparty"
+  ls -1 "${BPSCRIPTPATH}/3dparty"
 }
 
 MPINSTALL=mpInstall
@@ -260,17 +262,17 @@ new3p() { # Create new 3d party install script
 ##N- Various
 
 examples() { ## List examples
-  ls -1  "${scriptPath}/examples/"
+  ls -1  "${BPSCRIPTPATH}/examples/"
 }
 
 utools() { ## Update makaplate tools in project
-	bpCp "${scriptPath}/tools/*" "tools/."
+	bpCp "${BPSCRIPTPATH}/tools/*" "tools/."
 }
 
 ##N- Project management (git)
 
 clean() { ## Remove leftover files 
-  bpCd "${scriptPath}"
+  bpCd "${BPSCRIPTPATH}"
 
   find . -name "*~"     -delete
   find . -name "*.orig" -delete
@@ -281,14 +283,14 @@ clean() { ## Remove leftover files
 }
 
 commit() { ## Commit project to repository
-  bpCd "${scriptPath}"
+  bpCd "${BPSCRIPTPATH}"
   git commit -a
 #  git push --tags -a
   bpCd - 
 }
 
 tag() { ## Make a new tag
-  bpCd "${scriptPath}"
+  bpCd "${BPSCRIPTPATH}"
   # List existing tags
   git tag
 
@@ -303,13 +305,13 @@ tag() { ## Make a new tag
 }
 
 push() { ## Push to GITHUB
-  bpCd "${scriptPath}"
+  bpCd "${BPSCRIPTPATH}"
   git push --progress
   bpCd - 
 } 
 
 pull() { ## Pull bashplates from GITHUB
-  bpCd "${scriptPath}"
+  bpCd "${BPSCRIPTPATH}"
   git pull --progress
   bpCd - 
 } 
@@ -325,13 +327,13 @@ VERSION="1.12beta"
 BPVERSION="1.11"
 
 ##V Usage info
-USAGE="Usage: ${scriptName} command [option]"
+USAGE="Usage: ${BPSCRIPTNAME} command [option]"
 
 # Description text
 DESC="Bashplate project management script"
 
 ##V logfile (uncomment to use logfile)
-#LOGFILE=${scriptPath}/${scriptName}.log
+#LOGFILE=${BPSCRIPTPATH}/${BPSCRIPTNAME}.log
 
 ##V Logging options (uncomment to activate logging parameters)
 #LOG_OK=1
@@ -345,7 +347,7 @@ DESC="Bashplate project management script"
 #REQUIRED_PROGRAMS=(ls mv kalle)
 
 ##V Lock file (uncomment to use lock file feature )
-#LOCK_FILE=/tmp/${scriptName}.lock
+#LOCK_FILE=/tmp/${BPSCRIPTNAME}.lock
 
 # Activate settings function (will create settings file when run)
 BPSETTINGS=1
@@ -402,6 +404,8 @@ signalTerm() {
   bpCleanUp
 }
 
+##CN- IHELP Exit and cleanup
+
 bpCleanUp() { ##D Cleanup function
   rm -f "$LOCK_FILE"    # remove Lock file
   echo -e "${E_SHOW}"     # Turn on cursor if turned of
@@ -420,7 +424,7 @@ bpExit() { ##D Function for safely exiting script
 
   # Check if argument is given
   if [ -z "$1" ]; then
-    exit "0"  # Success
+    exit 0   # Success
   else
     exit "$1"
   fi
@@ -430,16 +434,15 @@ bpExit() { ##D Function for safely exiting script
 bpErrorExit() {  ##D Safely exit script with a error
   bpError "${1}"
   bpCleanUp
-  exit "1"
+  exit 1
 }
 
 #---------------------------------------------------------------------
-# Bashplate internal functions
+# Terminal codes
 #---------------------------------------------------------------------
 
 # ANSI foreground colors codes
 #
-
 E_BLACK=$'\e[0;30m'        # Black
 E_RED=$'\e[0;31m'          # Red
 E_GREEN=$'\e[0;32m'        # Green
@@ -505,6 +508,10 @@ BP_C_PATH=$E_GREEN
 BP_E_OK=0            # successful termination
 
 
+#---------------------------------------------------------------------
+# Bashplate internal functions
+#---------------------------------------------------------------------
+
 ##CN- IHELP Printing functions
 
 # Print text with row
@@ -520,7 +527,7 @@ bpPrintLineC() { ##D Print text with adjusted line after with selectable colors
   len4="${#4}"
 
   echo -en "${2}${1}${4}${3}"
-  l=$((COLUMNS - len1 - len4 - 3 ))
+  l=$((BPCOLUMNS - len1 - len4 - 3 ))
   seq -s"${5}" "${l}"|tr -d '[:digit:]'
   echo -en ${E_END} 
 }
@@ -784,6 +791,48 @@ bpReadInt() { ##D Read integer from commandline
     fi
   done
   echo "${result}"
+}
+
+
+#
+# $1 question text
+# $2 default answer 0 = yes, 1 = no
+# return 0 = Yes, 1=No
+#
+bpReadYN() {  ##D Ask yes/no question generic 
+	while true; do
+	
+	  if [ "$2" -eq 1 ]; then 
+		  yn=$( bpRead "${1} [y/N]" )	    
+		else
+  		yn=$( bpRead "${1} [Y/n]" )
+		fi
+	
+    case "$yn" in
+		  [Yy]* ) return 0;  break;;
+		  [Nn]* ) return 1;  break;;
+		  ""    ) return "$2"; break;;
+		  * ) echo "Please answer yes or no.";;
+		esac
+	done
+}
+
+#
+# $1 Question text
+# return 0 = Yes, 1=No
+#
+bpReadY() { ##D Ask yes/no question default yes
+  bpReadYN "$1" 0
+	return $?
+}
+
+#
+# $1 Question text
+# return 0 = Yes, 1=No
+#
+bpReadN() { ##D Ask yes/no question default no
+  bpReadYN "$1" 1
+	return $?
 }
 
 
@@ -1147,7 +1196,7 @@ ihelp() { ##D Print internal help information
   IFS=$'\n'
   SC="$1"
 
-  bpLine
+#  bpLine
   IHELP=1    # Force ihelp documentations
   LOGFILE=1  # Force log documentation
 
@@ -1178,7 +1227,7 @@ ihelp() { ##D Print internal help information
 
 iinfo() { ##D Show information about script
   bpTextLine "Script information"
-  bpPrintVar "scriptName"      "Script" "$( bpColorizeFile "${scriptPath}/${scriptName}" )"
+  bpPrintVar "BPSCRIPTNAME"    "Script" "$( bpColorizeFile "${BPSCRIPTPATH}/${BPSCRIPTNAME}" )"
   bpPrintVar "VERSION"         "Script version" 
   bpPrintVar "BPVERSION"       "Template version"
   bpPrintVar "bpSettingsFile"  "Bashplate settings file" "$( bpColorizeFile ${bpSettingsFile} )"
@@ -1186,8 +1235,8 @@ iinfo() { ##D Show information about script
   bpPrintVar "LOCK_FILE"       "Lock file" "$( bpColorizeFile "${LOCK_FILE}" )"
   bpPrintVar "DEFAULTCMD"      "Default function" 
   bpPrintInfo "PID" "$$"  
-  bpPrintVar "DATE" "Date" 
-  bpPrintVar "TIME" "Time"
+  bpPrintVar "BPDATE" "Date" 
+  bpPrintVar "BPTIME" "Time"
 
   if [ -n "${INFOHOOK}" ]; then
     bpTextLine "App. information"
@@ -1232,7 +1281,7 @@ version() { ## Print version information
 
 # Runs a function in this file as a command
 runCommand() {
-  if [ "$bpArguments" -eq 0 ]; then
+  if [ "$BPARGUMENTS" -eq 0 ]; then
 
     # check for a default command
     if [ -n "$DEFAULTCMD" ]; then
@@ -1284,29 +1333,44 @@ runCommand() {
   bpErrorExit "Command \"$1\" not found"
 }
 
-# Init magic variables
-#
+#---------------------------------------------------------------------
+# Initiate internal variables
+#---------------------------------------------------------------------
+
+##V Directory where script is located
+BPSCRIPTPATH=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+##V Name of script
+BPSCRIPTNAME=$(basename "$0")
+
+##V Number of arguments given to script
+BPARGUMENTS=$#
 
 ##V Current date
-DATE=$(date +"%Y-%m-%d")
+BPDATE=$(date +"%Y-%m-%d")
 
 ##V Current time
-TIME=$(date +"%H:%M:%S")
+BPTIME=$(date +"%H:%M:%S")
 
 ##V Number of columns in terminal
-COLUMNS=$(tput cols)
+BPCOLUMNS=$(tput cols)
 
 ##V Number of lines in terminal
-LINES=$(tput lines)
+BPLINES=$(tput lines)
 
+
+#---------------------------------------------------------------------
+# Setup signals
+#---------------------------------------------------------------------
 
 trap  signalQuit SIGQUIT
 trap  signalInt  SIGINT
 trap  signalHup  SIGHUP
 trap  signalTerm SIGTERM
 
-##V Number of arguments given to script
-bpArguments=$#
+#---------------------------------------------------------------------
+# Load settings and execute script handler
+#---------------------------------------------------------------------
 
 # Load configuration file settings
 bpLoadSettings
