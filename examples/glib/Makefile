@@ -23,7 +23,8 @@ TARGET = glibtest
 
 # List C, C++ and assembler source files here. (C/C++ dependencies are automatically generated.)
 SRC = src/main.c \
-      src/gp_log.c
+      src/gp_log.c \
+			src/debugsock.c
 
 # List C, C++ and assembler library/3rd partry source files here. (C/C++ dependencies are automatically generated.)
 LSRC =	
@@ -42,7 +43,7 @@ LIB   = -lm
 #PKGLIBS += Qt5Widgets
 #PKGLIBS += Qt5SerialPort
 #PKGLIBS += Qt5Network
-PKGLIBS += glib-2.0
+PKGLIBS = glib-2.0
 PKGLIBS += gthread-2.0
 PKGLIBS += gio-2.0
 #PKGLIBS += ncurses
@@ -62,7 +63,7 @@ OUTDIR = output
 
 # Optimization level, can be [0, 1, 2, 3, s]. 
 #     0 = turn off optimization. s = optimize for size.
-OPT = 2
+OPT = 3
 
 # Compiler flag to set the C and C++ Standard level.
 # [ gnu99 gnu11 c++98 c++03 c++11 c++14 ] 

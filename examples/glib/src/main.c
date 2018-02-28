@@ -13,6 +13,7 @@
 // Includes ---------------------------------------------------------------
 
 #include <stdio.h>
+#include <stdarg.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <signal.h>
@@ -29,7 +30,13 @@
 #include <ncurses.h>
 
 #include "gp_log.h"
+#include "debugsock.h"
+
+#define DEBUGPRINT
+#define ERRORPRINT
 #include "def.h"
+
+
 
 // Defines ----------------------------------------------------------------
 
@@ -59,25 +66,28 @@ static gboolean opt_info       = FALSE;
 static gboolean opt_daemonTest = FALSE;
 static gboolean opt_queueTest  = FALSE;
 static gboolean opt_pipeTest   = FALSE;
-static gboolean opt_domainTest = FALSE;
+static gboolean opt_domainS    = FALSE;
+static gboolean opt_domainC    = FALSE;
+
 static gboolean opt_stdinTest  = FALSE;
 static gboolean opt_cliTest    = FALSE;
 
 static GOptionEntry entries[] = {
-    { "verbose",  'v', 0, G_OPTION_ARG_NONE, &opt_verbose,    "Be verbose output",    NULL },
-    { "version",  'b', 0, G_OPTION_ARG_NONE, &opt_version,    "Output version info",  NULL },
-    { "quiet",    'q', 0, G_OPTION_ARG_NONE, &opt_quiet,      "No output to console", NULL },
-    { "daemon",    0,  0, G_OPTION_ARG_NONE, &opt_daemon,     "Start as daemon",      NULL },
-    { "error",     0,  0, G_OPTION_ARG_NONE, &opt_errorTest,  "Error test",           NULL },
-    { "thread",    0,  0, G_OPTION_ARG_NONE, &opt_threadTest, "Thread test",          NULL },
-    { "info",     'i', 0, G_OPTION_ARG_NONE, &opt_info,       "Show info",            NULL },
-    { "daemon",   'd', 0, G_OPTION_ARG_NONE, &opt_daemonTest, "Daemon test",          NULL },
-    { "queue",     0,  0, G_OPTION_ARG_NONE, &opt_queueTest,  "Queue test",           NULL },
-    { "pipe",      0,  0, G_OPTION_ARG_NONE, &opt_pipeTest,   "Pipe test",            NULL },
-    { "domain",    0,  0, G_OPTION_ARG_NONE, &opt_domainTest, "Domain socket test",   NULL },
-    { "stdin",     0,  0, G_OPTION_ARG_NONE, &opt_stdinTest,  "Listen to Stdin",      NULL },
-    { "cli",       0,  0, G_OPTION_ARG_NONE, &opt_cliTest,    "CLI test",             NULL },
-    { NULL }
+	{ "verbose",  'v', 0, G_OPTION_ARG_NONE, &opt_verbose,    "Be verbose output",    NULL },
+	{ "version",  'b', 0, G_OPTION_ARG_NONE, &opt_version,    "Output version info",  NULL },
+	{ "quiet",    'q', 0, G_OPTION_ARG_NONE, &opt_quiet,      "No output to console", NULL },
+	{ "daemon",    0,  0, G_OPTION_ARG_NONE, &opt_daemon,     "Start as daemon",      NULL },
+	{ "error",     0,  0, G_OPTION_ARG_NONE, &opt_errorTest,  "Error test",           NULL },
+	{ "thread",    0,  0, G_OPTION_ARG_NONE, &opt_threadTest, "Thread test",          NULL },
+	{ "info",     'i', 0, G_OPTION_ARG_NONE, &opt_info,       "Show info",            NULL },
+	{ "daemon",   'd', 0, G_OPTION_ARG_NONE, &opt_daemonTest, "Daemon test",          NULL },
+	{ "queue",     0,  0, G_OPTION_ARG_NONE, &opt_queueTest,  "Queue test",           NULL },
+	{ "pipe",      0,  0, G_OPTION_ARG_NONE, &opt_pipeTest,   "Pipe test",            NULL },
+	{ "domains",   0,  0, G_OPTION_ARG_NONE, &opt_domainS,    "Domain socket server", NULL },
+	{ "domainc",   0,  0, G_OPTION_ARG_NONE, &opt_domainC,    "Domain socket client", NULL },
+	{ "stdin",     0,  0, G_OPTION_ARG_NONE, &opt_stdinTest,  "Listen to Stdin",      NULL },
+	{ "cli",       0,  0, G_OPTION_ARG_NONE, &opt_cliTest,    "CLI test",             NULL },
+	{ NULL }
 };
 
 GTimer      *timer;
@@ -465,135 +475,16 @@ static gboolean socket_in(GIOChannel *gio, GIOCondition condition, gpointer data
     return TRUE;
 }
 
-#define SOCKNAME "socket_dirtest"
-
-void domainTest(void) {
-    int fd, cl, err;
-    struct sockaddr_un addr;
-    GIOChannel *channel, *channel2;
-    char *kalle = "Kalle";
-    GSocket *sock;
-    GError *error;
-    GSocketAddress *sockAddr;
-
-	  // create main loop
-    mLoop1 = g_main_loop_new(NULL, FALSE);
-
-    // create socket address
-    sockAddr = g_unix_socket_address_new(SOCKNAME);
-
-    // create socket
-    sock = g_socket_new(G_SOCKET_FAMILY_UNIX, G_SOCKET_TYPE_STREAM, G_SOCKET_PROTOCOL_DEFAULT, &error);
-
-    // bind socket to address 
-    g_socket_bind(sock, sockAddr, 1 &error);
-	
-   // return;
-
-    memset(&addr, 0, sizeof(addr));
-    addr.sun_family = AF_UNIX;
-    strncpy(addr.sun_path, SOCKNAME, sizeof(addr.sun_path) - 1);
-
-    // if domain socket exists connect to it
-    if (g_file_test(SOCKNAME, G_FILE_TEST_EXISTS)) {
-        DEBUGPRINT("Connecting to domain socket.\n");
-        err = connect(fd, (struct sockaddr_un *)&addr, sizeof(addr));
-        write(fd, kalle, 5);
-        close(fd);
-        exit(0);
-    }
-
-    //
-    bind(fd, (struct sockaddr *)&addr, sizeof(addr));
-
-    DEBUGPRINT("Listening to domain socket.\n");
-
-    if (listen(fd, 5) == -1) {
-        perror("listen error");
-        exit(-1);
-    }
+#define SOCKNAME "socket_dirtest.sock"
 
 
-    /*
-
-        if ((cl = accept(fd, NULL, NULL)) == -1) {
-            DEBUGPRINT("Incomming socket accepted\n");
-        }
-
-        channel = g_io_channel_unix_new(cl);
-        if ( !g_io_add_watch(channel, G_IO_IN | G_IO_HUP, socket_in, NULL) ) {
-            g_error ("Cannot add watch on GIOChannel!\n");
-        }
-
-    */
-    channel2 = g_io_channel_unix_new(fd);
-
-    if ( !g_io_add_watch(channel2, G_IO_IN | G_IO_HUP, socket_in, NULL) ) {
-        g_error ("Cannot add watch on GIOChannel!\n");
-    }
-
-
-    g_main_loop_run(mLoop1);
+void domainServer(void) {
+	xdomainServer(SOCKNAME);
 }
 
-void domainTest2(void) {
-    int fd, cl, err;
-    struct sockaddr_un addr;
-    GIOChannel *channel, *channel2;
-    char *kalle = "Kalle";
-
-    mLoop1 = g_main_loop_new(NULL, FALSE);
-
-    // create socket
-    fd = socket(AF_UNIX, SOCK_STREAM, 0);
-
-    memset(&addr, 0, sizeof(addr));
-    addr.sun_family = AF_UNIX;
-    strncpy(addr.sun_path, SOCKNAME, sizeof(addr.sun_path) - 1);
-
-
-    // if domain socket exists connect to it
-    if (g_file_test(SOCKNAME, G_FILE_TEST_EXISTS)) {
-        DEBUGPRINT("Connecting to domain socket.\n");
-        err = connect(fd, (struct sockaddr_un *)&addr, sizeof(addr));
-        write(fd, kalle, 5);
-        close(fd);
-        exit(0);
-    }
-
-    //
-    bind(fd, (struct sockaddr *)&addr, sizeof(addr));
-
-    DEBUGPRINT("Listening to domain socket.\n");
-
-    if (listen(fd, 5) == -1) {
-        perror("listen error");
-        exit(-1);
-    }
-
-
-    /*
-
-        if ((cl = accept(fd, NULL, NULL)) == -1) {
-            DEBUGPRINT("Incomming socket accepted\n");
-        }
-
-        channel = g_io_channel_unix_new(cl);
-        if ( !g_io_add_watch(channel, G_IO_IN | G_IO_HUP, socket_in, NULL) ) {
-            g_error ("Cannot add watch on GIOChannel!\n");
-        }
-
-    */
-    channel2 = g_io_channel_unix_new(fd);
-
-    if ( !g_io_add_watch(channel2, G_IO_IN | G_IO_HUP, socket_in, NULL) ) {
-        g_error ("Cannot add watch on GIOChannel!\n");
-    }
-
-
-    g_main_loop_run(mLoop1);
+iovoid domainClient(void) {
+	xdomainClient(SOCKNAME);
 }
-
 
 typedef struct {
     int    val;
@@ -1041,11 +932,18 @@ int main(int argc, char *argv[]) {
     }
 
     // domain socket test
-    if (opt_domainTest) {
-        domainTest();
+    if (opt_domainS) {
+        domainServer();
         exit(0);
     }
 
+	    // domain socket test
+	  if (opt_domainC) {
+        domainClient();
+        exit(0);
+    }
+
+	
     // stdin test
     if (opt_stdinTest) {
         stdinTest();
