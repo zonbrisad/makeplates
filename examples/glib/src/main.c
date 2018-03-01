@@ -475,7 +475,50 @@ static gboolean socket_in(GIOChannel *gio, GIOCondition condition, gpointer data
     return TRUE;
 }
 
+<<<<<<< HEAD
 #define SOCKNAME "socket_dirtest.sock"
+=======
+#define SOCKNAME "socket_dirtest"
+
+void domainTest(void) {
+    int fd, cl, err;
+    struct sockaddr_un addr;
+    GIOChannel *channel, *channel2;
+    char *kalle = "Kalle";
+    GSocket *sock;
+    GError *error;
+    GSocketAddress *sockAddr;
+
+    // create main loop
+    mLoop1 = g_main_loop_new(NULL, FALSE);
+
+    // create socket address
+    sockAddr = g_unix_socket_address_new(SOCKNAME);
+
+    // create socket
+    sock = g_socket_new(G_SOCKET_FAMILY_UNIX, G_SOCKET_TYPE_STREAM, G_SOCKET_PROTOCOL_DEFAULT, &error);
+
+    // bind socket to address
+    g_socket_bind(sock, sockAddr, 1, &error);
+
+    // return;
+
+    memset(&addr, 0, sizeof(addr));
+    addr.sun_family = AF_UNIX;
+    strncpy(addr.sun_path, SOCKNAME, sizeof(addr.sun_path) - 1);
+
+    // if domain socket exists connect to it
+    if (g_file_test(SOCKNAME, G_FILE_TEST_EXISTS)) {
+        DEBUGPRINT("Connecting to domain socket.\n");
+        err = connect(fd, (struct sockaddr_un *)&addr, sizeof(addr));
+        write(fd, kalle, 5);
+        close(fd);
+        exit(0);
+    }
+
+    //
+    bind(fd, (struct sockaddr *)&addr, sizeof(addr));
+>>>>>>> 6939779cad99c40d8f617542fa977d2628ec1b72
 
 
 void domainServer(void) {
@@ -761,29 +804,40 @@ void stdinTest() {
 }
 
 void cli_in(int ch) {
-	static int pos=0;
-	char *str;
-	char buf[16];
-	printf("%d", ch);
-	tcflush(stdout,TCIOFLUSH);
-		if (ch=='q') {
-			exit(0);
-		}
+    static int pos = 0;
+    char *str;
+    char buf[16];
+    printf("%d", ch);
+    tcflush(stdout, TCIOFLUSH);
 
-	switch (ch) {
-		case NO_CHAR:     break;
-		case ARROW_UP:    break;
-		case ARROW_DOWN:  break;
-		case ARROW_LEFT:
-			if (pos>0) {
-			  str = E_CUR_BACK;
-			  pos--;
-			}
-			break;
-		case ARROW_RIGHT:
-			break;
-		default: break;
-	}
+    if (ch == 'q') {
+        exit(0);
+    }
+
+    switch (ch) {
+        case NO_CHAR:
+            break;
+
+        case ARROW_UP:
+            break;
+
+        case ARROW_DOWN:
+            break;
+
+        case ARROW_LEFT:
+            if (pos > 0) {
+                str = E_CUR_BACK;
+                pos--;
+            }
+
+            break;
+
+        case ARROW_RIGHT:
+            break;
+
+        default:
+            break;
+    }
 
 
     //putc('a', STDOUT_FILENO);
@@ -810,10 +864,10 @@ static gboolean stdin_in_cli (GIOChannel *gio, GIOCondition condition, gpointer 
             ch = getCharX(buf[0]);
             //printf("b %x\n", ch);
             cli_in(ch);
-//            if (ch != NO_CHAR) {
-//                //printf("%s\n", char2Str(ch));
-//                cli_in(ch);
-//            }
+            //            if (ch != NO_CHAR) {
+            //                //printf("%s\n", char2Str(ch));
+            //                cli_in(ch);
+            //            }
 
 
         }

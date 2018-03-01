@@ -51,7 +51,7 @@ int main(int argc, char *argv[]) {
   QCoreApplication::setOrganizationName(APP_ORG);
   QCoreApplication::setApplicationName(APP_NAME);
   QCoreApplication::setApplicationVersion(APP_VERSION);
-
+  
   app.setApplicationDisplayName("sssKalle");
   QPushButton hello( "Hello world!", 0 );
 
