@@ -475,57 +475,13 @@ static gboolean socket_in(GIOChannel *gio, GIOCondition condition, gpointer data
     return TRUE;
 }
 
-<<<<<<< HEAD
 #define SOCKNAME "socket_dirtest.sock"
-=======
-#define SOCKNAME "socket_dirtest"
-
-void domainTest(void) {
-    int fd, cl, err;
-    struct sockaddr_un addr;
-    GIOChannel *channel, *channel2;
-    char *kalle = "Kalle";
-    GSocket *sock;
-    GError *error;
-    GSocketAddress *sockAddr;
-
-    // create main loop
-    mLoop1 = g_main_loop_new(NULL, FALSE);
-
-    // create socket address
-    sockAddr = g_unix_socket_address_new(SOCKNAME);
-
-    // create socket
-    sock = g_socket_new(G_SOCKET_FAMILY_UNIX, G_SOCKET_TYPE_STREAM, G_SOCKET_PROTOCOL_DEFAULT, &error);
-
-    // bind socket to address
-    g_socket_bind(sock, sockAddr, 1, &error);
-
-    // return;
-
-    memset(&addr, 0, sizeof(addr));
-    addr.sun_family = AF_UNIX;
-    strncpy(addr.sun_path, SOCKNAME, sizeof(addr.sun_path) - 1);
-
-    // if domain socket exists connect to it
-    if (g_file_test(SOCKNAME, G_FILE_TEST_EXISTS)) {
-        DEBUGPRINT("Connecting to domain socket.\n");
-        err = connect(fd, (struct sockaddr_un *)&addr, sizeof(addr));
-        write(fd, kalle, 5);
-        close(fd);
-        exit(0);
-    }
-
-    //
-    bind(fd, (struct sockaddr *)&addr, sizeof(addr));
->>>>>>> 6939779cad99c40d8f617542fa977d2628ec1b72
-
 
 void domainServer(void) {
 	xdomainServer(SOCKNAME);
 }
 
-iovoid domainClient(void) {
+void domainClient(void) {
 	xdomainClient(SOCKNAME);
 }
 

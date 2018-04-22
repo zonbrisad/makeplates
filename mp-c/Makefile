@@ -693,16 +693,8 @@ newcpp:  ## Create a new C++ module
 	@${CTEMPLATE} newcpp --dir src --author "$(AUTHOR)" --license "$(LICENSE)"
 
 newclass:  ## Create a new C++ class
-<<<<<<< HEAD
-	@${CTEMPLATE} newclass --dir src --author "$(AUTHOR)" --license "$(LICENSE)"	
-=======
 	@${MPTEMPLATE} newclass --dir src --author "$(AUTHOR)" --license "$(LICENSE)"	
 		
-#newproj:  # Create a new project
-#	@${PROJECT} newproj
->>>>>>> 7b000a6d0c65bb5a5c89f5da3beedf4af59e3e46
-
-
 # Install options -----------------------------------------------------------
 .PHONY: install 
 
