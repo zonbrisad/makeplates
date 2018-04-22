@@ -335,13 +335,15 @@ class CFile():
         
         self.addSection("Macros")
         self.buf += self.defines
-        
-        self.addSection("Prototypes")
-        self.buf += self.prototypes
+                
+        self.addSection("Datatypes")
 
         self.addSection("Variables")
         self.buf += self.variables
 
+        self.addSection("Prototypes")
+        self.buf += self.prototypes
+        
         if self.conf.main  and not self.isHeader:
             self.addSection("Code")
             self.buf += self.code
@@ -352,12 +354,12 @@ class CFile():
             self.buf += self.mainCode
             self.buf += self.mainExit
             self.buf += "}\n"
-            
-        if self.isHeader:
-            self.addSentinelEnd()
         
         if self.isHeader and not self.isCpp:
             self.addCppSentinelEnd()
+            
+        if self.isHeader:
+            self.addSentinelEnd()    
 
         self.replace("__FILENAME__", self.fileName     )
         self.replace("__BRIEF__",    self.conf.brief   )
