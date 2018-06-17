@@ -41,12 +41,6 @@
 # Exit script when pipe fails
 set -o pipefail
 
-# Directory where script is located
-scriptPath=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-
-# Name of script
-scriptName=$(basename "$0")
-
 #---------------------------------------------------------------------
 # User defined Settings
 #---------------------------------------------------------------------
@@ -55,7 +49,7 @@ scriptName=$(basename "$0")
 MP_CONFIG_DIR=~/.config/makeplates
 
 # Directory for 3d party files
-MP_3DPARTY_DIR=${scriptPath}/3dparty
+MP_3DPARTY_DIR=${BP_SCRIPT_PATH}/3dparty
 
 #---------------------------------------------------------------------
 # User defined functions
@@ -81,15 +75,15 @@ bpInsertLineAfter() {
 bpQuestionDy() {  ##D Ask yes/no question default yes 
   local __result=$2
   while true; do
-#	  read -rp "${1}"" [Y/n]>" yn
+#    read -rp "${1}"" [Y/n]>" yn
     yn=$( bpRead "${1} [Y/n]" ) 
     case "$yn" in
-	    [Yy]* ) eval "$__result"='y'; break;;
-			[Nn]* ) eval "$__result"='n'; break;;
-			""    ) eval "$__result"='y'; break;;
-			* ) echo "Please answer yes or no.";;
-		esac
-	done 	
+      [Yy]* ) eval "$__result"='y'; break;;
+      [Nn]* ) eval "$__result"='n'; break;;
+      ""    ) eval "$__result"='y'; break;;
+      * ) echo "Please answer yes or no.";;
+    esac
+  done   
 }
 
 
@@ -105,58 +99,58 @@ bpQuestionDy() {  ##D Ask yes/no question default yes
 createProject() {
   echo -e "${1}"
 
-	pn=$(bpRead  "Project name>" "" )
- 	brief=$(bpRead "Brief description>" "" )
+  pn=$(bpRead  "Project name>" "" )
+   brief=$(bpRead "Brief description>" "" )
 
-#	bpQuestionDy "Create subdirectory?" res
-#	if [ ${res} == 'y' ]; then
+#  bpQuestionDy "Create subdirectory?" res
+#  if [ ${res} == 'y' ]; then
     dst="${pn}"
-		bpCp "${2}" "${pn}"
-#	else
-#	  dst=.
-#		bpCp "${2}/*" "${dst}"
-#	fi
+    bpCp "${2}" "${pn}"
+#  else
+#    dst=.
+#    bpCp "${2}/*" "${dst}"
+#  fi
 
   srcDst="${dst}"
-	
-	# Check tool dir is present then full project otherwise simple
+  
+  # Check tool dir is present then full project otherwise simple
   if [ "$3" == "tools" ]; then
-  	bpRm "${dst}/tools"
-	  bpCp "${BPSCRIPTPATH}/tools" "${dst}"
-		srcDst="${dst}/src"
-	fi
-	
-  bpReplace "${pn}/Makefile" "__NAME__"    "${pn}"
-	bpReplace "${pn}/Makefile" "__AUTHOR__"  "${BP_NAME} <${BP_EMAIL}>"
-	bpReplace "${pn}/Makefile" "__DATE__"    "${DATE}"
-	bpReplace "${pn}/Makefile" "__BRIEF__"   "${brief}"
-	bpReplace "${pn}/Makefile" "__LICENSE__" "${BP_LICENSE}"
-	bpReplace "${pn}/Makefile" "__ORG__"     "${BP_ORG}"
-
-	
-	if [ "$4" == "cpp" ]; then
-	  opts="newcpp --main"
-		mainFile="main.cpp"
-	else 
-    opts="newc --main"
-		mainFile="main.c"
+    bpRm "${dst}/tools"
+    bpCp "${BP_SCRIPT_PATH}/tools" "${dst}"
+    srcDst="${dst}/src"
   fi
-	
-	opts="${opts}  --basedir ${pn}"
-	
-	if [ "$3" == "tools" ]; then
+  
+  bpReplace "${pn}/Makefile" "__NAME__"    "${pn}"
+  bpReplace "${pn}/Makefile" "__AUTHOR__"  "${BP_NAME} <${BP_EMAIL}>"
+  bpReplace "${pn}/Makefile" "__DATE__"    "${DATE}"
+  bpReplace "${pn}/Makefile" "__BRIEF__"   "${brief}"
+  bpReplace "${pn}/Makefile" "__LICENSE__" "${BP_LICENSE}"
+  bpReplace "${pn}/Makefile" "__ORG__"     "${BP_ORG}"
+
+  
+  if [ "$4" == "cpp" ]; then
+    opts="newcpp --main"
+    mainFile="main.cpp"
+  else 
+    opts="newc --main"
+    mainFile="main.c"
+  fi
+  
+  opts="${opts}  --basedir ${pn}"
+  
+  if [ "$3" == "tools" ]; then
     bpReplaceLine "${dst}/Makefile" "SRC" "SRC = src\/${mainFile}"
-	else
-	  bpReplaceLine "${dst}/Makefile" "SRC" "SRC = ${mainFile}"
-	fi
-	
-	if [ "$5" == "glib" ]; then
-	  opts="$opts --glib"
-		
-		bpReplace "${dst}/Makefile" "#PKGLIBS += glib"    "PKGLIBS += glib"
-		bpReplace "${dst}/Makefile" "#PKGLIBS += gthread" "PKGLIBS += gthread"
-		bpReplace "${dst}/Makefile" "#PKGLIBS += gio"     "PKGLIBS += gio"
-	fi
+  else
+    bpReplaceLine "${dst}/Makefile" "SRC" "SRC = ${mainFile}"
+  fi
+  
+  if [ "$5" == "glib" ]; then
+    opts="$opts --glib"
+    
+    bpReplace "${dst}/Makefile" "#PKGLIBS += glib"    "PKGLIBS += glib"
+    bpReplace "${dst}/Makefile" "#PKGLIBS += gthread" "PKGLIBS += gthread"
+    bpReplace "${dst}/Makefile" "#PKGLIBS += gio"     "PKGLIBS += gio"
+  fi
 
   ${mptemplate} ${opts} --name "main" --dir "${srcDst}" --brief "${brief}" --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
 }
@@ -164,25 +158,25 @@ createProject() {
 ##N- C Projects
 
 newc() { ## Create a new standard C makeplate project
-  createProject "Creating new makeplate C project" "${scriptPath}/mp-c" "tools" "c"
+  createProject "Creating new makeplate C project" "${BP_SCRIPT_PATH}/mp-c" "tools" "c"
 }
 
 newsc() { ## Create a new simple C makeplate project
-  createProject "Creating new simple makeplate C project"  "${scriptPath}/mp-simple-c" "" "c"
+  createProject "Creating new simple makeplate C project"  "${BP_SCRIPT_PATH}/mp-simple-c" "" "c"
 }
 
 newg() { ## Create a new GLIB/GTK based C makeplate project
-  createProject "Creating new makeplate C glib  project" "${scriptPath}/mp-c" "tools" "c" "glib"
+  createProject "Creating new makeplate C glib  project" "${BP_SCRIPT_PATH}/mp-c" "tools" "c" "glib"
 }
 
 ##N- C++ Projects
 
 newcpp() { ## Create a new standard C++ makeplate project
-  createProject  "Creating new makeplate C++ project" "${scriptPath}/mp-c" "tools" "cpp"
+  createProject  "Creating new makeplate C++ project" "${BP_SCRIPT_PATH}/mp-c" "tools" "cpp"
 }
 
 newscpp() { ## Create a new simple C++ makeplate project
-  createProject "Creating new simple makeplate C++ project" "${scriptPath}/mp-simple-c" "" "cpp"
+  createProject "Creating new simple makeplate C++ project" "${BP_SCRIPT_PATH}/mp-simple-c" "" "cpp"
 }
 
 ##N- Code creation
@@ -213,66 +207,66 @@ MPINSTALL=mpInstall
 install3p() { #  Install 3d party library
 
   if [ -d "${MP_3DPARTY_DIR}/${2}" ]; then
-	  if [ -e "${MP_3DPARTY_DIR}/${2}/${MPINSTALL}" ]; then
+    if [ -e "${MP_3DPARTY_DIR}/${2}/${MPINSTALL}" ]; then
 
-			"${MP_3DPARTY_DIR}/${2}/${MPINSTALL}" "${PWD}"
-			bpOk "Module \"${2}\" installed"
-		  return
-		fi
-	
-	  cp -arf "${MP_3DPARTY_DIR}/${2}/*" .
-		bpOk "Module \"${2}\" installed"
-	else
-	  bpError "Module \"${2}\" does not exist"
-	fi
+      "${MP_3DPARTY_DIR}/${2}/${MPINSTALL}" "${PWD}"
+      bpOk "Module \"${2}\" installed"
+      return
+    fi
+  
+    cp -arf "${MP_3DPARTY_DIR}/${2}/*" .
+    bpOk "Module \"${2}\" installed"
+  else
+    bpError "Module \"${2}\" does not exist"
+  fi
 }
 
 # shellcheck disable=2016
 new3p() { # Create new 3d party install script
   {
   echo "#!/usr/bin/env bash" 
-	echo "#" 
-	echo "# Makeplate 3dparty install script" 
-	echo "#" 
-	echo '# $1 is destination directory' 
-	echo "#" 
+  echo "#" 
+  echo "# Makeplate 3dparty install script" 
+  echo "#" 
+  echo '# $1 is destination directory' 
+  echo "#" 
   echo  
-	echo 'scriptPath=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )' 
-	echo  
-	
+  echo 'BP_SCRIPT_PATH=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )' 
+  echo  
+  
   echo '# Install file to dir' 
   echo '# arg1 local file to copy' 
   echo '# arg2 destination dir' 
-	 
-	echo 'mpInst() {' 
-	echo '  dn=$(dirname $1)' 
-	echo '  dst=$2/${dn}' 
-	echo '  if [ ! -d ${dst} ]; then' 
-	echo '    mkdir -p $dst' 
-	echo '  fi' 
-	echo '  cp -rf ${scriptPath}/$1 $2/${dn}/.' 
-	echo '}' 
-	echo  
-	echo 'mpInst myFile $1' 
-  } > mpInstall								
-	
-	chmod +x ${MPINSTALL}
+   
+  echo 'mpInst() {' 
+  echo '  dn=$(dirname $1)' 
+  echo '  dst=$2/${dn}' 
+  echo '  if [ ! -d ${dst} ]; then' 
+  echo '    mkdir -p $dst' 
+  echo '  fi' 
+  echo '  cp -rf ${BP_SCRIPT_PATH}/$1 $2/${dn}/.' 
+  echo '}' 
+  echo  
+  echo 'mpInst myFile $1' 
+  } > mpInstall                
+  
+  chmod +x ${MPINSTALL}
 }
 
 ##N- Various
 
 examples() { ## List examples
-  ls -1  "${BPSCRIPTPATH}/examples/"
+  ls -1  "${BP_SCRIPT_PATH}/examples/"
 }
 
 utools() { ## Update makaplate tools in project
-	bpCp "${BPSCRIPTPATH}/tools/*" "tools/."
+  bpCp "${BPSCRIPTPATH}/tools/*" "tools/."
 }
 
 ##N- Project management (git)
 
 clean() { ## Remove leftover files 
-  bpCd "${BPSCRIPTPATH}"
+  bpCd "${BP_SCRIPT_PATH}"
 
   find . -name "*~"     -delete
   find . -name "*.orig" -delete
@@ -283,14 +277,14 @@ clean() { ## Remove leftover files
 }
 
 commit() { ## Commit project to repository
-  bpCd "${BPSCRIPTPATH}"
+  bpCd "${BP_SCRIPT_PATH}"
   git commit -a
 #  git push --tags -a
   bpCd - 
 }
 
 tag() { ## Make a new tag
-  bpCd "${BPSCRIPTPATH}"
+  bpCd "${BP_SCRIPT_PATH}"
   # List existing tags
   git tag
 
@@ -305,13 +299,13 @@ tag() { ## Make a new tag
 }
 
 push() { ## Push to GITHUB
-  bpCd "${BPSCRIPTPATH}"
+  bpCd "${BP_SCRIPT_PATH}"
   git push --progress
   bpCd - 
 } 
 
 pull() { ## Pull bashplates from GITHUB
-  bpCd "${BPSCRIPTPATH}"
+  bpCd "${BP_SCRIPT_PATH}"
   git pull --progress
   bpCd - 
 } 
@@ -319,21 +313,22 @@ pull() { ## Pull bashplates from GITHUB
 #---------------------------------------------------------------------
 # Bashplate settings
 #---------------------------------------------------------------------
+bpInitSettings() { 
 
-# Script version info
+##V Script version info
 VERSION="1.12beta"
 
 ##V Bashplate version
 BPVERSION="1.11"
 
 ##V Usage info
-USAGE="Usage: ${BPSCRIPTNAME} command [option]"
+USAGE="Usage: ${BP_SCRIPT_NAME} command [option]"
 
 # Description text
 DESC="Bashplate project management script"
 
 ##V logfile (uncomment to use logfile)
-#LOGFILE=${BPSCRIPTPATH}/${BPSCRIPTNAME}.log
+#LOGFILE=${BP_SCRIPT_PATH}/${BP_SCRIPT_NAME}.log
 
 ##V Logging options (uncomment to activate logging parameters)
 #LOG_OK=1
@@ -342,23 +337,19 @@ DESC="Bashplate project management script"
 #LOG_ERROR=1
 #LOG_CRITICAL=1
 
-
-##V Programs that are required to run the script (uncomment to use)
-#REQUIRED_PROGRAMS=(ls mv kalle)
-
 ##V Lock file (uncomment to use lock file feature )
 #LOCK_FILE=/tmp/${BPSCRIPTNAME}.lock
 
 # Activate settings function (will create settings file when run)
 BPSETTINGS=1
 
-bpSettingsDir=~/.config/bashplates
-bpSettingsFile=${bpSettingsDir}/bashplates.conf
-
 # Create settings file if non existent
 #CREATEPLSETTINGS=1
 
+##V Edit file command (uncomment to enable)
+BP_EDIT=1
 
+}
 #---------------------------------------------------------------------
 # Bashplate Hooks
 #---------------------------------------------------------------------
@@ -498,15 +489,20 @@ BP_C_ERROR=$E_BR_RED
 BP_C_CRITICAL=$E_ON_RED$E_WHITE
 BP_C_LINE=$E_DARKGRAY
 BP_C_LINE_TEXT=$E_YELLOW
-BP_C_COMMENT=$E_GREEN
+BP_C_DESCRIPTION=$E_GREEN
 BP_C_ID=$E_CYAN
 BP_C_FILENAME=$E_BR_GREEN
 BP_C_PATH=$E_GREEN
 
+# Shellscript colorize colors
+BP_C_RESERVED=$E_RED
+BP_C_COMMENT=$E_CYAN
+BP_C_STRING=$E_GREEN
+BP_C_VAR=$E_BR_YELLOW
+
 # Exit codes
 #
 BP_E_OK=0            # successful termination
-
 
 #---------------------------------------------------------------------
 # Bashplate internal functions
@@ -527,7 +523,7 @@ bpPrintLineC() { ##D Print text with adjusted line after with selectable colors
   len4="${#4}"
 
   echo -en "${2}${1}${4}${3}"
-  l=$((BPCOLUMNS - len1 - len4 - 3 ))
+  l=$((BP_COLUMNS - len1 - len4 - 3 ))
   seq -s"${5}" "${l}"|tr -d '[:digit:]'
   echo -en ${E_END} 
 }
@@ -576,11 +572,11 @@ bpPrintInfoGeneric() {
 # arg2 text for column 2
 #
 bpPrintInfo() {
-  bpPrintInfoGeneric "${BP_C_ID}" "${BP_C_COMMENT}" "$1" "$2"
+  bpPrintInfoGeneric "${BP_C_ID}" "${BP_C_DESCRIPTION}" "$1" "$2"
 }
 
 bpPrintInfoAlt() {
-  bpPrintInfoGeneric "${E_DARKGRAY}" "${BP_C_COMMENT}" "$1" "$2"
+  bpPrintInfoGeneric "${E_DARKGRAY}" "${BP_C_DESCRIPTION}" "$1" "$2"
 }
 
 # Print a variable + text into two columns
@@ -590,7 +586,7 @@ bpPrintInfoAlt() {
 # $3 optional text form column 1
 #
 bpPrintVar() {
-  var="$1"			
+  var="$1"      
   if [ "${!var}" ]; then
     if [ ! -z "$3" ]; then
       X=${3}
@@ -622,7 +618,7 @@ bpColorizeFile() { ##D Colorize string with filename
 bpFilterEscape() { ##D Filter escape characters from string
   echo "$1" | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g"
 }
-	
+  
 
 ##CN- IHELP File operations
 
@@ -800,21 +796,21 @@ bpReadInt() { ##D Read integer from commandline
 # return 0 = Yes, 1=No
 #
 bpReadYN() {  ##D Ask yes/no question generic 
-	while true; do
-	
-	  if [ "$2" -eq 1 ]; then 
-		  yn=$( bpRead "${1} [y/N]" )	    
-		else
-  		yn=$( bpRead "${1} [Y/n]" )
-		fi
-	
+  while true; do
+  
+    if [ "$2" -eq 1 ]; then 
+      yn=$( bpRead "${1} [y/N]" )      
+    else
+      yn=$( bpRead "${1} [Y/n]" )
+    fi
+  
     case "$yn" in
-		  [Yy]* ) return 0;  break;;
-		  [Nn]* ) return 1;  break;;
-		  ""    ) return "$2"; break;;
-		  * ) echo "Please answer yes or no.";;
-		esac
-	done
+      [Yy]* ) return 0;  break;;
+      [Nn]* ) return 1;  break;;
+      ""    ) return "$2"; break;;
+      * ) echo "Please answer yes or no.";;
+    esac
+  done
 }
 
 #
@@ -823,7 +819,7 @@ bpReadYN() {  ##D Ask yes/no question generic
 #
 bpReadY() { ##D Ask yes/no question default yes
   bpReadYN "$1" 0
-	return $?
+  return $?
 }
 
 #
@@ -832,7 +828,7 @@ bpReadY() { ##D Ask yes/no question default yes
 #
 bpReadN() { ##D Ask yes/no question default no
   bpReadYN "$1" 1
-	return $?
+  return $?
 }
 
 
@@ -858,12 +854,14 @@ bpAddSetting() {
   fi
 }
 
-bpAddSettings() { 
-  bpAddSetting $bpSettingsFile "BP_NAME"    "John Doe"        "Name of user"
-  bpAddSetting $bpSettingsFile "BP_EMAIL"   "JohnDoe@foo.bar" "Email of user"
-  bpAddSetting $bpSettingsFile "BP_EDITOR"  "vi"              "Default editor"
-  bpAddSetting $bpSettingsFile "BP_LICENSE" "MIT"             "Default project license"
-  bpAddSetting $bpSettingsFile "BP_ORG"     "ACME"            "Default organisation"
+bpAddSettings() {
+  bpAddSetting $BP_SETTINGS_FILE "BP_NAME"    "John Doe"        "Name of user"
+  bpAddSetting $BP_SETTINGS_FILE "BP_EMAIL"   "JohnDoe@foo.bar" "Email of user"
+  bpAddSetting $BP_SETTINGS_FILE "BP_EDITOR"  "vi"              "Default editor"
+  bpAddSetting $BP_SETTINGS_FILE "BP_LICENSE" "MIT"             "Default project license"
+  bpAddSetting $BP_SETTINGS_FILE "BP_ORG"     "ACME"            "Default organisation"
+  bpAddSetting $BP_SETTINGS_FILE "BP_DIFF"    "meld"            "Default diff program"  
+  bpAddSetting $BP_SETTINGS_FILE "BP_PATH"    "${BP_SCRIPT_PATH}" "Path to Bashplates directory"
 }
 
 # Change setting in config file (key value pair)
@@ -884,24 +882,26 @@ bpChSetting() {
 }
 
 bpCreateSettings() {
-  echo "Creating new bashplates settings file. ${bpSettingsFile}"
-  bpMkDir ${bpSettingsDir}
+  echo "Creating new bashplates settings file. ${BP_SETTINGS_FILE}"
+  bpMkDir "${BP_SETTINGS_DIR}"
+  bpMkDir "${BP_SETTINGS_PATHS}"
+  bpMkDir "${BP_SETTINGS_MODULES}"
           
-  echo "# " >> ${bpSettingsFile}
-  echo "# Bashplates common settings" > ${bpSettingsFile}
-  echo "# " >> ${bpSettingsFile}
-  echo      >> ${bpSettingsFile}
+  echo "# " >> ${BP_SETTINGS_FILE}
+  echo "# Bashplates common settings" > ${BP_SETTINGS_FILE}
+  echo "# " >> ${BP_SETTINGS_FILE}
+  echo      >> ${BP_SETTINGS_FILE}
 
   bpAddSettings
 }
 
 bpLoadSettings() {
-  if [ -n "${bpSettingsFile}" ]; then
-    if [ -e "${bpSettingsFile}" ]; then
-      source "${bpSettingsFile}"
+  if [ -n "${BP_SETTINGS_FILE}" ]; then
+    if [ -e "${BP_SETTINGS_FILE}" ]; then
+      source "${BP_SETTINGS_FILE}"
     else
       bpCreateSettings
-      source "${bpSettingsFile}"
+      source "${BP_SETTINGS_FILE}"
     fi
   fi
 }
@@ -913,31 +913,45 @@ printSettings() { ##C BPSETTINGS Print plate information
   bpPrintVar BP_LICENSE   "Default license:"
   bpPrintVar BP_EDITOR    "Default editor"
   bpPrintVar BP_ORG       "Default organisation"
+  bpPrintVar BP_DIFF      "Default diff program"
   bpLine
 }
 
 setname() { ##C BPSETTINGS Set name
-  bpChSetting "${bpSettingsFile}" "BP_NAME" "\"${2}\""  
+  bpChSetting "${BP_SETTINGS_FILE}" "BP_NAME" "\"${2}\""
 }
 
 setemail() { ##C BPSETTINGS Set email address
-  bpChSetting "${bpSettingsFile}" "BP_EMAIL" "\"${2}\""  
+  bpChSetting "${BP_SETTINGS_FILE}" "BP_EMAIL" "\"${2}\""  
 }
 
 seteditor() { ##C BPSETTINGS Set default editor
-  bpChSetting "${bpSettingsFile}" "BP_EDITOR" "\"${2}\""  
+  bpChSetting "${BP_SETTINGS_FILE}" "BP_EDITOR" "\"${2}\""  
 }
 
 setlic() { ##C BPSETTINGS Set default license
-  bpChSetting "${bpSettingsFile}" "BP_LICENSE" "\"${2}\""  
+  bpChSetting "${BP_SETTINGS_FILE}" "BP_LICENSE" "\"${2}\""  
 }
 
 setorg() { ##C BPSETTINGS Set default organisation
-  bpChSetting "${bpSettingsFile}" "BP_ORG" "\"${2}\""  
+  bpChSetting "${BP_SETTINGS_FILE}" "BP_ORG" "\"${2}\""  
+}
+
+setdiff() { ##C BPSETTINGS Set default organisation
+  bpChSetting "${BP_SETTINGS_FILE}" "BP_DIFF" "\"${2}\""  
 }
 
 
 ##-
+
+ed() { ##C BP_EDIT Open this file with standard editor
+  if [ -n "$BP_EDITOR" ]; then
+    ${BP_EDITOR} $0
+  else
+    bpError "BP_EDITOR variable not set, can't open script file"
+  fi
+}
+
 
 # Logging ---------------------------------------------------------
 
@@ -1001,7 +1015,7 @@ mlog() {   ##C LOGFILE Monitor logfile
       tail -f "${LOGFILE}" | sed -r -e "s|\[Info\]|\[\\${BP_C_INFO}Info\\${E_END}\]|"  \
             -e "s|\[Warn\]|\[\\${BP_C_WARNING}Warn\\${E_END}\]|"  \
             -e "s|\[Erro\]|\[\\${BP_C_ERROR}Erro\\${E_END}\]|"    \
-            -e "s|\[ Ok \]|\[\\${BP_C_OK}Erro\\${E_END}\]|"    \
+            -e "s|\[ Ok \]|\[\\${BP_C_OK} Ok \\${E_END}\]|"    \
             -e "s/[-0-9]+/\\${E_GREEN}&\\${E_END}/1"            \
             -e "s/[:0-9]+/\\${E_BR_GREEN}&\\${E_END}/6"            \
             -e "s|\[Crit\]|\[\\${E_ON_RED}\\${E_WHITE}Crit\\${E_END}\]|"
@@ -1073,7 +1087,7 @@ bpAssertNoLockFile() { ##D Assert that lockfile is not present
 }
 
 bpAssertRequiredProgs() { # Assert that required programs are available on the system (deprecated)
-	bpAssertProgs "${REQUIRED_PROGRAMS[@]}"
+  bpAssertProgs "${REQUIRED_PROGRAMS[@]}"
 }
 
 #
@@ -1098,6 +1112,9 @@ icheck() { ##D Make a shellcheck
   shellcheck "$0"
 }
 
+irt() { ##D Remove tabs from script
+  sed -i -e 's/\t/  /g' "${BP_SCRIPT_PATH}/${BP_SCRIPT_NAME}"
+}
 
 ##CN- IHELP Help & info
 
@@ -1163,6 +1180,11 @@ help() { ## Print this help information
   echo "$USAGE"
   echo -e "$DESC"
   echo 
+  
+  if [ ! -e "${BP_SETTINGS_DIR}" ] && [ -n "${BP_SETTINGS}" ]; then
+    BPINIT=1  
+  fi
+  
   IFS=$'\n'
   SC="$1"
   help_lines=$(grep -h '##' "$0" | grep -v -e 'grep' -e '##D' -e '##V' -e '\*##C' -e '\*##C-' -e '\"##' -e '##N-//' -e 'help_line' -e 'printLine')
@@ -1227,16 +1249,16 @@ ihelp() { ##D Print internal help information
 
 iinfo() { ##D Show information about script
   bpTextLine "Script information"
-  bpPrintVar "BPSCRIPTNAME"    "Script" "$( bpColorizeFile "${BPSCRIPTPATH}/${BPSCRIPTNAME}" )"
+  bpPrintVar "BP_SCRIPT_NAME"    "Script" "$( bpColorizeFile "${BP_SCRIPT_PATH}/${BP_SCRIPT_NAME}" )"
   bpPrintVar "VERSION"         "Script version" 
   bpPrintVar "BPVERSION"       "Template version"
-  bpPrintVar "bpSettingsFile"  "Bashplate settings file" "$( bpColorizeFile ${bpSettingsFile} )"
+  bpPrintVar "BP_SETTINGS_FILE"  "Bashplate settings file" "$( bpColorizeFile ${BP_SETTINGS_FILE} )"
   bpPrintVar "LOGFILE"         "Log file"  "$( bpColorizeFile "${LOGFILE}" )"
   bpPrintVar "LOCK_FILE"       "Lock file" "$( bpColorizeFile "${LOCK_FILE}" )"
   bpPrintVar "DEFAULTCMD"      "Default function" 
   bpPrintInfo "PID" "$$"  
-  bpPrintVar "BPDATE" "Date" 
-  bpPrintVar "BPTIME" "Time"
+  bpPrintVar "BP_DATE" "Date" 
+  bpPrintVar "BP_TIME" "Time"
 
   if [ -n "${INFOHOOK}" ]; then
     bpTextLine "App. information"
@@ -1245,14 +1267,39 @@ iinfo() { ##D Show information about script
   printSettings
 }
 
+#
 iview() {  ##D View example
-  
+#  VF='s/\$[{]?[a-zA-Z0-9_]*[}]?/'"\\${BP_C_VAR}&\\${E_END}/" 
   # Singe command documentation
   if [ "$2" != "" ]; then
     echo
     bpTextLine "$2"
     echo
-    grep --no-filename -A 20  "$0" -e "${2}()" | grep -B 20 -m 1 -x "}" 
+    grep --no-filename -A 60  "$0" -e "${2}()" | grep -B 60 -m 1 -x "}" | \
+      sed -r -e "s/#.*/\\${BP_C_COMMENT}&\\${E_END}/"          \
+             -e "s/\<echo\>/\\${BP_C_RESERVED}&\\${E_END}/"    \
+             -e "s/\<if\>/\\${BP_C_RESERVED}&\\${E_END}/"      \
+             -e "s/\<then\>/\\${BP_C_RESERVED}&\\${E_END}/"    \
+             -e "s/\<else\>/\\${BP_C_RESERVED}&\\${E_END}/"    \
+             -e "s/\<fi\>/\\${BP_C_RESERVED}&\\${E_END}/"      \
+             -e "s/\<do\>/\\${BP_C_RESERVED}&\\${E_END}/"      \
+             -e "s/\<done\>/\\${BP_C_RESERVED}&\\${E_END}/"    \
+             -e "s/\<elif\>/\\${BP_C_RESERVED}&\\${E_END}/"    \
+             -e "s/\<case\>/\\${BP_C_RESERVED}&\\${E_END}/"    \
+             -e "s/\<esac\>/\\${BP_C_RESERVED}&\\${E_END}/"    \
+             -e "s/\<for\>/\\${BP_C_RESERVED}&\\${E_END}/"     \
+             -e "s/\<in\>/\\${BP_C_RESERVED}&\\${E_END}/"      \
+             -e "s/\<select\>/\\${BP_C_RESERVED}&\\${E_END}/"  \
+             -e "s/\<time\>/\\${BP_C_RESERVED}&\\${E_END}/"    \
+             -e "s/\<until\>/\\${BP_C_RESERVED}&\\${E_END}/"   \
+             -e "s/\<select\>/\\${BP_C_RESERVED}&\\${E_END}/"  \
+             -e "s/\<eval\>/\\${BP_C_RESERVED}&\\${E_END}/"  \
+             -e "s/\".*\"/\\${BP_C_STRING}&\\${E_END}/"        \
+             -e "s/[^=]*=/${BP_C_VAR}&\\${E_END}/"        \
+#             -e $VF
+#             -e 's/\$[{]?[a-zA-Z0-9]*[}]?/XXX/'
+#             -e 's/$?/'"\\${BP_C_VAR}&\\${E_END}/" \
+ #            -e "s/\<while\>/\\${BP_C_RESERVED}&\\${E_END}/"    \             
     bpLine
     bpExit
   fi
@@ -1267,7 +1314,7 @@ ivars() { ##D Print internal variables
     if [ "$line" == "--" ]; then
       echo
     else
-      help_line=$(echo "${line}" | sed -u -e "s/##V[ ]/${BP_C_COMMENT}/i" -e "s/^.*=/${BP_C_ID}&${E_END}/i" -e "s/=/${E_END}=/" )
+      help_line=$(echo "${line}" | sed -u -e "s/##V[ ]/${BP_C_DESCRIPTION}/i" -e "s/^.*=/${BP_C_ID}&${E_END}/i" -e "s/=/${E_END}=/" )
       echo -e "$help_line"
       echo -en "$E_END"
   fi
@@ -1280,8 +1327,8 @@ version() { ## Print version information
 }
 
 # Runs a function in this file as a command
-runCommand() {
-  if [ "$BPARGUMENTS" -eq 0 ]; then
+bpRunCommand() {
+  if [ "$BP_ARGUMENTS" -eq 0 ]; then
 
     # check for a default command
     if [ -n "$DEFAULTCMD" ]; then
@@ -1291,11 +1338,8 @@ runCommand() {
     bpErrorExit "No command given"
   fi
 
-  funks=$(grep "##" "$0" | grep -v grep | grep -v help_line)
-  for line in ${funks}; do
-    command=$(echo "$line" | sed -s 's/(.*//')
-    if [ "$command" == "$1" ]; then
-
+  if [ "$( type -t $1 )" = "function" ]; then # Check if subcommand is declared as function
+      command=$1
       # execute pre command hook  if existing
       if [ -n "$PRECMDHOOK" ]; then
         "${PRECMDHOOK}" "$command"
@@ -1328,9 +1372,9 @@ runCommand() {
         "${POSTCMDHOOK}" "$command"
       fi      
       bpExit
-    fi
-  done
-  bpErrorExit "Command \"$1\" not found"
+  else
+    bpErrorExit "Command \"$1\" not found"
+  fi
 }
 
 #---------------------------------------------------------------------
@@ -1338,29 +1382,43 @@ runCommand() {
 #---------------------------------------------------------------------
 
 ##V Directory where script is located
-BPSCRIPTPATH=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+BP_SCRIPT_PATH=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 ##V Name of script
-BPSCRIPTNAME=$(basename "$0")
+BP_SCRIPT_NAME=$(basename "$0")
 
 ##V Number of arguments given to script
-BPARGUMENTS=$#
+BP_ARGUMENTS=$#
 
 ##V Current date
-BPDATE=$(date +"%Y-%m-%d")
+BP_DATE=$(date +"%Y-%m-%d")
 
 ##V Current time
-BPTIME=$(date +"%H:%M:%S")
+BP_TIME=$(date +"%H:%M:%S")
 
 ##V Number of columns in terminal
-BPCOLUMNS=$(tput cols)
+BP_COLUMNS=$(tput cols)
 
 ##V Number of lines in terminal
-BPLINES=$(tput lines)
+BP_LINES=$(tput lines)
 
+##V Settings directory
+BP_SETTINGS_DIR=~/.config/bashplates
+
+##V Settings file
+BP_SETTINGS_FILE=${BP_SETTINGS_DIR}/bashplates.conf
+
+##V System Path's
+BP_SETTINGS_PATH="${BP_SETTINGS_DIR}/path"
+
+##V Links to modules
+BP_SETTINGS_MODULES="${BP_SETTINGS_DIR}/modules"
+
+# Initiate bashplate settings
+bpInitSettings
 
 #---------------------------------------------------------------------
-# Setup signals
+# Setup signal traps
 #---------------------------------------------------------------------
 
 trap  signalQuit SIGQUIT
@@ -1381,7 +1439,7 @@ if [ -n "$PREHOOK" ]; then
 fi
 
 # Run command parser
-runCommand "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8" "$9" "${10}"
+bpRunCommand "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8" "$9" "${10}"
 
 # Exit cleanly
 bpExit
