@@ -44,6 +44,7 @@ set -o pipefail
 #---------------------------------------------------------------------
 # User defined Settings
 #---------------------------------------------------------------------
+bpUserSettings() {
 
 # Settings directory
 MP_CONFIG_DIR=~/.config/makeplates
@@ -51,6 +52,10 @@ MP_CONFIG_DIR=~/.config/makeplates
 # Directory for 3d party files
 MP_3DPARTY_DIR=${BP_SCRIPT_PATH}/3dparty
 
+# Template script
+mptemplate=${BP_SCRIPT_PATH}/tools/mptemplate.py
+
+}
 #---------------------------------------------------------------------
 # User defined functions
 #---------------------------------------------------------------------
@@ -148,8 +153,6 @@ newscpp() { ##D Create a new simple C++ makeplate project
 }
 
 ##- Code creation
-
-mptemplate=${scriptPath}/tools/mptemplate.py
 
 newcm() { ##D Create new C module
   ${mptemplate} newc --dir . --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
@@ -1499,6 +1502,9 @@ BP_SETTINGS_MODULES="${BP_SETTINGS_DIR}/modules"
 
 # Initiate bashplate settings
 bpInitSettings
+
+# Initiate user settings
+bpUserSettings
 
 #---------------------------------------------------------------------
 # Setup signal traps
