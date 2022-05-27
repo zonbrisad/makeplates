@@ -46,15 +46,18 @@ set -o pipefail
 #---------------------------------------------------------------------
 bpUserSettings() {
 
-# Settings directory
-MP_CONFIG_DIR=~/.config/makeplates
+  # Settings directory
+  MP_CONFIG_DIR=~/.config/makeplates
 
-# Directory for 3d party files
-MP_3DPARTY_DIR=${BP_SCRIPT_PATH}/3dparty
+  # Directory for 3d party files
+  MP_3DPARTY_DIR=${BP_DIR}/3dparty
 
-# Template script
-mptemplate=${BP_SCRIPT_PATH}/tools/mptemplate.py
-
+  # Template script
+  mptemplate=${BP_DIR}/tools/mptemplate.py
+	
+	if [ -e DEV ] ; then
+	  DEV=1
+	fi
 }
 #---------------------------------------------------------------------
 # User defined functions
@@ -75,21 +78,20 @@ createProject() {
   pn=$(bpRead  "Project name>" "" )
   brief=$(bpRead "Brief description>" "" )
 
-#  bpQuestionDy "Create subdirectory?" res
-#  if [ ${res} == 'y' ]; then
-    dst="${pn}"
-    bpCp "${2}" "${pn}"
-#  else
-#    dst=.
-#    bpCp "${2}/*" "${dst}"
-#  fi
-
+  if bpReadY "Create subdirectory?" ; then
+    dst="$( pwd )/${pn}"
+		bpMkDir "$dst"
+  else
+    dst=.
+  fi
+	
+  bpCp "${2}"/* "${dst}/."
   srcDst="${dst}"
   
   # Check tool dir is present then full project otherwise simple
   if [ "$3" == "tools" ]; then
     bpRm "${dst}/tools"
-    bpCp "${BP_SCRIPT_PATH}/tools" "${dst}"
+    bpCp "${BP_DIR}/tools" "${dst}"
     srcDst="${dst}/src"
   fi
   
@@ -131,25 +133,25 @@ createProject() {
 ##- C Projects
 
 newc() { ##D Create a new standard C makeplate project
-  createProject "Creating new makeplate C project" "${BP_SCRIPT_PATH}/mp-c" "tools" "c"
+  createProject "Creating new makeplate C project" "${BP_DIR}/mp-c" "tools" "c"
 }
 
 newsc() { ##D Create a new simple C makeplate project
-  createProject "Creating new simple makeplate C project"  "${BP_SCRIPT_PATH}/mp-simple-c" "" "c"
+  createProject "Creating new simple makeplate C project"  "${BP_DIR}/mp-simple-c" "" "c"
 }
 
 newg() { ##D Create a new GLIB/GTK based C makeplate project
-  createProject "Creating new makeplate C glib  project" "${BP_SCRIPT_PATH}/mp-c" "tools" "c" "glib"
+  createProject "Creating new makeplate C glib  project" "${BP_DIR}/mp-c" "tools" "c" "glib"
 }
 
 ##- C++ Projects
 
 newcpp() { ##D Create a new standard C++ makeplate project
-  createProject  "Creating new makeplate C++ project" "${BP_SCRIPT_PATH}/mp-c" "tools" "cpp"
+  createProject  "Creating new makeplate C++ project" "${BP_DIR}/mp-c" "tools" "cpp"
 }
 
 newscpp() { ##D Create a new simple C++ makeplate project
-  createProject "Creating new simple makeplate C++ project" "${BP_SCRIPT_PATH}/mp-simple-c" "" "cpp"
+  createProject "Creating new simple makeplate C++ project" "${BP_DIR}/mp-simple-c" "" "cpp"
 }
 
 ##- Code creation
@@ -202,7 +204,7 @@ new3p() { # Create new 3d party install script
   echo '# $1 is destination directory' 
   echo "#" 
   echo  
-  echo 'BP_SCRIPT_PATH=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )' 
+  echo 'BP_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )' 
   echo  
   
   echo '# Install file to dir' 
@@ -215,7 +217,7 @@ new3p() { # Create new 3d party install script
   echo '  if [ ! -d ${dst} ]; then' 
   echo '    mkdir -p $dst' 
   echo '  fi' 
-  echo '  cp -rf ${BP_SCRIPT_PATH}/$1 $2/${dn}/.' 
+  echo '  cp -rf ${BP_DIR}/$1 $2/${dn}/.' 
   echo '}' 
   echo  
   echo 'mpInst myFile $1' 
@@ -227,17 +229,17 @@ new3p() { # Create new 3d party install script
 ##- Various
 
 examples() { ##D List examples
-  ls -1  "${BP_SCRIPT_PATH}/examples/"
+  ls -1  "${BP_DIR}/examples/"
 }
 
 utools() { ##D Update makaplate tools in project
-  bpCp "${BPSCRIPTPATH}/tools/*" "tools/."
+  bpCp "${BP_DIR}/tools/*" "tools/."
 }
 
-##- Project management (git)
+##C- DEV Project management (git) (for mp developers)
 
-clean() { ##D Remove leftover files 
-  bpCd "${BP_SCRIPT_PATH}"
+clean() { ##C DEV Remove leftover files 
+  bpCd "${BP_DIR}"
 
   find . -name "*~"     -delete
   find . -name "*.orig" -delete
@@ -247,15 +249,15 @@ clean() { ##D Remove leftover files
   bpCd -
 }
 
-commit() { ##D Commit project to repository
-  bpCd "${BP_SCRIPT_PATH}"
+commit() { ##C DEV Commit project to repository
+  bpCd "${BP_DIR}"
   git commit -a
 #  git push --tags -a
   bpCd - 
 }
 
-tag() { ##D Make a new tag
-  bpCd "${BP_SCRIPT_PATH}"
+tag() { ##C DEV Make a new tag
+  bpCd "${BP_DIR}"
   # List existing tags
   git tag
 
@@ -269,14 +271,14 @@ tag() { ##D Make a new tag
   bpCd - 
 }
 
-push() { ##D Push to GITHUB
-  bpCd "${BP_SCRIPT_PATH}"
+push() { ##C DEV Push to GITHUB
+  bpCd "${BP_DIR}"
   git push --progress
   bpCd - 
 } 
 
-pull() { ##D Pull bashplates from GITHUB
-  bpCd "${BP_SCRIPT_PATH}"
+pull() { ##C DEV Pull bashplates from GITHUB
+  bpCd "${BP_DIR}"
   git pull --progress
   bpCd - 
 } 
@@ -335,7 +337,7 @@ DEFAULT_CMD_HOOK=help
 #POST_INFO_HOOK=
 
 ##V Function run before help command is executed
-PRE_HELP_HOOK=bp_phh
+#PRE_HELP_HOOK=
 
 ##V Function run after help command is executed
 #POST_HELP_HOOK=
