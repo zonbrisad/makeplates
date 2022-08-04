@@ -50,10 +50,10 @@ bpUserSettings() {
   MP_CONFIG_DIR=~/.config/makeplates
 
   # Directory for 3d party files
-  MP_3DPARTY_DIR=${BP_DIR}/3dparty
+  MP_3DPARTY_DIR=${BP_SELF_DIR}/3dparty
 
   # Template script
-  mptemplate=${BP_DIR}/tools/mptemplate.py
+  mptemplate=${BP_SELF_DIR}/tools/mptemplate.py
 	
 	if [ -e DEV ] ; then
 	  DEV=1
@@ -91,7 +91,7 @@ createProject() {
   # Check tool dir is present then full project otherwise simple
   if [ "$3" == "tools" ]; then
     bpRm "${dst}/tools"
-    bpCp "${BP_DIR}/tools" "${dst}"
+    bpCp "${BP_SELF_DIR}/tools" "${dst}"
     srcDst="${dst}/src"
   fi
   
@@ -133,25 +133,25 @@ createProject() {
 ##- C Projects
 
 newc() { ##D Create a new standard C makeplate project
-  createProject "Creating new makeplate C project" "${BP_DIR}/mp-c" "tools" "c"
+  createProject "Creating new makeplate C project" "${BP_SELF_DIR}/mp-c" "tools" "c"
 }
 
 newsc() { ##D Create a new simple C makeplate project
-  createProject "Creating new simple makeplate C project"  "${BP_DIR}/mp-simple-c" "" "c"
+  createProject "Creating new simple makeplate C project"  "${BP_SELF_DIR}/mp-simple-c" "" "c"
 }
 
 newg() { ##D Create a new GLIB/GTK based C makeplate project
-  createProject "Creating new makeplate C glib  project" "${BP_DIR}/mp-c" "tools" "c" "glib"
+  createProject "Creating new makeplate C glib  project" "${BP_SELF_DIR}/mp-c" "tools" "c" "glib"
 }
 
 ##- C++ Projects
 
 newcpp() { ##D Create a new standard C++ makeplate project
-  createProject  "Creating new makeplate C++ project" "${BP_DIR}/mp-c" "tools" "cpp"
+  createProject  "Creating new makeplate C++ project" "${BP_SELF_DIR}/mp-c" "tools" "cpp"
 }
 
 newscpp() { ##D Create a new simple C++ makeplate project
-  createProject "Creating new simple makeplate C++ project" "${BP_DIR}/mp-simple-c" "" "cpp"
+  createProject "Creating new simple makeplate C++ project" "${BP_SELF_DIR}/mp-simple-c" "" "cpp"
 }
 
 ##- Code creation
@@ -172,7 +172,7 @@ newclass() { ##D Create new C++ class
 # NEW 3d party
 
 list() {  # List 3d party libraries
-  ls -1 "${BPSCRIPTPATH}/3dparty"
+  ls -1 "${BP_SELF_DIR}/3dparty"
 }
 
 MPINSTALL=mpInstall
@@ -204,7 +204,7 @@ new3p() { # Create new 3d party install script
   echo '# $1 is destination directory' 
   echo "#" 
   echo  
-  echo 'BP_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )' 
+  echo 'BP_SELF_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )' 
   echo  
   
   echo '# Install file to dir' 
@@ -217,7 +217,7 @@ new3p() { # Create new 3d party install script
   echo '  if [ ! -d ${dst} ]; then' 
   echo '    mkdir -p $dst' 
   echo '  fi' 
-  echo '  cp -rf ${BP_DIR}/$1 $2/${dn}/.' 
+  echo '  cp -rf ${BP_SELF_DIR}/$1 $2/${dn}/.' 
   echo '}' 
   echo  
   echo 'mpInst myFile $1' 
@@ -229,17 +229,17 @@ new3p() { # Create new 3d party install script
 ##- Various
 
 examples() { ##D List examples
-  ls -1  "${BP_DIR}/examples/"
+  ls -1  "${BP_SELF_DIR}/examples/"
 }
 
 utools() { ##D Update makaplate tools in project
-  bpCp "${BP_DIR}/tools/*" "tools/."
+  bpCp "${BP_SELF_DIR}/tools/*" "tools/."
 }
 
 ##C- DEV Project management (git) (for mp developers)
 
 clean() { ##C DEV Remove leftover files 
-  bpCd "${BP_DIR}"
+  bpCd "${BP_SELF_DIR}"
 
   find . -name "*~"     -delete
   find . -name "*.orig" -delete
@@ -250,14 +250,14 @@ clean() { ##C DEV Remove leftover files
 }
 
 commit() { ##C DEV Commit project to repository
-  bpCd "${BP_DIR}"
+  bpCd "${BP_SELF_DIR}"
   git commit -a
 #  git push --tags -a
   bpCd - 
 }
 
 tag() { ##C DEV Make a new tag
-  bpCd "${BP_DIR}"
+  bpCd "${BP_SELF_DIR}"
   # List existing tags
   git tag
 
@@ -272,13 +272,13 @@ tag() { ##C DEV Make a new tag
 }
 
 push() { ##C DEV Push to GITHUB
-  bpCd "${BP_DIR}"
+  bpCd "${BP_SELF_DIR}"
   git push --progress
   bpCd - 
 } 
 
 pull() { ##C DEV Pull bashplates from GITHUB
-  bpCd "${BP_DIR}"
+  bpCd "${BP_SELF_DIR}"
   git pull --progress
   bpCd - 
 } 
@@ -292,13 +292,13 @@ bpInitSettings() {
 BP_VERSION="1.06"
 
 ##V Usage info
-BP_USAGE="Usage: ${BP_NAME} command [option]"
+BP_USAGE="Usage: ${BP_SELF} command [option]"
 
 ##V Description text
 BP_DESC="Makeplate project management script"
 
 ##V logfile (uncomment to use logfile)
-#BP_LOGFILE=${BP_DIR}/${BP_NAME}.log
+#BP_LOGFILE=${BP_SELF_DIR}/${BP_NAME}.log
 
 ##V Lock file (uncomment to use lock file feature )
 #BP_LOCK_FILE=/tmp/${BP_NAME}.lock
@@ -478,6 +478,7 @@ E_END=$'\e[m'              # Clear Attributes
 # Default Bashplate colortheme
 BP_C_OK=$E_BR_GREEN
 BP_C_INFO=$E_BR_CYAN
+BP_C_DEBUG=$E_ON_GREEN$E_BLACK
 BP_C_WARNING=$E_BR_YELLOW
 BP_C_ERROR=$E_BR_RED
 BP_C_CRITICAL=$E_ON_RED$E_WHITE
@@ -505,11 +506,11 @@ BP_E_OK=0            # successful termination
 ##C- IHELP Printing functions
 
 #
-# arg1 text to be printed
-# arg2 text color
-# arg3 line color
-# arg4 middle character
-# arg5 line character
+# $1 text to be printed
+# $2 text color
+# $3 line color
+# $4 middle character
+# $5 line character
 #
 bpPrintLineC() { ##I Print text with adjusted line after with selectable colors
   len1="${#1}"
@@ -522,9 +523,9 @@ bpPrintLineC() { ##I Print text with adjusted line after with selectable colors
 }
 
 #
-# arg1 text to be printed
-# arg2 text color
-# arg3 line color
+# $1 text to be printed
+# $2 text color
+# $3 line color
 #
 bpTextLineC() { ##I Print text with adjusted line after with selectable colors
   bpPrintLineC "$1" "$2" "$3" " " "-"
@@ -537,10 +538,10 @@ bpTextLine_old() { ##I Print text with line after
 bpTextLine() { ##I Print text with line after
 #  echo "$1 ${#1}"
   if [ "${#1}" -eq 0 ]; then
-	  bpPrintLineC "" "" "${BP_C_LINE}" "" "-"
-	else
-  	bpPrintLineC "$1" "${BP_C_LINE_TEXT}" "${BP_C_LINE}" " " "-"
-	fi
+    bpPrintLineC "" "" "${BP_C_LINE}" "" "-"
+  else
+    bpPrintLineC "$1" "${BP_C_LINE_TEXT}" "${BP_C_LINE}" " " "-"
+  fi
 }
 
 
@@ -560,8 +561,8 @@ bpPrintInfoGeneric() { # Generic command/description printout function
 }
 
 #
-# arg1 text for column 1
-# arg2 text for column 2
+# $1 text for column 1
+# $2 text for column 2
 #
 bpPrintInfo() { ##I Print text into two columns
   bpPrintInfoGeneric "${BP_C_ID}" "${BP_C_DESCRIPTION}" "$1" "$2"
@@ -633,8 +634,10 @@ bpFilterEscape() { ##I Filter escape characters from string
 bpRun() { ##I Execute command
   if [ -e "$1" ]; then
     ${1}
+    return 0
   else
     bpError "Could not execute $1, file does not exist!"
+    return 1
   fi
 }
 
@@ -771,13 +774,17 @@ bpRemoveLineContaining() { ##I Remove line in file if it contains given string
 #
 # $1 file
 # $2 string
-# return 1 for true, 0 for false
+# return true if existing 
 #
 bpStrExist() { ##I Check if string exist in file  
+  if [ ! -f $1 ]; then
+    return 1
+  fi
+
   if grep -q -F "$2" "$1" ; then
-    echo "1"
+    return 0
   else
-    echo "0"
+    return 1
   fi
 }
 
@@ -807,8 +814,8 @@ bpGetSection() { ##I Get text from file between two markers
 #
 bpImport() { ## Import file into variable
   if [ -f $1 ]; then
-	  cat $1
-	fi
+    cat $1
+  fi
 }
 
 #
@@ -817,8 +824,8 @@ bpImport() { ## Import file into variable
 # $3 text to insert
 #
 bpInsert() { ##I Insert text into file
-	a=$( cat "$1" | grep -A 10000 "$2" | grep -v "$2" )
-	b=$( cat "$1" | grep -B 10000 "$2" | grep -v "$2" )
+  a=$( cat "$1" | grep -A 10000 "$2" | grep -v "$2" )
+  b=$( cat "$1" | grep -B 10000 "$2" | grep -v "$2" )
  
   echo "$b" "$3" "$a"  >| $1
 }
@@ -924,12 +931,15 @@ bpReadN() { ##I Ask yes/no question default no
 
 ##C- BP_CONF Bashplate settings
 
+#
+# $1 config file
+# $2 setting name
+# $3 setting value
+# $4 setting description
+#
 bpAddSetting() { 
 
-  # Check if setting exist in file
-  S=$(bpStrExist "${1}" "${2}" )
-
-  if [ "${S}" == "0" ]; then
+  if ! bpStrExist "${1}" "${2}"; then
     {
       echo "# ${4}" 
       echo "${2}=\"${3}\"" 
@@ -944,15 +954,15 @@ bpAddSettings() {
   bpAddSetting $BP_SETTINGS "BP_EDITOR"  "vi"                "Default editor"
   bpAddSetting $BP_SETTINGS "BP_LICENSE" "MIT"               "Default project license"
   bpAddSetting $BP_SETTINGS "BP_ORG"     "ACME"              "Default organisation"
-  bpAddSetting $BP_SETTINGS "BP_DIFF"    "meld"              "Default diff program"	
-  bpAddSetting $BP_SETTINGS "BP_PATH"    "${BP_DIR}" "Path to Bashplates directory"
+  bpAddSetting $BP_SETTINGS "BP_DIFF"    "meld"              "Default diff program"  
+  bpAddSetting $BP_SETTINGS "BP_PATH"    "${BP_SELF_DIR}"    "Path to Bashplates directory"
 }
 
 # Change setting in config file (key value pair)
 #
-# arg1 config file
-# arg2 setting to change
-# arg3 new value for setting
+# $1 config file
+# $2 setting to change
+# $3 new value for setting
 #
 bpChSetting() {  
   SETTING="$2"
@@ -963,7 +973,7 @@ bpChSetting() {
     bpAddSettings
   fi
   sed -i "s/^\(${SETTING}\s*=\s*\).*\$/\1$VAL/" "$1"
-	
+  
   bpInfo "Setting ${SETTING} to ${VAL}"
 }
 
@@ -1032,6 +1042,7 @@ setdiff() { ##C BP_CONF Set default diff program
 ##C- IHELP Bashrc path/module handling
 
 bpLsPaths() { ##I List paths
+  shopt -s nullglob dotglob
   for p in ${BP_SETTINGS_PATHS}/*; do
     echo  "A: $( readlink ${p} )"
   done
@@ -1054,8 +1065,9 @@ bpRmPath() { ##I Remove path
 }
 
 bpLsModules() { ##I List modules
+  shopt -s nullglob dotglob
   for p in ${BP_SETTINGS_MODULES}/*; do
-    echo  "A: $( readlink ${p} )"
+    echo  "$( readlink ${p} )"
   done
 }
 
@@ -1081,7 +1093,7 @@ bpRmModule() { ##I Remove module
 #
 # Function logging to file
 #
-# Arg1 String to log to file
+# $1 String to log to file
 #
 bpLog() { ##I Log to file command
   # check for BP_LOGFILE variable
@@ -1164,6 +1176,17 @@ bpInfo() { ##I Info message
   echo -e "[${BP_C_INFO}Info${E_END}] $1"
 }
 
+bpDbg() { ##I Debug message
+  if [ ! -n "$BP_DEBUG" ]; then
+    return 
+  fi
+  if [ -n "$BP_LOG_INFO" ]; then
+    bpLogDebug "$1"
+  fi
+
+  echo -e "[${BP_C_DEBUG}Dbg${E_END}] $1"
+}
+
 bpWarning() { ##I Warning message
   if [ -n "$BP_LOG_WARNING" ]; then
     bpLogWarning "$1"
@@ -1230,46 +1253,51 @@ icheck() { ##I Make a shellcheck
 }
 
 irt() { ##I Remove tabs from script
-  sed -i -e 's/\t/  /g' "${BP_DIR}/${BP_NAME}"
+  sed -i -e 's/\t/  /g' "${BP_SELF_DIR}/${BP_SELF}"
 }
 
 ##C- IHELP Help & info
 
 printCommand() {
-  help_line=$1
-  help_command=$(echo "$help_line" | sed -s 's/(.*//')
-  help_info=$(echo "$help_line" | sed -s 's/^.*'"$2"'//')
-  bpPrintInfo "$help_command" "$help_info"
+  IFS=$'  '
+  arr=($1)
+  IFS=$'\n'
+  info=${arr[@]:3}
+  bpPrintInfo "${arr[0]}" "${info}"
 }
 
 printCondCommand() {
-  help_line="$1"
-  C=$(echo "$1" | sed -s 's/^.*##C//' | awk '{print $1}')
-  
-  eval "D=\$$C"
-  
-  help_command=$(echo "$help_line" | sed -s 's/(.*//')
-  help_info=$(echo "$help_line" | sed -s 's/^.*'"$C"'//')
+  IFS=$'  '
+  arr=($1)
+  IFS=$'\n'
+  help_info=${arr[@]:4}
+  COND=${arr[3]}
+  eval "D=\$$COND"
 
   if [ -n "$D" ]; then
-    bpPrintInfo "$help_command" "$help_info"
+    bpPrintInfo "${arr[0]}" "${help_info}"
   else
     if [ "$2" -eq 1 ]; then
-      bpPrintInfoAlt "$help_command" "$help_info"
+      bpPrintInfoAlt "${arr[0]}" "$help_info"
     fi
   fi
 }
 
 printNamedLine() {
-  name=$(echo "$1" | sed -e 's/^.*##-//' -e 's/^[ \t]*//' )
-  bpTextLine "$name"
+  IFS=$'  '
+  arr=($1)
+  IFS=$'\n'
+  info=${arr[@]:1}
+  bpTextLine "${info}"
 }
 
 printCondNamedLine() {
-  help_line="$1"
-  C=$(echo "$1" | sed -s 's/^.*##C-//' | awk '{print $1}')
-  name=$(echo "$help_line" | sed -e 's/^.*'"$C"'//' -e 's/^[ \t]*//' )
-  eval "D=\$$C"
+  IFS=$'  '
+  arr=($1)
+  IFS=$'\n'
+  name=${arr[@]:2}
+  COND=${arr[1]}
+  eval "D=\$$COND"
   if [ -n "$D" ]; then
     bpTextLine "$name"
   fi
@@ -1279,13 +1307,13 @@ help() { ##D Print help information
   echo "$BP_USAGE"
   echo -e "$BP_DESC"
   echo 
-	
+  
   BP_HELP=1
-	
+  
   if [ ! -e "${BP_SETTINGS_DIR}" ] && [ -n "${BP_SETTINGS}" ]; then
-    BPINIT=1	
+    BPINIT=1  
   fi
-	
+  
  # bpExecHook "PRE_HELP_HOOK"
   if [ -n "$PRE_HELP_HOOK" ]; then
     "${PRE_HELP_HOOK}" 
@@ -1293,8 +1321,10 @@ help() { ##D Print help information
 
   IFS=$'\n'
   SC="$1"
-  help_lines=$(grep -h '##' "$0" | grep -v -e 'grep' -e '##I' -e '##V' -e '\*##C' -e '\*##C-' -e '\"##' -e '##-//' -e 'help_line' -e 'printLine')
-  for help_line in ${help_lines} ; do
+  HELP_LINES=$(grep -h '##' "$0" | grep -v -e 'grep' -e '##I' -e '##V' -e '\*##C' -e '\*##C-' -e '\"##' -e '##-//' -e 'help_line' -e 'printLine')
+  HELP_LINES="${HELP_LINES//()}"
+
+  for help_line in ${HELP_LINES} ; do
     case "$help_line" in
       *"##-"*)   printNamedLine     "$help_line" ;;
       *"##C-"*)  printCondNamedLine "$help_line" ;;
@@ -1336,6 +1366,8 @@ ihelp() { ##I Print internal help information
   BP_LOGFILE=1  # Force log documentation
 
   help_lines=$(grep -h '##[C|I|-]' "$0" | grep -v -e 'grep' -e '\*"##[ A-Z]"\*' -e 'help_line' -e 'printNamedLine' -e 'awk' -e 'bpPrintInfo' -e 'name' )
+  help_lines=$(echo -e "$help_lines" | sed -s 's/()//g')
+  
   for help_line in ${help_lines} ; do
     case "$help_line" in
       *"##-"*)   printNamedLine     "$help_line" ;;
@@ -1358,7 +1390,7 @@ ihelp() { ##I Print internal help information
 
 iinfo() { ##I Show information about script
   bpTextLine "Script information"
-  bpPrintVar "Script" BP_NAME "$( bpColorizeFile "${BP_DIR}/${BP_NAME}" )"
+  bpPrintVar "Script" BP_SELF "$( bpColorizeFile "${BP_SELF_DIR}/${BP_SELF}" )"
   bpPrintVar "Script version" BP_VERSION
   bpPrintVar "Template version" BP_VERSION 
   bpPrintVar "Bashplate settings file" BP_SETTINGS "$( bpColorizeFile ${BP_SETTINGS} )"
@@ -1378,10 +1410,24 @@ iinfo() { ##I Show information about script
   settings
 }
 
+bpHasCmd() {  ##I Check if command is available
+  if type ${1} &> /dev/null ; then
+    return 0
+  else
+    return 1
+  fi
+}
+
 #
 iview() {  ##I View example
   # Singe command documentation
-  if [ "$2" != "" ]; then
+  if [ "$2" == "" ]; then
+    bpExit
+  fi
+  
+  if bpHasCmd batcat ; then   # Use batcat, if available, to view function
+    grep --no-filename -A 60  "$0" -e "${2}()" | grep -B 60 -m 1 -x "}"  | batcat --language bash
+  else
     echo
     bpTextLine "$2"
     echo
@@ -1412,8 +1458,8 @@ iview() {  ##I View example
 #             -e 's/\$[{]?[a-zA-Z0-9]*[}]?/XXX/'
 #             -e 's/$?/'"\\${BP_C_VAR}&\\${E_END}/" \
     bpLine
-    bpExit
   fi
+  bpExit
 }
 
 ivars() { ##I Print internal variables
@@ -1454,43 +1500,44 @@ bpRunCommand() {
     bpErrorExit "No command given"
   fi
 
-  if [ "$( type -t $1 )" = "function" ]; then # Check if subcommand is declared as function
-      command=$1
-      # execute pre command hook  if existing
-      if [ -n "$PRE_CMD_HOOK" ]; then
-        "${PRE_CMD_HOOK}" "$command"
-      fi
-
-      # Check if command is conditional
-      if [[ $( grep "${command}()" "$0" ) = *"##C"* ]]; then  
-
-        # Check if condition is true and then execute else printout error message
-        C=$( grep "${command}()" "$0"  | sed -s 's/^.*##C.//' | awk '{print $1}' )
-        if [ -n "$C" ]; then
-          eval "D=\$$C"
-
-          if [ -n "$D" ]; then
-            # execute command
-            "${command}" "$@" 
-          else
-            bpError "Command \"$command\" not available right now."
-          fi
-        else
-          bpError "Command \"$command\" is conditional, but is missing conditional variable"
-        fi
-      else 
-        # command is not conditional, execute
-        "${command}" "$@"
-      fi
-
-      # execute post command hook  if existing
-      if [ -n "$POST_CMD_HOOK" ]; then
-        "${POST_CMD_HOOK}" "$command"
-      fi      
-      bpExit
-  else
+  if [ "$( type -t $1 )" != "function" ]; then # Check if subcommand is declared as function
     bpErrorExit "Command \"$1\" not found"
   fi
+
+  command=$1
+  # execute pre command hook  if existing
+  if [ -n "$PRE_CMD_HOOK" ]; then
+    "${PRE_CMD_HOOK}" "$command"
+  fi
+  
+  # Check if command is conditional
+  CL=$(grep -E "${command}().*##C" "$0")
+  if [[ "$CL" = *"##C"* ]]; then
+  
+    # Check if condition is true and then execute else printout error message
+    ARR=($CL)
+    CV="${ARR[3]}"
+    if [ -n "$CV" ]; then
+      eval "D=\$$CV"
+      if [ -n "$D" ]; then
+        # execute command
+        "${command}" "$@" 
+      else
+        bpError "Command \"$command\" not available right now."
+      fi
+    else
+      bpError "Command \"$command\" is conditional, but is missing conditional variable"
+    fi
+  else 
+    # command is not conditional, execute
+    "${command}" "$@"
+  fi
+
+  # execute post command hook  if existing
+  if [ -n "$POST_CMD_HOOK" ]; then
+    "${POST_CMD_HOOK}" "$command"
+  fi      
+  bpExit
 }
 
 #---------------------------------------------------------------------
@@ -1501,10 +1548,10 @@ bpRunCommand() {
 BP_VERSION="1.20"
 
 ##V Directory where script is located
-BP_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+BP_SELF_DIR="${0%/*}"
 
 ##V Name of script
-BP_NAME=$(basename "$0")
+BP_SELF=$(basename "$0")
 
 ##V Number of arguments given to script
 BP_ARGUMENTS=$#
