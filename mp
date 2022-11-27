@@ -49,6 +49,7 @@ bpUserSettings() {
   if [ -e DEV ]; then
     DEV=1
   fi
+
 }
 #---------------------------------------------------------------------
 # User defined functions
@@ -226,6 +227,7 @@ utools() { ##D Update makaplate tools in project
 }
 
 ##C- DEV Project management (git) (for mp developers)
+
 
 clean() { ##C DEV Remove leftover files
   bpCd "${BP_SELF_DIR}"
@@ -1237,6 +1239,17 @@ bpDbg() { ##I Debug message
   echo -e "[${BP_C_DEBUG}Dbg${E_RESET}] $1"
 }
 
+bpDbg() { ##I Debug message
+  if [ ! -n "$BP_DEBUG" ]; then
+    return 
+  fi
+  if [ -n "$BP_LOG_INFO" ]; then
+    bpLogDebug "$1"
+  fi
+
+  echo -e "[${BP_C_DEBUG}Dbg${E_END}] $1"
+}
+
 bpWarning() { ##I Warning message
   if [ -n "$BP_LOG_WARNING" ]; then
     bpLogWarning "$1"
@@ -1458,6 +1471,14 @@ iinfo() { ##I Show information about script
     ${POST_INFO_HOOK}
   fi
   settings
+}
+
+bpHasCmd() {  ##I Check if command is available
+  if type ${1} &> /dev/null ; then
+    return 0
+  else
+    return 1
+  fi
 }
 
 #
