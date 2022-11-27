@@ -89,7 +89,6 @@ printCommandMp() {
 }
 
 mpHelp() { ##D Print makeplate makefile help
-<<<<<<< HEAD
   IFS=$'\n'
   help_lines=$(grep -h '##' "$2" | grep -v grep | grep -v '##D' | grep -v '##V' | grep -v '\*##C' | grep -v '\*##C-' | grep -v '\"##' | grep -v '##N-//' | grep -v help_line | grep -v printLine)
   for help_line in ${help_lines}; do
@@ -101,21 +100,6 @@ mpHelp() { ##D Print makeplate makefile help
     esac
   done
   #  printLine
-=======
-#  printf "%-30s %s\n" "target" "help"
-#  printLine
-  IFS=$'\n'                                  
-  help_lines=$( grep -h '##' "$2" | grep -v grep | grep -v '##D' | grep -v '##V' | grep -v '\*##C' | grep -v '\*##C-' |  grep -v '\"##' |  grep -v '##N-//' | grep -v help_line | grep -v printLine )
-  for help_line in ${help_lines}; do                                     
-    case "$help_line" in                   
-      *"##-"*)  printLine ;; 
-      *"##N-"*) printNamedLine "$help_line" ;;
-      *"##"*)   printCommandMp "$help_line" ;;
-      *) ;; 
-    esac 
-  done 
-#  printLine
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
 }
 
 # Directory where to store archives
@@ -129,11 +113,7 @@ BUILDDIR="build"
 # Archive makeplate project
 #
 # $1 Target name
-<<<<<<< HEAD
 #
-=======
-# 
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
 archive() { ##D Make a tar archive of the source code
   DT=$(date +"%Y%m%d-%H%M%S")
   bpMkDir ${ARCHIVEDIR}
@@ -202,7 +182,6 @@ backup() { ##D Make an incremental backup
 #---------------------------------------------------------------------
 bpInitSettings() {
 
-<<<<<<< HEAD
   ##V Script version info
   BP_VERSION="1.00"
 
@@ -228,33 +207,6 @@ command style shellscripts"
 
   ##V Activate settings function (will create settings file when run)
   #BP_CONF=1
-=======
-##V Script version info
-BP_VERSION="1.13"
-
-##V Usage info
-BP_USAGE="Usage: ${BP_SELF} command [option]"
-
-##V Description text
-BP_DESC="Bashplate is a bash script template to ease development of\n\
-command style shellscripts"
-
-##V logfile (uncomment to use logfile)
-#BP_LOGFILE=${BP_SELF_DIR}/${BP_NAME}.log
-
-##V Lock file (uncomment to use lock file feature )
-#BP_LOCK_FILE=/tmp/${BP_NAME}.lock
-
-##V Logging options (uncomment to activate logging parameters)
-#BP_LOG_OK=1
-#BP_LOG_INFO=1
-#BP_LOG_WARNING=1
-#BP_LOG_ERROR=1
-#BP_LOG_CRITICAL=1
-
-##V Activate settings function (will create settings file when run)
-BP_CONF=1
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
 
 }
 #---------------------------------------------------------------------
@@ -313,7 +265,6 @@ signalErr() {
   echo
   bpError "Trace error Row: $2  Function: $1"
   echo
-<<<<<<< HEAD
   bpCallStack "$*"
   bpExit 1
 }
@@ -338,32 +289,6 @@ bpCallStack() { ##I Print out BASH call stack
 bpCleanUp() {           ##I Cleanup function
   rm -f "$BP_LOCK_FILE" # remove Lock file
   #  echo -e "${E_SHOW}"     # Turn on cursor if turned of
-=======
-  bpCallStack
-  bpExit 1
-}
-
-signalDbg() {
-  echo "Debug Row: $2  Function: $1"
-}
-
-##C- IHELP Exit and cleanup
-
-bpCallStack() { ##I Print out BASH call stack
-  bpTextLine "Call stack"
-  echo
-  local frame=0
-  while caller $frame | sed -r -e "s/[0-9]*/${BP_C_VALUE}&${E_END}/"   ; do
-    ((frame++));
-  done
-  echo "$*"
-  bpLine
-}
-
-bpCleanUp() { ##I Cleanup function
-  rm -f "$BP_LOCK_FILE"    # remove Lock file
-#  echo -e "${E_SHOW}"     # Turn on cursor if turned of
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
 }
 
 #
@@ -374,11 +299,7 @@ bpExit() { ##I Function for safely exiting script
 
   # execute postscript hook if existing
   if [ -n "$POST_SCRIPT_HOOK" ]; then
-<<<<<<< HEAD
     ${POST_SCRIPT_HOOK}
-=======
-     ${POST_SCRIPT_HOOK}
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
   fi
 
   # Check if argument is given
@@ -390,11 +311,7 @@ bpExit() { ##I Function for safely exiting script
 
 }
 
-<<<<<<< HEAD
 bpErrorExit() { ##I Safely exit script with a error
-=======
-bpErrorExit() {  ##I Safely exit script with a error
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
   bpError "${1}"
   bpCleanUp
   exit 1
@@ -495,7 +412,6 @@ E_CUR_SHOW=$'\e[?25h' # Show cursor
 E_RESET=$'\e[0m' # Clear Attributes
 
 # Default Bashplate colortheme
-<<<<<<< HEAD
 BP_C_OK="${E_FG_BR_GREEN}"
 BP_C_INFO="${E_FG_BR_CYAN}"
 BP_C_DEBUG="${E_BG_GREEN}${E_FG_WHITE}"
@@ -512,20 +428,6 @@ BP_C_PATH="${E_FG_GREEN}"
 BP_C_URL_SCHEME="${E_FG_DARKGRAY}"
 # BP_C_URL_USER=""
 # BP_C_URL_HOST=""
-=======
-BP_C_OK=$E_BR_GREEN
-BP_C_INFO=$E_BR_CYAN
-BP_C_DEBUG=$E_ON_GREEN$E_BLACK
-BP_C_WARNING=$E_BR_YELLOW
-BP_C_ERROR=$E_BR_RED
-BP_C_CRITICAL=$E_ON_RED$E_WHITE
-BP_C_LINE=$E_DARKGRAY
-BP_C_LINE_TEXT=$E_YELLOW
-BP_C_DESCRIPTION=$E_GREEN
-BP_C_ID=$E_CYAN
-BP_C_FILENAME=$E_BR_GREEN
-BP_C_PATH=$E_GREEN
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
 
 # Shellscript colorize colors
 BP_C_RESERVED="${E_FG_RED}"
@@ -555,15 +457,9 @@ bpPrintLineC() { ##I Print text with adjusted line after with selectable colors
   len4="${#4}"
 
   echo -en "${2}${1}${4}${3}"
-<<<<<<< HEAD
   l=$((BP_COLUMNS - len1 - len4))
   seq -s"${5}" "${l}" | tr -d '[:digit:]'
   echo -en "${E_RESET}"
-=======
-  l=$(( BP_COLUMNS - len1 - len4  ))
-  seq -s"${5}" "${l}"|tr -d '[:digit:]'
-  echo -en ${E_END} 
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
 }
 
 #
@@ -580,11 +476,7 @@ bpTextLine_old() { ##I Print text with line after
 }
 
 bpTextLine() { ##I Print text with line after
-<<<<<<< HEAD
   #  echo "$1 ${#1}"
-=======
-#  echo "$1 ${#1}"
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
   if [ "${#1}" -eq 0 ]; then
     bpPrintLineC "" "" "${BP_C_LINE}" "" "-"
   else
@@ -592,51 +484,32 @@ bpTextLine() { ##I Print text with line after
   fi
 }
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
 bpLine() { ##I Print a divider row
   bpPrintLineC "" "${BP_C_LINE}" "${BP_C_LINE}" "" "-"
 }
 
-<<<<<<< HEAD
 #
-=======
-
-# 
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
 # $1 command color
 # $2 description color
 # $3 command text
 # $4 desccription text
 #
 bpPrintInfoGeneric() { # Generic command/description printout function
-<<<<<<< HEAD
   if [ -n "$5" ]; then
     X="$5"
   else
     X=24
   fi
   printf "${1}  %-${X}.${X}s${E_RESET} ${2}%s${E_RESET}\n" "$3" "$4"
-=======
-  printf "${1}  %-24.24s${E_END} ${2}%s${E_END}\n" "$3" "$4"
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
 }
 
 #
 # $1 text for column 1
 # $2 text for column 2
-<<<<<<< HEAD
 # $3 (optional) left alignment
 #
 bpPrintInfo() { ##I Print text into two columns
   bpPrintInfoGeneric "${BP_C_ID}" "${BP_C_DESCRIPTION}" "$1" "$2" "$3"
-=======
-#
-bpPrintInfo() { ##I Print text into two columns
-  bpPrintInfoGeneric "${BP_C_ID}" "${BP_C_DESCRIPTION}" "$1" "$2"
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
 }
 
 bpPrintInfoAlt() {
@@ -647,16 +520,10 @@ bpPrintInfoAlt() {
 # $1 text for column 1
 # $2 variable for column 2
 # $3 optional text form column 2
-<<<<<<< HEAD
 # $4 (optional) left alignment
 #
 bpPrintVar() { ##I Print variable value and description
   var="$2"
-=======
-#
-bpPrintVar() { ##I Print variable value and description
-  var="$2"      
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
   if [ "${!var}" ]; then
     if [ -n "$3" ]; then
       X=${3}
@@ -665,18 +532,10 @@ bpPrintVar() { ##I Print variable value and description
     fi
     bpPrintInfo "$1" "${X}"
   else
-<<<<<<< HEAD
     printf "${BP_C_ID}  %-24s${E_RESET} ${BP_C_ERROR}N/A${E_RESET}\n" "$1"
   fi
 }
 
-=======
-    printf "${BP_C_ID}  %-24s${E_END} ${E_RED}N/A${E_END}\n" "$1"
-  fi
-}
-
-
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
 #
 # Colorize string containing filename
 #
@@ -684,20 +543,13 @@ bpPrintVar() { ##I Print variable value and description
 # ret colorized string
 #
 bpColorizeFile() { ##I Colorize string containing filename
-<<<<<<< HEAD
   echo "${BP_C_PATH}$(dirname "$1")/${BP_C_FILENAME}$(basename "$1")${E_RESET}"
-=======
-  if [ ! -z "$1" ]; then
-    echo "${BP_C_PATH}$(dirname "$1")/${BP_C_FILENAME}$(basename "$1")${E_END}"
-  fi
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
 }
 
 #
 # $1 string with url to colorize
 # ret colorized string
 #
-<<<<<<< HEAD
 # todo: give username and port own color
 #
 bpColorizeUrl() { ##I Colorize string containing URL
@@ -712,16 +564,6 @@ bpColorizeUrl() { ##I Colorize string containing URL
   #SCHEME=$(echo -n "$1" | sed -r -e "s/:\/.*//")
 
   echo -e -n "${BP_C_URL_SCHEME}${SCHEME}${E_RESET}://$(bpColorizeFile "${URL}")"
-=======
-# todo: give username own color
-#
-bpColorizeUrl() { ##I Colorize string containing URL
-  url=$(echo -n $1 | sed -r -e "s/^.*\/\///")
-  prot=$(echo -n $1 | sed -r -e "s/:\/.*//")
-  #un=$( echo $url | sed -r -e 's/\(.*\)@/$1/')
-  #echo "UN: ${un}"
-  echo -e -n "${E_DARKGRAY}${prot}${E_END}://$(bpColorizeFile ${url})"
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
 }
 
 #
@@ -737,19 +579,11 @@ bpFilterEscape() { ##I Filter escape characters from string
 # $1 command to execute
 #
 bpRun() { ##I Execute command
-<<<<<<< HEAD
   if bpHasCmd "${1}"; then
     "$@"
     return $?
   else
     bpError "Could not execute $1, command does not exist!"
-=======
-  if [ -e "$1" ]; then
-    ${1}
-    return 0
-  else
-    bpError "Could not execute $1, file does not exist!"
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
     return 1
   fi
 }
@@ -767,17 +601,10 @@ bpCd() { ##I Safe cd function (exits on fail)
 bpMkDir() { ##I Create a directory if it does not exist
   if [ ! -d "$1" ]; then
     if mkdir -p "$1"; then
-<<<<<<< HEAD
       bpOk "Creating directory $(bpColorizeFile "${1}")."
       return 0
     else
       bpError "Failed to create directory $(bpColorizeFile "${1}")."
-=======
-      bpOk "Creating directory $( bpColorizeFile ${1} )."
-      return 0
-    else
-      bpError "Failed to create directory $( bpColorizeFile ${1} )."
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
       return 1
     fi
   fi
@@ -789,46 +616,26 @@ bpMkDir() { ##I Create a directory if it does not exist
 #
 bpLn() { ##I Create symbolic link
   if [ ! -L "$1" ]; then
-<<<<<<< HEAD
     if ln -sf "${1}" "${2}"; then
       bpOk "Creating link $(bpColorizeFile "${2}")."
       return 0
     else
       bpError "Failed to create link $(bpColorizeFile "${2}")."
-=======
-    if ln -sf "${1}" "${2}" ; then
-      bpOk "Creating link $( bpColorizeFile ${2} )."
-      return 0
-    else
-      bpError "Failed to create link $( bpColorizeFile ${2} )."
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
       return 1
     fi
   fi
 }
 
-<<<<<<< HEAD
 #
-=======
-# 
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
 # $1 file(s) to be copied
 # $2 destination
 #
 bpCp() { ##I Copy file(s)
-<<<<<<< HEAD
   if cp -rf "$@"; then
     bpOk "Copying $(bpColorizeFile "${1}") to $(bpColorizeFile "${2}")"
     return 0
   else
     bpError "Failed copying $(bpColorizeFile "${1}") to $(bpColorizeFile "${2}")"
-=======
-  if cp -rf "$@" ; then
-    bpOk "Copying $( bpColorizeFile ${1} ) to $( bpColorizeFile ${2} )"
-    return 0
-  else
-    bpError "Failed copying $( bpColorizeFile ${1} ) to $( bpColorizeFile ${2} )"
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
     return 1
   fi
 }
@@ -838,24 +645,15 @@ bpCp() { ##I Copy file(s)
 # $2 destination
 #
 bpMv() { ##I Move file(s)
-<<<<<<< HEAD
   if mv "$1" "$2"; then
     bpOk "Moving file $(bpColorizeFile "${1}") to $(bpColorizeFile "${2}")."
     return 0
   else
     bpError "Failed moving file $(bpColorizeFile "${1}") to $(bpColorizeFile "${2}")."
-=======
-  if mv "$1" "$2" ; then
-    bpOk "Moving file $( bpColorizeFile ${1} ) to $( bpColorizeFile ${2})."
-    return 0
-  else
-    bpError "Failed moving file $( bpColorizeFile ${1} ) to $( bpColorizeFile ${2})."
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
     return 1
   fi
 }
 
-<<<<<<< HEAD
 #
 # $1 file(s) to be removed
 #
@@ -865,33 +663,6 @@ bpRm() { ##I Remove file(s)
     return 0
   else
     bpError "Failed removing file $(bpColorizeFile "${1}")."
-=======
-# 
-# $1 file(s) to be removed
-#
-bpRm() { ##I Remove file(s)
-  if rm -rf "${1}" ; then
-    bpOk "Removing file $( bpColorizeFile ${1} )."
-    return 0
-  else
-    bpError "Failed removing file $( bpColorizeFile ${1} )."
-    return 1
-  fi
-}
-
-
-#
-# $1 file to be backed up
-#
-bpBackup() { ##I Make backup of file
-  BF="${1}_$(date +"%Y%m%d")-$(date +"%H%M%S").bak"
-
-  if cp -rf "$1" "${BF}" ; then
-    bpOk "Backing up file $( bpColorizeFile $1 ) to $( bpColorizeFile ${BF} )."
-    return 0
-  else
-    bpError "Failed backing up file $( bpColorizeFile $1 ) to $( bpColorizeFile ${BF} )."
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
     return 1
   fi
 }
@@ -916,13 +687,8 @@ bpBackup() { ##I Make backup of file
 # $2 text to replace
 # $3 new text
 #
-<<<<<<< HEAD
 bpReplace() { ##I Replace text in file
   sed -i -e "s/${2}/${3}/g" "$1"
-=======
-bpReplace() {  ##I Replace text in file
-  sed -i -e "s/${2}/${3}/g"  "$1"
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
 }
 
 #
@@ -930,11 +696,7 @@ bpReplace() {  ##I Replace text in file
 # $2 pattern matching line
 # $3 new text
 #
-<<<<<<< HEAD
 bpReplaceLine() { ##I Replace entire line matching pattern
-=======
-bpReplaceLine() {  ##I Replace entire line matching pattern
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
   sed -i -e "0,/${2}/s/${2}.*/${3}/" "${1}"
 }
 
@@ -943,11 +705,7 @@ bpReplaceLine() {  ##I Replace entire line matching pattern
 # $2 line to append
 #
 bpAppendIfNoSuchLine() { ##I Append a line if it does not exist in file
-<<<<<<< HEAD
   grep -q -F "$2" "$1" || echo "$2" >>"$1"
-=======
-  grep -q -F "$2" "$1" || echo "$2" >> "$1"
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
 }
 
 #
@@ -955,18 +713,13 @@ bpAppendIfNoSuchLine() { ##I Append a line if it does not exist in file
 # $2 string
 #
 bpRemoveLineContaining() { ##I Remove line in file if it contains given string
-<<<<<<< HEAD
   grep -v "$2" "$1" >"${1}_tmp"
-=======
-  grep -v "$2" "$1" > "${1}_tmp"
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
   mv -f "${1}_tmp" "${1}"
 }
 
 #
 # $1 file
 # $2 string
-<<<<<<< HEAD
 # return true if existing
 #
 bpStrExist() { ##I Check if string exist in file
@@ -994,44 +747,17 @@ bpEdit() { ##I Open file in editor set by BP_EDIT variable
 
   if [ -n "$BP_EDITOR" ]; then
     bpRun "${BP_EDITOR}" "${1}"
-=======
-# return true if existing 
-#
-bpStrExist() { ##I Check if string exist in file  
-  if [ ! -f $1 ]; then
-    return 1
-  fi
-
-  if grep -q -F "$2" "$1" ; then
-    return 0
-  else
-    return 1
-  fi
-}
-
-#
-# $1 file to open in editor
-#
-bpEdit() { ##I Open file in default editor (BP_EDIT variable must be set)
-  if [ -n "$BP_EDITOR" ]; then
-    ${BP_EDITOR} "${1}"
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
   else
     bpError "BP_EDITOR variable not set, can't open file ${1}"
   fi
 }
 
-<<<<<<< HEAD
 #
-=======
-# 
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
 # $1 file
 # $2 start marker
 # $3 end marker
 #
 bpGetSection() { ##I Get text from file between two markers
-<<<<<<< HEAD
   grep -A 10000 -m 1 "$2" <"$1" | grep -B 10000 -m 1 "$3" | grep -v "$2" | grep -v "$3"
 }
 
@@ -1041,18 +767,6 @@ bpGetSection() { ##I Get text from file between two markers
 bpImport() { ## Import file into variable
   if [ -f "$1" ]; then
     cat "$1"
-=======
-  cat "$1" | grep -A 10000 -m 1 "$2" | grep -B 10000 -m 1 "$3" | grep -v "$2" | grep -v "$3"
-}
-
-
-# 
-# $1 File to import
-#
-bpImport() { ## Import file into variable
-  if [ -f $1 ]; then
-    cat $1
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
   fi
 }
 
@@ -1062,23 +776,12 @@ bpImport() { ## Import file into variable
 # $3 text to insert
 #
 bpInsert() { ##I Insert text into file
-<<<<<<< HEAD
   a=$(grep -A 10000 "$2" <"$1" | grep -v "$2")
   b=$(grep -B 10000 "$2" <"$1" | grep -v "$2")
 
   echo "$b" "$3" "$a" >|"$1"
 }
 
-=======
-  a=$( cat "$1" | grep -A 10000 "$2" | grep -v "$2" )
-  b=$( cat "$1" | grep -B 10000 "$2" | grep -v "$2" )
- 
-  echo "$b" "$3" "$a"  >| $1
-}
-
-
-
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
 ##C- IHELP Input
 
 #
@@ -1132,11 +835,7 @@ bpReadInt() { ##I Read integer from commandline
 # $2 default answer 0 = yes, 1 = no
 # return 0 = Yes, 1=No
 #
-<<<<<<< HEAD
 bpReadYN() { ##I Ask yes/no question generic
-=======
-bpReadYN() {  ##I Ask yes/no question generic 
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
   while true; do
 
     if [ "$2" -eq 1 ]; then
@@ -1195,11 +894,7 @@ bpReadN() { ##I Ask yes/no question default no
 # $3 setting value
 # $4 setting description
 #
-<<<<<<< HEAD
 bpAddSetting() {
-=======
-bpAddSetting() { 
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
 
   if ! bpStrExist "${1}" "${2}"; then
     {
@@ -1211,7 +906,6 @@ bpAddSetting() {
 }
 
 bpAddSettings() {
-<<<<<<< HEAD
   bpAddSetting "$BP_SETTINGS" "BP_NAME" "John Doe" "Name of user"
   bpAddSetting "$BP_SETTINGS" "BP_EMAIL" "JohnDoe@foo.bar" "Email of user"
   bpAddSetting "$BP_SETTINGS" "BP_EDITOR" "vi" "Default editor"
@@ -1219,15 +913,6 @@ bpAddSettings() {
   bpAddSetting "$BP_SETTINGS" "BP_ORG" "ACME" "Default organisation"
   bpAddSetting "$BP_SETTINGS" "BP_DIFF" "meld" "Default diff program"
   bpAddSetting "$BP_SETTINGS" "BP_PATH" "${BP_SELF_DIR}" "Path to Bashplates directory"
-=======
-  bpAddSetting $BP_SETTINGS "BP_NAME"    "John Doe"          "Name of user"
-  bpAddSetting $BP_SETTINGS "BP_EMAIL"   "JohnDoe@foo.bar"   "Email of user"
-  bpAddSetting $BP_SETTINGS "BP_EDITOR"  "vi"                "Default editor"
-  bpAddSetting $BP_SETTINGS "BP_LICENSE" "MIT"               "Default project license"
-  bpAddSetting $BP_SETTINGS "BP_ORG"     "ACME"              "Default organisation"
-  bpAddSetting $BP_SETTINGS "BP_DIFF"    "meld"              "Default diff program"  
-  bpAddSetting $BP_SETTINGS "BP_PATH"    "${BP_SELF_DIR}"    "Path to Bashplates directory"
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
 }
 
 # Change setting in config file (key value pair)
@@ -1245,7 +930,6 @@ bpChSetting() {
     bpAddSettings
   fi
   sed -i "s/^\(${SETTING}\s*=\s*\).*\$/\1$VAL/" "$1"
-<<<<<<< HEAD
 
   bpOk "Setting ${SETTING} to ${VAL}"
 }
@@ -1262,24 +946,6 @@ bpCreateSettings() {
     echo "# Bashplates common settings" >"${BP_SETTINGS}"
     echo "# " >>"${BP_SETTINGS}"
     echo >>"${BP_SETTINGS}"
-=======
-  
-  bpInfo "Setting ${SETTING} to ${VAL}"
-}
-
-bpCreateSettings() {
-  bpInfo "Creating new bashplates settings. $( bpColorizeFile ${BP_SETTINGS} )"
-  bpMkDir "${BP_SETTINGS_DIR}"
-  bpMkDir "${BP_SETTINGS_PATHS}"
-  bpMkDir "${BP_SETTINGS_MODULES}"
-  
-  # if file does not exist add header
-  if [ ! -e ${BP_SETTINGS} ]; then
-    echo "# " >> ${BP_SETTINGS}
-    echo "# Bashplates common settings" > ${BP_SETTINGS}
-    echo "# " >> ${BP_SETTINGS}
-    echo      >> ${BP_SETTINGS}
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
   fi
   bpAddSettings
 }
@@ -1297,17 +963,10 @@ bpLoadSettings() {
 
 settings() { ##C BP_CONF Print bashplate settings
   bpTextLine "Bashplates settings"
-<<<<<<< HEAD
   bpPrintVar "Name:" BP_NAME
   bpPrintVar "Email:" BP_EMAIL
   bpPrintVar "Default license:" BP_LICENSE
   bpPrintVar "Default editor" BP_EDITOR
-=======
-  bpPrintVar "Name:"                BP_NAME 
-  bpPrintVar "Email:"               BP_EMAIL
-  bpPrintVar "Default license:"     BP_LICENSE
-  bpPrintVar "Default editor"       BP_EDITOR
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
   bpPrintVar "Default organisation" BP_ORG
   bpPrintVar "Default diff program" BP_DIFF
   bpLine
@@ -1318,7 +977,6 @@ setname() { ##C BP_CONF Set name
 }
 
 setemail() { ##C BP_CONF Set email address
-<<<<<<< HEAD
   bpChSetting "${BP_SETTINGS}" "BP_EMAIL" "\"${2}\""
 }
 
@@ -1336,38 +994,14 @@ setorg() { ##C BP_CONF Set default organisation
 
 setdiff() { ##C BP_CONF Set default diff program
   bpChSetting "${BP_SETTINGS}" "BP_DIFF" "\"${2}\""
-=======
-  bpChSetting "${BP_SETTINGS}" "BP_EMAIL" "\"${2}\""  
-}
-
-seteditor() { ##C BP_CONF Set default editor
-  bpChSetting "${BP_SETTINGS}" "BP_EDITOR" "\"${2}\""  
-}
-
-setlic() { ##C BP_CONF Set default license
-  bpChSetting "${BP_SETTINGS}" "BP_LICENSE" "\"${2}\""  
-}
-
-setorg() { ##C BP_CONF Set default organisation
-  bpChSetting "${BP_SETTINGS}" "BP_ORG" "\"${2}\""  
-}
-
-setdiff() { ##C BP_CONF Set default diff program
-  bpChSetting "${BP_SETTINGS}" "BP_DIFF" "\"${2}\""  
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
 }
 
 ##C- IHELP Bashrc path/module handling
 
 bpLsPaths() { ##I List paths
   shopt -s nullglob dotglob
-<<<<<<< HEAD
   for p in "${BP_SETTINGS_PATHS}"/*; do
     echo "A: $(readlink "${p}")"
-=======
-  for p in ${BP_SETTINGS_PATHS}/*; do
-    echo  "A: $( readlink ${p} )"
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
   done
 }
 
@@ -1375,7 +1009,6 @@ bpLsPaths() { ##I List paths
 # $1 directory to add to path
 #
 bpAddPath() { ##I Add dir to PATH variable
-<<<<<<< HEAD
   ll=$(echo "${1}" | sed -e 's/\//_/g')
 
   bpInfo "Adding PATH \"${2}\""
@@ -1403,43 +1036,10 @@ bpAddModule() { ##I Add init script to
   fi
 }
 
-=======
-  ll=$( echo "${1}" | sed -e 's/\//_/g' )
-
-  bpInfo "Adding PATH \"${2}\""
-  if [ ! -L "$1" ]; then
-     bpLn  "${1}" "${BP_SETTINGS_PATHS}/${ll}"
-  fi
-}
-
-bpRmPath() { ##I Remove path
-  bpRm "${BP_SETTINGS_PATHS}/${1}"
-}
-
-bpLsModules() { ##I List modules
-  shopt -s nullglob dotglob
-  for p in ${BP_SETTINGS_MODULES}/*; do
-    echo  "$( readlink ${p} )"
-  done
-}
-
-bpAddModule() { ##I Add init script to
-  m=$( realpath "${1}" )
-  if [ ! -L "$m" ]; then
-    rm -f "${BP_SETTINGS_MODULES}/$(basename $m)"
-    bpLn "$m" "${BP_SETTINGS_MODULES}/."
-  fi
-}
-
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
 bpRmModule() { ##I Remove module
   bpRm "${BP_SETTINGS_MODULES}/${1}"
 }
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
 ##-
 
 # Logging ---------------------------------------------------------
@@ -1455,11 +1055,7 @@ bpLog() { ##I Log to file command
   # check for BP_LOGFILE variable
   if [ -n "$BP_LOGFILE" ]; then
     ts=$(date +"%Y-%m-%d %H:%M:%S")
-<<<<<<< HEAD
     bpFilterEscape "$ts $1" >>"${BP_LOGFILE}"
-=======
-    bpFilterEscape "$ts $1"  >> "${BP_LOGFILE}"
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
   fi
 }
 
@@ -1467,7 +1063,6 @@ bpLogOk() { ##I Log Ok message to file
   bpLog "[ Ok ] $1"
 }
 
-<<<<<<< HEAD
 bpLogInfo() { ##I Log Info message to file
   bpLog "[Info] $1"
 }
@@ -1481,27 +1076,11 @@ bpLogError() { ##I Log Error message to file
 }
 
 bpLogCritical() { ##I Log Critical message to file
-=======
-bpLogInfo() {  ##I Log Info message to file
-  bpLog "[Info] $1"
-}
-
-bpLogWarning() {  ##I Log Warning message to file
-  bpLog "[Warn] $1"
-}
-
-bpLogError() {  ##I Log Error message to file
-  bpLog "[Erro] $1"
-}
-
-bpLogCritical() {  ##I Log Critical message to file
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
   bpLog "[Crit] $1"
 }
 
 log() { ##C BP_LOGFILE View logfile
   if [ -n "$BP_LOGFILE" ]; then
-<<<<<<< HEAD
     if [ -f "${BP_LOGFILE}" ]; then # Check that logfile exists
       D=$(sed -r -e "s|\[Info\]|\[\\${BP_C_INFO}Info\\${E_RESET}\]|" \
         -e "s|\[Warn\]|\[\\${BP_C_WARNING}Warn\\${E_RESET}\]|" \
@@ -1510,16 +1089,6 @@ log() { ##C BP_LOGFILE View logfile
         -e "s/[-0-9]+/\\${E_FG_GREEN}&\\${E_RESET}/1" \
         -e "s/[:0-9]+/\\${E_FG_BR_GREEN}&\\${E_RESET}/6" \
         -e "s|\[Crit\]|\[\\${E_BG_RED}\\${E_FG_WHITE}Crit\\${E_RESET}\]|" <"${BP_LOGFILE}")
-=======
-    if [ -f "${BP_LOGFILE}" ]; then  # Check that logfile exists
-      D=$(sed -r -e "s|\[Info\]|\[\\${BP_C_INFO}Info\\${E_END}\]|"  \
-            -e "s|\[Warn\]|\[\\${BP_C_WARNING}Warn\\${E_END}\]|"  \
-            -e "s|\[Erro\]|\[\\${BP_C_ERROR}Erro\\${E_END}\]|"    \
-            -e "s|\[ Ok \]|\[\\${BP_C_OK} Ok \\${E_END}\]|"    \
-            -e "s/[-0-9]+/\\${E_GREEN}&\\${E_END}/1"            \
-            -e "s/[:0-9]+/\\${E_BR_GREEN}&\\${E_END}/6"            \
-            -e "s|\[Crit\]|\[\\${E_ON_RED}\\${E_WHITE}Crit\\${E_END}\]|" < "${BP_LOGFILE}" )
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
 
       echo -e "$D"
     fi
@@ -1529,7 +1098,6 @@ log() { ##C BP_LOGFILE View logfile
   fi
 }
 
-<<<<<<< HEAD
 mlog() { ##C BP_LOGFILE Monitor logfile
   if [ -n "$BP_LOGFILE" ]; then
     if [ -f "${BP_LOGFILE}" ]; then # Check that logfile exists
@@ -1540,18 +1108,6 @@ mlog() { ##C BP_LOGFILE Monitor logfile
         -e "s/[-0-9]+/\\${E_FG_GREEN}&\\${E_RESET}/1" \
         -e "s/[:0-9]+/\\${E_FG_BR_GREEN}&\\${E_RESET}/6" \
         -e "s|\[Crit\]|\[\\${E_BG_RED}\\${E_FG_WHITE}Crit\\${E_RESET}\]|"
-=======
-mlog() {   ##C BP_LOGFILE Monitor logfile
-  if [ -n "$BP_LOGFILE" ]; then
-    if [ -f "${BP_LOGFILE}" ]; then  # Check that logfile exists
-      tail -f "${BP_LOGFILE}" | sed -r -e "s|\[Info\]|\[\\${BP_C_INFO}Info\\${E_END}\]|"  \
-            -e "s|\[Warn\]|\[\\${BP_C_WARNING}Warn\\${E_END}\]|"  \
-            -e "s|\[Erro\]|\[\\${BP_C_ERROR}Erro\\${E_END}\]|"    \
-            -e "s|\[ Ok \]|\[\\${BP_C_OK} Ok \\${E_END}\]|"    \
-            -e "s/[-0-9]+/\\${E_GREEN}&\\${E_END}/1"            \
-            -e "s/[:0-9]+/\\${E_BR_GREEN}&\\${E_END}/6"            \
-            -e "s|\[Crit\]|\[\\${E_ON_RED}\\${E_WHITE}Crit\\${E_END}\]|"
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
 
     fi
   else
@@ -1587,20 +1143,6 @@ bpDbg() { ##I Debug message
   echo -e "[${BP_C_DEBUG}Dbg${E_RESET}] $1"
 }
 
-<<<<<<< HEAD
-=======
-bpDbg() { ##I Debug message
-  if [ ! -n "$BP_DEBUG" ]; then
-    return 
-  fi
-  if [ -n "$BP_LOG_INFO" ]; then
-    bpLogDebug "$1"
-  fi
-
-  echo -e "[${BP_C_DEBUG}Dbg${E_END}] $1"
-}
-
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
 bpWarning() { ##I Warning message
   if [ -n "$BP_LOG_WARNING" ]; then
     bpLogWarning "$1"
@@ -1638,11 +1180,7 @@ bpAssertNoLockFile() { ##I Assert that lockfile is not present
   if [ -n "$BP_LOCK_FILE" ]; then
     if [ -f "$BP_LOCK_FILE" ]; then
       bpError "Script is already running. (${BP_LOCK_FILE})"
-<<<<<<< HEAD
       exit "1" # do not use bpExit because lock file belongs to prexsisting process
-=======
-      exit  "1" # do not use bpExit because lock file belongs to prexsisting process
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
     fi
     touch "$BP_LOCK_FILE"
   fi
@@ -1680,7 +1218,6 @@ irt() { ##I Remove tabs from script
 ##C- IHELP Help & info
 
 printCommand() {
-<<<<<<< HEAD
   IFS=$' '
   read -r -a arr <<<"$1"
   inf="${arr[*]:3}"
@@ -1692,20 +1229,6 @@ printCondCommand() {
   IFS=$' '
   read -r -a arr <<<"$1"
   help_info="${arr[*]:4}"
-=======
-  IFS=$'  '
-  arr=($1)
-  IFS=$'\n'
-  info=${arr[@]:3}
-  bpPrintInfo "${arr[0]}" "${info}"
-}
-
-printCondCommand() {
-  IFS=$'  '
-  arr=($1)
-  IFS=$'\n'
-  help_info=${arr[@]:4}
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
   COND=${arr[3]}
   eval "D=\$$COND"
 
@@ -1719,30 +1242,16 @@ printCondCommand() {
 }
 
 printNamedLine() {
-<<<<<<< HEAD
   IFS=$' '
   read -r -a arr <<<"$1"
   info=${arr[*]:1}
-=======
-  IFS=$'  '
-  arr=($1)
-  IFS=$'\n'
-  info=${arr[@]:1}
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
   bpTextLine "${info}"
 }
 
 printCondNamedLine() {
-<<<<<<< HEAD
   IFS=$' '
   read -r -a arr <<<"$1"
   name=${arr[*]:2}
-=======
-  IFS=$'  '
-  arr=($1)
-  IFS=$'\n'
-  name=${arr[@]:2}
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
   COND=${arr[1]}
   eval "D=\$$COND"
   if [ -n "$D" ]; then
@@ -1753,17 +1262,10 @@ printCondNamedLine() {
 help() { ##D Print help information
   echo "$BP_USAGE"
   echo -e "$BP_DESC"
-<<<<<<< HEAD
   echo
 
   BP_HELP=1
 
-=======
-  echo 
-  
-  BP_HELP=1
-  
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
   if [ ! -e "${BP_SETTINGS_DIR}" ] && [ -n "${BP_SETTINGS}" ]; then
     BPINIT=1
   fi
@@ -1772,19 +1274,10 @@ help() { ##D Print help information
   if [ -n "$PRE_HELP_HOOK" ]; then
     "${PRE_HELP_HOOK}"
   fi
-<<<<<<< HEAD
-=======
-  
- # bpExecHook "PRE_HELP_HOOK"
-  if [ -n "$PRE_HELP_HOOK" ]; then
-    "${PRE_HELP_HOOK}" 
-  fi
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
 
   IFS=$'\n'
   SC="$1"
   HELP_LINES=$(grep -h '##' "$0" | grep -v -e 'grep' -e '##I' -e '##V' -e '\*##C' -e '\*##C-' -e '\"##' -e '##-//' -e 'help_line' -e 'printLine')
-<<<<<<< HEAD
   HELP_LINES="${HELP_LINES//()/}"
 
   for help_line in ${HELP_LINES}; do
@@ -1796,40 +1289,18 @@ help() { ##D Print help information
     *"##D"*) printCommand "$help_line" '##D' ;;
     *) ;;
 
-=======
-  HELP_LINES="${HELP_LINES//()}"
-
-  for help_line in ${HELP_LINES} ; do
-    case "$help_line" in
-      *"##-"*)   printNamedLine     "$help_line" ;;
-      *"##C-"*)  printCondNamedLine "$help_line" ;;
-      *"##CV"*)  printCondCommand  "$help_line" 1 ;;
-      *"##C"*)   printCondCommand  "$help_line" 0 ;;
-      *"##D"*)   printCommand       "$help_line" '##D' ;;
-      *)
-      ;;
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
     esac
   done
 
   if [ -n "$POST_HELP_HOOK" ]; then
-<<<<<<< HEAD
     "${POST_HELP_HOOK}"
-=======
-    "${POST_HELP_HOOK}" 
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
   fi
 }
 
 #
 # $1 command
-<<<<<<< HEAD
 #
 ihelp() { ##I Print internal help information
-=======
-# 
-ihelp() { ##I Print internal help information  
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
 
   # Singe command documentation
   if [ "$2" != "" ]; then
@@ -1838,11 +1309,7 @@ ihelp() { ##I Print internal help information
     echo
     echo "#"
     echo -n "# "
-<<<<<<< HEAD
     grep --no-filename "$0" -e "${2}()" | sed -n -e 's/^.*##I //p'
-=======
-    grep --no-filename "$0" -e "${2}()"  | sed -n -e 's/^.*##I //p' 
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
     grep --no-filename -B 8 "$0" -e "${2}()" | grep "#" | grep -v "##"
     bpLine
     bpExit
@@ -1851,7 +1318,6 @@ ihelp() { ##I Print internal help information
   IFS=$'\n'
   SC="$1"
 
-<<<<<<< HEAD
   IHELP=1      # Force ihelp documentations
   BP_LOGFILE=1 # Force log documentation
 
@@ -1866,45 +1332,20 @@ ihelp() { ##I Print internal help information
     *"##C"*) printCondCommand "$help_line" 0 ;;
     *) ;;
 
-=======
-  IHELP=1    # Force ihelp documentations
-  BP_LOGFILE=1  # Force log documentation
-
-  help_lines=$(grep -h '##[C|I|-]' "$0" | grep -v -e 'grep' -e '\*"##[ A-Z]"\*' -e 'help_line' -e 'printNamedLine' -e 'awk' -e 'bpPrintInfo' -e 'name' )
-  help_lines=$(echo -e "$help_lines" | sed -s 's/()//g')
-  
-  for help_line in ${help_lines} ; do
-    case "$help_line" in
-      *"##-"*)   printNamedLine     "$help_line" ;;
-      *"##C-"*)  printCondNamedLine "$help_line" ;; 
-      *"##I"*)   printCommand       "$help_line" '##I' ;;
-      *"##C"*)   printCondCommand   "$help_line" 0 ;;
-      *)
-      ;;
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
     esac
   done
 
   bpTextLine "Bashplates comments"
-<<<<<<< HEAD
   bpPrintInfo "##D Description" "Subcommand information comment (shown with help)"
   bpPrintInfo "##C COND Description" "Conditional subcommand comment (shown with help)"
   bpPrintInfo "##- [Text]" "Separator line (shown with help)"
   bpPrintInfo "##C- COND [Text]" "Conditional separator line (shown with help)"
   bpPrintInfo "##I Description" "Internal function comment (shown ihelp)"
-=======
-  bpPrintInfo "##D Description"      "Subcommand information comment (shown with help)"
-  bpPrintInfo "##C COND Description" "Conditional subcommand comment (shown with help)"
-  bpPrintInfo "##- [Text]"           "Separator line (shown with help)"
-  bpPrintInfo "##C- COND [Text]"     "Conditional separator line (shown with help)"
-  bpPrintInfo "##I Description"      "Internal function comment (shown ihelp)"
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
   bpLine
 }
 
 iinfo() { ##I Show information about script
   bpTextLine "Script information"
-<<<<<<< HEAD
   bpPrintVar "Script" BP_SELF "$(bpColorizeFile "${BP_SELF_DIR}/${BP_SELF}")"
   bpPrintVar "Script version" BP_VERSION
   bpPrintVar "Template version" BP_VERSION
@@ -1916,25 +1357,11 @@ iinfo() { ##I Show information about script
   bpPrintVar "Date" BP_DATE
   bpPrintVar "Time" BP_TIME
   bpPrintVar "Character columns" BP_COLUMNS
-=======
-  bpPrintVar "Script" BP_SELF "$( bpColorizeFile "${BP_SELF_DIR}/${BP_SELF}" )"
-  bpPrintVar "Script version" BP_VERSION
-  bpPrintVar "Template version" BP_VERSION 
-  bpPrintVar "Bashplate settings file" BP_SETTINGS "$( bpColorizeFile ${BP_SETTINGS} )"
-  bpPrintVar "Log file" BP_LOGFILE  "$( bpColorizeFile "${BP_LOGFILE}" )"
-  bpPrintVar "Lock file"  BP_LOCK_FILE  "$( bpColorizeFile "${BP_LOCK_FILE}" )"
-  bpPrintVar "Default function" DEFAULT_CMD_HOOK
-  bpPrintInfo "PID"  $$   
-  bpPrintVar "Date" BP_DATE
-  bpPrintVar "Time" BP_TIME
-  bpPrintVar "Character columns" BP_COLUMNS 
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
   bpPrintVar "Character lines" BP_LINES
 
   if [ -n "${POST_INFO_HOOK}" ]; then
     bpTextLine "App. information"
     ${POST_INFO_HOOK}
-<<<<<<< HEAD
   fi
   settings
 }
@@ -1952,40 +1379,17 @@ bpHasCmd() { ##I Check if command is available
 
 #
 iview() { ##I View example
-=======
-  fi
-  settings
-}
-
-bpHasCmd() {  ##I Check if command is available
-  if type ${1} &> /dev/null ; then
-    return 0
-  else
-    return 1
-  fi
-}
-
-#
-iview() {  ##I View example
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
   # Singe command documentation
   if [ "$2" == "" ]; then
     bpExit
   fi
-<<<<<<< HEAD
 
   if bpHasCmd batcat; then # Use batcat, if available, to view function
     grep --no-filename -A 60 "$0" -e "${2}()" | grep -B 60 -m 1 -x "}" | batcat --language bash
-=======
-  
-  if bpHasCmd batcat ; then   # Use batcat, if available, to view function
-    grep --no-filename -A 60  "$0" -e "${2}()" | grep -B 60 -m 1 -x "}"  | batcat --language bash
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
   else
     echo
     bpTextLine "$2"
     echo
-<<<<<<< HEAD
     grep --no-filename -A 60 "$0" -e "${2}()" | grep -B 60 -m 1 -x "}" |
       sed -e "s/#.*/\\${BP_C_COMMENT}&\\${E_RESET}/" \
         -e "s/\<echo\>/\\${BP_C_RESERVED}&\\${E_RESET}/" \
@@ -2012,34 +1416,6 @@ iview() {  ##I View example
     #             -e $VF
     #             -e 's/\$[{]?[a-zA-Z0-9]*[}]?/XXX/'
     #             -e 's/$?/'"\\${BP_C_VAR}&\\${E_RESET}/" \
-=======
-    grep --no-filename -A 60  "$0" -e "${2}()" | grep -B 60 -m 1 -x "}" | \
-      sed  -e "s/#.*/\\${BP_C_COMMENT}&\\${E_END}/"          \
-             -e "s/\<echo\>/\\${BP_C_RESERVED}&\\${E_END}/"    \
-             -e "s/\<if\>/\\${BP_C_RESERVED}&\\${E_END}/"      \
-             -e "s/\<then\>/\\${BP_C_RESERVED}&\\${E_END}/"    \
-             -e "s/\<else\>/\\${BP_C_RESERVED}&\\${E_END}/"    \
-             -e "s/\<fi\>/\\${BP_C_RESERVED}&\\${E_END}/"      \
-             -e "s/\<do\>/\\${BP_C_RESERVED}&\\${E_END}/"      \
-             -e "s/\<done\>/\\${BP_C_RESERVED}&\\${E_END}/"    \
-             -e "s/\<elif\>/\\${BP_C_RESERVED}&\\${E_END}/"    \
-             -e "s/\<case\>/\\${BP_C_RESERVED}&\\${E_END}/"    \
-             -e "s/\<esac\>/\\${BP_C_RESERVED}&\\${E_END}/"    \
-             -e "s/\<for\>/\\${BP_C_RESERVED}&\\${E_END}/"     \
-             -e "s/\<in\>/\\${BP_C_RESERVED}&\\${E_END}/"      \
-             -e "s/\<select\>/\\${BP_C_RESERVED}&\\${E_END}/"  \
-             -e "s/\<time\>/\\${BP_C_RESERVED}&\\${E_END}/"    \
-             -e "s/\<until\>/\\${BP_C_RESERVED}&\\${E_END}/"   \
-             -e "s/\<select\>/\\${BP_C_RESERVED}&\\${E_END}/"  \
-             -e "s/\<eval\>/\\${BP_C_RESERVED}&\\${E_END}/"  \
-             -e "s/\<break\>/\\${BP_C_RESERVED}&\\${E_END}/"  \
-             -e "s/\<while\>/\\${BP_C_RESERVED}&\\${E_END}/"    \
-             -e "s/\".*\"/\\${BP_C_STRING}&\\${E_END}/"        \
-             -e "s/\([^=]*\)=/${BP_C_VAR}\1\\${E_END}=/"        \
-#             -e $VF
-#             -e 's/\$[{]?[a-zA-Z0-9]*[}]?/XXX/'
-#             -e 's/$?/'"\\${BP_C_VAR}&\\${E_END}/" \
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
     bpLine
   fi
   bpExit
@@ -2062,18 +1438,10 @@ ivars() { ##I Print internal variables
   echo
 }
 
-<<<<<<< HEAD
 ied() { ##I Open this file with default editor
   bpEdit "$0" "$2"
 }
 
-=======
-ied() { ##I Open this file with standard editor
-  bpEdit $0
-}
-
-
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
 version() { ##D Print version information
   echo "$BP_VERSION"
 }
@@ -2090,11 +1458,7 @@ bpRunCommand() {
     bpErrorExit "No command given"
   fi
 
-<<<<<<< HEAD
   if [ "$(type -t "$1")" != "function" ]; then # Check if subcommand is declared as function
-=======
-  if [ "$( type -t $1 )" != "function" ]; then # Check if subcommand is declared as function
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
     bpErrorExit "Command \"$1\" not found"
   fi
 
@@ -2103,7 +1467,6 @@ bpRunCommand() {
   if [ -n "$PRE_CMD_HOOK" ]; then
     "${PRE_CMD_HOOK}" "$command"
   fi
-<<<<<<< HEAD
 
   # Check if command is conditional
   CL=$(grep -E "${command}().*##C" "$0")
@@ -2111,32 +1474,18 @@ bpRunCommand() {
 
     # Check if condition is true and then execute else printout error message
     read -r -a ARR <<<"$CL"
-=======
-  
-  # Check if command is conditional
-  CL=$(grep -E "${command}().*##C" "$0")
-  if [[ "$CL" = *"##C"* ]]; then
-  
-    # Check if condition is true and then execute else printout error message
-    ARR=($CL)
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
     CV="${ARR[3]}"
     if [ -n "$CV" ]; then
       eval "D=\$$CV"
       if [ -n "$D" ]; then
         # execute command
-<<<<<<< HEAD
         "${command}" "$@"
-=======
-        "${command}" "$@" 
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
       else
         bpError "Command \"$command\" not available right now."
       fi
     else
       bpError "Command \"$command\" is conditional, but is missing conditional variable"
     fi
-<<<<<<< HEAD
   else
     # command is not conditional, execute
     "${command}" "$@"
@@ -2146,17 +1495,6 @@ bpRunCommand() {
   if [ -n "$POST_CMD_HOOK" ]; then
     "${POST_CMD_HOOK}" "$command"
   fi
-=======
-  else 
-    # command is not conditional, execute
-    "${command}" "$@"
-  fi
-
-  # execute post command hook  if existing
-  if [ -n "$POST_CMD_HOOK" ]; then
-    "${POST_CMD_HOOK}" "$command"
-  fi      
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
   bpExit
 }
 
@@ -2210,19 +1548,11 @@ bpUserSettings
 # Setup signal traps
 #---------------------------------------------------------------------
 
-<<<<<<< HEAD
 trap signalQuit SIGQUIT
 trap signalInt SIGINT
 trap signalHup SIGHUP
 trap signalTerm SIGTERM
 trap 'signalErr ${FUNCNAME} ${LINENO}' ERR
-=======
-trap  signalQuit SIGQUIT
-trap  signalInt  SIGINT
-trap  signalHup  SIGHUP
-trap  signalTerm SIGTERM
-trap  'signalErr ${FUNCNAME} ${LINENO}' ERR
->>>>>>> 1aef10d64a1bfed2d4050f4d2cb05a50d8bec658
 
 #trap  'signalDbg ${FUNCNAME} ${LINENO}' DEBUG
 
