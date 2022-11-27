@@ -264,7 +264,7 @@ class CFile():
 #        self.main += "  parser.addPositionalArgument("file", "The file to open.");\n"
 #        self.main += "  parser.process(app);\n"
         
-        self.main += "  MainWindow mainWin;\n"
+        self.main += "  QMainWindow mainWin;\n"
 #        self.main += "  if (!parser.positionalArguments().isEmpty())\n"
 #        self.main += "  mainWin.loadFile(parser.positionalArguments().first());\n"
         self.main += "  mainWin.show();\n"
