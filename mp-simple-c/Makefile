@@ -43,20 +43,9 @@ INCLUDE = .
 
 # Libraries to link
 LIB   = -lm 
-#LIB  += -lpthread
 
 # Libraries to use in pkg-config system
-#PKGLIBS  = Qt5Core 
-#PKGLIBS += Qt5Gui 
-#PKGLIBS += Qt5Widgets
-#PKGLIBS += Qt5SerialPort
-#PKGLIBS += Qt5Network
-#PKGLIBS += glib-2.0
-#PKGLIBS += gthread-2.0
-#PKGLIBS += gio-2.0
-#PKGLIBS += ncurses
-#PKGLIBS += lua5.1
-#PKGLIBS += sqlite3
+PKGLIBS  = 
 
 # Object files directory
 #     To put object files in current directory, use a dot (.), do NOT make
@@ -90,6 +79,8 @@ CPPDEFS =
 # 2 = normal debug information 
 # 3 = maximal debug information
 DEBUG=0
+
+__SETTINGS__
 
 #
 # Compiler and Linker options
@@ -180,60 +171,22 @@ LDFLAGS += $(foreach X, $(PKGLIBS), $(shell pkg-config --libs $(X)) )
 # Platform specific options
 #============================================================================
 
-# Linux options -------------------------------------------------------------
-
-# Target filename
-TRGFILE=$(OUTDIR)/$(TARGET)
-
-# Toolchain base directory
-TCHAIN_BASE=/usr/bin
-
-# Toolchain prefix 
-TCHAIN_PREFIX=
-
-# Handle pkg-config libraries -----------------------------------------------
-CFLAGS   += $(foreach X, $(PKGLIBS), $(shell pkg-config --cflags $(X)) )
-CPPFLAGS += $(foreach X, $(PKGLIBS), $(shell pkg-config --cflags $(X)) )
-LDFLAGS  += $(foreach X, $(PKGLIBS), $(shell pkg-config --libs $(X))   )
-
-# Size flags ----------------------------------------------------------------
-SIZEFLAGS = --format=berkley  # format = {sysv|berkeley}
-
-# objdump flags -------------------------------------------------------------
-ODFLAGS  = -h  # Display the contents of the section headers  
-ODFLAGS += -S  # Intermix source code with disassembly
-ODFLAGS += -C  #
-ODFLAGS += -r  # Display the relocation entries in the file
-
-# Output format. (can be srec, ihex, binary) --------------------------------
-FORMAT = ihex
-
-# object copy flags ---------------------------------------------------------
-OCFLAGS = -O $(FORMAT) 
+__PLATFORM-SPECIFIC__
 
 #
 # Tool settings
 #============================================================================
 
 # Define programs and commands ----------------------------------------------
-SHELL     = bash
-WINSHELL  = cmd
-REMOVE    = rm -f
-REMOVEDIR = rm -rf
-COPY      = cp -f 
-MOVE      = mv -f
-MKDIR     = mkdir -p
-SED       = sed              # stream editor program
-MOC       = moc              # Qt meta object compiler
-QMAKE     = qmake            # Qt make program
-UIC       = uic              # Qt resource file compiler
-CTEMPLATE = python3 tools/ctemplate.py # C/C++ template tool
-BIN2ARRAY = python3 tools/bin2array.py # Binary to array tool
-MPTOOL    = tools/mptools    # Makeplate tools
-CPPCHECK  = cppcheck
-INSTALL   = install
-ASTYLE    = astyle           # Code beatyfier
-DOXYGEN   = doxygen          # Code documetation program
+SHELL      = bash
+WINSHELL   = cmd
+REMOVE     = rm -f
+REMOVEDIR  = rm -rf
+COPY       = cp -f 
+MOVE       = mv -f
+MKDIR      = mkdir -p
+SED        = sed              # stream editor program
+
 
 TCHAIN = $(TCHAIN_BASE)/$(TCHAIN_PREFIX)
 
@@ -252,107 +205,108 @@ STRIP     = ${TCHAIN}strip
 # Message/Filter settings
 #============================================================================
 
-# Color definitions ---------------------------------------------------------
-E_BLACK        = \033[0;300m
-E_RED          = \033[0;31m
-E_GREEN        = \033[0;32m
-E_YELLOW       = \033[0;33m
-E_BLUE         = \033[0;34m
-E_MAGENTA      = \033[0;35m
-E_CYAN         = \033[0;36m
-E_GRAY         = \033[0;37m
-E_DARKGRAY     = \033[1;30m
-E_BR_RED       = \033[1;31m
-E_BR_GREEN     = \033[1;32m
-E_BR_YELLOW    = \033[1;33m
-E_BR_BLUE      = \033[1;34m
-E_BR_MAGENTA   = \033[1;35m
-E_BR_CYAN      = \033[1;36m
-E_WHITE        = \033[1;37m
-E_END          = \033[0m
-E_ON_BLACK     = \033[40m
-E_ON_RED       = \033[41m
-E_ON_GREEN     = \033[42m
-E_ON_YELLOW    = \033[43m
-E_ON_BLUE      = \033[44m
-E_ON_MAGENTA   = \033[45m
-E_ON_CYAN      = \033[46m
-E_ON_WHITE     = \033[47m
+# Color attributes 
+E_FG_BLACK        = \e[0;300m
+E_FG_RED          = \e[0;31m
+E_FG_GREEN        = \e[0;32m
+E_FG_YELLOW       = \e[0;33m
+E_FG_BLUE         = \e[0;34m
+E_FG_MAGENTA      = \e[0;35m
+E_FG_CYAN         = \e[0;36m
+E_FG_GRAY         = \e[0;37m
+E_FG_DARKGRAY     = \e[1;30m
+E_FG_BR_RED       = \e[1;31m
+E_FG_BR_GREEN     = \e[1;32m
+E_FG_BR_YELLOW    = \e[1;33m
+E_FG_BR_BLUE      = \e[1;34m
+E_FG_BR_MAGENTA   = \e[1;35m
+E_FG_BR_CYAN      = \e[1;36m
+E_FG_WHITE        = \e[1;37m
+E_BG_BLACK        = \e[40m
+E_BG_RED          = \e[41m
+E_BG_GREEN        = \e[42m
+E_BG_YELLOW       = \e[43m
+E_BG_BLUE         = \e[44m
+E_BG_MAGENTA      = \e[45m
+E_BG_CYAN         = \e[46m
+E_BG_WHITE        = \e[47m
 
-# ANSI Text attributes
-E_ATTR_BOLD=\e[1m
-E_ATTR_LOWI=\e[2m
-E_ATTR_UNDERLINE=\e[4m
-E_ATTR_BLINK=\e[5m
-E_ATTR_REVERSE=\e[7m
+# Style attributes
+E_BOLD=\e[1m
+E_DIM=\e[2m
+E_UNDERLINE=\e[4mbpReplaceX
+E_BLINK=\e[5m
+E_REVERSE=\e[7m
+
+E_RESET           = \e[0m
 
 # System color definitions
-C_OK=$(E_BR_GREEN)
-C_WARNING=$(E_BR_YELLOW)
-C_ERROR=$(E_BR_RED)
-C_FILE=$(E_BR_CYAN)
-C_DIR=$(E_CYAN)
-C_NOTE=$(E_BR_GREEN)
-C_MSG=$(E_BR_GREEN)
-C_ACTION=$(E_BR_MAGENTA)
-C_VALUE=$(E_WHITE)$(E_ON_BLUE)
-C_IDENTIFIER=$(E_WHITE)
+C_OK=$(E_FG_BR_GREEN)
+C_WARNING=$(E_FG_BR_YELLOW)
+C_ERROR=$(E_FG_BR_RED)
+C_FILE=$(E_FG_BR_CYAN)
+C_DIR=$(E_FG_CYAN)
+C_NOTE=$(E_FG_BR_GREEN)
+C_MSG=$(E_FG_BR_GREEN)
+C_ACTION=$(E_FG_BR_MAGENTA)
+C_VALUE=$(E_FG_WHITE)$(E_BG_BLUE)
+C_IDENTIFIER=$(E_FG_WHITE)
 
 # Messages ------------------------------------------------------------------
-MSG_LINE             = "$(E_WHITE)------------------------------------------------------------------$(E_END)"
-MSG_BEGIN            = "${E_WHITE}-------------------------------- Begin ---------------------------${E_END}"
-MSG_END              = "${E_WHITE}-------------------------------- End -----------------------------${E_END}"
-MSG_ERRORS_NONE      = "${C_OK}Errors: none ${E_END}"
-MSG_STRIP            = "${C_ACTION}Striping:${E_END}"
-MSG_LINKING          = "${C_ACTION}Linking:${E_END}"
-MSG_COMPILING        = "${C_ACTION}Compiling C:  ${E_END}"
-MSG_COMPILING_CPP    = "${C_ACTION}Compiling C++:${E_END}"
-MSG_ASSEMBLING       = "${C_ACTION}Assembling:${E_END}"
-MSG_CLEANING         = "$(C_ACTION)Cleaning project:$(E_END)"
-MSG_EXTENDED_LISTING = "${C_ACTION}Creating Extended Listing/Disassembly:$(E_END)"
-MSG_SYMBOL_TABLE     = "${C_ACTION}Creating Symbol Table:$(E_END)"
-MSG_HEX_FILE         = "${C_ACTION}Creating Hex file:$(E_END)"
-MSG_FORMATERROR      = "${C_ERROR}Can not handle output-format${E_END}"
-MSG_ASMFROMC         = "${C_ACTION}Creating asm-File from C-Source:$(E_END)"
-MSG_SIZE_BEFORE      = "${C_ACTION}Size before:${E_END}"
-MSG_SIZE_AFTER       = "${C_ACTION}Size after build:${E_END}"
-MSG_LOAD_FILE        = "${C_ACTION}Creating load file:${E_END}"
-MSG_ARCHIVING        = "${C_ACTION}Creating tar archive:${E_END}"
-MSG_CREATING_LIBRARY = "${C_ACTION}Creating library:${E_END}"
-MSG_FLASH            = "${C_ACTION}Creating load file for Flash:${E_END}"
-MSG_EEPROM           = "${C_ACTION}Creating load file for EEPROM:${E_END}"
-MSG_COFF             = "${C_ACTION}Converting to AVR COFF:${E_END}"
-MSG_EXTENDED_COFF    = "${C_ACTION}Converting to AVR Extended COFF:${E_END}"
-MSG_MOC              = "${C_ACTION}Creating MOC file:${E_END}"
-MSG_UI               = "${C_ACTION}Generating UI header:${E_END}"
-MSG_BACKUP           = "${C_ACTION}Making incremental backup of project:${E_END}"
-MSG_SRC              = "${C_MSG}Source files $(E_GREEN)-----------------------------------------------------${E_END}"
-MSG_FLAGS            = "${C_MSG}Compiler Flags $(E_GREEN)---------------------------------------------------${E_END}"
-MSG_LINKER           = "${C_MSG}Linker Flags $(E_GREEN)-----------------------------------------------------${E_END}"
-MSG_PROJECT          = "${C_MSG}Project info $(E_GREEN)-----------------------------------------------------${E_END}"
-MSG_INCLUDES         = "${C_MSG}Include directories $(E_GREEN)----------------------------------------------${E_END}"
-MSG_OBJECTS          = "${C_MSG}Object files $(E_GREEN)-----------------------------------------------------${E_END}"	
-MSG_DEFS             = "${C_MSG}Macro definitions $(E_GREEN)------------------------------------------------${E_END}"
-MSG_INSTALL_INFO     = "${C_MSG}Install settings $(E_GREEN)-------------------------------------------------${E_END}"
-MSG_INSTALLING       = "${C_ACTION}Installing:   ${E_END}"
+MSG_LINE             = "$(E_FG_WHITE)------------------------------------------------------------------$(E_RESET)"
+MSG_BEGIN            = "${E_FG_WHITE}-------------------------------- Begin ---------------------------${E_RESET}"
+MSG_END              = "${E_FG_WHITE}-------------------------------- End -----------------------------${E_RESET}"
+MSG_ERRORS_NONE      = "${C_OK}Errors: none ${E_RESET}"
+MSG_STRIP            = "${C_ACTION}Striping:${E_RESET}"
+MSG_LINKING          = "${C_ACTION}Linking:${E_RESET}"
+MSG_COMPILING        = "${C_ACTION}Compiling C:  ${E_RESET}"
+MSG_COMPILING_CPP    = "${C_ACTION}Compiling C++:${E_RESET}"
+MSG_ASSEMBLING       = "${C_ACTION}Assembling:${E_RESET}"
+MSG_CLEANING         = "$(C_ACTION)Cleaning project:$(E_RESET)"
+MSG_EXTENDED_LISTING = "${C_ACTION}Creating Extended Listing/Disassembly:$(E_RESET)"
+MSG_SYMBOL_TABLE     = "${C_ACTION}Creating Symbol Table:$(E_RESET)"
+MSG_HEX_FILE         = "${C_ACTION}Creating Hex file:$(E_RESET)"
+MSG_FORMATERROR      = "${C_ERROR}Can not handle output-format${E_RESET}"
+MSG_ASMFROMC         = "${C_ACTION}Creating asm-File from C-Source:$(E_RESET)"
+MSG_SIZE_BEFORE      = "${C_ACTION}Size before:${E_RESET}"
+MSG_SIZE_AFTER       = "${C_ACTION}Size after build:${E_RESET}"
+MSG_LOAD_FILE        = "${C_ACTION}Creating load file:${E_RESET}"
+MSG_ARCHIVING        = "${C_ACTION}Creating tar archive:${E_RESET}"
+MSG_CREATING_LIBRARY = "${C_ACTION}Creating library:${E_RESET}"
+MSG_FLASH            = "${C_ACTION}Creating load file for Flash:${E_RESET}"
+MSG_EEPROM           = "${C_ACTION}Creating load file for EEPROM:${E_RESET}"
+MSG_COFF             = "${C_ACTION}Converting to AVR COFF:${E_RESET}"
+MSG_EXTENDED_COFF    = "${C_ACTION}Converting to AVR Extended COFF:${E_RESET}"
+MSG_MOC              = "${C_ACTION}Creating MOC file:${E_RESET}"
+MSG_UI               = "${C_ACTION}Generating UI header:${E_RESET}"
+MSG_BACKUP           = "${C_ACTION}Making incremental backup of project:${E_RESET}"
+MSG_SRC              = "${C_MSG}Source files $(E_FG_GREEN)-----------------------------------------------------${E_RESET}"
+MSG_FLAGS            = "${C_MSG}Compiler Flags $(E_FG_GREEN)---------------------------------------------------${E_RESET}"
+MSG_LINKER           = "${C_MSG}Linker Flags $(E_FG_GREEN)-----------------------------------------------------${E_RESET}"
+MSG_PROJECT          = "${C_MSG}Project info $(E_FG_GREEN)-----------------------------------------------------${E_RESET}"
+MSG_INCLUDES         = "${C_MSG}Include directories $(E_FG_GREEN)----------------------------------------------${E_RESET}"
+MSG_OBJECTS          = "${C_MSG}Object files $(E_FG_GREEN)-----------------------------------------------------${E_RESET}"	
+MSG_DEFS             = "${C_MSG}Macro definitions $(E_FG_GREEN)------------------------------------------------${E_RESET}"
+MSG_INSTALL_INFO     = "${C_MSG}Install settings $(E_FG_GREEN)-------------------------------------------------${E_RESET}"
+MSG_INSTALLING       = "${C_ACTION}Installing:   ${E_RESET}"
 MSG_BUILDING         = "$(C_ACTION)Building:     "
 	
 # Compiler output colorizer filter ------------------------------------------
-F_SOURCE=| sed -e "s/\(.*\/\)\(.*\)/$$(printf "$(C_DIR)")\1$$(printf "$(C_FILE)")\2$$(printf "$(E_END)")/"
-F_INF="s/In function/$$(printf "$(E_BR_GREEN)")&$$(printf "$(E_END)")/i"
-F_NOTE="s/note:/$$(printf "$(C_NOTE)")&$$(printf "$(E_END)")/i"
-F_WARNING="s/warning:/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
-F_ERROR="s/error:/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
-F_FATAL_ERROR="s/fatal error:/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
-F_WARNING1="s/defined but not used/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
-F_WARNING2="s/unused variable/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
-F_WARNING3="s/may be used uninitialized in this function/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
-F_WARNING4="s/implicit declaration of function/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
-F_WARNING5="s/value computed is not used/$$(printf "$(C_WARNING)")&$$(printf "$(E_END)")/i"
-F_BRACKET="s/\[\(.*\)\]/[$$(printf "$(E_GREEN)")\1$$(printf "$(E_END)")]/"	
-F_VARIABLE="s/\‘\(.*\)[\’\‘]/'$$(printf "$(C_IDENTIFIER)")\1$$(printf "$(E_END)")'/g"
-F_FILE="s/[^: ]*/$$(printf "$(C_FILE)")&$$(printf "$(E_END)")/"
-F_ROWNR="s/:\([0-9]*\):\([0-9]*\):/:$$(printf "$(C_VALUE)")\1$$(printf "$(E_END)"):$$(printf "$(C_VALUE)")\2$$(printf "$(E_END)"):/"
+F_SOURCE=| sed -e "s/\(.*\/\)\(.*\)/$$(printf "$(C_DIR)")\1$$(printf "$(C_FILE)")\2$$(printf "$(E_RESET)")/"
+F_INF="s/In function/$$(printf "$(E_FG_BR_GREEN)")&$$(printf "$(E_RESET)")/i"
+F_NOTE="s/note:/$$(printf "$(C_NOTE)")&$$(printf "$(E_RESET)")/i"
+F_WARNING="s/warning:/$$(printf "$(C_WARNING)")&$$(printf "$(E_RESET)")/i"
+F_ERROR="s/error:/$$(printf "$(C_ERROR)")&$$(printf "$(E_RESET)")/i"
+F_FATAL_ERROR="s/fatal error:/$$(printf "$(C_ERROR)")&$$(printf "$(E_RESET)")/i"
+F_WARNING1="s/defined but not used/$$(printf "$(C_WARNING)")&$$(printf "$(E_RESET)")/i"
+F_WARNING2="s/unused variable/$$(printf "$(C_WARNING)")&$$(printf "$(E_RESET)")/i"
+F_WARNING3="s/may be used uninitialized in this function/$$(printf "$(C_WARNING)")&$$(printf "$(E_RESET)")/i"
+F_WARNING4="s/implicit declaration of function/$$(printf "$(C_WARNING)")&$$(printf "$(E_RESET)")/i"
+F_WARNING5="s/value computed is not used/$$(printf "$(C_WARNING)")&$$(printf "$(E_RESET)")/i"
+F_BRACKET="s/\[\(.*\)\]/[$$(printf "$(E_FG_GREEN)")\1$$(printf "$(E_RESET)")]/"	
+F_VARIABLE="s/\‘\(.*\)[\’\‘]/'$$(printf "$(C_IDENTIFIER)")\1$$(printf "$(E_RESET)")'/g"
+F_FILE="s/[^: ]*/$$(printf "$(C_FILE)")&$$(printf "$(E_RESET)")/"
+F_ROWNR="s/:\([0-9]*\):\([0-9]*\):/:$$(printf "$(C_VALUE)")\1$$(printf "$(E_RESET)"):$$(printf "$(C_VALUE)")\2$$(printf "$(E_RESET)"):/"
 
 C_FILTER   = | sed -u -e $(F_BRACKET) -e $(F_FILE) -e $(F_ROWNR)          \
                       -e $(F_INF) -e $(F_NOTE)                            \
@@ -363,8 +317,8 @@ C_FILTER   = | sed -u -e $(F_BRACKET) -e $(F_FILE) -e $(F_ROWNR)          \
 
 CPP_FILTER = $(C_FILTER)
 
-LD_ERROR1="s/undefined reference/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
-LD_ERROR2="s/No such file or directory/$$(printf "$(C_ERROR)")&$$(printf "$(E_END)")/i"
+LD_ERROR1="s/undefined reference/$$(printf "$(C_ERROR)")&$$(printf "$(E_RESET)")/i"
+LD_ERROR2="s/No such file or directory/$$(printf "$(C_ERROR)")&$$(printf "$(E_RESET)")/i"
 LD_FILTER = | sed -ru -e $(LD_ERROR1) -e $(LD_ERROR2)
 	
 #
@@ -379,7 +333,6 @@ GENDEPFLAGS = -MMD -MP -MF .dep/$(@F).d
 ALL_CFLAGS   =  -I. $(CFLAGS) $(GENDEPFLAGS)
 ALL_CPPFLAGS =  -I. -x c++ $(CPPFLAGS) $(GENDEPFLAGS)
 ALL_ASFLAGS  =  -I. -x assembler-with-cpp $(ASFLAGS)
-
 
 # Filter out C sources
 CSRC_1 = $(patsubst %.cpp,  , $(SRC) $(LSRC))
@@ -421,7 +374,7 @@ eep: $(OUTDIR)/$(TARGET).eep
 
 begin:
 	@echo -e $(MSG_BEGIN)
-	@echo -e ${MSG_BUILDING}" $(E_BR_GREEN)$(TARGET) $(E_END)"
+	@echo -e ${MSG_BUILDING}" $(E_BR_GREEN)$(TARGET) $(E_RESET)"
  
 end:
 	@echo
@@ -500,11 +453,24 @@ size: $(TRGFILE)
 
 strip: $(TRGFILE) ## Strip target binary from symbols
 	@echo -e $(MSG_STRIP)
-	@$(STRIP) $(TRGFILE)	
+	@$(STRIP) $(TRGFILE)
+
+__TARGETS__
+
+
+# Include the dependency files.
+-include $(shell mkdir .dep 2>/dev/null) $(wildcard .dep/*)
+
+#
+# Run & debug	
+#============================================================================
+
+run:    ## Run application
+	@$(OUTDIR)/$(TARGET)
+
 #
 # Various utility rules	
 #============================================================================
-
 
 clean:  ## Remove all build files
 	@echo
@@ -528,17 +494,12 @@ clean:  ## Remove all build files
 	@find . -name "*.orig" -delete
 
 
-run:    ## Run application
-	@$(OUTDIR)/$(TARGET)
-
-# Include the dependency files.
--include $(shell mkdir .dep 2>/dev/null) $(wildcard .dep/*)
 
 #
 # Help information
 #============================================================================
 
-##N- Help
+##N- Information
 
 help: ## This help information
 	@echo -e $(MSG_LINE)
@@ -546,17 +507,17 @@ help: ## This help information
 	help_lines=$$( grep -h '##' $(MAKEFILE_LIST) | grep -v grep | grep -v '##D' | grep -v '##V' | grep -v '\*##C' | grep -v '\*##C-' |  grep -v '\"##' |  grep -v '##N-//' | grep -v help_line | grep -v printLine ) ; \
 	for help_line in $${help_lines[@]}; do  \
 	  case "$$help_line" in \
-			    *"##N-"*) name=$$(echo $$help_line | sed -e 's/^.*##N-//' -e 's/^[ \t]*//' ); \
-					          printf "${E_YELLOW}%s${E_END}\n" $$name ;; \
-					*"##"*)   help_command=$$(echo $$help_line | sed -s 's/:.*//') ; \
-										help_info=$$(echo $$help_line | sed -s 's/^.*##//') ; \
-										printf "${E_CYAN}  %-15s ${E_GREEN}%s${E_END}\n" $$help_command $$help_info; \
+		*"##N-"*) name=$$(echo $$help_line | sed -e 's/^.*##N-//' -e 's/^[ \t]*//' ); \
+		          printf "${E_YELLOW}%s${E_END}\n" $$name ;; \
+		*"##"*)   help_command=$$(echo $$help_line | sed -s 's/:.*//') ; \
+				help_info=$$(echo $$help_line | sed -s 's/^.*##//') ; \
+				printf "${E_CYAN}  %-15s ${E_GREEN}%s${E_END}\n" $$help_command $$help_info; \
 		esac \
   done ;
 	@echo -e $(MSG_LINE)
 
 
-info: ## List project information
+info-project: # Print project information
 	@echo -e $(MSG_PROJECT)
 	@echo "Target:     $(TARGET)"
 	@echo "Platform:   $(TARGET_PLATFORM)"
@@ -566,14 +527,14 @@ info: ## List project information
 	@echo "MCU:        $(MCU)"
 	@echo "F_CPU:      $(F_CPU)"
 	
-	# List includefiles
+info-includes: # Print includefiles
 	@echo -e $(MSG_INCLUDES)
 	@export IFS=" "
 	@for f in $(INCLUDE); do   \
 	  echo $${f} ;             \
 	done        
 
-  # List definitions
+info-defs: # Print macro definitions
 	@echo -e $(MSG_DEFS)
 	@export IFS=" "
 	@for f in $(CDEFS); do     \
@@ -588,29 +549,36 @@ info: ## List project information
 	  echo $${f} ;             \
 	done        
 
-  # List compiler flags
+info-cflags:  # Print compiler flags
 	@echo -e $(MSG_FLAGS)
 	@export IFS=" "
 	@for f in $(CFLAGS); do   \
 	  echo $${f} ;            \
 	done                      \
 
-  # List linker flags
+info-lflags: # Print linker flags
 	@echo -e $(MSG_LINKER)
 	@export IFS=" "
 	@for f in $(LDFLAGS); do   \
 	  echo $${f} ;             \
 	done                       \
 
-  # List all source files
+info-src:  # Print source files
 	@echo -e $(MSG_SRC)
 	@export IFS=" "
 	@for f in $(SRC); do      \
 	  echo $${f} ;            \
 	done                      \
-	
 
-files: list-src ## List source files
+list-objs: ## List objects 
+	@echo -e $(MSG_OBJECTS)
+	@export IFS=" "
+	@for f in $(OBJS); do   \
+	  echo $${f} ;          \
+	done   
+
+info: info-project info-includes info-defs info-cflags info-lflags info-src ## Print information about project
+files: info-src ## List source files
 
 # Listing of phony targets.
 .PHONY : all clean gccversion build begin finished end elf lss sym archive edit help backup list-src list-flags newproj run install

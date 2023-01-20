@@ -185,7 +185,6 @@ LDFLAGS += $(EXTMEMOPTS)
 LDFLAGS += $(patsubst %,-L%,$(INCLUDE))
 LDFLAGS += -g
 
-
 # Misc settings -------------------------------------------------------------
 MPFLAGS  = -DLICENSE=$(LICENSE)
 MPFLAGS += -DTARGET=$(TARGET)

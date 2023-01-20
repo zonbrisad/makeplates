@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # shellcheck disable=2034
+# shellcheck disable=2317
 # shellcheck disable=1090
 #---------------------------------------------------------------------
 #
@@ -43,10 +44,12 @@ bpUserSettings() {
   # Directory for 3d party files
   MP_3DPARTY_DIR=${BP_SELF_DIR}/3dparty
 
+  TOOLS=${BP_SELF_DIR}/tools
+
   # Template script
   mptemplate=${BP_SELF_DIR}/tools/mptemplate.py
 
-  if [ -e DEV ]; then
+  if [ -e "${BP_SELF_DIR}/DEV" ]; then
     DEV=1
   fi
 
@@ -55,94 +58,28 @@ bpUserSettings() {
 # User defined functions
 #---------------------------------------------------------------------
 
-#
-# Create a new Makeplate project
-#
-# $1 Create text
-# $2 source directory
-# $3 tools directory
-# $4 language c/cpp
-# $5 system (glib, qt etc.)
-#
-createProject() {
-  echo -e "${1}"
-
-  pn=$(bpRead "Project name>" "")
-  brief=$(bpRead "Brief description>" "")
-
-  if bpReadY "Create subdirectory?"; then
-    dst="$(pwd)/${pn}"
-    bpMkDir "$dst"
-  else
-    dst=.
-  fi
-
-  bpCp "${2}"/* "${dst}/."
-  srcDst="${dst}"
-
-  # Check tool dir is present then full project otherwise simple
-  if [ "$3" == "tools" ]; then
-    bpRm "${dst}/tools"
-    bpCp "${BP_SELF_DIR}/tools" "${dst}"
-    srcDst="${dst}/src"
-  fi
-
-  bpReplace "${pn}/Makefile" "__NAME__" "${pn}"
-  bpReplace "${pn}/Makefile" "__AUTHOR__" "${BP_NAME} <${BP_EMAIL}>"
-  bpReplace "${pn}/Makefile" "__DATE__" "${DATE}"
-  bpReplace "${pn}/Makefile" "__BRIEF__" "${brief}"
-  bpReplace "${pn}/Makefile" "__LICENSE__" "${BP_LICENSE}"
-  bpReplace "${pn}/Makefile" "__ORG__" "${BP_ORG}"
-
-  if [ "$4" == "cpp" ]; then
-    opts="newcpp --main"
-    mainFile="main.cpp"
-  else
-    opts="newc --main"
-    mainFile="main.c"
-  fi
-
-  opts="${opts}  --basedir ${pn}"
-
-  if [ "$3" == "tools" ]; then
-    bpReplaceLine "${dst}/Makefile" "SRC" "SRC = src\/${mainFile}"
-  else
-    bpReplaceLine "${dst}/Makefile" "SRC" "SRC = ${mainFile}"
-  fi
-
-  if [ "$5" == "glib" ]; then
-    opts="$opts --glib"
-
-    bpReplace "${dst}/Makefile" "#PKGLIBS += glib" "PKGLIBS += glib"
-    bpReplace "${dst}/Makefile" "#PKGLIBS += gthread" "PKGLIBS += gthread"
-    bpReplace "${dst}/Makefile" "#PKGLIBS += gio" "PKGLIBS += gio"
-  fi
-
-  ${mptemplate} ${opts} --name "main" --dir "${srcDst}" --brief "${brief}" --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
-}
-
 ##- C Projects
 
 newc() { ##D Create a new standard C makeplate project
-  createProject "Creating new makeplate C project" "${BP_SELF_DIR}/mp-c" "tools" "c"
+  createProject "Creating new makeplate C project" "${BP_SELF_DIR}/mp-c" "tools" "c" "${TOOLS}/temp-posix"
 }
 
 newsc() { ##D Create a new simple C makeplate project
-  createProject "Creating new simple makeplate C project" "${BP_SELF_DIR}/mp-simple-c" "" "c"
+  createProject "Creating new simple makeplate C project" "${BP_SELF_DIR}/mp-simple-c" "" "c" "${TOOLS}/temp-posix"
 }
 
 newg() { ##D Create a new GLIB/GTK based C makeplate project
-  createProject "Creating new makeplate C glib  project" "${BP_SELF_DIR}/mp-c" "tools" "c" "glib"
+  createProject "Creating new makeplate C glib  project" "${BP_SELF_DIR}/mp-c" "tools" "c" "${TOOLS}/temp-posix"
 }
 
 ##- C++ Projects
 
 newcpp() { ##D Create a new standard C++ makeplate project
-  createProject "Creating new makeplate C++ project" "${BP_SELF_DIR}/mp-c" "tools" "cpp"
+  createProject "Creating new makeplate C++ project" "${BP_SELF_DIR}/mp-c" "tools" "cpp" "${TOOLS}/temp-posix"
 }
 
 newscpp() { ##D Create a new simple C++ makeplate project
-  createProject "Creating new simple makeplate C++ project" "${BP_SELF_DIR}/mp-simple-c" "" "cpp"
+  createProject "Creating new simple makeplate C++ project" "${BP_SELF_DIR}/mp-simple-c" "" "cpp" "${TOOLS}/temp-posix"
 }
 
 ##- Code creation
@@ -159,7 +96,7 @@ newclass() { ##D Create new C++ class
   ${mptemplate} newclass --dir . --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
 }
 
-# NEW 3d party
+# NEW 3d party (experimental)
 
 list() { # List 3d party libraries
   ls -1 "${BPSCRIPTPATH}/3dparty"
@@ -213,10 +150,14 @@ new3p() { # Create new 3d party install script
     echo 'mpInst myFile $1'
   } >mpInstall
 
-  chmod +x ${MPINSTALL}
+  chmod +x "${MPINSTALL}"
 }
 
 ##- Various
+
+install() { ##D Install
+  bpAddModule "${BP_SELF_DIR}/mp_init"
+}
 
 examples() { ##D List examples
   ls -1 "${BP_SELF_DIR}/examples/"
@@ -227,7 +168,6 @@ utools() { ##D Update makaplate tools in project
 }
 
 ##C- DEV Project management (git) (for mp developers)
-
 
 clean() { ##C DEV Remove leftover files
   bpCd "${BP_SELF_DIR}"
@@ -272,6 +212,130 @@ pull() { ##C DEV Pull bashplates from GITHUB
   bpCd "${BP_SELF_DIR}"
   git pull --progress
   bpCd -
+}
+
+#
+# $1 file
+# $2 start match
+# $3 ending match
+#
+bpGetSection() { ##
+  grep -A 10000 -m 1 "$2" <"$1" | grep -B 10000 -m 1 "$3" | grep -v "$2" | grep -v "$3"
+}
+
+bpGetS() {
+  bpGetSection "$1" "###${2}_BEGIN###" "###${2}_END###"
+}
+
+##- Microcontroler projects
+
+avr() { ##D Create avr C project
+  createProject "Creating new makeplate C avr project" "${BP_SELF_DIR}/mp-c" "tools" "c" "${TOOLS}/temp-avr"
+}
+
+arm() { ##D Create arm C project (not implemented)
+  createProject "Creating new makeplate C avr project" "${BP_SELF_DIR}/mp-c" "tools" "c" "${TOOLS}/temp-arm"
+}
+
+#
+# $1 file
+# $2 key
+# $3 source
+#
+mpReplaceSection() {
+  bpGetS "${3}" "${2}" | sed -i "/__${2}__/r /dev/stdin" "${1}"
+  sed -i "/__${2}__/d" "${1}"
+}
+
+#
+# Create a new Makeplate project
+#
+# $1 Create text
+# $2 source directory
+# $3 tools directory
+# $4 language c/cpp
+# $5 template
+#
+createProject() {
+  echo -e "${1}"
+
+  target=$5 #"${TOOLS}/temp-avr"
+
+  while true; do
+    pn=$(bpRead "Project name>" "")
+
+    if ! bpReadY "Create subdirectory?"; then
+      dst=.
+      break
+    fi
+
+    dst="$(pwd)/${pn}"
+
+    if [ -e "$dst" ]; then
+      bpWarning "Directory ${dst} already exists."
+      if ! bpReadN "Use existing directory?"; then
+        continue
+      fi
+      break
+    fi
+
+    bpMkDir "$dst"
+    break
+  done
+
+  brief=$(bpRead "Brief description>" "")
+
+  MKF=${pn}/Makefile
+
+  bpCp "${2}"/* "${dst}/."
+  srcDst="${dst}"
+
+  # Check tool dir is present then full project otherwise simple
+  if [ "$3" == "tools" ]; then
+    bpRm "${dst}/tools"
+    bpCp "${BP_SELF_DIR}/tools" "${dst}"
+    srcDst="${dst}/src"
+  fi
+
+  # Replace keywords with data
+  bpReplace "$MKF" "__NAME__" "${pn}"
+  bpReplace "$MKF" "__AUTHOR__" "${BP_NAME} <${BP_EMAIL}>"
+  bpReplace "$MKF" "__DATE__" "${DATE}"
+  bpReplace "$MKF" "__BRIEF__" "${brief}"
+  bpReplace "$MKF" "__LICENSE__" "${BP_LICENSE}"
+  bpReplace "$MKF" "__ORG__" "${BP_ORG}"
+
+  mpReplaceSection "$MKF" "SETTINGS" "$target"
+  mpReplaceSection "$MKF" "UTILS" "$target"
+  mpReplaceSection "$MKF" "TARGETS" "$target"
+  mpReplaceSection "$MKF" "INSTALL" "$target"
+  mpReplaceSection "$MKF" "PLATFORM-SPECIFIC" "$target"
+
+  if [ "$4" == "cpp" ]; then
+    opts="newcpp --main"
+    mainFile="main.cpp"
+  else
+    opts="newc --main"
+    mainFile="main.c"
+  fi
+
+  opts="${opts}  --basedir ${pn}"
+
+  if [ "$3" == "tools" ]; then
+    bpReplaceLine "${dst}/Makefile" "SRC" "SRC = src\/${mainFile}"
+  else
+    bpReplaceLine "${dst}/Makefile" "SRC" "SRC = ${mainFile}"
+  fi
+
+  # if [ "$5" == "glib" ]; then
+  #   opts="$opts --glib"
+
+  #   bpReplace "${dst}/Makefile" "#PKGLIBS += glib" "PKGLIBS += glib"
+  #   bpReplace "${dst}/Makefile" "#PKGLIBS += gthread" "PKGLIBS += gthread"
+  #   bpReplace "${dst}/Makefile" "#PKGLIBS += gio" "PKGLIBS += gio"
+  # fi
+
+  # ${mptemplate} "${opts}" --name "main" --dir "${srcDst}" --brief "${brief}" --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
 }
 
 #---------------------------------------------------------------------
@@ -375,7 +439,7 @@ bpCallStack() { ##I Print out BASH call stack
   bpTextLine "Call stack"
   echo
   local frame=0
-  while caller $frame | sed -r -e "s/[0-9]*/${BP_C_VALUE}&${E_END}/"; do
+  while caller $frame | sed -r -e "s/[0-9]*/${BP_C_VALUE}&${E_RESET}/"; do
     ((frame++))
   done
   echo "$*"
@@ -478,7 +542,7 @@ E_UL_WHITE=$'\e[58;5;15m'      # White
 
 # ANSI Text attributes
 E_ATTR_BOLD=$'\e[1m'               # Bold text
-E_ATTR_LOWI=$'\e[2m'               # Low intensity
+E_ATTR_DIM=$'\e[2m'                # Dim(low intensity) text
 E_ATTR_ITALIC=$'\e[3m'             # Italic text
 E_ATTR_UNDERLINE=$'\e[4m'          # Underlined text
 E_ATTR_UNDERLINE_DOUBLE=$'\e[4:2m' # Double underline (limited support)
@@ -670,6 +734,17 @@ bpFilterEscape() { ##I Filter escape characters from string
 }
 
 ##C- IHELP File operations
+
+#
+# $1 command to check
+#
+bpHasCmd() { ##I Check if command is available
+  if [ -x "$(command -v "${1}")" ]; then
+    return 0
+  else
+    return 1
+  fi
+}
 
 #
 # $1 command to execute
@@ -1241,7 +1316,7 @@ bpDbg() { ##I Debug message
 
 bpDbg() { ##I Debug message
   if [ ! -n "$BP_DEBUG" ]; then
-    return 
+    return
   fi
   if [ -n "$BP_LOG_INFO" ]; then
     bpLogDebug "$1"
@@ -1313,7 +1388,7 @@ bpAssertProgs() { ##I Assert that required programs are available on the system
 
 ##C- IHELP Debug/Controll
 
-icheck() { ##I Make a shellcheck
+icheck() { ##I Run shellcheck on script
   bpAssertProgs "shellcheck"
   shellcheck "$0"
 }
@@ -1473,38 +1548,16 @@ iinfo() { ##I Show information about script
   settings
 }
 
-bpHasCmd() {  ##I Check if command is available
-  if type ${1} &> /dev/null ; then
-    return 0
-  else
-    return 1
-  fi
-}
-
-#
-# $1 command to check
-#
-bpHasCmd() { ##I Check if command is available
-  if [ -x "$(command -v "${1}")" ]; then
-    return 0
-  else
-    return 1
-  fi
-}
-
-#
 iview() { ##I View example
   # Singe command documentation
   if [ "$2" == "" ]; then
     bpExit
   fi
 
+  echo
   if bpHasCmd batcat; then # Use batcat, if available, to view function
-    grep --no-filename -A 60 "$0" -e "${2}()" | grep -B 60 -m 1 -x "}" | batcat --language bash
+    grep --no-filename -A 60 "$0" -e "${2}()" | grep -B 60 -m 1 -x "}" | batcat --language bash --decorations never
   else
-    echo
-    bpTextLine "$2"
-    echo
     grep --no-filename -A 60 "$0" -e "${2}()" | grep -B 60 -m 1 -x "}" |
       sed -e "s/#.*/\\${BP_C_COMMENT}&\\${E_RESET}/" \
         -e "s/\<echo\>/\\${BP_C_RESERVED}&\\${E_RESET}/" \
@@ -1528,11 +1581,8 @@ iview() { ##I View example
         -e "s/\<while\>/\\${BP_C_RESERVED}&\\${E_RESET}/" \
         -e "s/\".*\"/\\${BP_C_STRING}&\\${E_RESET}/" \
         -e "s/\([^=]*\)=/${BP_C_VAR}\1\\${E_RESET}=/"
-    #             -e $VF
-    #             -e 's/\$[{]?[a-zA-Z0-9]*[}]?/XXX/'
-    #             -e 's/$?/'"\\${BP_C_VAR}&\\${E_RESET}/" \
-    bpLine
   fi
+  echo
   bpExit
 }
 
