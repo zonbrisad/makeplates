@@ -23,6 +23,7 @@ mpInst() {
 mpInst src/def.h      $1
 mpInst src/def_util.h $1
 mpInst src/def_util.c $1
+mpInst src/def_avr.h $1
 
 mpInst src/i2i.c $1
 mpInst src/i2i.h $1
