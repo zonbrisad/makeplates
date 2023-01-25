@@ -32,8 +32,8 @@ Makefile creator
 
 ## Requirements
 
-- bash
 - make
+- bash
 - Python3 (optional)
 
 
@@ -63,6 +63,11 @@ Makefile creator
 
 
 ## ToDo
+
+- [ ] Merge simple and standard Makefile templates
+- [ ] Refactor code generator to ppl standard
+- [ ] Remove redundant examples
+- [ ] Add arm MCU target
 
 
 ## Links

@@ -233,7 +233,7 @@ avr() { ##D Create avr C project
   createProject "Creating new makeplate C avr project" "${BP_SELF_DIR}/mp-c" "tools" "c" "${TOOLS}/temp-avr"
 }
 
-arm() { ##D Create arm C project (not implemented)
+arm() { ##D Create arm C project (not implemented yet)
   createProject "Creating new makeplate C avr project" "${BP_SELF_DIR}/mp-c" "tools" "c" "${TOOLS}/temp-arm"
 }
 
@@ -266,8 +266,8 @@ createProject() {
 
     if ! bpReadY "Create subdirectory?"; then
       dst=.
-      break
-    fi
+			break
+		fi
 
     dst="$(pwd)/${pn}"
 
@@ -285,7 +285,7 @@ createProject() {
 
   brief=$(bpRead "Brief description>" "")
 
-  MKF=${pn}/Makefile
+  MKF=${dst}/Makefile
 
   bpCp "${2}"/* "${dst}/."
   srcDst="${dst}"

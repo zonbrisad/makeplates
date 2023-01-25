@@ -276,7 +276,7 @@ endif
 ifeq ($(TARGET_PLATFORM), avr)
 
 # MCU name
-MCU = atmega328
+MCU = atmega328p
 
 # Processor frequency.
 # Some common values:
@@ -316,7 +316,6 @@ ODFLAGS += -S  # Intermix source code with disassembly
 ODFLAGS += -z  #
 #ODFLAGS += -r  # Display the relocation entries in the file
 
-
 # object copy flags ---------------------------------------------------------
 OCFLAGS = -O $(FORMAT) -R .eeprom -R .fuse -R .lock -R .signature
 
@@ -354,7 +353,6 @@ EXTRALIBDIRS =
 LDFLAGS += $(PRINTF_LIB) $(SCANF_LIB) $(MATH_LIB)
 
 endif
-
 #
 # Tool settings
 #============================================================================
@@ -523,7 +521,6 @@ GENDEPFLAGS = -MMD -MP -MF .dep/$(@F).d
 ALL_CFLAGS   =  -I. $(CFLAGS) $(GENDEPFLAGS)
 ALL_CPPFLAGS =  -I. -x c++ $(CPPFLAGS) $(GENDEPFLAGS)
 ALL_ASFLAGS  =  -I. -x assembler-with-cpp $(ASFLAGS)
-
 
 # Filter out C sources
 CSRC_1 = $(patsubst %.cpp,  , $(SRC) $(LSRC))
@@ -1027,7 +1024,7 @@ AVRDUDE = avrdude
 AVRDUDE_PROGRAMMER = arduino
  
 # com1 = serial port. Use lpt1 to connect to parallel port.
-AVRDUDE_PORT = /dev/ttyUSB1    # programmer connected to serial device
+AVRDUDE_PORT = /dev/ttyUSB0    # programmer connected to serial device
 
 AVRDUDE_BITRATE = 57600 
  

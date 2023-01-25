@@ -84,6 +84,11 @@ LDFLAGS += $(PRINTF_LIB) $(SCANF_LIB) $(MATH_LIB)
 ###TOOLS_BEGIN###
 ###TOOLS_END###
 
+
+###DEBUG_BEGIN###
+###DEBUG_END###
+
+
 ###UTILS_BEGIN###
 ###UTILS_END###
 
@@ -144,4 +149,24 @@ sim:  ## Run AVR simulator
 
 
 ###TARGETS_BEGIN###
+#
+# AVR specific targets
+#============================================================================
+
+coff: $(TRGFILE)
+	@echo
+	@echo -e $(MSG_COFF)"\n             $(E_FG_BR_CYAN)" $(TARGET).cof "$(E_RESET)"
+	$(COFFCONVERT) -O coff-avr $< $(TARGET).cof
+
+extcoff: $(TRGFILE)
+	@echo
+	@echo -e $(MSG_EXTENDED_COFF)"\n             $(E_FG_BR_CYAN)" $(TARGET).cof "$(E_RESET)"
+	@$(COFFCONVERT) -O coff-ext-avr $< $(TARGET).cof
+
+%.eep: $(TRGFILE)
+	@echo
+	@echo -en $(MSG_EEPROM)"\n               "
+	@echo -e $@ $(F_SOURCE)
+	@$(OBJCOPY) -j .eeprom --set-section-flags=.eeprom="alloc,load" \
+	--change-section-lma .eeprom=0 --no-change-warnings -O $(FORMAT) $< $@ || exit 0
 ###TARGETS_END###
