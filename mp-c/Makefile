@@ -1,7 +1,7 @@
 # Hey Emacs, this is a -*- makefile -*-
 #----------------------------------------------------------------------------
 #
-# Brief:   __BRIEF__
+# Brief:   __DESCRIPTION__
 # 
 # Name:    __NAME__
 # Author:  __AUTHOR__
@@ -11,22 +11,7 @@
 # License: __LICENSE__
 # 
 #----------------------------------------------------------------------------
-# [Makeplates]
-# This script is generated from makeplates Makefile project generator.
-#
-# Makeplates is developed by:
-# Peter Malmberg <peter.malmberg@gmail.com>
-#
-# Makeplates is available at:
-# https://github.com/zonbrisad/makeplates
-# 
-# [Disclaimer] 
-# Use on your own risk.
-#----------------------------------------------------------------------------
-# [Help]
-# 
-# Enter "make help" to get information about different targets.
-# 
+# Makeplates is available at: https://github.com/zonbrisad/makeplates
 #----------------------------------------------------------------------------
 
 # Target platform (linux, win32, avr, arm, osx)
@@ -52,6 +37,8 @@ LIB   = -lm
 #LIB  += -lpthread
 
 # Libraries to use in pkg-config system
+PKGLIBS =
+
 #PKGLIBS += glib-2.0
 #PKGLIBS += gthread-2.0
 #PKGLIBS += gio-2.0
@@ -80,10 +67,7 @@ CSTANDARD   = gnu99
 CPPSTANDARD = c++11
 
 # C Macro definitions
-CDEFS = DEBUGPRINT   \
-        WARNINGPRINT \
-        ERRORPRINT   \
-        INFOPRINT   
+CDEFS = 
 
 # C++ Macro definitions
 CPPDEFS = 

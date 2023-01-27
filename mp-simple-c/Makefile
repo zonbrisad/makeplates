@@ -86,7 +86,7 @@ __SETTINGS__
 # Compiler and Linker options
 #============================================================================
 
-##N- Build
+##- Build
 
 # Compiler Options C --------------------------------------------------------
 CFLAGS = -g$(DEBUG)                            # Debugging information
@@ -357,10 +357,10 @@ OBJS    = $(COBJS) $(CPPOBJS) $(AOBJS)
 LST = $(patsubst %.c, $(OBJDIR)/%.lst, $(CSRC)) $(patsubst %.cpp, $(OBJDIR)/%.lst, $(CPPSRC)) $(patsubst %.S, $(OBJDIR)/%.lst, $(ASRC))
 
 # Default target.
-all:	begin build finished end ## Build project (default)
+all:	begin build finished end ##D Build project (default)
 
 nc: C_FILTER:= 
-nc: all   ## Build with no color filter on compiler output
+nc: all   ##D Build with no color filter on compiler output
 
 
 build: elf lss sym size
@@ -451,7 +451,7 @@ size: $(TRGFILE)
 	@echo -e $(MSG_SIZE_AFTER)
 	@$(SIZE) $(SIZEFLAGS) $(TRGFILE)
 
-strip: $(TRGFILE) ## Strip target binary from symbols
+strip: $(TRGFILE) ##D Strip target binary from symbols
 	@echo -e $(MSG_STRIP)
 	@$(STRIP) $(TRGFILE)
 
@@ -465,14 +465,14 @@ __TARGETS__
 # Run & debug	
 #============================================================================
 
-run:    ## Run application
+run:    ##D Run application
 	@$(OUTDIR)/$(TARGET)
 
 #
 # Various utility rules	
 #============================================================================
 
-clean:  ## Remove all build files
+clean:  ##D Remove all build files
 	@echo
 	@echo -e $(MSG_CLEANING)
 	@$(REMOVE) $(OUTDIR)/$(TARGET)
@@ -499,22 +499,20 @@ clean:  ## Remove all build files
 # Help information
 #============================================================================
 
-##N- Information
+##- Information
 
-help: ## This help information
-	@echo -e $(MSG_LINE)
+help: ##D This help information
 	@IFS=$$'\n'; \
-	help_lines=$$( grep -h '##' $(MAKEFILE_LIST) | grep -v grep | grep -v '##D' | grep -v '##V' | grep -v '\*##C' | grep -v '\*##C-' |  grep -v '\"##' |  grep -v '##N-//' | grep -v help_line | grep -v printLine ) ; \
+	help_lines=$$( grep -h '##' $(MAKEFILE_LIST) | grep -v -e 'grep' -e '\*##C' -e '\*##C-' -e '\"##' -e '##-//' -e 'help_line' -e 'printLine' ) ; \
 	for help_line in $${help_lines[@]}; do  \
 	  case "$$help_line" in \
-		*"##N-"*) name=$$(echo $$help_line | sed -e 's/^.*##N-//' -e 's/^[ \t]*//' ); \
-		          printf "${E_YELLOW}%s${E_END}\n" $$name ;; \
-		*"##"*)   help_command=$$(echo $$help_line | sed -s 's/:.*//') ; \
-				help_info=$$(echo $$help_line | sed -s 's/^.*##//') ; \
-				printf "${E_CYAN}  %-15s ${E_GREEN}%s${E_END}\n" $$help_command $$help_info; \
+		*"##-"*) name=$$(echo $$help_line | sed -e 's/^.*##-//' -e 's/^[ \t]*//' ); \
+		         printf "${E_FG_YELLOW}%s${E_RESET}\n" $$name ;; \
+		*"##D"*) help_command=$$(echo $$help_line | sed -s 's/:.*//') ; \
+				 help_info=$$(echo $$help_line | sed -s 's/^.*##D//') ; \
+				 printf "${E_FG_CYAN}  %-15s ${E_FG_GREEN}%s${E_RESET}\n" $$help_command $$help_info; \
 		esac \
   done ;
-	@echo -e $(MSG_LINE)
 
 
 info-project: # Print project information
@@ -570,15 +568,15 @@ info-src:  # Print source files
 	  echo $${f} ;            \
 	done                      \
 
-list-objs: ## List objects 
+list-objs: ##D List objects 
 	@echo -e $(MSG_OBJECTS)
 	@export IFS=" "
 	@for f in $(OBJS); do   \
 	  echo $${f} ;          \
 	done   
 
-info: info-project info-includes info-defs info-cflags info-lflags info-src ## Print information about project
-files: info-src ## List source files
+info: info-project info-includes info-defs info-cflags info-lflags info-src ##D Print information about project
+files: info-src ##D List source files
 
 # Listing of phony targets.
 .PHONY : all clean gccversion build begin finished end elf lss sym archive edit help backup list-src list-flags newproj run install
