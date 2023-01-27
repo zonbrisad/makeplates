@@ -204,7 +204,7 @@ class CFile():
             file.write(self.buf)
             file.close()
         except IOError:
-            logging.debug("Could not open file %s" % (fileName))
+            logging.debug("Could not open file %s" % (self.fileName))
             exit()
     
     def addSignal(self, signal, handler):
@@ -455,20 +455,20 @@ def newModule(dir, conf):
     if not conf.main:
         conf.main = query_yn("Add main() function", "no")
     
-    if conf.main and not conf.isCpp:
-        if not conf.glib:
-            conf.glib     = query_yn("glib project",      "no")
+    # if conf.main and not conf.isCpp:
+    #     if not conf.glib:
+    #         conf.glib     = query_yn("glib project",      "no")
             
-        conf.gtk      = query_yn("GTK project",       "no")
-        if conf.gtk:
-            conf.glib = True
+    #     conf.gtk      = query_yn("GTK project",       "no")
+    #     if conf.gtk:
+    #         conf.glib = True
         
-        conf.signals  = query_yn("Include signals",   "no")
-        if not conf.glib:
-            conf.argtable = query_yn("Include argtable3", "no")
+    #     conf.signals  = query_yn("Include signals",   "no")
+    #     if not conf.glib:
+    #         conf.argtable = query_yn("Include argtable3", "no")
           
-    if conf.main and conf.isCpp:    
-        conf.qt = query_yn("Qt project", "no")
+    # if conf.main and conf.isCpp:    
+    #     conf.qt = query_yn("Qt project", "no")
     
     fileC = CFile(conf, False)
     fileH = CFile(conf, True)
@@ -580,19 +580,8 @@ def main():
     parser_newclass.set_defaults(func=cmd_newclass)
     parser_newcpp = subparsers.add_parser("newcpp", parents=[parrent_parser],  help="Create a new C++ file")
     parser_newcpp.set_defaults(func=cmd_newcpp)
-#    parser_qtdia = subparsers.add_parser("qtdia",   parents=[parrent_parser],  help="Create a Qt5 dialog")
-#    parser_qtdia.set_defaults(func=cmd_qtdia)
-#    parser_qtmain = subparsers.add_parser("qtmain", parents=[parrent_parser],  help="Create a Qt5 main application")
-#    parser_qtmain.set_defaults(func=cmd_qtmain)
-#    parser_qtwin = subparsers.add_parser("qtwin",   parents=[parrent_parser],  help="Create a Qt5 main window")
-#    parser_qtwin.set_defaults(func=cmd_qtwin)
-#    parser_qtdia = subparsers.add_parser("qtdia",   parents=[parrent_parser],  help="Create a Qt5 dialog")
-#    parser_qtdia.set_defaults(func=cmd_qtdia)
     parser_qtdia = subparsers.add_parser("giti",    parents=[parrent_parser],  help="Create .gitignore file")
     parser_qtdia.set_defaults(func=cmd_giti)
-    
-#    parser.add_argument("--header",   type=str,            help="External header file",  default="headerExample")
-#    subparsers = parser.add_subparsers(title='subcommands', help="sfda fdsa fdsa afsd")
 
     args = parser.parse_args()
     if hasattr(args, 'author'):

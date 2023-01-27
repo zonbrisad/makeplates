@@ -46,6 +46,8 @@ bpUserSettings() {
 
   TOOLS=${BP_SELF_DIR}/tools
 
+  TARGETS=${BP_SELF_DIR}/targets
+
   # Template script
   mptemplate=${BP_SELF_DIR}/tools/mptemplate.py
 
@@ -58,28 +60,120 @@ bpUserSettings() {
 # User defined functions
 #---------------------------------------------------------------------
 
+#
+# Create a new Makeplate project
+#
+# $1 Create text
+# $2 source directory
+# $3 tools directory
+# $4 language c/cpp
+# $5 template
+#
+createProject() {
+  echo -e "${1}"
+
+  target=$5
+
+  while true; do
+    pn=$(bpRead "Project name>" "")
+
+    if ! bpReadY "Create subdirectory?"; then
+      dst=.
+      break
+    fi
+
+    dst="$(pwd)/${pn}"
+
+    if [ -e "$dst" ]; then
+      bpWarning "Directory ${dst} already exists."
+      if ! bpReadN "Use existing directory?"; then
+        continue
+      fi
+      break
+    fi
+
+    bpMkDir "$dst"
+    break
+  done
+
+  brief=$(bpRead "Brief description>" "")
+
+  MKF=${dst}/Makefile
+
+  bpCp "${2}/Makefile" "${dst}/Makefile"
+
+  srcDst="${dst}"
+
+  # Check tool dir is present then full project otherwise simple
+  if [ -e "${2}/tools" ]; then
+    # bpRm "${dst}/tools"
+    bpCp "${BP_SELF_DIR}/tools" "${dst}"
+    srcDst="${dst}/src"
+    bpMkDir "$srcDst"
+  fi
+
+  # Replace keywords with data
+  bpReplace "$MKF" "__NAME__" "${pn}"
+  bpReplace "$MKF" "__AUTHOR__" "${BP_NAME} <${BP_EMAIL}>"
+  bpReplace "$MKF" "__DATE__" "${DATE}"
+  bpReplace "$MKF" "__DESCRIPTION__" "${brief}"
+  bpReplace "$MKF" "__LICENSE__" "${BP_LICENSE}"
+  bpReplace "$MKF" "__ORG__" "${BP_ORG}"
+
+  mpReplaceSection "$MKF" "SETTINGS" "$target"
+  mpReplaceSection "$MKF" "UTILS" "$target"
+  mpReplaceSection "$MKF" "TARGETS" "$target"
+  mpReplaceSection "$MKF" "INSTALL" "$target"
+  mpReplaceSection "$MKF" "PLATFORM-SPECIFIC" "$target"
+
+  if [ "$4" == "cpp" ]; then
+    opts="newcpp --main"
+    mainFile="main.cpp"
+  else
+    opts="newc --main"
+    mainFile="main.c"
+  fi
+
+  if [ "$3" == "tools" ]; then
+    bpReplaceLine "${dst}/Makefile" "SRC" "SRC = src\/${mainFile}"
+  else
+    bpReplaceLine "${dst}/Makefile" "SRC" "SRC = ${mainFile}"
+  fi
+
+  # if [ "$5" == "glib" ]; then
+  #   opts="$opts --glib"
+
+  #   bpReplace "${dst}/Makefile" "#PKGLIBS += glib" "PKGLIBS += glib"
+  #   bpReplace "${dst}/Makefile" "#PKGLIBS += gthread" "PKGLIBS += gthread"
+  #   bpReplace "${dst}/Makefile" "#PKGLIBS += gio" "PKGLIBS += gio"
+  # fi
+
+  # ${mptemplate} "${opts}" --name "main" --dir "${srcDst}" --brief "${brief}" --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
+  ${mptemplate} ${opts} --basedir "${pn}" --name "main" --main --dir "${srcDst}" --brief "${brief}" --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
+}
+
 ##- C Projects
 
 newc() { ##D Create a new standard C makeplate project
-  createProject "Creating new makeplate C project" "${BP_SELF_DIR}/mp-c" "tools" "c" "${TOOLS}/temp-posix"
+  createProject "Creating new makeplate C project" "${BP_SELF_DIR}/mp-c" "tools" "c" "${TARGETS}/temp-posix"
 }
 
 newsc() { ##D Create a new simple C makeplate project
-  createProject "Creating new simple makeplate C project" "${BP_SELF_DIR}/mp-simple-c" "" "c" "${TOOLS}/temp-posix"
+  createProject "Creating new simple makeplate C project" "${BP_SELF_DIR}/mp-simple-c" "" "c" "${TARGETS}/temp-posix"
 }
 
 newg() { ##D Create a new GLIB/GTK based C makeplate project
-  createProject "Creating new makeplate C glib  project" "${BP_SELF_DIR}/mp-c" "tools" "c" "${TOOLS}/temp-posix"
+  createProject "Creating new makeplate C glib  project" "${BP_SELF_DIR}/mp-c" "tools" "c" "${TARGETS}/temp-posix"
 }
 
 ##- C++ Projects
 
 newcpp() { ##D Create a new standard C++ makeplate project
-  createProject "Creating new makeplate C++ project" "${BP_SELF_DIR}/mp-c" "tools" "cpp" "${TOOLS}/temp-posix"
+  createProject "Creating new makeplate C++ project" "${BP_SELF_DIR}/mp-c" "tools" "cpp" "${TARGETS}/temp-posix"
 }
 
 newscpp() { ##D Create a new simple C++ makeplate project
-  createProject "Creating new simple makeplate C++ project" "${BP_SELF_DIR}/mp-simple-c" "" "cpp" "${TOOLS}/temp-posix"
+  createProject "Creating new simple makeplate C++ project" "${BP_SELF_DIR}/mp-simple-c" "" "cpp" "${TARGETS}/temp-posix"
 }
 
 ##- Code creation
@@ -230,11 +324,11 @@ bpGetS() {
 ##- Microcontroler projects
 
 avr() { ##D Create avr C project
-  createProject "Creating new makeplate C avr project" "${BP_SELF_DIR}/mp-c" "tools" "c" "${TOOLS}/temp-avr"
+  createProject "Creating new makeplate C avr project" "${BP_SELF_DIR}/mp-c" "tools" "c" "${TARGETS}/temp-avr"
 }
 
 arm() { ##D Create arm C project (not implemented yet)
-  createProject "Creating new makeplate C avr project" "${BP_SELF_DIR}/mp-c" "tools" "c" "${TOOLS}/temp-arm"
+  createProject "Creating new makeplate C avr project" "${BP_SELF_DIR}/mp-c" "tools" "c" "${TARGETS}/temp-arm"
 }
 
 #
@@ -245,97 +339,6 @@ arm() { ##D Create arm C project (not implemented yet)
 mpReplaceSection() {
   bpGetS "${3}" "${2}" | sed -i "/__${2}__/r /dev/stdin" "${1}"
   sed -i "/__${2}__/d" "${1}"
-}
-
-#
-# Create a new Makeplate project
-#
-# $1 Create text
-# $2 source directory
-# $3 tools directory
-# $4 language c/cpp
-# $5 template
-#
-createProject() {
-  echo -e "${1}"
-
-  target=$5 #"${TOOLS}/temp-avr"
-
-  while true; do
-    pn=$(bpRead "Project name>" "")
-
-    if ! bpReadY "Create subdirectory?"; then
-      dst=.
-			break
-		fi
-
-    dst="$(pwd)/${pn}"
-
-    if [ -e "$dst" ]; then
-      bpWarning "Directory ${dst} already exists."
-      if ! bpReadN "Use existing directory?"; then
-        continue
-      fi
-      break
-    fi
-
-    bpMkDir "$dst"
-    break
-  done
-
-  brief=$(bpRead "Brief description>" "")
-
-  MKF=${dst}/Makefile
-
-  bpCp "${2}"/* "${dst}/."
-  srcDst="${dst}"
-
-  # Check tool dir is present then full project otherwise simple
-  if [ "$3" == "tools" ]; then
-    bpRm "${dst}/tools"
-    bpCp "${BP_SELF_DIR}/tools" "${dst}"
-    srcDst="${dst}/src"
-  fi
-
-  # Replace keywords with data
-  bpReplace "$MKF" "__NAME__" "${pn}"
-  bpReplace "$MKF" "__AUTHOR__" "${BP_NAME} <${BP_EMAIL}>"
-  bpReplace "$MKF" "__DATE__" "${DATE}"
-  bpReplace "$MKF" "__BRIEF__" "${brief}"
-  bpReplace "$MKF" "__LICENSE__" "${BP_LICENSE}"
-  bpReplace "$MKF" "__ORG__" "${BP_ORG}"
-
-  mpReplaceSection "$MKF" "SETTINGS" "$target"
-  mpReplaceSection "$MKF" "UTILS" "$target"
-  mpReplaceSection "$MKF" "TARGETS" "$target"
-  mpReplaceSection "$MKF" "INSTALL" "$target"
-  mpReplaceSection "$MKF" "PLATFORM-SPECIFIC" "$target"
-
-  if [ "$4" == "cpp" ]; then
-    opts="newcpp --main"
-    mainFile="main.cpp"
-  else
-    opts="newc --main"
-    mainFile="main.c"
-  fi
-
-  opts="${opts}  --basedir ${pn}"
-
-  if [ "$3" == "tools" ]; then
-    bpReplaceLine "${dst}/Makefile" "SRC" "SRC = src\/${mainFile}"
-  else
-    bpReplaceLine "${dst}/Makefile" "SRC" "SRC = ${mainFile}"
-  fi
-
-  # if [ "$5" == "glib" ]; then
-  #   opts="$opts --glib"
-
-  #   bpReplace "${dst}/Makefile" "#PKGLIBS += glib" "PKGLIBS += glib"
-  #   bpReplace "${dst}/Makefile" "#PKGLIBS += gthread" "PKGLIBS += gthread"
-  #   bpReplace "${dst}/Makefile" "#PKGLIBS += gio" "PKGLIBS += gio"
-  # fi
-
-  # ${mptemplate} "${opts}" --name "main" --dir "${srcDst}" --brief "${brief}" --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
 }
 
 #---------------------------------------------------------------------
@@ -439,7 +442,7 @@ bpCallStack() { ##I Print out BASH call stack
   bpTextLine "Call stack"
   echo
   local frame=0
-  while caller $frame | sed -r -e "s/[0-9]*/${BP_C_VALUE}&${E_RESET}/"; do
+  while caller "$frame" | sed -r -e "s/[0-9]*/${BP_C_VALUE}&${E_RESET}/"; do
     ((frame++))
   done
   echo "$*"
@@ -583,8 +586,8 @@ BP_C_LINE_TEXT="${E_FG_YELLOW}"
 BP_C_DESCRIPTION="${E_FG_GREEN}"
 BP_C_ID="${E_FG_CYAN}"
 
-BP_C_FILENAME="${E_FG_BR_GREEN}"
-BP_C_PATH="${E_FG_GREEN}"
+BP_C_FILENAME="${E_FG_BR_CYAN}"
+BP_C_PATH="${E_FG_CYAN}"
 BP_C_URL_SCHEME="${E_FG_DARKGRAY}"
 # BP_C_URL_USER=""
 # BP_C_URL_HOST=""
@@ -1315,7 +1318,7 @@ bpDbg() { ##I Debug message
 }
 
 bpDbg() { ##I Debug message
-  if [ ! -n "$BP_DEBUG" ]; then
+  if [ -z "$BP_DEBUG" ]; then
     return
   fi
   if [ -n "$BP_LOG_INFO" ]; then
@@ -1381,7 +1384,7 @@ bpAssertProgs() { ##I Assert that required programs are available on the system
         e=1
       }
   done
-  if [ $e -eq 1 ]; then
+  if [ "$e" -eq 1 ]; then
     bpExit 1
   fi
 }
