@@ -55,6 +55,11 @@ bpUserSettings() {
     DEV=1
   fi
 
+  GITSERVER="github.com"
+  GITUSER="zonbrisad"
+
+  GIT="git@${GITSERVER}:${GITUSER}"
+
 }
 #---------------------------------------------------------------------
 # User defined functions
@@ -75,48 +80,48 @@ createProject() {
   target=$5
 
   while true; do
-    pn=$(bpReadStr "Project name>" "")
+    PROJECT_NAME=$(bpReadStr "Project name>" "")
 
     if ! bpReadBoolDY "Create subdirectory?"; then
-      dst=.
+      PROJECT_DIR=.
       break
     fi
 
-    dst="$(pwd)/${pn}"
+    PROJECT_DIR="$(pwd)/${PROJECT_NAME}"
 
-    if [ -e "$dst" ]; then
-      bpWarning "Directory ${dst} already exists."
+    if [ -e "$PROJECT_DIR" ]; then
+      bpWarning "Directory ${PROJECT_DIR} already exists."
       if ! bpReadBoolDN "Use existing directory?"; then
         continue
       fi
       break
     fi
 
-    bpMkDir "$dst"
+    bpMkDir "$PROJECT_DIR"
     break
   done
 
-  brief=$(bpReadStr "Brief description>" "")
+  DESCRIPTION=$(bpReadStr "Brief description>" "")
 
-  MKF=${dst}/Makefile
+  MKF=${PROJECT_DIR}/Makefile
 
-  bpCp "${2}/Makefile" "${dst}/Makefile"
+  bpCp "${2}/Makefile" "${PROJECT_DIR}/Makefile"
 
-  srcDst="${dst}"
+  srcDst="${PROJECT_DIR}"
 
   # Check tool dir is present then full project otherwise simple
   if [ -e "${2}/tools" ]; then
-    # bpRm "${dst}/tools"
-    bpCp "${BP_SELF_DIR}/tools" "${dst}"
-    srcDst="${dst}/src"
+    # bpRm "${PROJECT_DIR}/tools"
+    bpCp "${BP_SELF_DIR}/tools" "${PROJECT_DIR}"
+    srcDst="${PROJECT_DIR}/src"
     bpMkDir "$srcDst"
   fi
 
   # Replace keywords with data
-  bpReplace "$MKF" "__NAME__" "${pn}"
+  bpReplace "$MKF" "__NAME__" "${PROJECT_NAME}"
   bpReplace "$MKF" "__AUTHOR__" "${BP_NAME} <${BP_EMAIL}>"
   bpReplace "$MKF" "__DATE__" "${DATE}"
-  bpReplace "$MKF" "__DESCRIPTION__" "${brief}"
+  bpReplace "$MKF" "__DESCRIPTION__" "${DESCRIPTION}"
   bpReplace "$MKF" "__LICENSE__" "${BP_LICENSE}"
   bpReplace "$MKF" "__ORG__" "${BP_ORG}"
 
@@ -135,21 +140,27 @@ createProject() {
   fi
 
   if [ "$3" == "tools" ]; then
-    bpReplaceLine "${dst}/Makefile" "SRC" "SRC = src\/${mainFile}"
+    bpReplaceLine "${PROJECT_DIR}/Makefile" "SRC" "SRC = src\/${mainFile}"
   else
-    bpReplaceLine "${dst}/Makefile" "SRC" "SRC = ${mainFile}"
+    bpReplaceLine "${PROJECT_DIR}/Makefile" "SRC" "SRC = ${mainFile}"
   fi
 
   # if [ "$5" == "glib" ]; then
   #   opts="$opts --glib"
 
-  #   bpReplace "${dst}/Makefile" "#PKGLIBS += glib" "PKGLIBS += glib"
-  #   bpReplace "${dst}/Makefile" "#PKGLIBS += gthread" "PKGLIBS += gthread"
-  #   bpReplace "${dst}/Makefile" "#PKGLIBS += gio" "PKGLIBS += gio"
+  #   bpReplace "${PROJECT_DIR}/Makefile" "#PKGLIBS += glib" "PKGLIBS += glib"
+  #   bpReplace "${PROJECT_DIR}/Makefile" "#PKGLIBS += gthread" "PKGLIBS += gthread"
+  #   bpReplace "${PROJECT_DIR}/Makefile" "#PKGLIBS += gio" "PKGLIBS += gio"
   # fi
 
-  # ${mptemplate} "${opts}" --name "main" --dir "${srcDst}" --brief "${brief}" --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
-  ${mptemplate} ${opts} --basedir "${pn}" --name "main" --main --dir "${srcDst}" --brief "${brief}" --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
+  # ${mptemplate} "${opts}" --name "main" --dir "${srcDst}" --DESCRIPTION "${DESCRIPTION}" --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
+  ${mptemplate} ${opts} --basedir "${PROJECT_NAME}" --name "main" --main --dir "${srcDst}" --brief "${DESCRIPTION}" --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
+
+  # Git
+  if bpReadBoolDY "Do you want to create a git project?"; then
+    new_git "$PROJECT_NAME" "$PROJECT_DIR"
+  fi
+
 }
 
 ##- C Projects
@@ -193,7 +204,7 @@ newclass() { ##D Create new C++ class
 # NEW 3d party (experimental)
 
 list() { # List 3d party libraries
-  ls -1 "${BPSCRIPTPATH}/3dparty"
+  ls -1 "${BP_SELF_DIR}/3dparty"
 }
 
 MPINSTALL=mpInstall
@@ -234,9 +245,9 @@ new3p() { # Create new 3d party install script
 
     echo 'mpInst() {'
     echo '  dn=$(dirname $1)'
-    echo '  dst=$2/${dn}'
-    echo '  if [ ! -d ${dst} ]; then'
-    echo '    mkdir -p $dst'
+    echo '  PROJECT_DIR=$2/${dn}'
+    echo '  if [ ! -d ${PROJECT_DIR} ]; then'
+    echo '    mkdir -p $PROJECT_DIR'
     echo '  fi'
     echo '  cp -rf ${BP_SELF_DIR}/$1 $2/${dn}/.'
     echo '}'
@@ -341,6 +352,91 @@ mpReplaceSection() {
   sed -i "/__${2}__/d" "${1}"
 }
 
+##- Project
+#
+# $1 gitserver
+# $2 gituser
+# $3 repository
+#
+repoExistRemote() { ##I Check if git repository exists at remote server
+  if git ls-remote "ssh://git@${1}/${2}/${3}.git" &>/dev/null; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+#
+# $1
+#
+gsUpload() { # Upload git project to gitserver
+  GITPROJECT=$(bpReadStr "Github project name?" "${1}")
+
+  if repoExistRemote "$GITSERVER" "$GITUSER" "$GITPROJECT"; then
+    git remote add origin "git@${GITSERVER}:${GITUSER}/${GITPROJECT}.git"
+    git push --set-upstream origin master
+    ls &>/dev/null
+    if (("$?" == 0)); then
+      bpOk "Succelfully uploaded $GITPROJECT to $GITSERVER"
+    else
+      bpError "Failed to upload $GITPROJECT to $GITSERVER"
+      return 1
+    fi
+  else
+    bpError "Could not find project \"${GITPROJECT}\" at Github"
+  fi
+}
+
+agh() { ##D Add existing project to github
+  gsUpload "$2"
+}
+
+#
+# $1 file
+# $2 template path
+# $3 destination
+#
+new_file() {
+  FILE="${2}/${1}"
+  if [ -e "${FILE}" ]; then
+    if bpReadBoolDY "Create ${1} file?"; then
+      bpCp "${FILE}" "$(pwd)/${3}" -L
+      git add "${1}"
+    fi
+  fi
+}
+
+#
+# $1 project name
+# $2 project dir
+#
+new_git() { ##I New project
+  proj_name="$1"
+  proj_dir="$2"
+
+  TEMPLATE_DIR="${BP_SELF_DIR}/project_templates"
+  HOOK_TEMPLATES="${TEMPLATE_DIR}/git/hooks"
+
+  bpCd "${proj_dir}"
+
+  git init
+  git add "*"
+
+  new_file "README.md" "$TEMPLATE_DIR" "."
+  new_file "HISTORY.md" "$TEMPLATE_DIR" "."
+  new_file ".gitignore" "$TEMPLATE_DIR" "."
+  new_file "pre-commit" "$HOOK_TEMPLATES" ".git/hooks/."
+
+  git commit -m "Initial commit"
+  git branch -M master
+
+  if bpReadBoolDN "Upload git repo to Github?"; then
+    gsUpload "${proj_name}"
+  fi
+
+  bpCd -
+}
+
 #---------------------------------------------------------------------
 # Bashplate settings
 #---------------------------------------------------------------------
@@ -356,7 +452,7 @@ bpInitSettings() {
   BP_DESC="Makeplate project management script"
 
   ##V logfile (uncomment to use logfile)
-  #BP_LOGFILE=${BP_SELF_DIR}/${BP_SELF}.log
+  BP_LOGFILE=${BP_SELF_DIR}/${BP_SELF}.log
 
   ##V Lock file (uncomment to use lock file feature )
   #BP_LOCK_FILE=/tmp/${BP_SELF}.lock
@@ -1294,7 +1390,7 @@ bpConfPrint() { ##I Print settings in config list
     DESC=${arr[$i]}
     ((i++))
     printf "%s%s\n" "${E_DARKGRAY}" "${DESC}"
-    bpPrintDesc "$KEY" "${!KEY}"
+    bpPrintVar "$KEY" #"${!KEY}"
   done
 }
 
@@ -1740,7 +1836,7 @@ iinfo() { ##I Show information about script
     ((i++))
     ((i++))
     ((i++))
-    bpPrintVar "$KEY" "$KEY"
+    bpPrintVar "$KEY" #"$KEY"
   done
 
   bpPrintLine
