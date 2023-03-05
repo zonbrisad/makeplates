@@ -319,6 +319,12 @@ pull() { ##C DEV Pull bashplates from GITHUB
   bpCd -
 }
 
+em() { ##C DEV Open standard Makefile template
+  bpEdit "${BP_SELF_DIR}/mp-c/Makefile" "$2"
+}
+
+##- Microcontroler projects
+
 #
 # $1 file
 # $2 start match
@@ -331,8 +337,6 @@ bpGetSection() { ##
 bpGetS() {
   bpGetSection "$1" "###${2}_BEGIN###" "###${2}_END###"
 }
-
-##- Microcontroler projects
 
 avr() { ##D Create avr C project
   createProject "Creating new makeplate C avr project" "${BP_SELF_DIR}/mp-c" "tools" "c" "${TARGETS}/temp-avr.mk"
