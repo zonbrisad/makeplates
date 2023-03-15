@@ -72,6 +72,11 @@ class Bp():
 
 
 def main() -> None:
+    print(f"Name: {Bp.name()}")
+    print(f"Name: {Bp.email()}")
+    print(f"Name: {Bp.organisation()}")
+    print(f"Name: {Bp.license()}")
+            
     pass
 
 

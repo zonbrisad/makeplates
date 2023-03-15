@@ -38,6 +38,8 @@ from bashplates import Bp
 from query import Query
 from Project import ProjectGenerator
 
+from templatec import *
+
 # Settings ------------------------------------------------------------------
 
 AppName = "mptemplate"
@@ -68,34 +70,9 @@ template_dir = f"{self_dir}/pyplate"
 
 
 @dataclass
-class TemplateX:
-    text: str = ""
-    # preamble_text: str = ""
-    header_text: str = ""
-    includes_text: str = ""
-    macros_text: str = ""
-    datatypes_text: str = ""
-    variables_text: str = ""
-    prototypes_text: str = ""
-    code_text: str = ""
-    main_func_text: str = ""
-    main_text: str = ""
-
-#    dependencies: List[TemplateX] = field(default_factory=list)
-
-    def add(self, a: TemplateX):
-        # self.preamble_text += a.preamble_text
-        self.header_text += a.header_text
-        self.includes_text += a.includes_text
-        self.variables_text += a.variables_text
-        self.code_text += a.code_text
-        self.main_func_text += a.main_func_text
-        self.main_text += a.main_text
-
-
-@dataclass
 class TConf:
-    """Template configuration class"""
+    """TGenerator configuration class"""
+
     name: str = ""
     author: str = ""
     description: str = ""
@@ -107,87 +84,83 @@ class TConf:
 
     out_dir: str = ""
 
-    has_preamble: bool = True
     has_header: bool = True
-    has_main: bool = False
-    has_main_application: bool = False
+    #has_main: bool = False
+    #has_main_application: bool = False
     has_separators: bool = False
     has_argparse: bool = False
     has_argparse_sub: bool = False
     has_debug: bool = False
 
-    def __init__(self, args: argparse.ArgumentParser) -> None:
+    filename_h: str = ""
+    filename_c: str = ""
+
+    def __init__(self, args: argparse.ArgumentParser, list) -> None:
         self.args = args
         self.date = datetime.now().strftime("%Y-%m-%d")
         self.out_dir = os.getcwd()
         self.has_main = self.args.main
         self.has_separators = self.args.separators
+        self.header = t_header
+        self.list = list
 
+    def query(self) -> None:
         self.set_attribute("name", "Enter module name", "")
         self.set_attribute("description", "Enter brief description", "")
         self.set_attribute("author", "Enter name of author", "BP_NAME")
         self.set_attribute("email", "Enter email of author", "BP_EMAIL")
 
+        self.filename_c = f"{self.name}.c"
+        self.filename_h = f"{self.name}.h"
+
+        for l in self.list:
+            l.incl = Query.read_bool(l.query_text, l.incl)
+            #print(l.query_text)
+            
         # if external header, read into var
         if self.args.header is not None:
-            self.header = TemplateX()
+            self.header = TemplateC()
             with self.args.header as f:
                 self.header.header_text = f.read()
-        else:
-            self.header = t_header
 
     def set_attribute(self, attribute: str, question: str, env: str):
-        if getattr(self.args, attribute) is not None:  # If command line arguments are present use them
+        if (
+            getattr(self.args, attribute) is not None
+        ):  # If command line arguments are present use them
             setattr(self, attribute, getattr(self.args, attribute))
         else:
-            setattr(self, attribute,
-                    Query.read_string(question, os.getenv(env)))
+            setattr(self, attribute, Query.read_string(question, os.getenv(env)))
 
 
-@dataclass
-class ClassTemplate():
-    name: str = ""
-    parrent: str = ""
-    methods: str = ""
-    dataclass: bool = False
-    _init: str = ""
-    _str: str = ""
-    _eq: str = ""
-    vars = None
-
-    def add_var(self, name, type="", default=""):
-        if self.vars is None:
-            self.vars = []
-
-        self.vars.append({name, type, default})
-
-    def __str__(self) -> str:
-        if self.vars is None:
-            self.vars = []
-
-        str = ""
-        if self.dataclass:
-            str = "@dataclass\n"
-
-        if self.parrent == "":
-            str += f"class {self.name}:"
-        else:
-            str = f"class {self.name}({self.parrent}):"
-
-        for v in self.vars:
-            str += f"    {v[0]}"
-
-        return str
-
-
-class Template(TemplateX):
+class TGenerator:
     """docstring for template."""
 
-    def __init__(self, conf: TConf, pre: List[TemplateX], post: List[TemplateX]):
-        super().__init__()
+    # text: str = ""
+
+    def __init__(
+        self, conf: TConf, main: TemplateC, pre: List[TemplateC], post: List[TemplateC]
+    ):
+        # super().__init__()
+        self.templ = TemplateC()
         self.conf = conf
         self.pre = pre
         self.post = post
+        self.main = main
+        if self.conf.has_header:
+            self.add(self.conf.header)
+
+        for x in self.pre:
+            self.add(x)
+
+        if self.conf.has_main:
+            self.add(t_main)
+
+        for x in self.post:
+            self.add(x)
+
+    def add(self, t: TemplateC) -> None:
+        self.templ.add(t)
+        pass
 
     def clear(self):
         self.text = ""
@@ -197,61 +170,11 @@ class Template(TemplateX):
 
     def add_separator(self, header):
         if self.conf.has_separators:
-            self.text += f"\n// {header} {'-'*(70-len(header))}\n\n\n"
+            self.text += f"\n// {header} {'-'*(73-len(header))}\n\n"
         # else:
         #     self.text += "\n\n"
 
-    def generate(self):
-        self.clear()
-
-        # if self.conf.has_preamble:
-        #     self.add(t_preamble)
-
-        if self.conf.has_header:
-            self.add(self.conf.header)
-
-        for x in self.pre:
-            self.add(x)
-
-        # if Query.read_bool("Include logging?", default=True):
-        #     self.add(t_logging)
-
-        # if Query.read_bool("Include argparse?", default=True):
-        #     if Query.read_bool("Argparse with subcommands?", default=False):
-        #         self.add(t_argtable_cmd)
-        #     else:
-        #         self.add(t_argtable)
-
-        if self.conf.has_main:
-            self.add(t_main)
-
-        for x in self.post:
-            self.add(x)
-
-        # self.text += self.preamble_text
-        self.text += self.header_text
-        self.add_separator("Include")
-        self.text += self.includes_text
-        self.add_separator("Macros")
-        self.text += self.macros_text
-        self.add_separator("Datatypes")
-        self.text += self.datatypes_text
-        self.add_separator("Variables")
-        self.text += self.variables_text
-        self.add_separator("Prototypes")
-        self.text += self.prototypes_text
-        self.add_separator("Code")
-        self.text += self.code_text
-
-        # if self.conf.has_main or self.conf.has_main_application:
-        #     self.text += "def main() -> None:\n"
-        #     if self.main_func_text == "":
-        #         self.text += "    pass"
-        #     else:
-        #         self.text += self.main_func_text
-        #     self.text += "\n\n"
-        #     self.text += self.main_text
-
+    def replace_keys(self, filename: str):
         self.replace("__NAME__", self.conf.name)
         self.replace("__DESCRIPTION__", self.conf.description)
         self.replace("__AUTHOR__", self.conf.author)
@@ -264,19 +187,100 @@ class Template(TemplateX):
         self.replace("__DATE__", self.conf.date)
         self.replace("__LICENSE__", self.conf.license)
 
-    def write(self, dir=None) -> str:
-        if dir is None:
-            file_name = f"{self.conf.out_dir}/{self.conf.name}"
-        else:
-            file_name = f"{dir}/{self.conf.name}"
+        self.replace("__FILENAME__", filename)
 
-        with open(file_name, "w") as file:
-            file.write(self.text)
-        os.chmod(file_name, 0o770)
-        return file_name
+    def generate_h(self):
+        self.clear()
+
+        self.text += self.templ.header_text
+
+        self.text += self.templ.h_pre_text
+
+        self.add_separator("Include")
+        self.text += self.templ.h_includes_text
+
+        self.add_separator("Macros")
+        self.text += self.templ.h_macros_text
+
+        self.add_separator("Datatypes")
+        self.text += self.templ.h_datatypes_text
+
+        self.add_separator("Variables")
+        self.text += self.templ.h_variables_text
+
+        self.add_separator("Prototypes")
+        self.text += self.templ.h_prototypes_text
+
+        self.text += self.templ.h_post_text
+
+        self.replace_keys(self.conf.filename_h)
+
+    def generate_c(self):
+        self.clear()
+
+        self.text += self.templ.header_text
+
+        # self.text += self.c_pre_text
+
+        self.add_separator("Include")
+        self.text += self.templ.c_includes_text
+        self.text += f"#include \"{self.conf.filename_h}\""
+
+        self.add_separator("Macros")
+        self.text += self.templ.c_macros_text
+
+        self.add_separator("Datatypes")
+        self.text += self.templ.c_datatypes_text
+
+        self.add_separator("Variables")
+        self.text += self.templ.c_variables_text
+
+        self.add_separator("Prototypes")
+        self.text += self.templ.c_prototypes_text
+
+        self.add_separator("Code")
+        self.text += self.templ.c_code_text
+
+        if self.main != None:
+            self.text += self.main.main_begin_text
+
+        if self.conf.has_main or self.conf.has_main_application:
+
+            self.text += self.templ.main_begin_text
+            self.text += self.templ.main_vars_text
+            self.text += self.templ.main_func_text
+            self.text += self.templ.main_end_text
+
+        if self.main != None:
+            self.text += self.main.main_end_text
+
+        # self.text += self.c_post_text
+
+        self.replace_keys(self.conf.filename_c)
+
+    def generate(self):
+        self.generate_h()
+        self.file_h = self.text
+        self.generate_c()
+        self.file_c = self.text
+
+    def write(self, dir=None) -> str:
+        self._write(self.file_h, self.conf.filename_h, None)
+        self._write(self.file_c, self.conf.filename_c, None)
+
+    def _write(self, data, filename: str, dir=None) -> str:
+        if dir is None:
+            out_file = f"{self.conf.out_dir}/{filename}"
+        else:
+            out_file = f"{dir}/{filename}"
+
+        with open(out_file, "w") as file:
+            file.write(data)
+        os.chmod(out_file, 0o770)
+        return out_file
 
     def __str__(self) -> str:
-        return self.text
+        return self.file_h + self.file_c
 
 
 def print_info():
@@ -285,54 +289,7 @@ def print_info():
     print("Script path    " + os.path.realpath(__file__))
 
 
-
-t_header = TemplateX(
-    header_text="""\
- *---------------------------------------------------------------------------
- * @brief    __DESCRIPTION__
- *
- * @file     __FILENAME__
- * @author   __AUTHOR__
- * @date     __DATE__
- * @license  __LICENSE__
- *
- *---------------------------------------------------------------------------
- *
- *
- */
-""" 
-)
-
-t_main = TemplateX(
-    main_text="""\
-int main(int argc, char *argv[]) {
-        
-    return 0;
-}
-"""
-)
-
-
-
-t_application = TemplateX(
-    variables_text="""\
-class App:
-    NAME = "__NAME__"
-    VERSION = "0.01"
-    DESCRIPTION = "__DESCRIPTION__"
-    LICENSE = ""
-    AUTHOR = "__AUTHOR__"
-    EMAIL = "__EMAIL__"
-    ORG = "__ORGANISATION__"
-    HOME = ""
-    ICON = ""
-
-"""
-)
-
-
-
-def create_project(template: Template):
+def create_project(template: TGenerator):
 
     if Query.read_bool("Do you want to create a project?", False):
         proj = ProjectGenerator()
@@ -346,83 +303,112 @@ def create_project(template: Template):
     return False
 
 
+def generate(conf: TConf, main: TemplateC, pre: List(TemplateC), post: List(TemplateC)):
+    template = TGenerator(conf, main, pre, post)
+    template.generate()
+    #print(template)
+    template.write()
+
 def cmd_new(args):
-    conf = TConf(args)
-    conf.has_main = True
+    conf = TConf(args, [])
+
+    conf.name = "testfil"
+    conf.author = "Peter Malmberg"
+    conf.has_header = True
+    #conf.has_main = True
+    conf.description = "A test case"
+
+    #conf.has_main = True
     conf.has_main_application = True
     conf.has_separators = True
 
-    template = Template(conf, [], [])
-    template.generate()
-    print(template)
+   
+    # template = TGenerator(conf, t_main, [t_sentinel, t_cplusplus], [])
+    # template.generate()
+    generate(conf, t_main, [t_app_info], [])
 
     # if not create_project(template):
     #     template.write()
 
 
 def cmd_newa(args):
-    conf = TConf(args)
+    conf = TConf(args, [])
     conf.has_main = False
     conf.has_main_application = True
     conf.has_separators = True
+    conf.query()
+    # template = TGenerator(conf, t_main, [t_app_info, t_argtable], [])
+    # template.generate()
+    generate(conf, t_main, [t_app_info, t_argtable], [])
 
-    template = Template(conf, [t_application], [])
-    template.generate()
+#    if not create_project(template):
+#        template.write()
 
-    if not create_project(template):
-        template.write()
+
+def cmd_newavr(args):
+    conf = TConf(args, [])
+    conf.has_main = False
+    conf.has_main_application = True
+    conf.has_separators = True
+    conf.query()
+    #template = TGenerator(conf, t_main, [t_app_info, t_avr], [])
+    #template.generate()
+    generate(conf, t_main,  [t_app_info, t_avr], [])
+
+#    if not create_project(template):
+#        template.write()
 
 
 def cmd_newmod(args):
-    conf = TConf(args)
-    conf.has_main = True
-    conf.has_main_application = False
-
-    template = Template(conf, [], [])
-    template.generate()
-    template.write()
-
-    
-def cmd_newmin(args):
-    conf = TConf(args)
-    conf.has_main = True
-    conf.has_main_application = False
-
-    template = Template(conf, [], [])
-    template.generate()
-    template.write()
-
-
-def cmd_newqt(args):
-    conf = TConf(args)
+    conf = TConf(args,[t_sentinel, t_cplusplus])
     conf.has_main = False
-    conf.has_main_application = True
+    conf.has_main_application = False
     conf.has_separators = True
-
-    template = Template(conf, [t_application], [t_qt5])
+    conf.query()
+    template = TGenerator(conf, None, [], [])
     template.generate()
 
-    if not create_project(template):
-        template.write()
+
+# def cmd_newmin(args):
+#     conf = TConf(args)
+#     conf.has_main = True
+#     conf.has_main_application = False
+
+#     template = TGenerator(conf, [], [])
+#     template.generate()
+#     template.write()
 
 
-def cmd_newgtk(args):
-    conf = TConf(args)
-    conf.has_main = False
-    conf.has_main_application = True
-    conf.has_separators = True
-    template = Template(conf, [t_application], [t_gtk])
-    template.generate()
+# def cmd_newqt(args):
+#     conf = TConf(args)
+#     conf.has_main = False
+#     conf.has_main_application = True
+#     conf.has_separators = True
 
-    if not create_project(template):
-        template.write()
+#     template = TGenerator(conf, [t_app_info], [t_qt5])
+#     template.generate()
+
+#     if not create_project(template):
+#         template.write()
 
 
-def cmd_newp(args):
-    proj = ProjectGenerator()
-    proj.query()
-    proj.create()
-    proj.commit()
+# def cmd_newgtk(args):
+#     conf = TConf(args)
+#     conf.has_main = False
+#     conf.has_main_application = True
+#     conf.has_separators = True
+#     template = TGenerator(conf, [t_app_info], [t_gtk])
+#     template.generate()
+
+#     if not create_project(template):
+#         template.write()
+
+
+# def cmd_newp(args):
+#     proj = ProjectGenerator()
+#     proj.query()
+#     proj.create()
+#     proj.commit()
 
 
 class Settings:
@@ -446,107 +432,97 @@ def main() -> None:
     #                     format="[%(levelname)s]%(asctime)s %(message)s")
 
     parrent_parser = argparse.ArgumentParser(add_help=False)
-    parrent_parser.add_argument("--name",
-                                type=str,
-                                help="Name of C module"
-                                )
-    parrent_parser.add_argument("--description",
-                                type=str,
-                                help="Brief description"
-                                )
-    parrent_parser.add_argument("--author",
-                                type=str,
-                                help="Name of author"
-                                )
-    parrent_parser.add_argument("--email",
-                                type=str,
-                                help="Email of author"
-                                )
-    parrent_parser.add_argument("--project",
-                                type=str,
-                                help="Name of project"
-                                )
+    parrent_parser.add_argument("--name", type=str, help="Name of C module")
+    parrent_parser.add_argument("--description", type=str, help="Brief description")
+    parrent_parser.add_argument("--author", type=str, help="Name of author")
+    parrent_parser.add_argument("--email", type=str, help="Email of author")
+    parrent_parser.add_argument("--project", type=str, help="Name of project")
     # parrent_parser.add_argument("--license",
     #                             type=str,
     #                             help="License of new file",
     #                             default=conf.license)
 
-    parrent_parser.add_argument("--main",
-                                action="store_true",
-                                help="Add main function block",
-                                default=False)
-    parrent_parser.add_argument("--header",
-                                type=argparse.FileType("r"),
-                                help="Include external header"
-                                )
-    parrent_parser.add_argument("--dir",
-                                type=str,
-                                help="Project source directory",
-                                default=".")
-    parrent_parser.add_argument("--basedir",
-                                type=str,
-                                help="Project directory",
-                                default=".")
-    parrent_parser.add_argument("--write",
-                                action="store_true",
-                                help="Write file to disk",
-                                default=False)
-    parrent_parser.add_argument("--printheader",
-                                action="store_true",
-                                help="Print default header to stdout",
-                                default=False)
-    parrent_parser.add_argument("--separators",
-                                action="store_true",
-                                help="Add code separators",
-                                default=False)
-#    parrent_parser.add_argument("--outfile",
-#                                type=argparse.FileType("w",0),
-#                                help="Write template to file")
-    parrent_parser.add_argument("--debug",
-                                action="store_true",
-                                help="Print debug information")
-    parrent_parser.add_argument("--version",
-                                action="version",
-                                help="Print application version",
-                                version=AppVersion)
-    parrent_parser.add_argument("--no_interaction",
-                                action="store_true",
-                                help="Disable interactive questions")
+    parrent_parser.add_argument(
+        "--main", action="store_true", help="Add main function block", default=False
+    )
+    parrent_parser.add_argument(
+        "--header", type=argparse.FileType("r"), help="Include external header"
+    )
+    parrent_parser.add_argument(
+        "--dir", type=str, help="Project source directory", default="."
+    )
+    parrent_parser.add_argument(
+        "--basedir", type=str, help="Project directory", default="."
+    )
+    parrent_parser.add_argument(
+        "--write", action="store_true", help="Write file to disk", default=False
+    )
+    parrent_parser.add_argument(
+        "--printheader",
+        action="store_true",
+        help="Print default header to stdout",
+        default=False,
+    )
+    parrent_parser.add_argument(
+        "--separators", action="store_true", help="Add code separators", default=False
+    )
+    #    parrent_parser.add_argument("--outfile",
+    #                                type=argparse.FileType("w",0),
+    #                                help="Write template to file")
+    parrent_parser.add_argument(
+        "--debug", action="store_true", help="Print debug information"
+    )
+    parrent_parser.add_argument(
+        "--version",
+        action="version",
+        help="Print application version",
+        version=AppVersion,
+    )
+    parrent_parser.add_argument(
+        "--no_interaction", action="store_true", help="Disable interactive questions"
+    )
 
     # options parsing
     parser = argparse.ArgumentParser(
-            prog=AppName,
-            description="C template generator",
-            epilog="Makeplates <https://github.com/zonbrisad/makeplates.git>",
-            parents=[parrent_parser],
-        )
+        prog=AppName,
+        description="C/C++ template generator",
+        epilog="Part of Makeplates <https://github.com/zonbrisad/makeplates.git>",
+        parents=[parrent_parser],
+    )
 
-    subparsers = parser.add_subparsers(title="Commands",
-                                       help="",
-                                       description="")
-                                       
-    parser_new = subparsers.add_parser("new", parents=[parrent_parser],
-                                       help="Create a new c file")
+    subparsers = parser.add_subparsers(title="Commands", help="", description="")
+
+    parser_new = subparsers.add_parser(
+        "new", 
+        parents=[parrent_parser], 
+        help="Create a new C file"
+    )
     parser_new.set_defaults(func=cmd_new)
 
-    parser_new = subparsers.add_parser("newm", parents=[parrent_parser],
-                                       help="Create a new python module")
+    parser_new = subparsers.add_parser(
+        "newavr", parents=[parrent_parser], help="Create a new AVR application"
+    )
+    parser_new.set_defaults(func=cmd_newavr)
+    
+    parser_new = subparsers.add_parser(
+        "newm", parents=[parrent_parser], help="Create new C module"
+    )
     parser_new.set_defaults(func=cmd_newmod)
-    parser_new = subparsers.add_parser("newmin", parents=[parrent_parser],
-                                       help="Create a new minimal python file")
-    parser_new.set_defaults(func=cmd_newmin)
-    parser_new = subparsers.add_parser("newa", parents=[parrent_parser],
-                                       help="Create a new application")
+    
+    parser_new = subparsers.add_parser(
+        "newa", parents=[parrent_parser], help="Create a new C application"
+    )
     parser_new.set_defaults(func=cmd_newa)
-    parser_new = subparsers.add_parser("newqt", parents=[parrent_parser],
-                                       help="Create a new QT5 application")
-    parser_new.set_defaults(func=cmd_newqt)
-    parser_new = subparsers.add_parser("newgtk", parents=[parrent_parser],
-                                       help="Create a new GTK3+ application")
-    parser_new.set_defaults(func=cmd_newgtk)
-    parser_new = subparsers.add_parser("newp", parents=[parrent_parser],
-                                       help="Create python project")
-    parser_new.set_defaults(func=cmd_newp)
+
+    # parser_new = subparsers.add_parser(
+    #     "newqt", parents=[parrent_parser], help="Create a new QT5 application"
+    # )
+    # parser_new.set_defaults(func=cmd_newqt)
+    # parser_new = subparsers.add_parser(
+    #     "newgtk", parents=[parrent_parser], help="Create a new GTK3+ application"
+    # )
+    # parser_new.set_defaults(func=cmd_newgtk)
+    
 
     args = parser.parse_args()
 
@@ -567,10 +543,10 @@ if __name__ == "__main__":
         sys.exit(0)
     except KeyboardInterrupt as e:  # Ctrl-C
         raise e
-    except SystemExit as e:        # sys.exit()
+    except SystemExit as e:  # sys.exit()
         raise e
     except Exception as e:
-        print('ERROR, UNEXPECTED EXCEPTION')
+        print("ERROR, UNEXPECTED EXCEPTION")
         print(str(e))
         traceback.print_exc()
         os._exit(1)

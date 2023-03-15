@@ -87,18 +87,6 @@ class ProjectGenerator:
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 def main() -> None:
     pass
 

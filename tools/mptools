@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # shellcheck disable=2034
+# shellcheck disable=2317
 # shellcheck disable=1090
 #---------------------------------------------------------------------
 #
@@ -1131,7 +1132,7 @@ bpConfPrint() { ##I Print settings in config list
     DESC=${arr[$i]}
     ((i++))
     printf "%s%s\n" "${E_DARKGRAY}" "${DESC}"
-    bpPrintDesc "$KEY" "${!KEY}"
+    bpPrintVar "$KEY" #"${!KEY}"
   done
 }
 
@@ -1577,7 +1578,7 @@ iinfo() { ##I Show information about script
     ((i++))
     ((i++))
     ((i++))
-    bpPrintVar "$KEY" "$KEY"
+    bpPrintVar "$KEY" #"$KEY"
   done
 
   bpPrintLine
