@@ -99,6 +99,16 @@ int main(int argc, char *argv[]) {
 """
 )
 
+t_main_embeded = TemplateC(
+    main_begin_text="""\
+int main() {
+""",
+    main_end_text="""\
+    return 0;
+}
+"""
+)
+
 t_avr = TemplateC(
     c_includes_text="""\
 #include <avr/io.h>
@@ -154,6 +164,7 @@ extern "C"
 )
 
 t_app_info = TemplateC(
+    query_text="Add application data?",
     h_macros_text="""\
 #define APP_NAME        "__NAME__"
 #define APP_VERSION     "0.01"
