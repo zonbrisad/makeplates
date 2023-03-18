@@ -65,6 +65,15 @@ bpUserSettings() {
 # User defined functions
 #---------------------------------------------------------------------
 
+# tools=(
+#   "mptools"
+#   "mptemplate"
+#   "templatec.py"
+#   "Project.py"
+#   "query.py"
+#   "bashplates.py"
+# )
+
 #
 # Create a new Makeplate project
 #
@@ -113,6 +122,9 @@ createProject() {
   if [ -e "${2}/tools" ]; then
     # bpRm "${PROJECT_DIR}/tools"
     bpCp "${BP_SELF_DIR}/tools" "${PROJECT_DIR}"
+    for f in "${tools[@]}"; do
+      echo "$f"
+    done
     srcDst="${PROJECT_DIR}/src"
     bpMkDir "$srcDst"
   fi

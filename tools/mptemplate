@@ -430,9 +430,6 @@ def main() -> None:
     logging_format = "[%(levelname)s] %(lineno)d %(funcName)s() : %(message)s"
     
     parrent_parser = argparse.ArgumentParser(add_help=False)
-    parrent_parser.add_argument("--debug", action="store_true", default=False,
-                        help="Print debug messages")
-
     parrent_parser.add_argument(
         "--name", action="store", type=str, help="Name of C module", default=""
     )
