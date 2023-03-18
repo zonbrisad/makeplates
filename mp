@@ -178,13 +178,13 @@ newg() { ##D Create a new GLIB/GTK based C makeplate project
   createProject "Creating new makeplate C glib  project" "${BP_SELF_DIR}/mp-c" "tools" "c" "${TARGETS}/temp-posix.mk"
 }
 
-##- C++ Projects
+##C- CPP C++ Projects
 
-newcpp() { ##D Create a new standard C++ makeplate project
+newcpp() { ##C CPP Create a new standard C++ makeplate project
   createProject "Creating new makeplate C++ project" "${BP_SELF_DIR}/mp-c" "tools" "cpp" "${TARGETS}/temp-posix.mk"
 }
 
-newscpp() { ##D Create a new simple C++ makeplate project
+newscpp() { ##C CPP Create a new simple C++ makeplate project
   createProject "Creating new simple makeplate C++ project" "${BP_SELF_DIR}/mp-simple-c" "" "cpp" "${TARGETS}/temp-posix.mk"
 }
 
@@ -194,11 +194,11 @@ newcm() { ##D Create new C module
   ${MPTEMPLATE} newc --dir . --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
 }
 
-newcppm() { ##D Create new C++ module
+newcppm() { ##C CPP Create new C++ module
   ${MPTEMPLATE} newcpp --dir . --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
 }
 
-newclass() { ##D Create new C++ class
+newclass() { ##C CPP Create new C++ class
   ${MPTEMPLATE} newclass --dir . --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
 }
 

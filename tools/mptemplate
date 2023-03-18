@@ -25,6 +25,7 @@
 
 from __future__ import annotations
 
+import logging
 import argparse
 import json
 import os
@@ -426,10 +427,12 @@ class Settings:
 
 def main() -> None:
 
-    # logging.basicConfig(level=logging.DEBUG,
-    #                     format="[%(levelname)s]%(asctime)s %(message)s")
-
+    logging_format = "[%(levelname)s] %(lineno)d %(funcName)s() : %(message)s"
+    
     parrent_parser = argparse.ArgumentParser(add_help=False)
+    parrent_parser.add_argument("--debug", action="store_true", default=False,
+                        help="Print debug messages")
+
     parrent_parser.add_argument(
         "--name", action="store", type=str, help="Name of C module", default=""
     )
@@ -534,6 +537,10 @@ def main() -> None:
     # parser_new.set_defaults(func=cmd_newgtk)
 
     args = parser.parse_args()
+
+    if args.debug:
+        logging.basicConfig(format=logging_format, level=logging.DEBUG)
+        
     #print(args)
     if hasattr(args, "func"):
         args.func(args)
