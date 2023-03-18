@@ -49,7 +49,7 @@ bpUserSettings() {
   TARGETS=${BP_SELF_DIR}/targets
 
   # Template script
-  mptemplate=${BP_SELF_DIR}/tools/mptemplate.py
+  MPTEMPLATE=${BP_SELF_DIR}/tools/mptemplate2.py
 
   if [ -e "${BP_SELF_DIR}/DEV" ]; then
     DEV=1
@@ -153,8 +153,9 @@ createProject() {
   #   bpReplace "${PROJECT_DIR}/Makefile" "#PKGLIBS += gio" "PKGLIBS += gio"
   # fi
 
-  # ${mptemplate} "${opts}" --name "main" --dir "${srcDst}" --DESCRIPTION "${DESCRIPTION}" --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
-  ${mptemplate} ${opts} --basedir "${PROJECT_NAME}" --name "main" --main --dir "${srcDst}" --brief "${DESCRIPTION}" --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
+  echo
+  # ${MPTEMPLATE} "${opts}" --name "main" --dir "${srcDst}" --DESCRIPTION "${DESCRIPTION}" --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
+  ${MPTEMPLATE} ${opts} --basedir "${PROJECT_NAME}" --name "main" --main --outdir "${srcDst}" --description "${DESCRIPTION}" --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
 
   # Git
   if bpReadBoolDY "Do you want to create a git project?"; then
@@ -190,15 +191,15 @@ newscpp() { ##D Create a new simple C++ makeplate project
 ##- Code creation
 
 newcm() { ##D Create new C module
-  ${mptemplate} newc --dir . --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
+  ${MPTEMPLATE} newc --dir . --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
 }
 
 newcppm() { ##D Create new C++ module
-  ${mptemplate} newcpp --dir . --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
+  ${MPTEMPLATE} newcpp --dir . --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
 }
 
 newclass() { ##D Create new C++ class
-  ${mptemplate} newclass --dir . --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
+  ${MPTEMPLATE} newclass --dir . --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
 }
 
 # NEW 3d party (experimental)

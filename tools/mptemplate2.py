@@ -187,6 +187,9 @@ class TGenerator:
         self.replace("__FILENAME__", filename)
         self.replace("__ORGANISATION__", self.org)
 
+        self.replace("__FILE__", f"_{self.name.upper()}_H_")
+        
+
     def generate_h(self):
         self.clear()
 
@@ -283,7 +286,7 @@ class TGenerator:
         else:
             out_file = f"{dir}/{filename}"
 
-        print(f"Writing {out_file}")
+        #print(f"Writing {out_file}")
         with open(out_file, "w") as file:
             file.write(data)
         os.chmod(out_file, 0o770)
@@ -322,18 +325,24 @@ def create_project(template: TGenerator):
 #     #template.write()
 
 
-def cmd_new(args):
- 
-    # has_main = True
-    has_main_application = True
-    has_separators = True
+def cmd_newc(args):
 
-    # template = TGenerator(conf, t_main, [t_sentinel, t_cplusplus], [])
-    # template.generate()
-    generate(args, t_header, t_main, [t_app_info], [])
+    main = None
+    pre  = []
 
-    # if not create_project(template):
-    #     template.write()
+    if args.main: 
+        main = t_main
+        pre.append(t_sentinel)
+        pre.append(t_app_info)
+    else:
+        pre.append(t_sentinel)
+        pre.append(t_cplusplus)
+   
+    template = TGenerator(args, t_header, main, pre, [])
+    template.query()
+    template.generate()
+    #print(template)
+    template.write()
 
 
 def cmd_newa(args):
@@ -454,9 +463,9 @@ def main() -> None:
         help="Output directory",
         default=os.getcwd(),
     )
-    # parrent_parser.add_argument(
-    #     "--basedir", type=str, help="Project directory", default="."
-    # )
+    parrent_parser.add_argument(
+        "--basedir", type=str, help="Project directory", default="."
+    )
     # parrent_parser.add_argument(
     #     "--write", action="store_true", help="Write file to disk", default=False
     # )
@@ -496,9 +505,9 @@ def main() -> None:
     subparsers = parser.add_subparsers(title="Commands", help="", description="")
 
     parser_new = subparsers.add_parser(
-        "new", parents=[parrent_parser], help="Create a new C file"
+        "newc", parents=[parrent_parser], help="Create a new C file"
     )
-    parser_new.set_defaults(func=cmd_new)
+    parser_new.set_defaults(func=cmd_newc)
 
     parser_new = subparsers.add_parser(
         "newavr", parents=[parrent_parser], help="Create a new AVR application"
@@ -525,7 +534,7 @@ def main() -> None:
     # parser_new.set_defaults(func=cmd_newgtk)
 
     args = parser.parse_args()
-    print(args)
+    #print(args)
     if hasattr(args, "func"):
         args.func(args)
         exit(0)
