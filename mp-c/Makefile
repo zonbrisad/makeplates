@@ -6,7 +6,7 @@
 # Name:    __NAME__
 # Author:  __AUTHOR__
 # Date:    __DATE__
-# Org:     __ORG__
+# Org:     __ORGANIZATION__
 # 
 # License: __LICENSE__
 # 

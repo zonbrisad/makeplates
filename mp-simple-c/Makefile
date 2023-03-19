@@ -1,32 +1,17 @@
 # Hey Emacs, this is a -*- makefile -*-
 #----------------------------------------------------------------------------
 #
-# Brief:   __BRIEF__
+# Brief:   __DESCRIPTION__
 # 
 # Name:    __NAME__
 # Author:  __AUTHOR__
 # Date:    __DATE__
-# Org:     __ORG__
+# Org:     __ORGANIZATION__
 # 
 # License: __LICENSE__
 # 
 #----------------------------------------------------------------------------
-# [Makeplates]
-# This script is generated from makeplates Makefile project generator.
-#
-# Makeplates is developed by:
-# Peter Malmberg <peter.malmberg@gmail.com>
-#
-# Makeplates is available at:
-# https://github.com/zonbrisad/makeplates
-# 
-# [Disclaimer] 
-# Use on your own risk.
-#----------------------------------------------------------------------------
-# [Help]
-# 
-# Enter "make help" to get information about different targets.
-# 
+# Makeplates is available at: https://github.com/zonbrisad/makeplates
 #----------------------------------------------------------------------------
 
 # Project License (GPL, GPLv2, MIT, BSD, Apache, etc.) 

@@ -49,7 +49,7 @@ bpUserSettings() {
   TARGETS=${BP_SELF_DIR}/targets
 
   # Template script
-  MPTEMPLATE=${BP_SELF_DIR}/tools/mptemplate2.py
+  MPTEMPLATE=${BP_SELF_DIR}/tools/mptemplate
 
   if [ -e "${BP_SELF_DIR}/DEV" ]; then
     DEV=1
@@ -59,20 +59,20 @@ bpUserSettings() {
   GITUSER="zonbrisad"
 
   GIT="git@${GITSERVER}:${GITUSER}"
-
 }
+
 #---------------------------------------------------------------------
 # User defined functions
 #---------------------------------------------------------------------
 
-# tools=(
-#   "mptools"
-#   "mptemplate"
-#   "templatec.py"
-#   "Project.py"
-#   "query.py"
-#   "bashplates.py"
-# )
+tools=(
+  "mptools"
+  "mptemplate"
+  "templatec.py"
+  "Project.py"
+  "query.py"
+  "bashplates.py"
+)
 
 #
 # Create a new Makeplate project
@@ -89,7 +89,7 @@ createProject() {
   target=$5
 
   while true; do
-    PROJECT_NAME=$(bpReadStr "Project name>" "")
+    PROJECT_NAME=$(bpReadStr "Project name" "")
 
     if ! bpReadBoolDY "Create subdirectory?"; then
       PROJECT_DIR=.
@@ -120,13 +120,13 @@ createProject() {
 
   # Check tool dir is present then full project otherwise simple
   if [ -e "${2}/tools" ]; then
-    # bpRm "${PROJECT_DIR}/tools"
-    bpCp "${BP_SELF_DIR}/tools" "${PROJECT_DIR}"
-    for f in "${tools[@]}"; do
-      echo "$f"
-    done
     srcDst="${PROJECT_DIR}/src"
     bpMkDir "$srcDst"
+    bpMkDir "${PROJECT_DIR}/tools"
+
+    for F in "${tools[@]}"; do
+      bpCp "${BP_SELF_DIR}/tools/${F}" "${PROJECT_DIR}/tools/."
+    done
   fi
 
   # Replace keywords with data
@@ -135,7 +135,7 @@ createProject() {
   bpReplace "$MKF" "__DATE__" "${DATE}"
   bpReplace "$MKF" "__DESCRIPTION__" "${DESCRIPTION}"
   bpReplace "$MKF" "__LICENSE__" "${BP_LICENSE}"
-  bpReplace "$MKF" "__ORG__" "${BP_ORG}"
+  bpReplace "$MKF" "__ORGANIZATION__" "${BP_ORG}"
 
   mpReplaceSection "$MKF" "SETTINGS" "$target"
   mpReplaceSection "$MKF" "UTILS" "$target"
@@ -1955,11 +1955,13 @@ bpRunCommand() {
   fi
 
   # Check if command is conditional
-  CL=$(grep -E "${command}().*##C" "$0")
+  # CL=$(grep -E "${command}().*##C" "$0")
+  CL=$(grep "${command}().*##C" "$0")
   if [[ "$CL" = *"##C"* ]]; then
 
     # Check if condition is true and then execute else printout error message
     read -r -a ARR <<<"$CL"
+    echo "$CL"
     CV="${ARR[3]}"
     if [ -n "$CV" ]; then
       if [ -n "${!CV}" ]; then
