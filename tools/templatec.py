@@ -79,6 +79,7 @@ t_header = TemplateC(
  *
  * @file     __FILENAME__
  * @author   __AUTHOR__
+ * @version  
  * @date     __DATE__
  * @license  __LICENSE__
  *

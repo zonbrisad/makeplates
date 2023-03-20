@@ -66,27 +66,42 @@ bpUserSettings() {
 #---------------------------------------------------------------------
 
 tools=(
-  "mptools"
-  "mptemplate"
-  "templatec.py"
-  "Project.py"
-  "query.py"
-  "bashplates.py"
+  "tools/mptools"
+  "tools/mptemplate"
+  "tools/templatec.py"
+  "tools/Project.py"
+  "tools/query.py"
+  "tools/bashplates.py"
 )
 
 #
 # Create a new Makeplate project
 #
 # $1 Create text
-# $2 source directory
-# $3 tools directory
-# $4 language c/cpp
-# $5 template
+# $2 project type [normal|simple]
+# $3 language [c/cpp]
+# $4 TARGET [system|avr|arm]
+# $[] libraries
 #
 createProject() {
   echo -e "${1}"
 
-  target=$5
+  PROJECT_TYPE="$2"
+  LANGUAGE="$3"
+  TARGET="$4"
+
+  if [ "$TARGET" == "system" ]; then
+    target="${TARGETS}/temp-posix.mk"
+
+  fi
+
+  if [ "$TARGET" == "avr" ]; then
+    target="${TARGETS}/temp-avr.mk"
+  fi
+
+  if [ "$TARGET" == "arm" ]; then
+    target="${TARGETS}/temp-arm.mk"
+  fi
 
   while true; do
     PROJECT_NAME=$(bpReadStr "Project name" "")
@@ -96,7 +111,7 @@ createProject() {
       break
     fi
 
-    PROJECT_DIR="$(pwd)/${PROJECT_NAME}"
+    PROJECT_DIR="${PROJECT_NAME}"
 
     if [ -e "$PROJECT_DIR" ]; then
       bpWarning "Directory ${PROJECT_DIR} already exists."
@@ -110,52 +125,54 @@ createProject() {
     break
   done
 
-  DESCRIPTION=$(bpReadStr "Brief description>" "")
+  DESCRIPTION=$(bpReadStr "Brief description" "")
 
-  MKF=${PROJECT_DIR}/Makefile
-
-  bpCp "${2}/Makefile" "${PROJECT_DIR}/Makefile"
-
-  srcDst="${PROJECT_DIR}"
-
-  # Check tool dir is present then full project otherwise simple
-  if [ -e "${2}/tools" ]; then
-    srcDst="${PROJECT_DIR}/src"
-    bpMkDir "$srcDst"
+  # Project type normal
+  if [ "${PROJECT_TYPE}" == "normal" ]; then
+    TEMPLATE_DIR="${BP_SELF_DIR}/mp-c"
+    SRC_DIR="${PROJECT_DIR}/src"
+    bpMkDir "$SRC_DIR"
     bpMkDir "${PROJECT_DIR}/tools"
 
     for F in "${tools[@]}"; do
-      bpCp "${BP_SELF_DIR}/tools/${F}" "${PROJECT_DIR}/tools/."
+      bpCp "${BP_SELF_DIR}/${F}" "${PROJECT_DIR}/$(dirname ${F})/."
     done
   fi
 
+  # Project type simple
+  if [ "${PROJECT_TYPE}" == "simple" ]; then
+    TEMPLATE_DIR="${BP_SELF_DIR}/mp-simple-c"
+    SRC_DIR="$PROJECT_DIR"
+  fi
+
+  MAKEFILE=${PROJECT_DIR}/Makefile
+  bpCp "${TEMPLATE_DIR}/Makefile" "${PROJECT_DIR}/Makefile"
+
   # Replace keywords with data
-  bpReplace "$MKF" "__NAME__" "${PROJECT_NAME}"
-  bpReplace "$MKF" "__AUTHOR__" "${BP_NAME} <${BP_EMAIL}>"
-  bpReplace "$MKF" "__DATE__" "${DATE}"
-  bpReplace "$MKF" "__DESCRIPTION__" "${DESCRIPTION}"
-  bpReplace "$MKF" "__LICENSE__" "${BP_LICENSE}"
-  bpReplace "$MKF" "__ORGANIZATION__" "${BP_ORG}"
+  bpReplace "$MAKEFILE" "__NAME__" "${PROJECT_NAME}"
+  bpReplace "$MAKEFILE" "__AUTHOR__" "${BP_NAME} <${BP_EMAIL}>"
+  bpReplace "$MAKEFILE" "__DATE__" "${DATE}"
+  bpReplace "$MAKEFILE" "__DESCRIPTION__" "${DESCRIPTION}"
+  bpReplace "$MAKEFILE" "__LICENSE__" "${BP_LICENSE}"
+  bpReplace "$MAKEFILE" "__ORGANIZATION__" "${BP_ORG}"
 
-  mpReplaceSection "$MKF" "SETTINGS" "$target"
-  mpReplaceSection "$MKF" "UTILS" "$target"
-  mpReplaceSection "$MKF" "TARGETS" "$target"
-  mpReplaceSection "$MKF" "INSTALL" "$target"
-  mpReplaceSection "$MKF" "PLATFORM-SPECIFIC" "$target"
+  mpReplaceSection "$MAKEFILE" "SETTINGS" "$target"
+  mpReplaceSection "$MAKEFILE" "UTILS" "$target"
+  mpReplaceSection "$MAKEFILE" "TARGETS" "$target"
+  mpReplaceSection "$MAKEFILE" "INSTALL" "$target"
+  mpReplaceSection "$MAKEFILE" "PLATFORM-SPECIFIC" "$target"
 
-  if [ "$4" == "cpp" ]; then
-    opts="newcpp --main"
-    mainFile="main.cpp"
+  if [ "$LANGUAGE" == "cpp" ]; then
+    opts="newcpp"
+    MAIN="${SRC_DIR}/main.cpp"
   else
-    opts="newc --main"
-    mainFile="main.c"
+    opts="newc"
+    MAIN="${SRC_DIR}/main.c"
   fi
 
-  if [ "$3" == "tools" ]; then
-    bpReplaceLine "${PROJECT_DIR}/Makefile" "SRC" "SRC = src\/${mainFile}"
-  else
-    bpReplaceLine "${PROJECT_DIR}/Makefile" "SRC" "SRC = ${mainFile}"
-  fi
+  M=${MAIN#"${PROJECT_DIR}/"}
+
+  bpReplace "${MAKEFILE}" "__MAINFILE__" "${M//\//\\\/}"
 
   # if [ "$5" == "glib" ]; then
   #   opts="$opts --glib"
@@ -166,8 +183,8 @@ createProject() {
   # fi
 
   echo
-  # ${MPTEMPLATE} "${opts}" --name "main" --dir "${srcDst}" --DESCRIPTION "${DESCRIPTION}" --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
-  ${MPTEMPLATE} ${opts} --basedir "${PROJECT_NAME}" --name "main" --main --outdir "${srcDst}" --description "${DESCRIPTION}" --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
+  # ${MPTEMPLATE} "${opts}" --name "main" --dir "${SRC_DIR}" --DESCRIPTION "${DESCRIPTION}" --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
+  ${MPTEMPLATE} ${opts} --target "${TARGET}" --name "main" --main --outdir "${SRC_DIR}" --description "${DESCRIPTION}" --author "${BP_NAME}" --email "${BP_EMAIL}" --license "${BP_LICENSE}"
 
   # Git
   if bpReadBoolDY "Do you want to create a git project?"; then
@@ -179,39 +196,49 @@ createProject() {
 ##- C Projects
 
 newc() { ##D Create a new standard C makeplate project
-  createProject "Creating new makeplate C project" "${BP_SELF_DIR}/mp-c" "tools" "c" "${TARGETS}/temp-posix.mk"
+  createProject "Creating new makeplate C project" "normal" "c" "system"
 }
 
 newsc() { ##D Create a new simple C makeplate project
-  createProject "Creating new simple makeplate C project" "${BP_SELF_DIR}/mp-simple-c" "" "c" "${TARGETS}/temp-posix.mk"
+  createProject "Creating new simple makeplate C project" "simple" "c" "system"
 }
 
 newg() { ##D Create a new GLIB/GTK based C makeplate project
-  createProject "Creating new makeplate C glib  project" "${BP_SELF_DIR}/mp-c" "tools" "c" "${TARGETS}/temp-posix.mk"
+  createProject "Creating new makeplate C glib project" "normal" "c" "system"
 }
 
 ##C- CPP C++ Projects
 
 newcpp() { ##C CPP Create a new standard C++ makeplate project
-  createProject "Creating new makeplate C++ project" "${BP_SELF_DIR}/mp-c" "tools" "cpp" "${TARGETS}/temp-posix.mk"
+  createProject "Creating new makeplate C++ project" "normal" "cpp" "system"
 }
 
 newscpp() { ##C CPP Create a new simple C++ makeplate project
-  createProject "Creating new simple makeplate C++ project" "${BP_SELF_DIR}/mp-simple-c" "" "cpp" "${TARGETS}/temp-posix.mk"
+  createProject "Creating new simple makeplate C++ project" "simple" "cpp" "system"
+}
+
+##- Microcontroler projects
+
+avr() { ##D Create avr C project
+  createProject "Creating new makeplate C avr project" "normal" "c" "avr"
+}
+
+arm() { ##D Create arm C project (not implemented yet)
+  createProject "Creating new makeplate C avr project" "" "c" "arm"
 }
 
 ##- Code creation
 
 newcm() { ##D Create new C module
-  ${MPTEMPLATE} newc --dir . --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
+  ${MPTEMPLATE} newc --outdir . --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
 }
 
 newcppm() { ##C CPP Create new C++ module
-  ${MPTEMPLATE} newcpp --dir . --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
+  ${MPTEMPLATE} newcpp --outdir . --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
 }
 
 newclass() { ##C CPP Create new C++ class
-  ${MPTEMPLATE} newclass --dir . --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
+  ${MPTEMPLATE} newclass --outdir . --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
 }
 
 # NEW 3d party (experimental)
@@ -336,8 +363,6 @@ em() { ##C DEV Open standard Makefile template
   bpEdit "${BP_SELF_DIR}/mp-c/Makefile" "$2"
 }
 
-##- Microcontroler projects
-
 #
 # $1 file
 # $2 start match
@@ -349,14 +374,6 @@ bpGetSection() { ##
 
 bpGetS() {
   bpGetSection "$1" "###${2}_BEGIN###" "###${2}_END###"
-}
-
-avr() { ##D Create avr C project
-  createProject "Creating new makeplate C avr project" "${BP_SELF_DIR}/mp-c" "tools" "c" "${TARGETS}/temp-avr.mk"
-}
-
-arm() { ##D Create arm C project (not implemented yet)
-  createProject "Creating new makeplate C avr project" "${BP_SELF_DIR}/mp-c" "tools" "c" "${TARGETS}/temp-arm.mk"
 }
 
 #

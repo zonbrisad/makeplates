@@ -111,7 +111,7 @@ class TGenerator:
         self.description = args.description
         self.author = args.author
         self.email = args.email
-        self.org = args.organisation
+        self.org = args.organization
         self.license = args.license
         self.out_dir = args.outdir
         #self.has_main = args.main
@@ -134,7 +134,7 @@ class TGenerator:
         return True
 
     def query(self) -> None:
-        self.set_attribute("name", "Enter module name", self.name)
+        self.set_attribute("name", "Enter C module name", self.name)
         self.set_attribute("description", "Enter brief description", self.description)
         self.set_attribute("author", "Enter name of author", self.author)
         self.set_attribute("email", "Enter email of author", self.email)
@@ -444,7 +444,7 @@ def main() -> None:
                                 help="License of new file",
                                 default=Bp.license())
     parrent_parser.add_argument(
-        "--organisation", type=str, help="Name of organisation", default=Bp.organisation()
+        "--organization", type=str, help="Name of organisation", default=Bp.organisation()
     )
 
     parrent_parser.add_argument(
@@ -493,6 +493,9 @@ def main() -> None:
     parrent_parser.add_argument(
         "--no_interaction", action="store_true", help="Disable interactive questions"
     )
+    parrent_parser.add_argument(
+        "--target", action="store", choices=["system" , "avr", "arm"], help="Compiler target", default="system"
+    )
 
     # options parsing
     parser = argparse.ArgumentParser(
@@ -510,7 +513,7 @@ def main() -> None:
     parser_new.set_defaults(func=cmd_newc)
 
     parser_new = subparsers.add_parser(
-        "newavr", parents=[parrent_parser], help="Create a new AVR application"
+        "newavr", parents=[parrent_parser], help="Create a new AVR application (main)"
     )
     parser_new.set_defaults(func=cmd_newavr)
 
@@ -520,7 +523,7 @@ def main() -> None:
     parser_new.set_defaults(func=cmd_newmod)
 
     parser_new = subparsers.add_parser(
-        "newa", parents=[parrent_parser], help="Create a new C application"
+        "newca", parents=[parrent_parser], help="Create a new C application (main)"
     )
     parser_new.set_defaults(func=cmd_newa)
 
