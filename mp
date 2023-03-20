@@ -46,7 +46,7 @@ bpUserSettings() {
 
   TOOLS=${BP_SELF_DIR}/tools
 
-  TARGETS=${BP_SELF_DIR}/targets
+  TARGETS_DIR=${BP_SELF_DIR}/targets
 
   # Template script
   MPTEMPLATE=${BP_SELF_DIR}/tools/mptemplate
@@ -91,16 +91,15 @@ createProject() {
   TARGET="$4"
 
   if [ "$TARGET" == "system" ]; then
-    target="${TARGETS}/temp-posix.mk"
-
+    target="${TARGETS_DIR}/temp-posix.mk"
   fi
 
   if [ "$TARGET" == "avr" ]; then
-    target="${TARGETS}/temp-avr.mk"
+    target="${TARGETS_DIR}/temp-avr.mk"
   fi
 
   if [ "$TARGET" == "arm" ]; then
-    target="${TARGETS}/temp-arm.mk"
+    target="${TARGETS_DIR}/temp-arm.mk"
   fi
 
   while true; do
