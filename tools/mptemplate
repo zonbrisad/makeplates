@@ -143,7 +143,8 @@ class TGenerator:
         self.filename_h = f"{self.name}.h"
 
         for l in self.pre:
-            l.incl = Query.read_bool(l.query_text, l.incl)
+            if l.query is True:
+                l.incl = Query.read_bool(l.query_text, l.incl)
 
     #     # if external header, read into var
     #     if self.args.header is not None:
@@ -332,9 +333,16 @@ def cmd_newc(args):
     pre  = []
 
     if args.main: 
-        main = t_main
         pre.append(t_sentinel)
         pre.append(t_app_info)
+
+        if args.target == "system":
+            main = t_main
+
+        if args.target == "avr":
+            main = t_main_embeded
+            pre.append(t_avr)
+            
     else:
         pre.append(t_sentinel)
         pre.append(t_cplusplus)
@@ -347,13 +355,7 @@ def cmd_newc(args):
 
 
 def cmd_newa(args):
-    # conf = TConf(args, [])
-    # has_main = False
-    # has_main_application = True
-    # has_separators = True
-    # query()
-    # template = TGenerator(conf, t_main, [t_app_info, t_argtable], [])
-    # template.generate()
+    
     template = TGenerator(args, t_header, t_main, [t_app_info, t_argtable], [])
     #template.has_main = True
     template.query()
@@ -364,11 +366,10 @@ def cmd_newa(args):
 
 
 def cmd_newavr(args):
-    template = TGenerator(args, t_header, t_main_embeded, [t_app_info, t_avr], [])
-    #template.has_main = True
-    template.generate()
-    print(template)
-    #template.write()
+    args.target="avr"
+    args.main=True
+
+    cmd_newc(args)
 
 def cmd_newmod(args):
     template = TGenerator(args, t_header, None, [t_sentinel, t_cplusplus], [])

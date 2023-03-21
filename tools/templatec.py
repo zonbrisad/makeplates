@@ -44,7 +44,9 @@ class TemplateC:
     h_post_text: str = ""
 
     query_text: str = ""
+    query: bool = True
     incl: bool = True
+
 
     def add(self, a: TemplateC):
         self.header_text += a.header_text
@@ -111,6 +113,8 @@ int main() {
 )
 
 t_avr = TemplateC(
+    query_text="Avr main code",
+    query=False,
     c_includes_text="""\
 #include <avr/io.h>
 #include <avr/pgmspace.h>
@@ -124,7 +128,7 @@ t_avr = TemplateC(
 """,
 
     c_code_text="""\
-void hwInit(void) {
+void hw_init(void) {
     
 }
 

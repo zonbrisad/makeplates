@@ -162,10 +162,10 @@ createProject() {
   mpReplaceSection "$MAKEFILE" "PLATFORM-SPECIFIC" "$target"
 
   if [ "$LANGUAGE" == "cpp" ]; then
-    opts="newcpp"
+    OPTS="newcpp"
     MAIN="${SRC_DIR}/main.cpp"
   else
-    opts="newc"
+    OPTS="newc"
     MAIN="${SRC_DIR}/main.c"
   fi
 
@@ -174,7 +174,7 @@ createProject() {
   bpReplace "${MAKEFILE}" "__MAINFILE__" "${M//\//\\\/}"
 
   # if [ "$5" == "glib" ]; then
-  #   opts="$opts --glib"
+  #   OPTS="$OPTS --glib"
 
   #   bpReplace "${PROJECT_DIR}/Makefile" "#PKGLIBS += glib" "PKGLIBS += glib"
   #   bpReplace "${PROJECT_DIR}/Makefile" "#PKGLIBS += gthread" "PKGLIBS += gthread"
@@ -182,8 +182,8 @@ createProject() {
   # fi
 
   echo
-  # ${MPTEMPLATE} "${opts}" --name "main" --dir "${SRC_DIR}" --DESCRIPTION "${DESCRIPTION}" --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
-  ${MPTEMPLATE} ${opts} --target "${TARGET}" --name "main" --main --outdir "${SRC_DIR}" --description "${DESCRIPTION}" --author "${BP_NAME}" --email "${BP_EMAIL}" --license "${BP_LICENSE}"
+  # ${MPTEMPLATE} "${OPTS}" --name "main" --dir "${SRC_DIR}" --DESCRIPTION "${DESCRIPTION}" --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
+  ${MPTEMPLATE} ${OPTS} --target "${TARGET}" --name "main" --main --outdir "${SRC_DIR}" --description "${DESCRIPTION}" --author "${BP_NAME}" --email "${BP_EMAIL}" --license "${BP_LICENSE}"
 
   # Git
   if bpReadBoolDY "Do you want to create a git project?"; then
@@ -433,8 +433,8 @@ new_file() {
   FILE="${2}/${1}"
   if [ -e "${FILE}" ]; then
     if bpReadBoolDY "Create ${1} file?"; then
-      bpCp "${FILE}" "$(pwd)/${3}" -L
-      git add "${1}"
+      bpCp "${FILE}" "${3}/." -L
+      git -C "$3" add "${1}"
     fi
   fi
 }
@@ -444,30 +444,29 @@ new_file() {
 # $2 project dir
 #
 new_git() { ##I New project
-  proj_name="$1"
-  proj_dir="$2"
+  PROJECT_NAME="$1"
+  PROJECT_DIR="$2"
 
   TEMPLATE_DIR="${BP_SELF_DIR}/project_templates"
   HOOK_TEMPLATES="${TEMPLATE_DIR}/git/hooks"
 
-  bpCd "${proj_dir}"
+  git init "${PROJECT_DIR}"
+  git -C "${PROJECT_DIR}" add "*"
 
-  git init
-  git add "*"
+  new_file "README.md" "$TEMPLATE_DIR" "${PROJECT_DIR}"
+  new_file "HISTORY.md" "$TEMPLATE_DIR" "${PROJECT_DIR}"
+  new_file ".gitignore" "$TEMPLATE_DIR" "${PROJECT_DIR}"
+  new_file "pre-commit" "$HOOK_TEMPLATES" "${PROJECT_DIR}/.git/hooks/."
 
-  new_file "README.md" "$TEMPLATE_DIR" "."
-  new_file "HISTORY.md" "$TEMPLATE_DIR" "."
-  new_file ".gitignore" "$TEMPLATE_DIR" "."
-  new_file "pre-commit" "$HOOK_TEMPLATES" ".git/hooks/."
-
-  git commit -m "Initial commit"
-  git branch -M master
+  git -C "${PROJECT_DIR}" commit -m "Initial commit"
+  git -C "${PROJECT_DIR}" branch -M master
+  # git commit "${PROJECT_DIR}" -m "Initial commit"
+  # git branch "${PROJECT_DIR}" -M master
 
   if bpReadBoolDN "Upload git repo to Github?"; then
-    gsUpload "${proj_name}"
+    gsUpload "${PROJECT_NAME}"
   fi
 
-  bpCd -
 }
 
 #---------------------------------------------------------------------
