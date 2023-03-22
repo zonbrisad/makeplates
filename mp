@@ -48,6 +48,8 @@ bpUserSettings() {
 
   TARGETS_DIR=${BP_SELF_DIR}/targets
 
+  TEMPLATE_DIR="${BP_SELF_DIR}/templates"
+
   # Template script
   MPTEMPLATE=${BP_SELF_DIR}/tools/mptemplate
 
@@ -126,9 +128,12 @@ createProject() {
 
   DESCRIPTION=$(bpReadStr "Brief description" "")
 
+  MAKEFILE_TEMPLATE=${TEMPLATE_DIR}/Makefile-${PROJECT_TYPE}
+
   # Project type normal
   if [ "${PROJECT_TYPE}" == "normal" ]; then
-    TEMPLATE_DIR="${BP_SELF_DIR}/mp-c"
+    #TEMPLATE_DIR="${BP_SELF_DIR}/mp-c"
+
     SRC_DIR="${PROJECT_DIR}/src"
     bpMkDir "$SRC_DIR"
     bpMkDir "${PROJECT_DIR}/tools"
@@ -140,12 +145,13 @@ createProject() {
 
   # Project type simple
   if [ "${PROJECT_TYPE}" == "simple" ]; then
-    TEMPLATE_DIR="${BP_SELF_DIR}/mp-simple-c"
+    #TEMPLATE_DIR="${BP_SELF_DIR}/mp-simple-c"
     SRC_DIR="$PROJECT_DIR"
   fi
 
   MAKEFILE=${PROJECT_DIR}/Makefile
-  bpCp "${TEMPLATE_DIR}/Makefile" "${PROJECT_DIR}/Makefile"
+  bpCp "${MAKEFILE_TEMPLATE}" "${MAKEFILE}"
+  # bpCp "${TEMPLATE_DIR}/Makefile" "${PROJECT_DIR}/Makefile"
 
   # Replace keywords with data
   bpReplace "$MAKEFILE" "__NAME__" "${PROJECT_NAME}"
@@ -448,7 +454,6 @@ new_git() { ##I New project
   PROJECT_NAME="$1"
   PROJECT_DIR="$2"
 
-  TEMPLATE_DIR="${BP_SELF_DIR}/project_templates"
   HOOK_TEMPLATES="${TEMPLATE_DIR}/git/hooks"
 
   git init "${PROJECT_DIR}"
