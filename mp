@@ -128,7 +128,7 @@ createProject() {
 
   DESCRIPTION=$(bpReadStr "Brief description" "")
 
-  MAKEFILE_TEMPLATE=${TEMPLATE_DIR}/Makefile-${PROJECT_TYPE}
+  MAKEFILE_TEMPLATE=${TEMPLATE_DIR}/Makefile-${PROJECT_TYPE}.mk
 
   # Project type normal
   if [ "${PROJECT_TYPE}" == "normal" ]; then
