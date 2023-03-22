@@ -147,7 +147,7 @@ t_sentinel = TemplateC(
 """,
     h_post_text="""\
         
-#endif // __FILE__ 
+#endif // __FILE__ mpt
 """,
 )
 

@@ -185,7 +185,8 @@ createProject() {
   # ${MPTEMPLATE} "${OPTS}" --name "main" --dir "${SRC_DIR}" --DESCRIPTION "${DESCRIPTION}" --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
   ${MPTEMPLATE} ${OPTS} --target "${TARGET}" --name "main" --main --outdir "${SRC_DIR}" --description "${DESCRIPTION}" --author "${BP_NAME}" --email "${BP_EMAIL}" --license "${BP_LICENSE}"
 
-  # Git
+  # Git project
+  echo
   if bpReadBoolDY "Do you want to create a git project?"; then
     new_git "$PROJECT_NAME" "$PROJECT_DIR"
   fi
@@ -463,6 +464,7 @@ new_git() { ##I New project
   # git commit "${PROJECT_DIR}" -m "Initial commit"
   # git branch "${PROJECT_DIR}" -M master
 
+  echo
   if bpReadBoolDN "Upload git repo to Github?"; then
     gsUpload "${PROJECT_NAME}"
   fi
