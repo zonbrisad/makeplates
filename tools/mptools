@@ -178,6 +178,108 @@ backup() { ##D Make an incremental backup
     ${BACKUP_DIR}/backup_0
 }
 
+#
+# $2 port
+# $3 MCU type
+# $4 programmer
+# $5 file
+#
+program() { ##D Write firmware to MCU with avrdude
+  PORT=${2}
+  MCU=${3}
+  PROGRAMMER=${4}
+  FILE=${5}
+
+  bpPrintLine Available ports
+  ls --width 1 /dev/ttyUSB*
+  bpPrintLine
+
+  PORT=$(bpReadStr "Enter Port >" "${PORT}")
+
+  avrdude -v -v -p "${MCU}" -c "${PROGRAMMER}" -P "${PORT}" -U flash:w:"${FILE}":i -b 57600
+}
+
+bpSource() { ##I Load file
+  if [ -e "${1}" ]; then
+    source "$1"
+  fi
+}
+
+#
+# $1 Question
+# $2 key
+# $3 Default value
+#
+bpReadStrR() { ##I Remember read
+  local KEY="$2"
+  local DEF="$3"
+  # F="${BP_SELF_DIR}/${BP_SELF}_${3}.brsr"
+  # bpSource "$F"
+  DEF=$(bpGetDefault "$KEY" "$DEF")
+  #  bpGetDefault "$KEY" "$DEF"
+
+  VAL=$(bpReadStr "${1}" "${DEF}")
+  # VAL=$(bpReadStr "${1}" "${!KEY:-${DEF}}")
+
+  #echo "${KEY}=${VAL}" >"$F"
+  bpSetDefault "${KEY}" "${VAL}"
+
+  echo "${VAL}"
+}
+
+#
+# $1 key
+# $2 default
+#
+bpGetDefault() {
+  local KEY=${1}
+  local DEF=${2}
+
+  bpSource "${BP_SELF_DIR}/${BP_SELF}_${KEY}.bp_default"
+
+  echo "${!KEY:-${DEF}}"
+}
+
+#
+# $1 key
+# $2 value
+#
+bpSetDefault() {
+  local KEY=${1}
+  local VALUE=${2}
+  echo "${KEY}=${VAL}" >"${BP_SELF_DIR}/${BP_SELF}_${KEY}.bp_default"
+}
+
+#
+# $2 file
+# $3 MCU type
+# $4 port
+#
+avrdude-arduino() { ##D Write firmware to arduino with avrdude
+  FILE=${2}
+  MCU=${3}
+  PORT=${4}
+  bpPrintLine "Available USB->serial ports"
+  ls --width 1 /dev/ttyUSB*
+  bpPrintLine
+
+  PORT=$(bpReadStrR "Enter Port >" "PORT" "${PORT}")
+
+  if [ ! -e "${PORT}" ]; then
+    echo
+    bpWarning "Device ${PORT} does not exist!"
+  fi
+
+  avrdude -v -v -p "${MCU}" -b 57600 -c arduino -P "${PORT}" -U flash:w:"${FILE}":i
+}
+
+#
+# $1
+#
+qemu-avr() { ##D Emulate AVR
+  :
+}
+
 #---------------------------------------------------------------------
 # Bashplate settings
 #---------------------------------------------------------------------
@@ -305,7 +407,7 @@ bpExit() { ##I Function for safely exiting script
 
   # Check if argument is given
   if [ -z "$1" ]; then
-    exit 0 # Success
+    exit "$BP_OK"
   else
     exit "$1"
   fi
@@ -443,7 +545,7 @@ BP_OK=0 # successful termination
 
 # Formating
 #
-BP_POS_DESC=24
+BP_KEY_LENGTH=24
 BP_LEFT_MARGIN=3
 BP_RIGHT_MARGIN=3
 
@@ -492,30 +594,40 @@ bpPrintLine() { ##I Print text with line
 # $2 description color
 # $3 key
 # $4 description
+# $5 key length override (optional)
 #
 bpPrintDescGeneric() { # Generic key/description printout function
+  KEY_COLOR="$1"
+  DESC_COLOR="$2"
+  KEY="$3"
+  DESC="$4"
   if [ -n "$5" ]; then
-    X="$5"
+    KL="$5"
   else
-    X=${BP_POS_DESC}
+    KL=${BP_KEY_LENGTH}
   fi
 
   if ((${#4} == 0)); then
-    printf "${1}  %-${X}.${X}s${E_RESET} ${2}%s${E_RESET}\n" "$3" ""
+    printf "${1}  %-${KL}.${KL}s${E_RESET} ${2}%s${E_RESET}\n" "$3" ""
   fi
 
   len=${#}
-  a=$(("${BP_COLUMNS}" - "$X" - "$BP_RIGHT_MARGIN"))
+  a=$(("${BP_COLUMNS}" - "$KL" - "$BP_RIGHT_MARGIN"))
   #LINES=$(fmt -s -w"${a}" <<<"$4")
-  LINES=$(fold -w"${a}" <<<"$4")
+  LINES=$(fold -w"${a}" <<<"$DESC")
   IFS=$'\n'
-  Y=0
+  L1=0
   for line in ${LINES}; do
-    if [ "${Y}" -eq 0 ]; then
-      printf "${1}  %-${X}.${X}s${E_RESET} ${2}%s${E_RESET}\n" "$3" "$line"
-      Y=1
-    else
-      printf "${1}  %-${X}.${X}s${E_RESET} ${2}%s${E_RESET}\n" "" "$line"
+    if [ "${L1}" -eq 0 ]; then                # First line
+      if ((${#KEY} > "$BP_KEY_LENGTH")); then # Oversized key
+        printf "${KEY_COLOR}  %-${KL}s${E_RESET}\n" "$KEY"
+        printf "${KEY_COLOR}  %-${KL}.${KL}s${E_RESET} ${DESC_COLOR}%s${E_RESET}\n" "" "$line"
+      else # Normal key
+        printf "${KEY_COLOR}  %-${KL}.${KL}s${E_RESET} ${DESC_COLOR}%s${E_RESET}\n" "$KEY" "$line"
+      fi
+      L1=1
+    else # Rest of the lines
+      printf "${KEY_COLOR}  %-${KL}.${KL}s${E_RESET} ${DESC_COLOR}%s${E_RESET}\n" "" "$line"
     fi
   done
 }
@@ -556,7 +668,7 @@ bpPrintVar() { ##I Print variable value and description
 
     bpPrintDesc "${KEY}" "${VAL}"
   else
-    bpPrintDescGeneric "${BP_C_KEY}" "${BP_C_ERROR}" "$KEY" "N/A"
+    bpPrintDesc "${KEY}" "${BP_C_ERROR}N/A"
   fi
 }
 
@@ -807,7 +919,7 @@ bpReadStr() { ##I Read string from commandline
   if [ "${2}" == "" ]; then
     read -erp "${1} > " result
   else
-    read -erp "${1} [$2] > " result
+    read -erp "${1} " -i "${2}" result
     if [ "${result}" == "" ]; then
       result="${2}"
     fi
@@ -1132,7 +1244,7 @@ bpConfPrint() { ##I Print settings in config list
     DESC=${arr[$i]}
     ((i++))
     printf "%s%s\n" "${E_DARKGRAY}" "${DESC}"
-    bpPrintVar "$KEY" #"${!KEY}"
+    bpPrintVar "$KEY"
   done
 }
 
@@ -1353,7 +1465,7 @@ bpAssertProgs() { ##I Assert that required programs are available on the system
         e=1
       }
   done
-  if [ $e -eq 1 ]; then
+  if [ "$e" -eq 1 ]; then
     bpExit 1
   fi
 }
@@ -1578,7 +1690,7 @@ iinfo() { ##I Show information about script
     ((i++))
     ((i++))
     ((i++))
-    bpPrintVar "$KEY" #"$KEY"
+    bpPrintVar "$KEY"
   done
 
   bpPrintLine
@@ -1766,9 +1878,13 @@ BP_CONFIG_LIST=(
   "BP_NAME" "John Doe" "Users name"
   "BP_EMAIL" "john.doe@foo.bar" "Users email"
   "BP_ORG" "ACME" "Organisation"
+  "BP_HOME" "www.foo.bar" "Home"
   "BP_LICENSE" "MIT" "Default license"
   "BP_EDITOR" "vi" "Default editor"
   "BP_DIFF" "meld" "Default diff program"
+  "BP_GITSERVER" "github.com" "Default git server"
+  "BP_GITUSER" "" "Default git user"
+  "BP_GITPROTO" "http" "Default git protocol"
 )
 
 # Load configuration file settings
