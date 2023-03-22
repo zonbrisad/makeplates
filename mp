@@ -67,7 +67,7 @@ bpUserSettings() {
 # User defined functions
 #---------------------------------------------------------------------
 
-tools=(
+NORMAL_FILES=(
   "tools/mptools"
   "tools/mptemplate"
   "tools/templatec.py"
@@ -132,26 +132,23 @@ createProject() {
 
   # Project type normal
   if [ "${PROJECT_TYPE}" == "normal" ]; then
-    #TEMPLATE_DIR="${BP_SELF_DIR}/mp-c"
 
     SRC_DIR="${PROJECT_DIR}/src"
-    bpMkDir "$SRC_DIR"
+    bpMkDir "${SRC_DIR}"
     bpMkDir "${PROJECT_DIR}/tools"
 
-    for F in "${tools[@]}"; do
-      bpCp "${BP_SELF_DIR}/${F}" "${PROJECT_DIR}/$(dirname ${F})/."
+    for F in "${NORMAL_FILES[@]}"; do
+      bpCp "${BP_SELF_DIR}/${F}" "${PROJECT_DIR}/$(dirname "${F}")/."
     done
   fi
 
   # Project type simple
   if [ "${PROJECT_TYPE}" == "simple" ]; then
-    #TEMPLATE_DIR="${BP_SELF_DIR}/mp-simple-c"
-    SRC_DIR="$PROJECT_DIR"
+    SRC_DIR="${PROJECT_DIR}"
   fi
 
   MAKEFILE=${PROJECT_DIR}/Makefile
   bpCp "${MAKEFILE_TEMPLATE}" "${MAKEFILE}"
-  # bpCp "${TEMPLATE_DIR}/Makefile" "${PROJECT_DIR}/Makefile"
 
   # Replace keywords with data
   bpReplace "$MAKEFILE" "__NAME__" "${PROJECT_NAME}"
