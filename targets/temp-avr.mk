@@ -126,13 +126,13 @@ QMACHINE = arduino-uno
 # tcp port for QEMU virtual serial port
 QPORT = 5678
 
-sim: ## Run program in qemu AVR simulator
+sim: ##D Run program in qemu AVR simulator
 	@echo 
 	@echo Starting QEMU avr simulator. Connect to tcp port $(QPORT). 
 	@echo
 	@qemu-system-avr -machine $(QMACHINE) -bios $(TRGFILE) -serial tcp::$(QPORT),server=on,wait=off -nographic
 	
-term: ## Connect to QEMU virtual serial port via telnet terminal 
+term: ##D Connect to QEMU virtual serial port via telnet terminal 
 	@$(MPUTILS) sermon $(QPORT)
 ###RUNDEBUG_END###
 
@@ -143,7 +143,7 @@ term: ## Connect to QEMU virtual serial port via telnet terminal
 #============================================================================
 AVRDUDE_PORT = /dev/ttyUSB1
 
-flash: $(TARGET).hex # $(TARGET).eep  ## Write program to MCU flash with avrdude
+flash: $(TARGET).hex # $(TARGET).eep  ##D Write program to MCU flash with avrdude
 	@$(MPUTILS) avrdude-arduino $(TARGET).hex $(MCU) $(AVRDUDE_PORT) 
 ###INSTALL_END###
 

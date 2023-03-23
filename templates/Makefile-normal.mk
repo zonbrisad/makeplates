@@ -531,8 +531,41 @@ ARCHIVEDIR = archive
 archive: ##D Make a tar archive of the source code
 	@echo
 	@echo -e $(MSG_ARCHIVING)
-	@$(MPTOOL) archive "${TARGET}"
-
+	@$(MPTOOL) archive 
+	@$(eval DT=$(shell date +"%Y%m%d-%H%M%S"))
+	@$(MKDIR) $(ARCHIVEDIR)
+	@tar -cvzf $(ARCHIVEDIR)/$(TARGET)_${DT}.tar.gz *  \
+		--exclude='$(ARCHIVEDIR)' \
+		--exclude='$(BACKUP_DIR)' \
+		--exclude='$(OUTDIR)'     \
+		--exclude='$(BUILDDIR)'   \
+		--exclude='*.a'      \
+		--exclude='*.o'      \
+		--exclude='*.ko'     \
+		--exclude='*.obj'    \
+		--exclude='*.a'      \
+		--exclude='*.la'     \
+		--exclude='*.lo'     \
+		--exclude='*.slo'    \
+		--exclude='*.lib'    \
+		--exclude='*.so'     \
+		--exclude='*.so*'    \
+		--exclude='.dep'     \
+		--exclude='.svn'     \
+		--exclude='.git'     \
+		--exclude='*.elf'    \
+		--exclude='*.hex'    \
+		--exclude='*.bin'    \
+		--exclude='*.exe'    \
+		--exclude='*.sym'    \
+		--exclude='*.lss'    \
+		--exclude='*.map'    \
+		--exclude='*.app'    \
+		--exclude='*.i*86'   \
+		--exclude='*.x86_64' \
+		--exclude='*~'       \
+		--exclude="*.old"    \
+		--exclude="*.tmp"    \
 
 # Backup directory
 BACKUP_DIR=backup
@@ -544,6 +577,27 @@ backup: ##D Make an incremental backup
 	@echo
 	@echo -e $(MSG_BACKUP)
 	@$(MPTOOL) backup
+	@$(MKDIR) $(BACKUP_DIR)
+  # remove oldest backup
+	@$(RM) -rf $(BACKUP_DIR)/backup_$(BACKUPS) 
+  # rotate backups 
+	@for ((x=$(BACKUPS);x>0;x--)); do                 \
+	  bdir=$(BACKUP_DIR)/backup_`expr $${x} - 1` ;    \
+	  # check if directory exist before renameing  it \
+	  if [ -d $${bdir} ]; then                        \
+	    mv -f $${bdir}  $(BACKUP_DIR)/backup_$${x} ;  \
+	  fi ;                                            \
+	done 
+	@rsync --archive                 \
+	      --delete                  \
+				--relative                \
+				--exclude="$(BACKUP_DIR)" \
+				--exclude="$(ARCHIVEDIR)" \
+				--exclude="$(OUTDIR)"     \
+				--link-dest=$(CURDIR)/$(BACKUP_DIR)/backup_1 \
+				.                      \
+				$(BACKUP_DIR)/backup_0 
+
 
 # Project options -----------------------------------------------------------
 .PHONY: newc newcpp newclass 
