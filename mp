@@ -68,7 +68,7 @@ bpUserSettings() {
 #---------------------------------------------------------------------
 
 NORMAL_FILES=(
-  "tools/mptools"
+  "tools/mputils"
   "tools/mptemplate"
   "tools/templatec.py"
   "tools/Project.py"
@@ -160,9 +160,11 @@ createProject() {
 
   mpReplaceSection "$MAKEFILE" "SETTINGS" "$target"
   mpReplaceSection "$MAKEFILE" "UTILS" "$target"
-  mpReplaceSection "$MAKEFILE" "TARGETS" "$target"
-  mpReplaceSection "$MAKEFILE" "INSTALL" "$target"
   mpReplaceSection "$MAKEFILE" "PLATFORM-SPECIFIC" "$target"
+  mpReplaceSection "$MAKEFILE" "BUILD" "$target"
+  mpReplaceSection "$MAKEFILE" "TARGETS" "$target"
+  mpReplaceSection "$MAKEFILE" "RUNDEBUG" "$target"
+  mpReplaceSection "$MAKEFILE" "INSTALL" "$target"
 
   if [ "$LANGUAGE" == "cpp" ]; then
     OPTS="newcpp"

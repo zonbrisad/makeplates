@@ -85,7 +85,7 @@ __SETTINGS__
 # Compiler and Linker options
 #============================================================================
 
-##N- Build
+##- Build
 
 # Compiler Options C --------------------------------------------------------
 CFLAGS = -g$(DEBUG)                            # Debugging information
@@ -199,7 +199,7 @@ ASTYLE     = astyle           # Code beatyfier
 DOXYGEN    = doxygen          # Code documetation program
 MPTEMPLATE = python3 tools/mptemplate.py # C/C++ template tool
 BIN2ARRAY  = python3 tools/bin2array.py # Binary to array tool
-MPTOOL     = tools/mptools    # Makeplate tools
+MPTOOL     = tools/mputils    # Makeplate tools
 
 
 TCHAIN = $(TCHAIN_BASE)/$(TCHAIN_PREFIX)
@@ -248,7 +248,7 @@ E_BG_WHITE        = \e[47m
 # Style attributes
 E_BOLD=\e[1m
 E_DIM=\e[2m
-E_UNDERLINE=\e[4mbpReplaceX
+E_UNDERLINE=\e[4m
 E_BLINK=\e[5m
 E_REVERSE=\e[7m
 
@@ -371,20 +371,12 @@ OBJS    = $(COBJS) $(CPPOBJS) $(AOBJS)
 LST = $(patsubst %.c, $(OBJDIR)/%.lst, $(CSRC)) $(patsubst %.cpp, $(OBJDIR)/%.lst, $(CPPSRC)) $(patsubst %.S, $(OBJDIR)/%.lst, $(ASRC))
 
 # Default target.
-all:	begin build finished end ## Build project (default)
+all: begin build finished end ##D Build project (default)
 
 nc: C_FILTER:= 
-nc: all   ## Build with no color filter on compiler output
+nc: all   ##D Build with no color filter on compiler output
 
-
-build: elf lss sym size
-
-elf: $(TRGFILE)
-lss: $(OUTDIR)/$(TARGET).lss
-sym: $(OUTDIR)/$(TARGET).sym
-hex: $(OUTDIR)/$(TARGET).hex
-bin: $(OUTDIR)/$(TARGET).bin
-eep: $(OUTDIR)/$(TARGET).eep
+__BUILD__
 
 begin:
 	@echo -e $(MSG_BEGIN)
@@ -467,7 +459,7 @@ size: $(TRGFILE)
 	@echo -e $(MSG_SIZE_AFTER)
 	@$(SIZE) $(SIZEFLAGS) $(TRGFILE)
 
-strip: $(TRGFILE) ## Strip target binary from symbols
+strip: $(TRGFILE) ##D Strip target binary from symbols
 	@echo -e $(MSG_STRIP)
 	@$(STRIP) $(TRGFILE)
 
@@ -478,27 +470,21 @@ __TARGETS__
 -include $(shell mkdir .dep 2>/dev/null) $(wildcard .dep/*)
 
 
-##N- Run/debug
+##- Run/debug
 
-#
-# Run & debug	
-#============================================================================
+__RUNDEBUG__
 
-run:    ## Run application
-	@$(OUTDIR)/$(TARGET)
-
-debug: ## Debug program
-	@$(GDB) $(TRGFILE) 
+##- Install
 
 __INSTALL__
 
-##N- Utils
+##- Utils
 
 #
 # Various utility rules	
 #============================================================================
 
-clean:  ## Remove all build files
+clean:  ##D Remove all build files
 	@echo
 	@echo -e $(MSG_CLEANING)
 	@$(REMOVE) $(OUTDIR)/$(TARGET)
@@ -520,7 +506,7 @@ clean:  ## Remove all build files
 	@find . -name "*.orig" -delete
 
 
-check: ## Check if tools and libraries are present 
+check: ##D Check if tools and libraries are present 
 	@$(MPTOOL) ce $(CC)
 	@$(MPTOOL) ce $(OBJCOPY)
 	@$(MPTOOL) ce $(OBJDUMP)
@@ -542,43 +528,11 @@ check: ## Check if tools and libraries are present
 # Directory where to store archives
 ARCHIVEDIR = archive
 
-archive: ## Make a tar archive of the source code
+archive: ##D Make a tar archive of the source code
 	@echo
 	@echo -e $(MSG_ARCHIVING)
-	@$(eval DT=$(shell date +"%Y%m%d-%H%M%S"))
-	@$(MKDIR) $(ARCHIVEDIR)
-	@tar -cvzf $(ARCHIVEDIR)/$(TARGET)_${DT}.tar.gz *  \
-		--exclude='$(ARCHIVEDIR)' \
-		--exclude='$(BACKUP_DIR)' \
-		--exclude='$(OUTDIR)'     \
-		--exclude='$(BUILDDIR)'   \
-		--exclude='*.a'      \
-		--exclude='*.o'      \
-		--exclude='*.ko'     \
-		--exclude='*.obj'    \
-		--exclude='*.a'      \
-		--exclude='*.la'     \
-		--exclude='*.lo'     \
-		--exclude='*.slo'    \
-		--exclude='*.lib'    \
-		--exclude='*.so'     \
-		--exclude='*.so*'    \
-		--exclude='.dep'     \
-		--exclude='.svn'     \
-		--exclude='.git'     \
-		--exclude='*.elf'    \
-		--exclude='*.hex'    \
-		--exclude='*.bin'    \
-		--exclude='*.exe'    \
-		--exclude='*.sym'    \
-		--exclude='*.lss'    \
-		--exclude='*.map'    \
-		--exclude='*.app'    \
-		--exclude='*.i*86'   \
-		--exclude='*.x86_64' \
-		--exclude='*~'       \
-		--exclude="*.old"    \
-		--exclude="*.tmp"    \
+	@$(MPTOOL) archive "${TARGET}"
+
 
 # Backup directory
 BACKUP_DIR=backup
@@ -586,56 +540,32 @@ BACKUP_DIR=backup
 # Max number of backups
 BACKUPS=100
 
-backup: ## Make an incremental backup
+backup: ##D Make an incremental backup
 	@echo
 	@echo -e $(MSG_BACKUP)
-	@$(MKDIR) $(BACKUP_DIR)
-  # remove oldest backup
-	@$(RM) -rf $(BACKUP_DIR)/backup_$(BACKUPS) 
-  # rotate backups 
-	@for ((x=$(BACKUPS);x>0;x--)); do                 \
-	  bdir=$(BACKUP_DIR)/backup_`expr $${x} - 1` ;    \
-	  # check if directory exist before renameing  it \
-	  if [ -d $${bdir} ]; then                        \
-	    mv -f $${bdir}  $(BACKUP_DIR)/backup_$${x} ;  \
-	  fi ;                                            \
-	done 
-	@rsync --archive                 \
-	      --delete                  \
-				--relative                \
-				--exclude="$(BACKUP_DIR)" \
-				--exclude="$(ARCHIVEDIR)" \
-				--exclude="$(OUTDIR)"     \
-				--link-dest=$(CURDIR)/$(BACKUP_DIR)/backup_1 \
-				.                      \
-				$(BACKUP_DIR)/backup_0 
-
-
-edit:   ## Open source and makefile in editor
-	@$(EDITOR) Makefile $(SRC)
-
+	@$(MPTOOL) backup
 
 # Project options -----------------------------------------------------------
 .PHONY: newc newcpp newclass 
 
-##N- Create
+##- Create
 
-newc:  ## Create a new C module
-	@${MPTEMPLATE} newc --dir src --author "$(AUTHOR)" --license "$(LICENSE)"
+newc:  ##D Create a new C module
+	@${MPTEMPLATE} newc --dir src 
 
-newcpp:  ## Create a new C++ module
-	@${CTEMPLATE} newcpp --dir src --author "$(AUTHOR)" --license "$(LICENSE)"
+#newcpp:  ## Create a new C++ module
+#	@${CTEMPLATE} newcpp --dir src --author "$(AUTHOR)" --license "$(LICENSE)"
 
-newclass:  ## Create a new C++ class
-	@${MPTEMPLATE} newclass --dir src --author "$(AUTHOR)" --license "$(LICENSE)"	
+#newclass:  ## Create a new C++ class
+#	@${MPTEMPLATE} newclass --dir src --author "$(AUTHOR)" --license "$(LICENSE)"	
 		
 #
 # Help information
 #============================================================================
 
-##N- Information
+##- Information
 
-help: ## This help information
+help: ##D This help information
 	@$(MPTOOL) mpHelp Makefile
 
 info-project: # Print project information
@@ -691,7 +621,7 @@ info-src:  # Print source files
 	  echo $${f} ;            \
 	done                      \
 
-info-objs: ## List objects 
+info-objs: ##D List objects 
 	@echo -e $(MSG_OBJECTS)
 	@export IFS=" "
 	@for f in $(OBJS); do   \
@@ -705,39 +635,17 @@ info-install:
 	@echo "Install group: $(INSTALL_GROUP)"
 
 
-info: info-project info-includes info-defs info-cflags info-lflags info-src info-install ## Print information about project
+info: info-project info-includes info-defs info-cflags info-lflags info-src info-install ##D Print information about project
 
-files: info-src ## List source files
+files: info-src ##D List source files
 
-gccversion :    ## Display compiler version
+gccversion :    ##D Display compiler version
 	@$(CC) --version
 
-libs: ## List system wide libraries (pkg-config)
+libs: ##D List system wide libraries (pkg-config)
 	@pkg-config --list-all
 	
-#
-# Personal settings
-#============================================================================
-
-# Only for default settings. Change value in settings.mk
-AUTHOR=Your Name <your.name@yourdomain.org>
-EDITOR=jed
-US:=$$USER
-#PERSONAL=personal_$${USER}.mk
-PERSONAL=personal.mk
-
-# Include some external settings
-# If file does not exist it will be generated.
-include  ${PERSONAL}
-
-$(PERSONAL):	# Create a settings file
-	@echo "#" > ${PERSONAL}
-	@echo "# This file is for personal settings only." >> ${PERSONAL}
-	@echo "#" >> ${PERSONAL}
-	@echo "EDITOR=${EDITOR}" >> ${PERSONAL}
-	@echo "AUTHOR=${AUTHOR}" >> ${PERSONAL}
-
-##N- Code
+##- Code
 
 #
 # CppCheck static code analysis
@@ -754,10 +662,10 @@ F_CPPC_ERROR="s/error/$$(printf "$(C_ERROR)")&$$(printf "$(E_RESET)")/i"
 F_CPPC_CHECK="s/\(Checking \)\(.*\)/$$(printf "$(C_ACTION)")\1$$(printf "$(E_RESET)")$$(printf "$(C_FILE)")\2$$(printf "$(E_RESET)")/i"	
 CPPCHECK_FILTER   = 2>&1 | sed -u -e $(F_CPPC_ROWNR) -e $(F_CPPC_FILE) -e $(F_CPPC_STYLE) -e $(F_CPPC_ERROR) -e $(F_CPPC_PORTABILITY) -e $(F_CPPC_VAR)  -e $(F_CPPC_CHECK)
 
-ccheck: ## Static code analysis using cppcheck(errors only)
+ccheck: ##D Static code analysis using cppcheck(errors only)
 	@$(CPPCHECK) --inline-suppr $(SRC)  $(CPPCHECK_FILTER)
 
-acheck: ## Static code analysis using cppcheck(all warnings)
+acheck: ##D Static code analysis using cppcheck(all warnings)
 	@$(CPPCHECK) --inline-suppr --enable=all $(SRC) $(CPPCHECK_FILTER)
 
 #
@@ -803,7 +711,7 @@ AST +=--preserve-date
 
 PSRCH = $(PSRC:%.c=%.h) 
 
-astyle: ## Format source to conform to a standard
+astyle: ##D Format source to conform to a standard
 	@$(ASTYLE) $(AST) src/*.c src/*.cpp src/*.h
 
 	

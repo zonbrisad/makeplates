@@ -36,13 +36,26 @@ FORMAT = ihex
 OCFLAGS = -O $(FORMAT) 
 ###PLATFORM-SPECIFIC_END###
 
+###BUILD_BEGIN###
+build: elf lss sym size
 
-###TOOLS_BEGIN###
-###TOOLS_END###
+elf: $(TRGFILE)
+lss: $(OUTDIR)/$(TARGET).lss
+sym: $(OUTDIR)/$(TARGET).sym
+###BUILD_END###
 
 
 ###TARGETS_BEGIN###
 ###TARGETS_END###
+
+
+###RUNDEBUG_BEGIN###
+run:    ##D Run application
+	@$(OUTDIR)/$(TARGET)
+
+debug: ##D Debug program
+	@$(GDB) $(TRGFILE) 
+###RUNDEBUG_END###
 
 
 ###INSTALL_BEGIN###
@@ -66,7 +79,7 @@ INSTALL_OPTIONS += -D
 INSTALL_OPTIONS += --preserve-timestamps
 #INSTALL_OPTIONS += --verbose
 
-install: $(TRGFILE) ## Install program
+install: $(TRGFILE) ##D Install program
 	@echo -e $(MSG_INSTALLING) "$(E_BR_GREEN)$(TARGET) $(E_END)"
 	@${INSTALL} ${INSTALL_OPTIONS} $(TRGFILE) ${INSTALL_DIR}
 
@@ -75,3 +88,6 @@ install: $(TRGFILE) ## Install program
 
 ###UTILS_BEGIN###
 ###UTILS_END###
+
+###TOOLS_BEGIN###
+###TOOLS_END###

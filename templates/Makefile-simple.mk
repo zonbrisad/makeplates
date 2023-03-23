@@ -21,7 +21,7 @@ LICENSE = __LICENSE__
 TARGET = __NAME__
 
 # List C, C++ and assembler source files here. (C/C++ dependencies are automatically generated.)
-SRC = main.c  
+SRC = __MAINFILE__ 
 
 # Include directories
 INCLUDE = .
@@ -150,7 +150,7 @@ LDFLAGS = -Wl,-Map=$(OUTDIR)/$(TARGET).map,--cref
 LDFLAGS += $(EXTMEMOPTS)
 LDFLAGS += $(patsubst %,-L%,$(INCLUDE))
 LDFLAGS += -g
-LDFLAGS += $(foreach X, $(PKGLIBS), $(shell pkg-config --libs $(X)) )
+
 
 #
 # Platform specific options
@@ -191,56 +191,56 @@ STRIP     = ${TCHAIN}strip
 #============================================================================
 
 # Color attributes 
-E_FG_BLACK        = \e[0;300m
-E_FG_RED          = \e[0;31m
-E_FG_GREEN        = \e[0;32m
-E_FG_YELLOW       = \e[0;33m
-E_FG_BLUE         = \e[0;34m
-E_FG_MAGENTA      = \e[0;35m
-E_FG_CYAN         = \e[0;36m
-E_FG_GRAY         = \e[0;37m
-E_FG_DARKGRAY     = \e[1;30m
-E_FG_BR_RED       = \e[1;31m
-E_FG_BR_GREEN     = \e[1;32m
-E_FG_BR_YELLOW    = \e[1;33m
-E_FG_BR_BLUE      = \e[1;34m
-E_FG_BR_MAGENTA   = \e[1;35m
-E_FG_BR_CYAN      = \e[1;36m
-E_FG_WHITE        = \e[1;37m
-E_BG_BLACK        = \e[40m
-E_BG_RED          = \e[41m
-E_BG_GREEN        = \e[42m
-E_BG_YELLOW       = \e[43m
-E_BG_BLUE         = \e[44m
-E_BG_MAGENTA      = \e[45m
-E_BG_CYAN         = \e[46m
-E_BG_WHITE        = \e[47m
+E_BLACK      = \e[0;300m
+E_RED        = \e[0;31m
+E_GREEN      = \e[0;32m
+E_YELLOW     = \e[0;33m
+E_BLUE       = \e[0;34m
+E_MAGENTA    = \e[0;35m
+E_CYAN       = \e[0;36m
+E_GRAY       = \e[0;37m
+E_DARKGRAY   = \e[1;30m
+E_BR_RED     = \e[1;31m
+E_BR_GREEN   = \e[1;32m
+E_BR_YELLOW  = \e[1;33m
+E_BR_BLUE    = \e[1;34m
+E_BR_MAGENTA = \e[1;35m
+E_BR_CYAN    = \e[1;36m
+E_WHITE      = \e[1;37m
+E_BG_BLACK   = \e[40m
+E_BG_RED     = \e[41m
+E_BG_GREEN   = \e[42m
+E_BG_YELLOW  = \e[43m
+E_BG_BLUE    = \e[44m
+E_BG_MAGENTA = \e[45m
+E_BG_CYAN    = \e[46m
+E_BG_WHITE   = \e[47m
 
 # Style attributes
-E_BOLD=\e[1m
-E_DIM=\e[2m
-E_UNDERLINE=\e[4mbpReplaceX
-E_BLINK=\e[5m
-E_REVERSE=\e[7m
+E_BOLD       = \e[1m
+E_DIM        = \e[2m
+E_UNDERLINE  = \e[4m
+E_BLINK      = \e[5m
+E_REVERSE    = \e[7m
 
-E_RESET           = \e[0m
+E_RESET      = \e[0m
 
 # System color definitions
-C_OK=$(E_FG_BR_GREEN)
-C_WARNING=$(E_FG_BR_YELLOW)
-C_ERROR=$(E_FG_BR_RED)
-C_FILE=$(E_FG_BR_CYAN)
-C_DIR=$(E_FG_CYAN)
-C_NOTE=$(E_FG_BR_GREEN)
-C_MSG=$(E_FG_BR_GREEN)
-C_ACTION=$(E_FG_BR_MAGENTA)
-C_VALUE=$(E_FG_WHITE)$(E_BG_BLUE)
-C_IDENTIFIER=$(E_FG_WHITE)
+C_OK=$(E_BR_GREEN)
+C_WARNING=$(E_BR_YELLOW)
+C_ERROR=$(E_BR_RED)
+C_FILE=$(E_BR_CYAN)
+C_DIR=$(E_CYAN)
+C_NOTE=$(E_BR_GREEN)
+C_MSG=$(E_BR_GREEN)
+C_ACTION=$(E_BR_MAGENTA)
+C_VALUE=$(E_WHITE)$(E_BG_BLUE)
+C_IDENTIFIER=$(E_WHITE)
 
 # Messages ------------------------------------------------------------------
-MSG_LINE             = "$(E_FG_WHITE)------------------------------------------------------------------$(E_RESET)"
-MSG_BEGIN            = "${E_FG_WHITE}-------------------------------- Begin ---------------------------${E_RESET}"
-MSG_END              = "${E_FG_WHITE}-------------------------------- End -----------------------------${E_RESET}"
+MSG_LINE             = "$(E_WHITE)------------------------------------------------------------------$(E_RESET)"
+MSG_BEGIN            = "${E_WHITE}-------------------------------- Begin ---------------------------${E_RESET}"
+MSG_END              = "${E_WHITE}-------------------------------- End -----------------------------${E_RESET}"
 MSG_ERRORS_NONE      = "${C_OK}Errors: none ${E_RESET}"
 MSG_STRIP            = "${C_ACTION}Striping:${E_RESET}"
 MSG_LINKING          = "${C_ACTION}Linking:${E_RESET}"
@@ -265,20 +265,20 @@ MSG_EXTENDED_COFF    = "${C_ACTION}Converting to AVR Extended COFF:${E_RESET}"
 MSG_MOC              = "${C_ACTION}Creating MOC file:${E_RESET}"
 MSG_UI               = "${C_ACTION}Generating UI header:${E_RESET}"
 MSG_BACKUP           = "${C_ACTION}Making incremental backup of project:${E_RESET}"
-MSG_SRC              = "${C_MSG}Source files $(E_FG_GREEN)-----------------------------------------------------${E_RESET}"
-MSG_FLAGS            = "${C_MSG}Compiler Flags $(E_FG_GREEN)---------------------------------------------------${E_RESET}"
-MSG_LINKER           = "${C_MSG}Linker Flags $(E_FG_GREEN)-----------------------------------------------------${E_RESET}"
-MSG_PROJECT          = "${C_MSG}Project info $(E_FG_GREEN)-----------------------------------------------------${E_RESET}"
-MSG_INCLUDES         = "${C_MSG}Include directories $(E_FG_GREEN)----------------------------------------------${E_RESET}"
-MSG_OBJECTS          = "${C_MSG}Object files $(E_FG_GREEN)-----------------------------------------------------${E_RESET}"	
-MSG_DEFS             = "${C_MSG}Macro definitions $(E_FG_GREEN)------------------------------------------------${E_RESET}"
-MSG_INSTALL_INFO     = "${C_MSG}Install settings $(E_FG_GREEN)-------------------------------------------------${E_RESET}"
+MSG_SRC              = "${C_MSG}Source files $(E_GREEN)-----------------------------------------------------${E_RESET}"
+MSG_FLAGS            = "${C_MSG}Compiler Flags $(E_GREEN)---------------------------------------------------${E_RESET}"
+MSG_LINKER           = "${C_MSG}Linker Flags $(E_GREEN)-----------------------------------------------------${E_RESET}"
+MSG_PROJECT          = "${C_MSG}Project info $(E_GREEN)-----------------------------------------------------${E_RESET}"
+MSG_INCLUDES         = "${C_MSG}Include directories $(E_GREEN)----------------------------------------------${E_RESET}"
+MSG_OBJECTS          = "${C_MSG}Object files $(E_GREEN)-----------------------------------------------------${E_RESET}"	
+MSG_DEFS             = "${C_MSG}Macro definitions $(E_GREEN)------------------------------------------------${E_RESET}"
+MSG_INSTALL_INFO     = "${C_MSG}Install settings $(E_GREEN)-------------------------------------------------${E_RESET}"
 MSG_INSTALLING       = "${C_ACTION}Installing:   ${E_RESET}"
 MSG_BUILDING         = "$(C_ACTION)Building:     "
 	
 # Compiler output colorizer filter ------------------------------------------
 F_SOURCE=| sed -e "s/\(.*\/\)\(.*\)/$$(printf "$(C_DIR)")\1$$(printf "$(C_FILE)")\2$$(printf "$(E_RESET)")/"
-F_INF="s/In function/$$(printf "$(E_FG_BR_GREEN)")&$$(printf "$(E_RESET)")/i"
+F_INF="s/In function/$$(printf "$(E_BR_GREEN)")&$$(printf "$(E_RESET)")/i"
 F_NOTE="s/note:/$$(printf "$(C_NOTE)")&$$(printf "$(E_RESET)")/i"
 F_WARNING="s/warning:/$$(printf "$(C_WARNING)")&$$(printf "$(E_RESET)")/i"
 F_ERROR="s/error:/$$(printf "$(C_ERROR)")&$$(printf "$(E_RESET)")/i"
@@ -288,7 +288,7 @@ F_WARNING2="s/unused variable/$$(printf "$(C_WARNING)")&$$(printf "$(E_RESET)")/
 F_WARNING3="s/may be used uninitialized in this function/$$(printf "$(C_WARNING)")&$$(printf "$(E_RESET)")/i"
 F_WARNING4="s/implicit declaration of function/$$(printf "$(C_WARNING)")&$$(printf "$(E_RESET)")/i"
 F_WARNING5="s/value computed is not used/$$(printf "$(C_WARNING)")&$$(printf "$(E_RESET)")/i"
-F_BRACKET="s/\[\(.*\)\]/[$$(printf "$(E_FG_GREEN)")\1$$(printf "$(E_RESET)")]/"	
+F_BRACKET="s/\[\(.*\)\]/[$$(printf "$(E_GREEN)")\1$$(printf "$(E_RESET)")]/"	
 F_VARIABLE="s/\‘\(.*\)[\’\‘]/'$$(printf "$(C_IDENTIFIER)")\1$$(printf "$(E_RESET)")'/g"
 F_FILE="s/[^: ]*/$$(printf "$(C_FILE)")&$$(printf "$(E_RESET)")/"
 F_ROWNR="s/:\([0-9]*\):\([0-9]*\):/:$$(printf "$(C_VALUE)")\1$$(printf "$(E_RESET)"):$$(printf "$(C_VALUE)")\2$$(printf "$(E_RESET)"):/"
@@ -342,20 +342,12 @@ OBJS    = $(COBJS) $(CPPOBJS) $(AOBJS)
 LST = $(patsubst %.c, $(OBJDIR)/%.lst, $(CSRC)) $(patsubst %.cpp, $(OBJDIR)/%.lst, $(CPPSRC)) $(patsubst %.S, $(OBJDIR)/%.lst, $(ASRC))
 
 # Default target.
-all:	begin build finished end ##D Build project (default)
+all: begin build finished end ##D Build project (default)
 
 nc: C_FILTER:= 
 nc: all   ##D Build with no color filter on compiler output
 
-
-build: elf lss sym size
-
-elf: $(TRGFILE)
-lss: $(OUTDIR)/$(TARGET).lss
-sym: $(OUTDIR)/$(TARGET).sym
-hex: $(OUTDIR)/$(TARGET).hex
-bin: $(OUTDIR)/$(TARGET).bin
-eep: $(OUTDIR)/$(TARGET).eep
+__BUILD__
 
 begin:
 	@echo -e $(MSG_BEGIN)
@@ -442,16 +434,16 @@ strip: $(TRGFILE) ##D Strip target binary from symbols
 
 __TARGETS__
 
-
 # Include the dependency files.
 -include $(shell mkdir .dep 2>/dev/null) $(wildcard .dep/*)
+
+##- Run/debug
 
 #
 # Run & debug	
 #============================================================================
 
-run:    ##D Run application
-	@$(OUTDIR)/$(TARGET)
+__RUNDEBUG__
 
 #
 # Various utility rules	
@@ -478,8 +470,6 @@ clean:  ##D Remove all build files
 	@find . -name "*~" -delete
 	@find . -name "*.orig" -delete
 
-
-
 #
 # Help information
 #============================================================================
@@ -488,17 +478,13 @@ clean:  ##D Remove all build files
 
 help: ##D This help information
 	@IFS=$$'\n'; \
-	help_lines=$$( grep -h '##' $(MAKEFILE_LIST) | grep -v -e 'grep' -e '\*##C' -e '\*##C-' -e '\"##' -e '##-//' -e 'help_line' -e 'printLine' ) ; \
-	for help_line in $${help_lines[@]}; do  \
-	  case "$$help_line" in \
-		*"##-"*) name=$$(echo $$help_line | sed -e 's/^.*##-//' -e 's/^[ \t]*//' ); \
-		         printf "${E_FG_YELLOW}%s${E_RESET}\n" $$name ;; \
-		*"##D"*) help_command=$$(echo $$help_line | sed -s 's/:.*//') ; \
-				 help_info=$$(echo $$help_line | sed -s 's/^.*##D//') ; \
-				 printf "${E_FG_CYAN}  %-15s ${E_FG_GREEN}%s${E_RESET}\n" $$help_command $$help_info; \
-		esac \
-  done ;
-
+	LINES=$$( grep -h '##' $(MAKEFILE_LIST) | grep -v -e 'grep' -e '\*##C' -e '\*##C-' -e '\"##' -e '##-//' -e 'LINE' -e 'printLine' ) ; \
+	for LINE in $${LINES[@]}; do  \
+	  case "$$LINE" in \
+	    *"##-"*) printf "${E_YELLOW}%s${E_RESET}\n" $${LINE####- };  ;; \
+	    *"##D"*) printf "${E_CYAN}  %-15s ${E_GREEN}%s${E_RESET}\n" $${LINE%:*} $${LINE##*##D}; \
+	  esac \
+	done ;
 
 info-project: # Print project information
 	@echo -e $(MSG_PROJECT)
@@ -553,7 +539,7 @@ info-src:  # Print source files
 	  echo $${f} ;            \
 	done                      \
 
-list-objs: ##D List objects 
+info-objs: ##D List objects 
 	@echo -e $(MSG_OBJECTS)
 	@export IFS=" "
 	@for f in $(OBJS); do   \

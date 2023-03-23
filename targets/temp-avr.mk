@@ -80,73 +80,15 @@ EXTRALIBDIRS =
 LDFLAGS += $(PRINTF_LIB) $(SCANF_LIB) $(MATH_LIB)
 ###PLATFORM-SPECIFIC_END###
 
+###BUILD_BEGIN###
+build: elf hex lss sym size
 
-###TOOLS_BEGIN###
-###TOOLS_END###
-
-
-###DEBUG_BEGIN###
-###DEBUG_END###
-
-
-###UTILS_BEGIN###
-###UTILS_END###
-
-
-###INSTALL_BEGIN###
-#
-# Avrdude settings 
-# ----------------------------------------------------------
-.PHONY: program
-	
-AVRDUDE = avrdude	
-# Programming hardware
-# Type: avrdude -c ?
-# to get a full listing.
-#
-#AVRDUDE_PROGRAMMER = stk500v2
-AVRDUDE_PROGRAMMER = arduino
- 
-# com1 = serial port. Use lpt1 to connect to parallel port.
-AVRDUDE_PORT = /dev/ttyUSB1    # programmer connected to serial device
-
-AVRDUDE_BITRATE = 57600 
- 
-AVRDUDE_WRITE_FLASH = -U flash:w:$(OUTDIR)/$(TARGET).hex:i
-#AVRDUDE_WRITE_EEPROM = -U eeprom:w:$(TARGET).eep
-  
-# Uncomment the following if you want avrdude's erase cycle counter.
-# Note that this counter needs to be initialized first using -Yn,
-# see avrdude manual.
-#AVRDUDE_ERASE_COUNTER = -y
-
-# Uncomment the following if you do /not/ wish a verification to be
-# performed after programming the device.
-#AVRDUDE_NO_VERIFY = -V
-
-# Increase verbosity level.  
-AVRDUDE_VERBOSE = -v -v
- 
-AVRDUDE_FLAGS = -p $(MCU) -P $(AVRDUDE_PORT) -c $(AVRDUDE_PROGRAMMER) -b ${AVRDUDE_BITRATE} -D
-AVRDUDE_FLAGS += $(AVRDUDE_NO_VERIFY)
-AVRDUDE_FLAGS += $(AVRDUDE_VERBOSE)
-AVRDUDE_FLAGS += $(AVRDUDE_ERASE_COUNTER)
-
-# Program the device.
-program: $(TARGET).hex # $(TARGET).eep  ## Burn program into flash 
-	@$(AVRDUDE) $(AVRDUDE_FLAGS) $(AVRDUDE_WRITE_FLASH) # $(AVRDUDE_WRITE_EEPROM)
-
-#
-# AVR simulator
-#============================================================================
-.PHONY: sim
-
-sim:  ## Run AVR simulator 
-#	simavr --mcu $(MCU) --freq $(F_CPU)  $(TRGFILE) 
-# -W 0x20,- -R 0x22,- -T exit --irqstatistic
-	simulavr -d $(MCU) -F $(F_CPU) --file $(TRGFILE) -W 0x20,- -R 0x22,- -T exit --irqstatistic
-###INSTALL_END###
-
+elf: $(TRGFILE)
+lss: $(OUTDIR)/$(TARGET).lss
+sym: $(OUTDIR)/$(TARGET).sym
+hex: $(OUTDIR)/$(TARGET).hex
+eep: $(OUTDIR)/$(TARGET).eep
+###BUILD_END###
 
 ###TARGETS_BEGIN###
 #
@@ -170,3 +112,52 @@ extcoff: $(TRGFILE)
 	@$(OBJCOPY) -j .eeprom --set-section-flags=.eeprom="alloc,load" \
 	--change-section-lma .eeprom=0 --no-change-warnings -O $(FORMAT) $< $@ || exit 0
 ###TARGETS_END###
+
+
+###RUNDEBUG_BEGIN###
+#
+# AVR simulator
+#============================================================================
+.PHONY: sim term
+
+# QEMU machine type		
+QMACHINE = arduino-uno
+
+# tcp port for QEMU virtual serial port
+QPORT = 5678
+
+sim: ## Run program in qemu AVR simulator
+	@echo 
+	@echo Starting QEMU avr simulator. Connect to tcp port $(QPORT). 
+	@echo
+	@qemu-system-avr -machine $(QMACHINE) -bios $(TRGFILE) -serial tcp::$(QPORT),server=on,wait=off -nographic
+	
+term: ## Connect to QEMU virtual serial port via telnet terminal 
+	@$(MPUTILS) sermon $(QPORT)
+###RUNDEBUG_END###
+
+
+###INSTALL_BEGIN###
+#
+# Avrdude
+#============================================================================
+AVRDUDE_PORT = /dev/ttyUSB1
+
+flash: $(TARGET).hex # $(TARGET).eep  ## Write program to MCU flash with avrdude
+	@$(MPUTILS) avrdude-arduino $(TARGET).hex $(MCU) $(AVRDUDE_PORT) 
+###INSTALL_END###
+
+
+
+
+
+
+
+
+
+###UTILS_BEGIN###
+###UTILS_END###
+
+
+###TOOLS_BEGIN###
+###TOOLS_END###
