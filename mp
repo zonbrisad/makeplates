@@ -69,7 +69,9 @@ bpUserSettings() {
 
 NORMAL_FILES=(
   "tools/mputils"
+  "tools/tgenerator.py"
   "tools/mptemplate"
+  "tools/mpbin2array"
   "tools/templatec.py"
   "tools/Project.py"
   "tools/query.py"
