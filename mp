@@ -726,6 +726,7 @@ BP_C_URL_SCHEME="${E_DARKGRAY}"
 # BP_C_URL_HOST=""
 BP_C_TIME="${E_BR_MAGENTA}"
 BP_C_DATE="${E_MAGENTA}"
+BP_C_QUERY=$'\e[38;5;152m'
 
 # Shellscript colorize colors
 BP_C_RESERVED="${E_RED}"
@@ -1111,9 +1112,9 @@ bpInsert() { ##I Insert text into file
 bpReadStr() { ##I Read string from commandline
 
   if [ "${2}" == "" ]; then
-    read -erp "${1} > " result
+    read -erp "${BP_C_QUERY}${1}${E_RESET} > " result
   else
-    read -erp "${1} [$2] > " result
+    read -erp "${BP_C_QUERY}${1}${E_RESET} [$2] > " result
     if [ "${result}" == "" ]; then
       result="${2}"
     fi

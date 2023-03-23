@@ -80,8 +80,8 @@ t_header = TemplateC(
  * @brief    __DESCRIPTION__
  *
  * @file     __FILENAME__
- * @author   __AUTHOR__
- * @version  
+ * @author   __AUTHOR__ __EMAIL__
+ * @version  __VERSION__
  * @date     __DATE__
  * @license  __LICENSE__
  *
@@ -138,6 +138,7 @@ void hw_init(void) {
 """   
 )
 
+
 t_sentinel = TemplateC(
     query_text="Do you want sentinels?",
     h_pre_text="""\
@@ -146,8 +147,8 @@ t_sentinel = TemplateC(
 #define __FILE__
 """,
     h_post_text="""\
-        
-#endif // __FILE__ mpt
+
+#endif // __FILE__ 
 """,
 )
 
@@ -352,6 +353,10 @@ main_func_text="""\
   }
 """
 )
+
+
+
+
 
 def main() -> None:
     pass
