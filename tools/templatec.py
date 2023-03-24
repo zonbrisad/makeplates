@@ -92,6 +92,13 @@ t_header = TemplateC(
 """
 )
 
+t_common_includes = TemplateC(
+    query_text="Add common includes?",
+    c_includes_text="""\
+#include <stdio.h>
+"""
+)
+
 t_main = TemplateC(
     main_begin_text="""\
 int main(int argc, char *argv[]) {
@@ -298,7 +305,11 @@ appexit:
 """,
 )
 
-t_glib_options=TemplateC(
+t_glib_options = TemplateC(
+query_text="Include GLIB option parser",
+  c_includes_text="""
+#include <glib.h>
+""",  
 c_variables_text="""\
 static gint      opt_integer = 42;
 static gdouble   opt_double  = 42.42;
@@ -322,15 +333,15 @@ static GOptionEntry entries[] = {
   { NULL }
 };                                                                                                                                      
 """,
-# glibPrototypes="""
-# gboolean opt_callback(const gchar *option_name, const gchar *value, gpointer data, GError **error);
-# """
-# glibCode="""
-# gboolean opt_callback(const gchar *option_name, const gchar *value, gpointer data, GError **error) {
-#   printf("Callback function for option %s,  value=%s\\n", option_name, value);
-#   return 1;
-# }
-# """
+  c_prototypes_text="""
+gboolean opt_callback(const gchar *option_name, const gchar *value, gpointer data, GError **error);
+""",
+c_code_text="""
+gboolean opt_callback(const gchar *option_name, const gchar *value, gpointer data, GError **error) {
+  printf("Callback function for option %s,  value=%s\\n", option_name, value);
+  return 1;
+}
+""",
 main_vars_text="""\
   GError *error = NULL;
   GOptionContext *context;

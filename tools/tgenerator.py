@@ -158,15 +158,15 @@ class TGenerator:
         self.add_separator("Macros")
         self.text += self.templ.h_macros_text
 
+        self.add_separator("Prototypes")
+        self.text += self.templ.h_prototypes_text
+
         self.add_separator("Datatypes")
         self.text += self.templ.h_datatypes_text
 
         self.add_separator("Variables")
         self.text += self.templ.h_variables_text
-
-        self.add_separator("Prototypes")
-        self.text += self.templ.h_prototypes_text
-
+        
         self.text += self.templ.h_post_text
 
         self.replace_keys(self.filename_h)
@@ -185,14 +185,14 @@ class TGenerator:
         self.add_separator("Macros")
         self.text += self.templ.c_macros_text
 
+        self.add_separator("Prototypes")
+        self.text += self.templ.c_prototypes_text
+        
         self.add_separator("Datatypes")
         self.text += self.templ.c_datatypes_text
 
         self.add_separator("Variables")
         self.text += self.templ.c_variables_text
-
-        self.add_separator("Prototypes")
-        self.text += self.templ.c_prototypes_text
 
         self.add_separator("Code")
         self.text += self.templ.c_code_text

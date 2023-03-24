@@ -38,13 +38,7 @@ LIB   = -lm
 
 # Libraries to use in pkg-config system
 PKGLIBS =
-
-#PKGLIBS += glib-2.0
-#PKGLIBS += gthread-2.0
-#PKGLIBS += gio-2.0
-#PKGLIBS += ncurses
-#PKGLIBS += lua5.1
-#PKGLIBS += sqlite3
+__PKGLIBS__
 
 # Object files directory
 #     To put object files in current directory, use a dot (.), do NOT make

@@ -93,6 +93,12 @@ AVR_LIST=(
   "o" ":" "Other..."
 )
 
+PKGLIBS_GLIB=(
+  "glib-2.0"
+  "gthread-2.0"
+  "gio-2.0"
+)
+
 #
 # Create a new Makeplate project
 #
@@ -100,6 +106,7 @@ AVR_LIST=(
 # $2 project type [normal|simple]
 # $3 language [c/cpp]
 # $4 TARGET [system|avr|arm]
+# $5 Target options
 # $[] libraries
 #
 createProject() {
@@ -108,9 +115,13 @@ createProject() {
   PROJECT_TYPE="$2"
   LANGUAGE="$3"
   TARGET="$4"
+  MCU=""
 
-  if [ "$TARGET" == "system" ]; then
+  if [[ "$TARGET" == "system"* ]]; then
     target="${TARGETS_DIR}/temp-posix.mk"
+    if [[ "$TARGET" == "system-gtk" ]]; then
+      PKGS=("${PKGLIBS_GLIB[@]}")
+    fi
   fi
 
   while true; do
@@ -138,9 +149,9 @@ createProject() {
   DESCRIPTION=$(bpReadStr "Brief description" "")
   MAKEFILE_TEMPLATE=${TEMPLATE_DIR}/Makefile-${PROJECT_TYPE}.mk
 
+  # AVR target
   if [ "$TARGET" == "avr" ]; then
     target="${TARGETS_DIR}/temp-avr.mk"
-    # MCU=$(bpSelectFromList "6" "Choose MCU variant" "${AVR_LIST[@]}")
     bpSelectFromList "6" "Choose MCU variant" "${AVR_LIST[@]}"
     MCU=$bpReturn
     if [ "$MCU" == "o" ]; then
@@ -149,6 +160,7 @@ createProject() {
 
   fi
 
+  # ARM Target
   if [ "$TARGET" == "arm" ]; then
     target="${TARGETS_DIR}/temp-arm.mk"
   fi
@@ -202,13 +214,11 @@ createProject() {
 
   bpReplace "${MAKEFILE}" "__MAINFILE__" "${M//\//\\\/}"
 
-  # if [ "$5" == "glib" ]; then
-  #   OPTS="$OPTS --glib"
+  for L in "${PKGS[@]}"; do
+    bpReplace "${MAKEFILE}" "__PKGLIBS__" "PKGLIBS += ${L}\n__PKGLIBS__"
+  done
 
-  #   bpReplace "${PROJECT_DIR}/Makefile" "#PKGLIBS += glib" "PKGLIBS += glib"
-  #   bpReplace "${PROJECT_DIR}/Makefile" "#PKGLIBS += gthread" "PKGLIBS += gthread"
-  #   bpReplace "${PROJECT_DIR}/Makefile" "#PKGLIBS += gio" "PKGLIBS += gio"
-  # fi
+  bpReplace "${MAKEFILE}" "__PKGLIBS__" ""
 
   echo
   # ${MPTEMPLATE} "${OPTS}" --name "main" --dir "${SRC_DIR}" --DESCRIPTION "${DESCRIPTION}" --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
@@ -233,7 +243,7 @@ newsc() { ##D Create a new simple C makeplate project
 }
 
 newg() { ##D Create a new GLIB/GTK based C makeplate project
-  createProject "Creating new makeplate C glib project" "normal" "c" "system"
+  createProject "Creating new makeplate C glib project" "normal" "c" "system-gtk"
 }
 
 ##C- CPP C++ Projects

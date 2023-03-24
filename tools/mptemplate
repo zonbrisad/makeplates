@@ -111,6 +111,12 @@ def cmd_newc(args):
 
         if args.target == "system":
             main = t_main
+            pre.append(t_common_includes)
+
+        if args.target == "system-gtk":
+            main = t_main
+            pre.append(t_common_includes)
+            pre.append(t_glib_options)            
 
         if args.target == "avr":
             main = t_main_embeded
@@ -123,10 +129,7 @@ def cmd_newc(args):
     template = TGenerator(args, t_header, main, pre, [])
     template.query()
     template.generate()
-    #print(template)
-    #template.write()
-
-    if args.dryrun:
+    if args.dryrun is True:
         print(template)
         exit(0)
     template.write()
@@ -142,9 +145,6 @@ def cmd_newa(args):
         print(template)
         exit(0)
     template.write()
-    #template.write()
-    # generate(args, t_main, [t_app_info, t_argtable], [])
-
 
 def cmd_newavr(args):
     args.target="avr"
@@ -176,21 +176,9 @@ def cmd_newmod(args):
 
 
 def cmd_newgtk(args):
-    template = TGenerator(args, t_header, t_main, [t_sentinel, t_cplusplus], [])
-    template.query()
-    template.generate()
-    if args.dryrun:
-        print(template)
-        exit(0)
-    template.write()
-   
-    # has_main = False
-    # has_main_application = True
-    # has_separators = True
-    # template = TGenerator(conf, [t_app_info], [t_gtk])
-    # template.generate()
-
-  
+    args.target = "system-gtk"
+    args.main = True
+    cmd_newc(args)
 
 # def cmd_newp(args):
 #     proj = ProjectGenerator()
@@ -283,9 +271,9 @@ def main() -> None:
         "--no_interaction", action="store_true", help="Disable interactive questions"
     )
     parrent_parser.add_argument(
-        "--target", action="store", choices=["system" , "avr", "arm"], help="Compiler target", default="system"
+        "--target", action="store", choices=["system", "system-gtk", "avr", "arm"], help="Compiler target", default="system"
     )
-    parrent_parser.add_argument("--dryrun",    action="store_true", help="Do not write", default=False)
+    parrent_parser.add_argument("--dryrun",    action="store_true", help="Do not write to file", default=False)
     # options parsing
     parser = argparse.ArgumentParser(
         prog=AppName,
@@ -320,10 +308,10 @@ def main() -> None:
     #     "newqt", parents=[parrent_parser], help="Create a new QT5 application"
     # )
     # parser_new.set_defaults(func=cmd_newqt)
-    # parser_new = subparsers.add_parser(
-    #     "newgtk", parents=[parrent_parser], help="Create a new GTK3+ application"
-    # )
-    # parser_new.set_defaults(func=cmd_newgtk)
+    parser_new = subparsers.add_parser(
+        "newgtk", parents=[parrent_parser], help="Create a new glib/GTK3 application"
+    )
+    parser_new.set_defaults(func=cmd_newgtk)
 
     args = parser.parse_args()
 
