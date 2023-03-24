@@ -96,7 +96,7 @@ CFLAGS += -Wextra                # Some extra warnings
 CFLAGS += -Wmissing-braces 
 CFLAGS += -Wmissing-declarations # Warn if global function is not declared
 CFLAGS += -Wmissing-prototypes   # if a function is missing its prototype
-CFLAGS += -Wstrict-prototypes    # non correct prototypes i.e. void fun() => void fun(void) 
+#CFLAGS += -Wstrict-prototypes    # non correct prototypes i.e. void fun() => void fun(void) 
 CFLAGS += -Wredundant-decls      # Warn if something is declared more than ones
 CFLAGS += -Wunreachable-code     # if code is not used
 CFLAGS += -Wshadow               # if local variable has same name as global

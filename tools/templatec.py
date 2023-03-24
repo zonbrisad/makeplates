@@ -133,7 +133,9 @@ t_avr = TemplateC(
     c_variables_text="""\
 // static FILE mystdout = FDEV_SETUP_STREAM(uart_putc, uart_getc, _FDEV_SETUP_WRITE);
 """,
-
+    c_prototypes_text="""\
+void hw_init(void);
+""",
     c_code_text="""\
 void hw_init(void) {
     
