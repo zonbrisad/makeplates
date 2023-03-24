@@ -705,15 +705,9 @@ astyle: ##D Format source to conform to a standard
 __UTILS__
 
 #
-# Makeplate internal targets
+# Makeplate internal targets (do not use)
 #============================================================================
 
-utools: # Update tools from locally installed tools
-	@echo -e "${C_ACTION}Updating makeplate tools${E_RESET}"
-	@mp utools
-
-meld: # Meld Makefile with locally installed makefile
-	@meld Makefile $${MP_PATH}/mp-c/Makefile  
 
 mp-add-source: # Add source file (FILE=filename)
 	@$(eval F=$(shell echo "${FILE}" | sed 's/\//\\\//g' ))
