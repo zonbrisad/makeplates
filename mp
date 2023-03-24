@@ -118,7 +118,7 @@ createProject() {
   MCU=""
 
   if [[ "$TARGET" == "system"* ]]; then
-    target="${TARGETS_DIR}/temp-posix.mk"
+    target="${TARGETS_DIR}/target-posix.mk"
     if [[ "$TARGET" == "system-gtk" ]]; then
       PKGS=("${PKGLIBS_GLIB[@]}")
     fi
@@ -151,7 +151,7 @@ createProject() {
 
   # AVR target
   if [ "$TARGET" == "avr" ]; then
-    target="${TARGETS_DIR}/temp-avr.mk"
+    target="${TARGETS_DIR}/target-avr.mk"
     bpSelectFromList "6" "Choose MCU variant" "${AVR_LIST[@]}"
     MCU=$bpReturn
     if [ "$MCU" == "o" ]; then
@@ -162,7 +162,7 @@ createProject() {
 
   # ARM Target
   if [ "$TARGET" == "arm" ]; then
-    target="${TARGETS_DIR}/temp-arm.mk"
+    target="${TARGETS_DIR}/target-arm.mk"
   fi
 
   # Project type normal
@@ -263,7 +263,7 @@ newavr() { ##D Create new AVR microcontroler C project
 }
 
 newarm() { ##D Create a new ARM microcontroler C project (not implemented yet)
-  createProject "Creating new makeplate C avr project" "" "c" "arm"
+  createProject "Creating new makeplate C avr project" "normal" "c" "arm"
 }
 
 ##- Code creation
