@@ -298,7 +298,7 @@ appexit:
 """,
 )
 
-t_glib=TemplateC(
+t_glib_options=TemplateC(
 c_variables_text="""\
 static gint      opt_integer = 42;
 static gdouble   opt_double  = 42.42;

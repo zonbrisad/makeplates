@@ -175,17 +175,22 @@ def cmd_newmod(args):
 #         template.write()
 
 
-# def cmd_newgtk(args):
-#     conf = TConf(args)
-#     has_main = False
-#     has_main_application = True
-#     has_separators = True
-#     template = TGenerator(conf, [t_app_info], [t_gtk])
-#     template.generate()
+def cmd_newgtk(args):
+    template = TGenerator(args, t_header, t_main, [t_sentinel, t_cplusplus], [])
+    template.query()
+    template.generate()
+    if args.dryrun:
+        print(template)
+        exit(0)
+    template.write()
+   
+    # has_main = False
+    # has_main_application = True
+    # has_separators = True
+    # template = TGenerator(conf, [t_app_info], [t_gtk])
+    # template.generate()
 
-#     if not create_project(template):
-#         template.write()
-
+  
 
 # def cmd_newp(args):
 #     proj = ProjectGenerator()

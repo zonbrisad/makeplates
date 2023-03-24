@@ -192,14 +192,14 @@ REMOVEDIR  = rm -rf
 COPY       = cp -f 
 MOVE       = mv -f
 MKDIR      = mkdir -p
-SED        = sed              # stream editor program
+SED        = sed               # stream editor program
 CPPCHECK   = cppcheck
 INSTALL    = install
-ASTYLE     = astyle           # Code beatyfier
-DOXYGEN    = doxygen          # Code documetation program
-MPTEMPLATE = python3 tools/mptemplate.py # C/C++ template tool
-BIN2ARRAY  = python3 tools/bin2array.py # Binary to array tool
-MPTOOL     = tools/mputils    # Makeplate tools
+ASTYLE     = astyle            # Code beatyfier
+DOXYGEN    = doxygen           # Code documetation program
+MPTEMPLATE = tools/mptemplate  # C/C++ template tool
+BIN2ARRAY  = tools/mpbin2array # Binary to array tool
+MPTOOL     = tools/mputils     # Makeplate tools
 
 
 TCHAIN = $(TCHAIN_BASE)/$(TCHAIN_PREFIX)
@@ -605,13 +605,13 @@ backup: ##D Make an incremental backup
 ##- Create
 
 newc:  ##D Create a new C module
-	@${MPTEMPLATE} newc --dir src 
+	@${MPTEMPLATE} newc --outdir src 
 
 #newcpp:  ## Create a new C++ module
-#	@${CTEMPLATE} newcpp --dir src --author "$(AUTHOR)" --license "$(LICENSE)"
+#	@${CTEMPLATE} newcpp --outdir src --author "$(AUTHOR)" --license "$(LICENSE)"
 
 #newclass:  ## Create a new C++ class
-#	@${MPTEMPLATE} newclass --dir src --author "$(AUTHOR)" --license "$(LICENSE)"	
+#	@${MPTEMPLATE} newclass --outdir src --author "$(AUTHOR)" --license "$(LICENSE)"	
 		
 #
 # Help information

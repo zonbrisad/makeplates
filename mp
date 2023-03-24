@@ -78,6 +78,21 @@ NORMAL_FILES=(
   "tools/bashplates.py"
 )
 
+AVR_LIST=(
+  "1" "attiny2313" "ATTiny2313"
+  "2" "attiny85" "ATTiny45"
+  "3" "attiny85" "ATTiny85 (Digispark)"
+  "4" "atmega88p" "ATMega88P"
+  "5" "atmega168p" "ATMega168P"
+  "6" "atmega328p" "ATMega328P (Arduino Uno R3/Nano/Pro mini etc.)"
+  "7" "atmega128" "ATMega128"
+  "8" "atmega1280" "ATMega1280 (Arduino Mega 1280)"
+  "9" "atmega2560" "ATMega2560 (Arduino Mega 2560)"
+  "10" "atmega32u4" "ATMega32u4 (Arduino Leonardo/Micro)"
+  #  "11" "atmega4809" "ATMega4809 (Arduino Nano Every)"
+  "o" ":" "Other..."
+)
+
 #
 # Create a new Makeplate project
 #
@@ -96,14 +111,6 @@ createProject() {
 
   if [ "$TARGET" == "system" ]; then
     target="${TARGETS_DIR}/temp-posix.mk"
-  fi
-
-  if [ "$TARGET" == "avr" ]; then
-    target="${TARGETS_DIR}/temp-avr.mk"
-  fi
-
-  if [ "$TARGET" == "arm" ]; then
-    target="${TARGETS_DIR}/temp-arm.mk"
   fi
 
   while true; do
@@ -129,8 +136,22 @@ createProject() {
   done
 
   DESCRIPTION=$(bpReadStr "Brief description" "")
-
   MAKEFILE_TEMPLATE=${TEMPLATE_DIR}/Makefile-${PROJECT_TYPE}.mk
+
+  if [ "$TARGET" == "avr" ]; then
+    target="${TARGETS_DIR}/temp-avr.mk"
+    # MCU=$(bpSelectFromList "6" "Choose MCU variant" "${AVR_LIST[@]}")
+    bpSelectFromList "6" "Choose MCU variant" "${AVR_LIST[@]}"
+    MCU=$bpReturn
+    if [ "$MCU" == "o" ]; then
+      MCU=$(bpReadStr "Enter MCU name" "atmega328p")
+    fi
+
+  fi
+
+  if [ "$TARGET" == "arm" ]; then
+    target="${TARGETS_DIR}/temp-arm.mk"
+  fi
 
   # Project type normal
   if [ "${PROJECT_TYPE}" == "normal" ]; then
@@ -152,14 +173,6 @@ createProject() {
   MAKEFILE=${PROJECT_DIR}/Makefile
   bpCp "${MAKEFILE_TEMPLATE}" "${MAKEFILE}"
 
-  # Replace keywords with data
-  bpReplace "$MAKEFILE" "__NAME__" "${PROJECT_NAME}"
-  bpReplace "$MAKEFILE" "__AUTHOR__" "${BP_NAME} <${BP_EMAIL}>"
-  bpReplace "$MAKEFILE" "__DATE__" "${DATE}"
-  bpReplace "$MAKEFILE" "__DESCRIPTION__" "${DESCRIPTION}"
-  bpReplace "$MAKEFILE" "__LICENSE__" "${BP_LICENSE}"
-  bpReplace "$MAKEFILE" "__ORGANIZATION__" "${BP_ORG}"
-
   mpReplaceSection "$MAKEFILE" "SETTINGS" "$target"
   mpReplaceSection "$MAKEFILE" "UTILS" "$target"
   mpReplaceSection "$MAKEFILE" "PLATFORM-SPECIFIC" "$target"
@@ -167,6 +180,15 @@ createProject() {
   mpReplaceSection "$MAKEFILE" "TARGETS" "$target"
   mpReplaceSection "$MAKEFILE" "RUNDEBUG" "$target"
   mpReplaceSection "$MAKEFILE" "INSTALL" "$target"
+
+  # Replace keywords with data
+  bpReplace "$MAKEFILE" "__NAME__" "${PROJECT_NAME}"
+  bpReplace "$MAKEFILE" "__AUTHOR__" "${BP_NAME} <${BP_EMAIL}>"
+  bpReplace "$MAKEFILE" "__DATE__" "${DATE}"
+  bpReplace "$MAKEFILE" "__DESCRIPTION__" "${DESCRIPTION}"
+  bpReplace "$MAKEFILE" "__LICENSE__" "${BP_LICENSE}"
+  bpReplace "$MAKEFILE" "__ORGANIZATION__" "${BP_ORG}"
+  bpReplace "$MAKEFILE" "__MCU__" "${MCU}"
 
   if [ "$LANGUAGE" == "cpp" ]; then
     OPTS="newcpp"
@@ -194,7 +216,7 @@ createProject() {
 
   # Git project
   echo
-  if bpReadBoolDY "Do you want to create a git project?"; then
+  if bpReadBoolDN "Do you want to create a git project?"; then
     new_git "$PROJECT_NAME" "$PROJECT_DIR"
   fi
 
@@ -226,11 +248,11 @@ newscpp() { ##C CPP Create a new simple C++ makeplate project
 
 ##- Microcontroler projects
 
-avr() { ##D Create avr C project
+newavr() { ##D Create new AVR microcontroler C project
   createProject "Creating new makeplate C avr project" "normal" "c" "avr"
 }
 
-arm() { ##D Create arm C project (not implemented yet)
+newarm() { ##D Create a new ARM microcontroler C project (not implemented yet)
   createProject "Creating new makeplate C avr project" "" "c" "arm"
 }
 
@@ -315,7 +337,7 @@ examples() { ##D List examples
   ls -1 "${BP_SELF_DIR}/examples/"
 }
 
-utools() { ##D Update makaplate tools in project
+utools() { ##D Update makeplate tools in project
   bpCp "${BP_SELF_DIR}/tools/*" "tools/."
 }
 
@@ -1116,7 +1138,7 @@ bpReadStr() { ##I Read string from commandline
   if [ "${2}" == "" ]; then
     read -erp "${BP_C_QUERY}${1}${E_RESET} > " result
   else
-    read -erp "${BP_C_QUERY}${1}${E_RESET} [$2] > " result
+    read -er -i "$2" -p "${BP_C_QUERY}${1}${E_RESET} > " result
     if [ "${result}" == "" ]; then
       result="${2}"
     fi
@@ -1248,6 +1270,7 @@ bpSelectFromList() { ##I Select from list
 
   while true; do
     bpPrintChoiceList "$1" "${@:2}"
+    echo
     x=$(bpReadStr "$2" "$1")
 
     arr=("${@}")
