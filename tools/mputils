@@ -47,13 +47,6 @@ bpUserSettings() {
 
 ##- Makeplates
 
-newproj() {
-  #  echo "New project name"
-  #  read -e -p ">" projname
-  projname=$(bpReadStr "New project name>" "")
-  echo "$projname"
-}
-
 ce() { ##D Check if file exists
   bn=$(basename "$2")
   cmd=$(command -v "$2")
@@ -109,10 +102,10 @@ archive() { ##D Make a tar archive of the source code
   local TARGET=$2
 
   DT=$(date +"%Y%m%d-%H%M%S")
-	ARCHIVE="${ARCHIVE_DIR}/${TARGET}_${DT}.tar.gz" 
-	  
-	bpMkDir "${ARCHIVE_DIR}"
-  tar -cvzf "${ARCHIVE_DIR}/${TARGET}_${DT}.tar.gz"  \
+  ARCHIVE="${ARCHIVE_DIR}/${TARGET}_${DT}.tar.gz"
+
+  bpMkDir "${ARCHIVE_DIR}"
+  tar -cvzf "${ARCHIVE_DIR}/${TARGET}_${DT}.tar.gz" \
     --exclude="${ARCHIVE_DIR}" \
     --exclude="${BACKUP_DIR}" \
     --exclude="${OUTDIR}" \
@@ -145,8 +138,8 @@ archive() { ##D Make a tar archive of the source code
     --exclude="*.old" \
     --exclude="*.tmp" \
     ./*
-		
-  if (( $? == 0 )); then
+
+  if (($? == 0)); then
     echo
     bpOk "Created archive: ${ARCHIVE}"
   fi
@@ -178,8 +171,8 @@ backup() { ##D Make an incremental backup
     --link-dest="${PWD}/${BACKUP_DIR}/backup_1" \
     . \
     "${BACKUP_DIR}/backup_0"
-		
-  if (( $? == 0 )); then
+
+  if (($? == 0)); then
     echo
     bpOk "Created backup."
   fi
@@ -236,6 +229,8 @@ bpSetDefault() {
   echo "${KEY}=${VAL}" >"${BP_SELF_DIR}/${BP_SELF}_${KEY}.bp_default"
 }
 
+##- AVR utilities
+
 #
 # $2 file
 # $3 MCU type
@@ -262,10 +257,11 @@ avrdude-arduino() { ##D Write firmware to arduino with avrdude
 #
 # $1
 #
-qemu-avr() { ##D Emulate AVR
+qemu-avr() { # Emulate AVR
   :
 }
 
+##- Misc
 sermon() { ##D Monitor tcp port and open when available
   PORT=$2
 
@@ -530,6 +526,11 @@ BP_C_URL_SCHEME="${E_DARKGRAY}"
 # BP_C_URL_HOST=""
 BP_C_TIME="${E_BR_MAGENTA}"
 BP_C_DATE="${E_MAGENTA}"
+
+BP_C_QUERY=$'\e[38;5;194m'
+BP_C_QUERY_DEF=$'\e[38;5;240m'
+BP_C_EMPHASIS=$'\e[38;5;255m'
+BP_C_DEEMPHASIS=$'\e[38;5;250m'
 
 # Shellscript colorize colors
 BP_C_RESERVED="${E_RED}"
@@ -913,17 +914,15 @@ bpInsert() { ##I Insert text into file
 # return string read from cmdline/default if enter pressed
 #
 bpReadStr() { ##I Read string from commandline
+  QUERY="$1"
+  DEFAULT="$2"
 
-  if [ "${2}" == "" ]; then
-    read -erp "${1} > " result
-  else
-    read -erp "${1} " -i "${2}" result
-    if [ "${result}" == "" ]; then
-      result="${2}"
-    fi
+  read -er -i "$DEFAULT" -p "${BP_C_QUERY}${1}${E_RESET} > " RESULT
+  if [ "${RESULT}" == "" ]; then
+    RESULT="${2}"
   fi
 
-  echo "${result}"
+  echo "${RESULT}"
 }
 
 #
@@ -934,23 +933,29 @@ bpReadStr() { ##I Read string from commandline
 # return integer read from cmdline/default if enter pressed
 #
 bpReadInt() { ##I Read integer from commandline
+  QUERY="$1"
+  DEFAULT="$2"
+  MIN="$3"
+  MAX="$4"
+
+  RANGE=""
+  if [ -n "$MIN" ] || [ -n "$MAX" ]; then
+    RANGE=" ${BP_C_QUERY_DEF}[${E_RESET}$3-$4${BP_C_QUERY_DEF}]${E_RESET}"
+  fi
+
   while true; do
-    if [ "${2}" == "" ]; then
-      read -erp "${1} ($3-$4) >" result
-      if [ "${result}" == "" ]; then
-        result=$(($3 - 1))
+    read -er -i "$DEFAULT" -p "${BP_C_QUERY}${1}${E_RESET}${RANGE} > " RESULT
+
+    if [ -n "${RANGE}" ]; then
+      #if [ -n "$MIN" ] && [ -n "$MAX" ]; then
+      if [ $((RESULT)) -ge "$MIN" ] && [ $((RESULT)) -le "$MAX" ]; then
+        break
       fi
     else
-      read -erp "${1} ($3-$4) [$2] >" result
-      if [ "${result}" == "" ]; then
-        result="${2}"
-      fi
-    fi
-    if [ $((result)) -ge "$3" ] && [ $((result)) -le "$4" ]; then
       break
     fi
   done
-  echo "${result}"
+  echo "${RESULT}"
 }
 
 #
@@ -959,12 +964,14 @@ bpReadInt() { ##I Read integer from commandline
 # return 0 = Yes, 1=No
 #
 bpReadBool() { ##I Ask yes/no question generic
+  QUERY="$1"
+  DEFAULT="$2"
   while true; do
 
     if [ "$2" -eq 1 ]; then
-      yn=$(bpReadStr "${1} [y/N]")
+      yn=$(bpReadStr "${BP_C_QUERY}${1}${E_RESET} ${BP_C_QUERY_DEF}[${BP_C_DEEMPHASIS}y${BP_C_QUERY_DEF}/${BP_C_EMPHASIS}N${BP_C_QUERY_DEF}]${E_RESET}")
     else
-      yn=$(bpReadStr "${1} [Y/n]")
+      yn=$(bpReadStr "${BP_C_QUERY}${1}${E_RESET} ${BP_C_QUERY_DEF}[${E_RESET}${BP_C_EMPHASIS}Y${BP_C_QUERY_DEF}/${BP_C_DEEMPHASIS}n${BP_C_QUERY_DEF}]${E_RESET}")
     fi
 
     case "$yn" in
@@ -1049,6 +1056,7 @@ bpSelectFromList() { ##I Select from list
 
   while true; do
     bpPrintChoiceList "$1" "${@:2}"
+    echo
     x=$(bpReadStr "$2" "$1")
 
     arr=("${@}")
@@ -1591,7 +1599,7 @@ help() { ##D Print help information
 
   IFS=$'\n'
   SC="$1"
-  LINES=$(grep -h '##' "$0" | grep -v -e 'grep' -e '##I' -e '##V' -e '\*##C' -e '\*##C-' -e '\"##' -e '##-//' -e 'LINE' -e 'printLine')
+  LINES=$(grep -h '##' "$0" | grep -v -e 'grep' -e '##I' -e '##V' -e '\*##C' -e '\*##C-' -e '\"##' -e '##-//' -e 'LINE' -e 'printLine' -e 'DESC')
   LINES="${LINES//()/}"
 
   for LINE in ${LINES}; do

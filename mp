@@ -635,7 +635,7 @@ bpExit() { ##I Function for safely exiting script
 
   # Check if argument is given
   if [ -z "$1" ]; then
-    exit 0 # Success
+    exit "$BP_OK"
   else
     exit "$1"
   fi
@@ -760,7 +760,11 @@ BP_C_URL_SCHEME="${E_DARKGRAY}"
 # BP_C_URL_HOST=""
 BP_C_TIME="${E_BR_MAGENTA}"
 BP_C_DATE="${E_MAGENTA}"
-BP_C_QUERY=$'\e[38;5;152m'
+
+BP_C_QUERY=$'\e[38;5;194m'
+BP_C_QUERY_DEF=$'\e[38;5;240m'
+BP_C_EMPHASIS=$'\e[38;5;255m'
+BP_C_DEEMPHASIS=$'\e[38;5;250m'
 
 # Shellscript colorize colors
 BP_C_RESERVED="${E_RED}"
@@ -1144,17 +1148,15 @@ bpInsert() { ##I Insert text into file
 # return string read from cmdline/default if enter pressed
 #
 bpReadStr() { ##I Read string from commandline
+  QUERY="$1"
+  DEFAULT="$2"
 
-  if [ "${2}" == "" ]; then
-    read -erp "${BP_C_QUERY}${1}${E_RESET} > " result
-  else
-    read -er -i "$2" -p "${BP_C_QUERY}${1}${E_RESET} > " result
-    if [ "${result}" == "" ]; then
-      result="${2}"
-    fi
+  read -er -i "$DEFAULT" -p "${BP_C_QUERY}${1}${E_RESET} > " RESULT
+  if [ "${RESULT}" == "" ]; then
+    RESULT="${2}"
   fi
 
-  echo "${result}"
+  echo "${RESULT}"
 }
 
 #
@@ -1165,23 +1167,29 @@ bpReadStr() { ##I Read string from commandline
 # return integer read from cmdline/default if enter pressed
 #
 bpReadInt() { ##I Read integer from commandline
+  QUERY="$1"
+  DEFAULT="$2"
+  MIN="$3"
+  MAX="$4"
+
+  RANGE=""
+  if [ -n "$MIN" ] || [ -n "$MAX" ]; then
+    RANGE=" ${BP_C_QUERY_DEF}[${E_RESET}$3-$4${BP_C_QUERY_DEF}]${E_RESET}"
+  fi
+
   while true; do
-    if [ "${2}" == "" ]; then
-      read -erp "${1} ($3-$4) >" result
-      if [ "${result}" == "" ]; then
-        result=$(($3 - 1))
+    read -er -i "$DEFAULT" -p "${BP_C_QUERY}${1}${E_RESET}${RANGE} > " RESULT
+
+    if [ -n "${RANGE}" ]; then
+      #if [ -n "$MIN" ] && [ -n "$MAX" ]; then
+      if [ $((RESULT)) -ge "$MIN" ] && [ $((RESULT)) -le "$MAX" ]; then
+        break
       fi
     else
-      read -erp "${1} ($3-$4) [$2] >" result
-      if [ "${result}" == "" ]; then
-        result="${2}"
-      fi
-    fi
-    if [ $((result)) -ge "$3" ] && [ $((result)) -le "$4" ]; then
       break
     fi
   done
-  echo "${result}"
+  echo "${RESULT}"
 }
 
 #
@@ -1190,12 +1198,14 @@ bpReadInt() { ##I Read integer from commandline
 # return 0 = Yes, 1=No
 #
 bpReadBool() { ##I Ask yes/no question generic
+  QUERY="$1"
+  DEFAULT="$2"
   while true; do
 
     if [ "$2" -eq 1 ]; then
-      yn=$(bpReadStr "${1} [y/N]")
+      yn=$(bpReadStr "${BP_C_QUERY}${1}${E_RESET} ${BP_C_QUERY_DEF}[${BP_C_DEEMPHASIS}y${BP_C_QUERY_DEF}/${BP_C_EMPHASIS}N${BP_C_QUERY_DEF}]${E_RESET}")
     else
-      yn=$(bpReadStr "${1} [Y/n]")
+      yn=$(bpReadStr "${BP_C_QUERY}${1}${E_RESET} ${BP_C_QUERY_DEF}[${E_RESET}${BP_C_EMPHASIS}Y${BP_C_QUERY_DEF}/${BP_C_DEEMPHASIS}n${BP_C_QUERY_DEF}]${E_RESET}")
     fi
 
     case "$yn" in
@@ -1474,7 +1484,7 @@ bpConfPrint() { ##I Print settings in config list
     DESC=${arr[$i]}
     ((i++))
     printf "%s%s\n" "${E_DARKGRAY}" "${DESC}"
-    bpPrintVar "$KEY" #"${!KEY}"
+    bpPrintVar "$KEY"
   done
 }
 
@@ -1695,7 +1705,7 @@ bpAssertProgs() { ##I Assert that required programs are available on the system
         e=1
       }
   done
-  if [ $e -eq 1 ]; then
+  if [ "$e" -eq 1 ]; then
     bpExit 1
   fi
 }

@@ -18,6 +18,7 @@ import argparse
 from datetime import datetime
 from typing import List
 from query import Query
+from bashplates import Bp
 from templatec import *
 
 
@@ -95,7 +96,7 @@ class TGenerator:
 
         for l in self.pre:
             if l.query is True:
-                l.incl = Query.read_bool(l.query_text, l.incl)
+                l.incl = Bp.read_bool(l.query_text, l.incl)
 
     #     # if external header, read into var
     #     if self.args.header is not None:
@@ -104,7 +105,8 @@ class TGenerator:
     #             self.header.header_text = f.read()
 
     def set_attribute(self, attribute: str, question: str, default: str):
-        setattr(self, attribute, Query.read_string(question, default))
+        # setattr(self, attribute, Query.read_string(question, default))
+        setattr(self, attribute, Bp.read_string(question, default))
         
     def add(self, t: TemplateC) -> None:
         self.templ.add(t)

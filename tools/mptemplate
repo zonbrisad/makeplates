@@ -90,16 +90,6 @@ def create_project(template: TGenerator):
 
     return False
 
-
-# def generate(args, main: TemplateC, pre: List(TemplateC), post: List(TemplateC)):
-#     template = TGenerator(args, main, pre, post)
-
-#     template.query()
-#     template.generate()
-#     print(template)
-#     #template.write()
-
-
 def cmd_newc(args):
 
     main = None

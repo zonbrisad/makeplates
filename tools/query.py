@@ -19,13 +19,6 @@ import sys
 from enum import Enum
 
 
-class QueryType(Enum):
-    STRING = 1
-    INTEGER = 2
-    FLOAT = 3
-    LIST = 4
-    BOOL = 5
-
 
 class Query:
     """A simple query class """
@@ -155,6 +148,15 @@ class Query:
         pass
 
 
+class QueryType(Enum):
+    STRING = 1
+    INTEGER = 2
+    FLOAT = 3
+    LIST = 4
+    BOOL = 5
+
+
+
 class QuerySequence:
     def __init__(self) -> None:
         self.querys = []
@@ -168,63 +170,6 @@ class QuerySequence:
             q.query()
 
 
-def query_string(question: str, default=None) -> str:
-    """Retrieve string input from user
-
-    Args:
-        question (str): Question string
-        default (str, optional): Return value if pressing enter.
-        Defaults to None.
-
-    Returns:
-        str: User answer
-    """
-    while True:
-        if default is None:
-            s = ""
-        else:
-            s = default
-        sys.stdout.write(question + f"[{s}]>")
-        choice = input().lower()
-
-        # if choice.isalnum():
-        #    return choice
-
-        if choice == "" and default is not None:
-            return default
-        else:
-            return choice
-
-
-def query_int(question: str, min=None, max=None) -> int:
-    # prompt = " > "
-    if min is None and max is None:
-        prompt = " > "
-    elif isinstance(min, int) and max is None:
-        prompt = f"[{min}-] > "
-    elif min is None and isinstance(max, int):
-        prompt = f"[-{max}] > "
-    elif isinstance(min, int) and isinstance(max, int):
-        prompt = f"[{min}-{max}] > "
-
-    while True:
-        choice = "aa"
-        while not choice.isnumeric():
-            sys.stdout.write(f"{question} {prompt}")
-            choice = input().lower()
-        # if not choice.isalnum()
-
-        a = True
-        b = True
-
-        if min is not None and (int(choice) < min):
-            a = False
-
-        if max is not None and (int(choice) > max):
-            b = False
-
-        if a and b:
-            return choice
 
 
 def query_list(question: str, db, default="yes"):
@@ -244,34 +189,6 @@ def query_list(question: str, db, default="yes"):
         print("  "+c)
 
 
-def query_bool(question: str, default="yes") -> bool:
-    # valid = {"yes": True, "y": True, "ye": True, "no": False, "n": False}
-    valid_true = ["yes", "y", "ye"]
-    valid_false = ["no", "n"]
-
-    if default is None:
-        prompt = " [y/n] "
-    elif default == "yes":
-        prompt = " [Y/n] "
-    elif default == "no":
-        prompt = " [y/N] "
-    else:
-        raise ValueError("invalid default answer: '%s'" % default)
-
-    while True:
-        sys.stdout.write(f"{question} {prompt}")
-        choice = input().lower()
-
-        if choice == "":
-            choice = default
-
-        if choice in valid_true:
-            return True
-
-        if choice in valid_false:
-            return False
-        sys.stdout.write(
-                "Please respond with 'yes' or 'no' (or 'y' or 'n').\n")
 
 
 def main():

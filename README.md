@@ -64,9 +64,9 @@ Makefile creator
 
 ## ToDo
 
-- [ ] Merge simple and standard Makefile templates
-- [ ] Refactor code generator to ppl standard
-- [ ] Remove redundant examples
+- [x] Merge simple and standard Makefile templates
+- [x] Refactor code generator to ppl standard
+- [x] Remove redundant examples
 - [ ] Add arm MCU target
 
 
@@ -74,6 +74,8 @@ Makefile creator
 
 - [Colormake](https://github.com/renatosilva/colormake/blob/master/colormake.sh)
 - [highlight-and-filter-gcc-compiler-messages](http://stackoverflow.com/questions/1032237/highlight-and-filter-gcc-compiler-messages)
+- 
+- [Arduino.h](https://github.com/arduino/ArduinoCore-avr/blob/master/cores/arduino/Arduino.h)
 
 
 
