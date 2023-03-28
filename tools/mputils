@@ -79,11 +79,11 @@ printCommandMp() {
 
 mpHelp() { ##D Print makeplate makefile help
   IFS=$'\n'
-  help_lines=$(grep -h '##' "$2" | grep -v grep | grep -v '##V' | grep -v '\*##C' | grep -v '\*##C-' | grep -v '\"##' | grep -v '##N-//' | grep -v help_line | grep -v printLine)
-  for help_line in ${help_lines}; do
-    case "$help_line" in
-    *"##-"*) printNamedLine "$help_line" ;;
-    *"##D"*) printCommandMp "$help_line" ;;
+  LINES=$(grep -h '##' "$2" | grep -v -e 'grep' -e '##V' -e '\*##C' -e '\*##C-' -e '\"##' -e '##N-//' -e help_line -e 'printLine')
+  for LINE in ${LINES}; do
+    case "$LINE" in
+    *"##-"*) printNamedLine "$LINE" ;;
+    *"##D"*) printCommandMp "$LINE" ;;
     *) ;;
     esac
   done

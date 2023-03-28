@@ -243,7 +243,7 @@ class TGenerator:
         else:
             out_file = f"{dir}/{filename}"
 
-        #print(f"Writing {out_file}")
+        print(f"Writing {out_file}")
         with open(out_file, "w") as file:
             file.write(data)
         os.chmod(out_file, 0o770)

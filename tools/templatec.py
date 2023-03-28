@@ -15,6 +15,8 @@
 
 from __future__ import annotations
 from dataclasses import dataclass
+import json
+import os
 
 @dataclass
 class TemplateC:
@@ -71,6 +73,49 @@ class TemplateC:
 
         self.h_pre_text += a.h_pre_text
         self.h_post_text += a.h_post_text
+
+
+    def write_field(self, fieldname, filename: str):
+        data = getattr(fieldname)
+        with open(filename, "w") as file:
+            file.write(data)
+
+    def load_field(self, fieldname, filename: str):
+      pass
+
+    list = [
+        "header_text",
+        "h_pre_text",
+        "h_includes_text",
+        "h_macros_text",
+        "h_datatypes_text",
+        "h_variables_text",
+        "h_prototypes_text"
+    ]
+    
+    def to_json(self) -> dict:
+        jsonDict={}
+        for param in self.list:
+            jsonDict[param] = getattr(self, param)
+        
+        return jsonDict
+
+    def from_json(self, jdict):
+        for param in self.list:
+            setattr(self, jdict[param])
+      
+    def write(self, filename):
+        with open(filename, "w") as outfile:
+            json.dump(self.to_json(), outfile, indent=4)
+
+    def load(self, filename):
+        if not os.path.exists(filename):
+            self.write()
+
+        with open(filename, "r") as infile:
+            jdict = json.load(infile)
+
+        self.from_json(jdict)
 
 
 t_header = TemplateC(

@@ -76,6 +76,7 @@ NORMAL_FILES=(
   "tools/Project.py"
   "tools/query.py"
   "tools/bashplates.py"
+  "tools/escape.py"
 )
 
 AVR_LIST=(
@@ -98,6 +99,16 @@ PKGLIBS_GLIB=(
   "gthread-2.0"
   "gio-2.0"
 )
+
+create_mpconf() { ##I Create mp configuration
+  DIR="${1:-"."}"
+  bpMkDir "${DIR}/.mpconf"
+  ${MPTEMPLATE} header >"${DIR}/.mpconf/header.txt"
+}
+
+cmpconf() { ##D Create mpconf
+  create_mpconf "$2"
+}
 
 #
 # Create a new Makeplate project
@@ -171,6 +182,10 @@ createProject() {
     SRC_DIR="${PROJECT_DIR}/src"
     bpMkDir "${SRC_DIR}"
     bpMkDir "${PROJECT_DIR}/tools"
+
+    create_mpconf "${PROJECT_DIR}"
+    # bpMkDir "${PROJECT_DIR}/.mpconf"
+    # ${MPTEMPLATE} header >"${PROJECT_DIR}/.mpconf/header.txt"
 
     for F in "${NORMAL_FILES[@]}"; do
       bpCp "${BP_SELF_DIR}/${F}" "${PROJECT_DIR}/$(dirname "${F}")/."
@@ -490,7 +505,7 @@ new_git() { ##I New project
   HOOK_TEMPLATES="${TEMPLATE_DIR}/git/hooks"
 
   git init "${PROJECT_DIR}"
-  git -C "${PROJECT_DIR}" add "*"
+  git -C "${PROJECT_DIR}" add "*" ".mpconf/*"
 
   new_file "README.md" "$TEMPLATE_DIR" "${PROJECT_DIR}"
   new_file "HISTORY.md" "$TEMPLATE_DIR" "${PROJECT_DIR}"
@@ -499,8 +514,6 @@ new_git() { ##I New project
 
   git -C "${PROJECT_DIR}" commit -m "Initial commit"
   git -C "${PROJECT_DIR}" branch -M master
-  # git commit "${PROJECT_DIR}" -m "Initial commit"
-  # git branch "${PROJECT_DIR}" -M master
 
   echo
   if bpReadBoolDN "Upload git repo to Github?"; then

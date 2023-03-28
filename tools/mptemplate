@@ -31,9 +31,10 @@ import json
 import os
 import sys
 import traceback
-from dataclasses import dataclass
 from datetime import datetime
 from typing import List
+from pathlib import Path
+from dataclasses import dataclass
 
 from bashplates import Bp
 from query import Query
@@ -90,10 +91,29 @@ def create_project(template: TGenerator):
 
     return False
 
+
+def cmd_header(args):
+    print(t_header.header_text)
+
 def cmd_newc(args):
 
     main = None
     pre  = []
+
+    # Set default header
+    header = t_header
+    jd = t_header.to_json()
+    #print(jd)
+    t_header.write("Kalle")
+    # if os.path.isdir("./mpconf"):
+    #     print("Makeplates exist")
+
+    # Load external project header if existing
+    headerFile = "./.mpconf/header.txt"
+    if os.path.isfile(headerFile):
+        header = TemplateC()
+        header.header_text = Path(headerFile).read_text()
+        #print("Header template exist")
 
     if args.main: 
         pre.append(t_sentinel)
@@ -116,7 +136,7 @@ def cmd_newc(args):
         pre.append(t_sentinel)
         pre.append(t_cplusplus)
    
-    template = TGenerator(args, t_header, main, pre, [])
+    template = TGenerator(args, header, main, pre, [])
     template.query()
     template.generate()
     if args.dryrun is True:
@@ -302,6 +322,11 @@ def main() -> None:
         "newgtk", parents=[parrent_parser], help="Create a new glib/GTK3 application"
     )
     parser_new.set_defaults(func=cmd_newgtk)
+
+    parser_new = subparsers.add_parser(
+        "header", parents=[parrent_parser], help="Print default header to stdout"
+    )
+    parser_new.set_defaults(func=cmd_header)
 
     args = parser.parse_args()
 
