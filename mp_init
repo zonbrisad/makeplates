@@ -19,4 +19,5 @@ export PATH=${PATH}:${scriptPath}:${scriptPath}/tools
 export MP_PATH=${scriptPath}
 
 IFS=" "
-complete -W "newc newsc avr" mp
+complete -W "newc newsc newavr" mp
+complete -W "newc newavr newm newca newad" mptemplate

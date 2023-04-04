@@ -49,6 +49,9 @@ class TGenerator:
     filename_h: str = ""
     filename_c: str = ""
 
+    struct_name: str = ""
+    struct_prefix: str = ""
+    struct_var: str = ""
 
     def __init__(
         self,
@@ -145,6 +148,10 @@ class TGenerator:
         self.replace("__FILE__", f"_{self.name.upper()}_H_")
 
         self.replace("__VERSION__", "0.01")
+
+        self.replace("__STRUCT__", self.struct_name)
+        self.replace("__PREFIX__", self.struct_prefix)
+        self.replace("__VAR__", self.struct_var)
         
 
     def generate_h(self):
@@ -160,14 +167,14 @@ class TGenerator:
         self.add_separator("Macros")
         self.text += self.templ.h_macros_text
 
-        self.add_separator("Prototypes")
-        self.text += self.templ.h_prototypes_text
-
         self.add_separator("Datatypes")
         self.text += self.templ.h_datatypes_text
 
         self.add_separator("Variables")
         self.text += self.templ.h_variables_text
+
+        self.add_separator("Prototypes")
+        self.text += self.templ.h_prototypes_text
         
         self.text += self.templ.h_post_text
 
@@ -198,6 +205,12 @@ class TGenerator:
 
         self.add_separator("Code")
         self.text += self.templ.c_code_text
+
+
+        self.text += self.templ.hw_init_begin_text
+        self.text += self.templ.hw_init_vars_text
+        self.text += self.templ.hw_init_code_text
+        self.text += self.templ.hw_init_end_text
 
         if self.has_main():
             self.text += self.main_t.main_begin_text
@@ -243,7 +256,7 @@ class TGenerator:
         else:
             out_file = f"{dir}/{filename}"
 
-        print(f"Writing {out_file}")
+        #print(f"Writing {out_file}")
         with open(out_file, "w") as file:
             file.write(data)
         os.chmod(out_file, 0o770)

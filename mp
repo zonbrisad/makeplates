@@ -100,16 +100,6 @@ PKGLIBS_GLIB=(
   "gio-2.0"
 )
 
-create_mpconf() { ##I Create mp configuration
-  DIR="${1:-"."}"
-  bpMkDir "${DIR}/.mpconf"
-  ${MPTEMPLATE} header >"${DIR}/.mpconf/header.txt"
-}
-
-cmpconf() { ##D Create mpconf
-  create_mpconf "$2"
-}
-
 #
 # Create a new Makeplate project
 #
@@ -273,7 +263,7 @@ newscpp() { ##C CPP Create a new simple C++ makeplate project
 
 ##- Microcontroler projects
 
-newavr() { ##D Create new AVR microcontroler C project
+newavr() { ##D Create a new AVR microcontroler C project
   createProject "Creating new makeplate C avr project" "normal" "c" "avr"
 }
 
@@ -284,7 +274,7 @@ newarm() { ##D Create a new ARM microcontroler C project (not implemented yet)
 ##- Code creation
 
 newcm() { ##D Create new C module
-  ${MPTEMPLATE} newc --outdir . --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
+  ${MPTEMPLATE} newc --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
 }
 
 newcppm() { ##C CPP Create new C++ module
@@ -364,6 +354,16 @@ examples() { ##D List examples
 
 utools() { ##D Update makeplate tools in project
   bpCp "${BP_SELF_DIR}/tools/*" "tools/."
+}
+
+create_mpconf() { ##I Create mp configuration
+  DIR="${1:-"."}"
+  bpMkDir "${DIR}/.mpconf"
+  ${MPTEMPLATE} header >"${DIR}/.mpconf/header.txt"
+}
+
+mpconf() { ##D Create .mpconf directory and header template
+  create_mpconf "$2"
 }
 
 ##C- DEV Project management (git) (for mp developers)

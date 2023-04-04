@@ -35,6 +35,8 @@ from datetime import datetime
 from typing import List
 from pathlib import Path
 from dataclasses import dataclass
+import query
+import bashplates
 
 from bashplates import Bp
 from query import Query
@@ -104,7 +106,7 @@ def cmd_newc(args):
     header = t_header
     jd = t_header.to_json()
     #print(jd)
-    t_header.write("Kalle")
+    #t_header.write("Kalle")
     # if os.path.isdir("./mpconf"):
     #     print("Makeplates exist")
 
@@ -129,8 +131,10 @@ def cmd_newc(args):
             pre.append(t_glib_options)            
 
         if args.target == "avr":
+            args.name="main"
             main = t_main_embeded
             pre.append(t_avr)
+            pre.append(t_avr_uart)
             
     else:
         pre.append(t_sentinel)
@@ -155,6 +159,21 @@ def cmd_newa(args):
         print(template)
         exit(0)
     template.write()
+
+def cmd_newad(args):
+
+    t_sentinel.query = False
+    generator = TGenerator(args, t_header, None, [t_sentinel, t_cplusplus, t_abstract_datatype], [])
+    generator.query()
+    generator.struct_name = Bp.read_string("Name of datatype", generator.name)
+    generator.struct_var = Bp.read_string("Variable name", generator.struct_name.lower())
+    generator.struct_prefix = Bp.read_string("Function prefix", generator.struct_name.upper())
+
+    generator.generate()
+    if args.dryrun:
+        print(generator)
+        exit(0)
+    generator.write()
 
 def cmd_newavr(args):
     args.target="avr"
@@ -283,7 +302,7 @@ def main() -> None:
     parrent_parser.add_argument(
         "--target", action="store", choices=["system", "system-gtk", "avr", "arm"], help="Compiler target", default="system"
     )
-    parrent_parser.add_argument("--dryrun",    action="store_true", help="Do not write to file", default=False)
+    parrent_parser.add_argument("--dryrun",    action="store_true", help="Do not write to file and print to stdout", default=False)
     # options parsing
     parser = argparse.ArgumentParser(
         prog=AppName,
@@ -313,6 +332,11 @@ def main() -> None:
         "newca", parents=[parrent_parser], help="Create a new C application (main)"
     )
     parser_new.set_defaults(func=cmd_newa)
+
+    parser_new = subparsers.add_parser(
+        "newad", parents=[parrent_parser], help="Create a new C abstract datatype"
+    )
+    parser_new.set_defaults(func=cmd_newad)
 
     # parser_new = subparsers.add_parser(
     #     "newqt", parents=[parrent_parser], help="Create a new QT5 application"

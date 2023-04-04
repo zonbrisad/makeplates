@@ -37,6 +37,11 @@ class TemplateC:
     c_variables_text: str = ""
     c_prototypes_text: str = ""
     c_code_text: str = ""
+
+    hw_init_begin_text: str = ""
+    hw_init_vars_text: str = ""
+    hw_init_code_text: str = ""
+    hw_init_end_text: str = ""
     
     main_begin_text: str = ""
     main_vars_text: str = ""
@@ -49,7 +54,7 @@ class TemplateC:
     query: bool = True
     incl: bool = True
 
-
+  
     def add(self, a: TemplateC):
         self.header_text += a.header_text
 
@@ -65,6 +70,11 @@ class TemplateC:
         self.c_variables_text += a.c_variables_text
         self.c_prototypes_text += a.c_prototypes_text
         self.c_code_text += a.c_code_text
+
+        self.hw_init_begin_text += a.hw_init_begin_text
+        self.hw_init_vars_text += a.hw_init_vars_text
+        self.hw_init_code_text += a.hw_init_code_text
+        self.hw_init_end_text = a.hw_init_end_text + self.hw_init_end_text
 
         self.main_begin_text += a.main_begin_text
         self.main_vars_text += a.main_vars_text
@@ -159,10 +169,13 @@ t_main_embeded = TemplateC(
 int main() {
 """,
     main_end_text="""\
-    return 0;
+  return 0;
 }
 """
 )
+
+
+
 
 t_avr = TemplateC(
     query_text="Avr main code",
@@ -172,24 +185,51 @@ t_avr = TemplateC(
 #include <avr/pgmspace.h>
 #include <avr/interrupt.h>
 #include <avr/wdt.h>
+#include <avr/sleep.h>
 #include <util/delay.h>
 #include <util/atomic.h>
+#include <stdio.h>
+#include <stdlib.h>
 """,
     c_variables_text="""\
-// static FILE mystdout = FDEV_SETUP_STREAM(uart_putc, uart_getc, _FDEV_SETUP_WRITE);
 """,
     c_prototypes_text="""\
 void hw_init(void);
 """,
-    c_code_text="""\
+    hw_init_begin_text="""\
 void hw_init(void) {
-    
+""",
+  hw_init_end_text="""\
 }
 
 """,
     main_func_text="""\
-    hw_init();
+  hw_init();
 """   
+)
+
+
+t_avr_uart = TemplateC(
+    query_text="Include setup for avr UART. (Peter Fleuryś lib)",
+    query=True,
+    c_includes_text="""\
+#include "uart.h"
+""",
+    c_macros_text="""\
+#define UART_BAUD_RATE 9600
+""",
+    c_variables_text="""\
+static FILE mystdout = FDEV_SETUP_STREAM((void*)uart_putc, NULL, _FDEV_SETUP_WRITE);
+""",
+    hw_init_vars_text="""\
+  stdout = &mystdout;
+""",
+  hw_init_code_text="""\
+  uart_init(UART_BAUD_SELECT(UART_BAUD_RATE, F_CPU));
+""",
+  hw_init_end_text="""\
+  sei();  // Enable all interrupts
+""" 
 )
 
 
@@ -413,6 +453,38 @@ main_func_text="""\
 )
 
 
+
+t_abstract_datatype = TemplateC(
+  query=False,
+  h_datatypes_text="""
+typedef struct {
+
+} __STRUCT__;
+""",
+  h_prototypes_text="""
+
+__STRUCT__ *__PREFIX___new();
+
+void __PREFIX___init(__STRUCT__ *__VAR__);
+
+void __PREFIX___free(__STRUCT__ *__VAR__);
+""",
+  c_code_text="""
+__STRUCT__ *__PREFIX___new() {
+  return malloc(sizeof(__STRUCT__));
+}
+
+void __PREFIX___init(__STRUCT__ *__VAR__) {
+  
+} 
+ 
+void __PREFIX___free(__STRUCT__ *__VAR__) {  
+
+}
+
+"""
+  
+)
 
 
 
