@@ -172,6 +172,8 @@ def cmd_newad(args):
     generator.generate()
     if args.dryrun:
         print(generator)
+        if Bp.read_bool("Save to file", False): 
+            generator.write()
         exit(0)
     generator.write()
 

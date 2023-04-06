@@ -281,7 +281,7 @@ t_app_info = TemplateC(
 t_argtable = TemplateC(
     query_text="Do you want to include argtable3?", 
     c_includes_text="""\
-#include "argtable.h"
+#include "argtable3.h"
 """,
     c_variables_text="""\
 struct arg_lit  *opt_bool;
@@ -469,6 +469,9 @@ void __PREFIX___init(__STRUCT__ *__VAR__);
 
 void __PREFIX___free(__STRUCT__ *__VAR__);
 """,
+  c_includes_text="""
+#include <stdlib.h>
+""",
   c_code_text="""
 __STRUCT__ *__PREFIX___new() {
   return malloc(sizeof(__STRUCT__));
@@ -479,11 +482,10 @@ void __PREFIX___init(__STRUCT__ *__VAR__) {
 } 
  
 void __PREFIX___free(__STRUCT__ *__VAR__) {  
-
+  free(__VAR__);
 }
 
 """
-  
 )
 
 
