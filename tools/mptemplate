@@ -124,6 +124,7 @@ def cmd_newc(args):
         if args.target == "system":
             main = t_main
             pre.append(t_common_includes)
+            pre.append(t_argtable)
 
         if args.target == "system-gtk":
             main = t_main
