@@ -151,6 +151,10 @@ t_common_includes = TemplateC(
     query_text="Add common includes?",
     c_includes_text="""\
 #include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+#include <stdint.h>
 """
 )
 
@@ -348,7 +352,7 @@ struct arg_end  *end;
   
   // special case: '--version' takes precedence error reporting 
   if (opt_version->count > 0) {
-    printf("'%s' version %s\\n",APP_NAME, APP_VERSION);
+    printf(APP_NAME " version "APP_VERSION"\\n");
     exitcode=0;
     goto appexit;
   }
@@ -446,7 +450,7 @@ main_func_text="""\
   }
                   
   if (opt_version) {
-    printf("Application version %s\\n", APP_VERSION);
+    printf(APP_NAME " version " APP_VERSION "\\n");
     exit(0);
   }
 """

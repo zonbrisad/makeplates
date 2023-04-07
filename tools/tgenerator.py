@@ -20,6 +20,7 @@ from typing import List
 from query import Query
 from bashplates import Bp
 from templatec import *
+from pathlib import Path
 
 
 class TGenerator:
@@ -38,13 +39,7 @@ class TGenerator:
     header_t: None
     main_t: None
 
-    has_header: bool = True
-    #has_main: bool = False
-    #has_main_application: bool = False
     has_separators: bool = False
-    has_argparse: bool = False
-    has_argparse_sub: bool = False
-    has_debug: bool = False
 
     filename_h: str = ""
     filename_c: str = ""
@@ -69,10 +64,22 @@ class TGenerator:
         self.org = args.organization
         self.license = args.license
         self.out_dir = args.outdir
-        #self.has_main = args.main
+
         self.has_separators = args.separators
 
-        self.header_t = header_t
+        self.header_t = None
+
+        if header_t is None:
+        
+            # Load external project header if existing
+            headerFile = "./.mpconf/header.txt"
+            if os.path.isfile(headerFile):
+        #       print("Header template exist")    
+                self.header_t = TemplateC()
+                self.header_t.header_text = Path(headerFile).read_text()
+        else:
+            self.header_t = header_t
+        
         self.main_t = main_t
 
         self.filename_h = f"{self.name}.h"
@@ -229,10 +236,8 @@ class TGenerator:
         self.replace_keys(self.filename_c)
 
     def generate(self):
-        if self.header_t != None:
+        if self.header_t is not None:
             self.add(self.header_t)
-            
-        # if self.has_header:
 
         for t in self.pre:
             if t.incl:
