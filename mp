@@ -271,6 +271,10 @@ newarm() { ##D Create a new ARM microcontroler C project (not implemented yet)
   createProject "Creating new makeplate C avr project" "normal" "c" "arm"
 }
 
+newrpp() { ##D Create a new Raspberry Pi Pico project (not implemented yet)
+  :
+}
+
 ##- Code creation
 
 newcm() { ##D Create new C module
@@ -366,56 +370,6 @@ mpconf() { ##D Create .mpconf directory and header template
   create_mpconf "$2"
 }
 
-##C- DEV Project management (git) (for mp developers)
-
-clean() { ##C DEV Remove leftover files
-  bpCd "${BP_SELF_DIR}"
-
-  find . -name "*~" -delete
-  find . -name "*.orig" -delete
-
-  # Remove untraced files
-  git clean -df
-  bpCd -
-}
-
-commit() { ##C DEV Commit project to repository
-  bpCd "${BP_SELF_DIR}"
-  git commit -a
-  #  git push --tags -a
-  bpCd -
-}
-
-tag() { ##C DEV Make a new tag
-  bpCd "${BP_SELF_DIR}"
-  # List existing tags
-  git tag
-
-  # read tag name/description
-  tag=$(bpReadStr "Tagname" "")
-  desc=$(bpReadStr "Description" "")
-  #  read -p "Description: " desc
-
-  # Tag revision
-  git tag -a "$tag" -m "$desc"
-  bpCd -
-}
-
-push() { ##C DEV Push to GITHUB
-  bpCd "${BP_SELF_DIR}"
-  git push --progress
-  bpCd -
-}
-
-pull() { ##C DEV Pull bashplates from GITHUB
-  bpCd "${BP_SELF_DIR}"
-  git pull --progress
-  bpCd -
-}
-
-em() { ##C DEV Open standard Makefile template
-  bpEdit "${BP_SELF_DIR}/mp-c/Makefile" "$2"
-}
 
 #
 # $1 file
@@ -519,8 +473,60 @@ new_git() { ##I New project
   if bpReadBoolDN "Upload git repo to Github?"; then
     gsUpload "${PROJECT_NAME}"
   fi
-
 }
+
+
+##C- DEV Project management (git) (for mp developers)
+
+clean() { ##C DEV Remove leftover files
+  bpCd "${BP_SELF_DIR}"
+
+  find . -name "*~" -delete
+  find . -name "*.orig" -delete
+
+  # Remove untraced files
+  git clean -df
+  bpCd -
+}
+
+commit() { ##C DEV Commit project to repository
+  bpCd "${BP_SELF_DIR}"
+  git commit -a
+  #  git push --tags -a
+  bpCd -
+}
+
+tag() { ##C DEV Make a new tag
+  bpCd "${BP_SELF_DIR}"
+  # List existing tags
+  git tag
+
+  # read tag name/description
+  tag=$(bpReadStr "Tagname" "")
+  desc=$(bpReadStr "Description" "")
+  #  read -p "Description: " desc
+
+  # Tag revision
+  git tag -a "$tag" -m "$desc"
+  bpCd -
+}
+
+push() { ##C DEV Push to GITHUB
+  bpCd "${BP_SELF_DIR}"
+  git push --progress
+  bpCd -
+}
+
+pull() { ##C DEV Pull bashplates from GITHUB
+  bpCd "${BP_SELF_DIR}"
+  git pull --progress
+  bpCd -
+}
+
+em() { ##C DEV Open standard Makefile template
+  bpEdit "${BP_SELF_DIR}/mp-c/Makefile" "$2"
+}
+
 
 #---------------------------------------------------------------------
 # Bashplate settings

@@ -121,6 +121,13 @@ extcoff: $(TRGFILE)
 .PHONY: sim term
 
 # QEMU machine type		
+# To list supported machines type: qemu-system-avr -machine help
+# Machines:  
+#	     	 arduino-duemilanove (ATmega168) 
+#            arduino-uno         (ATmega328)
+#            arduino-mega        (ATmega1280)
+#			 mega2560
+#
 QMACHINE = arduino-uno
 
 # tcp port for QEMU virtual serial port
@@ -143,7 +150,7 @@ term: ##D Connect to QEMU virtual serial port via telnet terminal
 #============================================================================
 AVRDUDE_PORT = /dev/ttyUSB1
 
-flash: $(TARGET).hex # $(TARGET).eep  ##D Write program to MCU flash with avrdude
+flash: ##D Write program to MCU flash with avrdude
 	@$(MPUTILS) avrdude-arduino $(TARGET).hex $(MCU) $(AVRDUDE_PORT) 
 ###INSTALL_END###
 

@@ -132,6 +132,13 @@ def cmd_newc(args):
             main = t_main_embeded
             pre.append(t_avr)
             pre.append(t_avr_uart)
+
+        if args.target == "avrlef":
+            args.name="main"
+            main = t_main_embeded
+            pre.append(t_avr)
+            pre.append(t_avr_uart)
+            pre.append(t_lef)
             
     else:
         pre.append(t_sentinel)
@@ -163,9 +170,13 @@ def cmd_newad(args):
 
 
 def cmd_newavr(args):
-    args.target="avr"
     args.main=True
+    args.target="avr"
+    cmd_newc(args)
 
+def cmd_newavrlef(args):
+    args.main=True
+    args.target="avrlef"
     cmd_newc(args)
 
 def cmd_newmod(args):
@@ -181,7 +192,6 @@ def cmd_newmod(args):
 
 #     template = TGenerator(conf, [t_app_info], [t_qt5])
 #     template.generate()
-
 
 
 def cmd_newgtk(args):
@@ -295,7 +305,10 @@ def main() -> None:
     parser_new = subparsers.add_parser(
         "newavr", parents=[parrent_parser], help="Create a new AVR application (main)"
     )
-    parser_new.set_defaults(func=cmd_newavr)
+    parser_new = subparsers.add_parser(
+        "newavrlef", parents=[parrent_parser], help="Create a new AVR application with LEF (main)"
+    )
+    parser_new.set_defaults(func=cmd_newavrlef)
 
     parser_new = subparsers.add_parser(
         "newm", parents=[parrent_parser], help="Create new C module"

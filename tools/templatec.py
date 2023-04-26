@@ -492,7 +492,33 @@ void __PREFIX___free(__STRUCT__ *__VAR__) {
 """
 )
 
+t_lef = TemplateC(
+  c_includes_text="""
+#include "LEF.c"
+""",
+  c_variables_text="""""",
 
+  main_vars_text="""
+  LEF_Event event;
+  """,
+  main_begin_text="""
+  LEF_Init();
+  LEF_CliInit(commands);
+  """,
+  main_func_text="""
+  while (1) {
+    LEF_Wait(&event);
+    switch (event.id) {
+      case: break;
+      case LEF_EVENT_CLI:
+        LEF_CliExec();
+        break;
+      default: break;
+    }
+  }
+  """
+  
+)
 
 def main() -> None:
     pass
