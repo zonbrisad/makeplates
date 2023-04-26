@@ -305,6 +305,7 @@ def main() -> None:
     parser_new = subparsers.add_parser(
         "newavr", parents=[parrent_parser], help="Create a new AVR application (main)"
     )
+    parser_new.set_defaults(func=cmd_newavr)
     parser_new = subparsers.add_parser(
         "newavrlef", parents=[parrent_parser], help="Create a new AVR application with LEF (main)"
     )

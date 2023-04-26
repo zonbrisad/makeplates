@@ -227,14 +227,13 @@ createProject() {
 
   echo
   # ${MPTEMPLATE} "${OPTS}" --name "main" --dir "${SRC_DIR}" --DESCRIPTION "${DESCRIPTION}" --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
-  ${MPTEMPLATE} ${OPTS} --target "${TARGET}" --name "main" --main --outdir "${SRC_DIR}" --description "${DESCRIPTION}" --author "${BP_NAME}" --email "${BP_EMAIL}" --license "${BP_LICENSE}"
+  ${MPTEMPLATE} ${OPTS} --target "${TARGET}" --name "main" --main --outdir "${SRC_DIR}" --description "${DESCRIPTION}" --author "${BP_NAME}" --email "${BP_EMAIL}" --license "${BP_LICENSE}" --separators
 
   # Git project
   echo
   if bpReadBoolDN "Do you want to create a git project?"; then
     new_git "$PROJECT_NAME" "$PROJECT_DIR"
   fi
-
 }
 
 ##- C Projects
@@ -540,7 +539,7 @@ bpInitSettings() {
   BP_USAGE="Usage: ${BP_SELF} command [option]"
 
   ##V Description text
-  BP_DESC="Makeplate project management script"
+  BP_DESC="Makeplate C/C++ project creator"
 
   ##V logfile (uncomment to use logfile)
   BP_LOGFILE=${BP_SELF_DIR}/${BP_SELF}.log

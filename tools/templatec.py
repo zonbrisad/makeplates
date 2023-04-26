@@ -54,6 +54,7 @@ class TemplateC:
     query: bool = True
     incl: bool = True
 
+#    sub: list
   
     def add(self, a: TemplateC):
         self.header_text += a.header_text
@@ -492,7 +493,28 @@ void __PREFIX___free(__STRUCT__ *__VAR__) {
 """
 )
 
+t_lef_cli = TemplateC(
+  query_text="Include CLI",
+  c_variables_text="""
+  LEF_COMMAND commands[] = {
+    
+  } 
+  """,
+  main_begin_text="""
+  LEF_CliInit(commands);
+  """
+)
+
+t_lef_cli = TemplateC(
+  query_text="Include Buzzer", 
+  main_begin_text="""
+  LEF_CliInit(commands);
+  """
+)
+
 t_lef = TemplateC(
+  query_text="Include LEF?",
+#  sub=[t_lef_cli],
   c_includes_text="""
 #include "LEF.c"
 """,

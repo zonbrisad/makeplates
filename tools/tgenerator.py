@@ -77,6 +77,8 @@ class TGenerator:
         #       print("Header template exist")    
                 self.header_t = TemplateC()
                 self.header_t.header_text = Path(headerFile).read_text()
+            else: 
+                self.header_t = t_header
         else:
             self.header_t = header_t
         
