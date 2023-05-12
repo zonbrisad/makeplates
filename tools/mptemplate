@@ -131,13 +131,11 @@ def cmd_newc(args):
             args.name="main"
             main = t_main_embeded
             pre.append(t_avr)
-            pre.append(t_avr_uart)
 
         if args.target == "avrlef":
             args.name="main"
             main = t_main_embeded
             pre.append(t_avr)
-            pre.append(t_avr_uart)
             pre.append(t_lef)
             
     else:

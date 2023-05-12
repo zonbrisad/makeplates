@@ -8,15 +8,16 @@
 # Author:   Peter Malmberg  <peter.malmberg@gmail.com>
 # Org:      __ORGANISTATION__
 # Date:     2023-03-13
-# License:  
+# License:
 # Python:   >= 3.0
 #
 # ----------------------------------------------------------------------------
 
 from __future__ import annotations
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import json
 import os
+
 
 @dataclass
 class TemplateC:
@@ -42,10 +43,15 @@ class TemplateC:
     hw_init_vars_text: str = ""
     hw_init_code_text: str = ""
     hw_init_end_text: str = ""
-    
+
     main_begin_text: str = ""
     main_vars_text: str = ""
     main_func_text: str = ""
+
+    main_loop_begin_text: str = ""
+    main_loop_middle_text: str = ""
+    main_loop_end_text: str = ""
+
     main_end_text: str = ""
 
     h_post_text: str = ""
@@ -54,8 +60,8 @@ class TemplateC:
     query: bool = True
     incl: bool = True
 
-#    sub: list
-  
+    sub: list[TemplateC] = field(default_factory=list)
+
     def add(self, a: TemplateC):
         self.header_text += a.header_text
 
@@ -80,11 +86,15 @@ class TemplateC:
         self.main_begin_text += a.main_begin_text
         self.main_vars_text += a.main_vars_text
         self.main_func_text += a.main_func_text
+
+        self.main_loop_begin_text += a.main_loop_begin_text
+        self.main_loop_middle_text += a.main_loop_middle_text
+        self.main_loop_end_text = a.main_loop_end_text + self.main_loop_end_text
+
         self.main_end_text += a.main_end_text
 
         self.h_pre_text += a.h_pre_text
         self.h_post_text += a.h_post_text
-
 
     def write_field(self, fieldname, filename: str):
         data = getattr(fieldname)
@@ -92,7 +102,7 @@ class TemplateC:
             file.write(data)
 
     def load_field(self, fieldname, filename: str):
-      pass
+        pass
 
     list = [
         "header_text",
@@ -101,20 +111,20 @@ class TemplateC:
         "h_macros_text",
         "h_datatypes_text",
         "h_variables_text",
-        "h_prototypes_text"
+        "h_prototypes_text",
     ]
-    
+
     def to_json(self) -> dict:
-        jsonDict={}
+        jsonDict = {}
         for param in self.list:
             jsonDict[param] = getattr(self, param)
-        
+
         return jsonDict
 
     def from_json(self, jdict):
         for param in self.list:
             setattr(self, jdict[param])
-      
+
     def write(self, filename):
         with open(filename, "w") as outfile:
             json.dump(self.to_json(), outfile, indent=4)
@@ -148,6 +158,44 @@ t_header = TemplateC(
 """
 )
 
+
+t_separators = TemplateC(
+    c_includes_text="""
+// Include -------------------------------------------------
+""",
+    c_macros_text="""  
+// Macros --------------------------------------------------
+""",
+    c_prototypes_text="""
+// Prototypes ----------------------------------------------
+""",
+    c_datatypes_text="""
+// Datatypes -----------------------------------------------
+""",
+    c_variables_text="""
+//  Variables ----------------------------------------------
+""",
+    c_code_text="""
+// Code ----------------------------------------------------
+""",
+    h_includes_text="""
+// Include -------------------------------------------------
+""",
+    h_macros_text="""  
+// Macros --------------------------------------------------
+""",
+    h_prototypes_text="""
+// Prototypes ----------------------------------------------
+""",
+    h_datatypes_text="""
+// Datatypes -----------------------------------------------
+""",
+    h_variables_text="""
+//  Variables ----------------------------------------------
+""",
+)
+
+
 t_common_includes = TemplateC(
     query_text="Add common includes?",
     c_includes_text="""\
@@ -156,7 +204,7 @@ t_common_includes = TemplateC(
 #include <stdbool.h>
 #include <string.h>
 #include <stdint.h>
-"""
+""",
 )
 
 t_main = TemplateC(
@@ -166,7 +214,7 @@ int main(int argc, char *argv[]) {
     main_end_text="""\
     return 0;
 }
-"""
+""",
 )
 
 t_main_embeded = TemplateC(
@@ -176,41 +224,7 @@ int main() {
     main_end_text="""\
   return 0;
 }
-"""
-)
-
-
-
-
-t_avr = TemplateC(
-    query_text="Avr main code",
-    query=False,
-    c_includes_text="""\
-#include <avr/io.h>
-#include <avr/pgmspace.h>
-#include <avr/interrupt.h>
-#include <avr/wdt.h>
-#include <avr/sleep.h>
-#include <util/delay.h>
-#include <util/atomic.h>
-#include <stdio.h>
-#include <stdlib.h>
 """,
-    c_variables_text="""\
-""",
-    c_prototypes_text="""\
-void hw_init(void);
-""",
-    hw_init_begin_text="""\
-void hw_init(void) {
-""",
-  hw_init_end_text="""\
-}
-
-""",
-    main_func_text="""\
-  hw_init();
-"""   
 )
 
 
@@ -229,14 +243,176 @@ static FILE mystdout = FDEV_SETUP_STREAM((void*)uart_putc, NULL, _FDEV_SETUP_WRI
     hw_init_vars_text="""\
   stdout = &mystdout;
 """,
-  hw_init_code_text="""\
+    hw_init_code_text="""\
   uart_init(UART_BAUD_SELECT(UART_BAUD_RATE, F_CPU));
 """,
-  hw_init_end_text="""\
-  sei();  // Enable all interrupts
-""" 
 )
 
+t_avr_adc = TemplateC(
+    query_text="ATmega 10 bit adc",
+    h_macros_text="""\
+// AVR ADC ------------------------------------------------------------------
+
+#define ADC_ENABLE()     ADCSRA |= (1<<ADEN)   // Enable continuous conversion
+#define ADC_DISSABLE()   ADCSRA &= ~(1<<ADEN)  // Dissable continuous conversion
+#define ADC_START()      ADCSRA |= (1<<ADSC)   // Start single conversion
+#define ADC_IE()         ADCSRA |= (1<<ADIE)   // Enable ADC interrupt
+#define ADC_ID()         ADCSRA &= ~(1<<ADIE)  // Enable ADC interrupt
+
+#define ADC_AUTOTRIGGER_ENABLE()  ADCSRA |= (1<<ADATE)  // ADC auto trigger enable
+
+#define ADC_REF_AREF() ADMUX = (ADMUX & ~15)            // Set voltage reference to AREF
+#define ADC_REF_AVCC() ADMUX = (ADMUX & ~15) | (1 << 6) // Set voltage reference to AVcc 
+#define ADC_REF_INT() ADMUX = (ADMUX & ~15) | (3 << 6)  // Set voltage reference to 1.1 V internal reference
+
+//#define ADC_PRESCALER_2()   ADCSRA = (ADCSRA & ~7) | 0
+#define ADC_PRESCALER_2()   ADCSRA = (ADCSRA & ~7) | 0b001
+#define ADC_PRESCALER_4()   ADCSRA = (ADCSRA & ~7) | 0b010
+#define ADC_PRESCALER_8()   ADCSRA = (ADCSRA & ~7) | 0b011
+#define ADC_PRESCALER_16()  ADCSRA = (ADCSRA & ~7) | 0b100
+#define ADC_PRESCALER_32()  ADCSRA = (ADCSRA & ~7) | 0b101
+#define ADC_PRESCALER_64()  ADCSRA = (ADCSRA & ~7) | 0b110
+#define ADC_PRESCALER_128() ADCSRA = (ADCSRA & ~7) | 0b111
+#define ADC_VALUE()         (ADCL + (ADCH << 8))
+
+//#define ADC_TRG_FREE_RUNNING() ADCSRB = (ADCSRB & ~7) | 0
+#define ADC_TRG_FREE_RUNNING() ADCSRB = (ADCSRB & 0b00000111) | 0b000
+#define ADC_TRG_ANALOG_COMP()  ADCSRB = (ADCSRB & 0b00000111) | 0b001
+#define ADC_TRG_EXTERNAL_INT() ADCSRB = (ADCSRB & 0b00000111) | 0b010
+#define ADC_TRG_TIMER0_COMPA() ADCSRB = (ADCSRB & 0b00000111) | 0b011
+#define ADC_TRG_TIMER0_OVF()   ADCSRB = (ADCSRB & 0b00000111) | 0b100
+#define ADC_TRG_TIMER1_COMPB() ADCSRB = (ADCSRB & 0b00000111) | 0b101
+#define ADC_TRG_TIMER1_OVF()   ADCSRB = (ADCSRB & 0b00000111) | 0b110
+#define ADC_TRG_TIMER1_CPT()   ADCSRB = (ADCSRB & 0b00000111) | 0b111
+
+#define ADC_MUX(mux) ADMUX = (ADMUX & 0b11110000) | (mux)
+
+#define ADC_IS_BUSY() (ADCSRA & ADIF) ? 0 : 1
+
+#define ADC_WAIT_COMPLETION()  while (ADC_IS_BUSY()) {}  // Busy wait for completion
+""",
+    c_code_text="""\
+ISR(ADC_vect) {
+  
+}
+""",
+    hw_init_code_text=""""""
+)
+
+t_avr_timer1 = TemplateC(
+    query_text="ATmega 16 bit timer 1",
+    h_macros_text="""\
+// AVR Timer 0 (8 bit) ------------------------------------------------------
+
+// Clock source
+#define TIMER0_CLK_DISSABLE()     TCCR0B &= 0xF8              // Disable timer
+#define TIMER0_CLK_PRES_1()       TCCR0B |= 1                 // Select prescaler 1/1
+#define TIMER0_CLK_PRES_8()       TCCR0B |= 2                 // Select prescaler 1/8
+#define TIMER0_CLK_PRES_64()      TCCR0B |= 3                 // Select prescaler 1/64
+#define TIMER0_CLK_PRES_256()     TCCR0B |= 4                 // Select prescaler 1/256
+#define TIMER0_CLK_PRES_1024()    TCCR0B |= 5                 // Select prescaler 1/1024
+#define TIMER0_CLK_EXT_FE()       TCCR0B |= 6                 // External T0 falling edge
+#define TIMER0_CLK_EXT_RE()       TCCR0B |= 7                 // External T0 rising edge
+
+// Interrupt control
+#define TIMER0_OVF_IE()           TIMSK0 |= (1<<TOIE0)        // Enable overflow interrupt
+#define TIMER0_OVF_ID()           TIMSK0 &= ~(1<<TOIE0)       // Disable overflow interrupt
+#define TIMER0_OCA_IE()           TIMSK0 |= (1<<OCIE0A)       // Enable output compare A interrupt
+#define TIMER0_OCA_ID()           TIMSK0 &= ~(1<<OCIE0A)      // Disable output compare A interrupt
+#define TIMER0_OCB_IE()           TIMSK0 |= (1<<OCIE0B)       // Enable output compare B interrupt
+#define TIMER0_OCB_ID()           TIMSK0 &= ~(1<<OCIE0B)      // Disable output compare B interrupt
+
+#define TIMER0_OCA_SET(x)         OCR0A = x                   // Set output compare A register
+#define TIMER0_OCB_SET(x)         OCR0B = x                   // Set output compare B register
+#define TIMER0_RELOAD(x)          TCNT0 = x                   // Reload timer register
+
+
+// AVR Timer 1 (16 bit) -----------------------------------------------------
+
+// Clock source
+#define TIMER1_CLK_NONE()         TCCR1B &= 0xF8              // Disable timer
+#define TIMER1_CLK_PRES_1()       TCCR1B |= 1                 // Select prescaler 1/1            
+#define TIMER1_CLK_PRES_8()       TCCR1B |= 2                 // Select prescaler 1/8           
+#define TIMER1_CLK_PRES_64()      TCCR1B |= 3                 // Select prescaler 1/64          
+#define TIMER1_CLK_PRES_256()     TCCR1B |= 4                 // Select prescaler 1/256         
+#define TIMER1_CLK_PRES_1024()    TCCR1B |= 5                 // Select prescaler 1/1024        
+#define TIMER1_CLK_EXT_FE()       TCCR1B |= 6                 // External T0 falling edge       
+#define TIMER1_CLK_EXT_RE()       TCCR1B |= 7                 // External T0 rising edge        
+
+// Interrupt control
+#define TIMER1_OVF_IE()           TIMSK1 |= (1<<TOIE1)        // Enable overflow interrupt      
+#define TIMER1_OVF_ID()           TIMSK1 &= ~(1<<TOIE1)       // Disable overflow interrupt     
+#define TIMER1_OCA_IE()           TIMSK1 |= (1<<OCIE1A)       // Enable output compare A interrupt
+#define TIMER1_OCA_ID()           TIMSK1 &= ~(1<<OCIE1A)      // Disable output compare A interrupt
+#define TIMER1_OCB_IE()           TIMSK1 |= (1<<OCIE1B)       // Enable output compare B interrupt
+#define TIMER1_OCB_ID()           TIMSK1 &= ~(1<<OCIE1B)      // Disable output compare B interrupt
+                                                              
+                                                              // Set output compare A register
+#define TIMER1_OCA_SET(x)         OCR1AH = (uint8_t) ((uint16_t)x>>8); OCR1AL = (uint8_t) ((uint16_t)x & 0xff)
+                                                              // Set output compare B register
+#define TIMER1_OCB_SET(x)         OCR1BH = (uint8_t) ((uint16_t)x>>8); OCR1BL = (uint8_t) ((uint16_t)x & 0xff)
+                                                              // Reload timer register
+#define TIMER1_RELOAD(x)          TCNT1H = (uint8_t) ((uint16_t)x>>8); TCNT1L = (uint8_t)((uint16_t)x & 0xff)
+""",
+    c_code_text="""\
+ISR(TIMER1_COMPA_vect) {
+
+  TIMER1_RELOAD(0);
+
+}    
+""",
+    hw_init_code_text="""\
+  // Timer 1 (16 bit)
+  TIMER1_CLK_PRES_256(); // set prescaler to 1/1024
+  TIMER1_OCA_SET(625);
+  TIMER1_OCA_IE();        // enable output compare A interrupt
+""",
+)
+
+t_avr = TemplateC(
+    query_text="Avr main code",
+    query=False,
+    sub=[t_avr_uart, t_avr_timer1, t_avr_adc],
+    h_macros_text="""
+// AVR Reset causes ---------------------------------------------------------
+#define IS_POWER_ON_RESET()            (MCUSR & (1<<PORF))
+#define IS_BROWN_OUT_RESET()           (MCUSR & (1<<BORF))
+#define IS_WATCH_DOG_RESET()           (MCUSR & (1<<WDRF))
+#define IS_JTAG_RESET_RESET()          (MCUSR & (1<<JTRF))
+#define IS_EXTERNAL_RESET()            (MCUSR & (1<<EXTRF))
+#define CLEAR_RESETS()                 MCUSR  &= (~31)              // clearing all reset causes
+
+// AVR Reset MCU with watchdog ----------------------------------------------
+#define RESET()                     wdt_enable(WDTO_500MS); while(1) {}
+
+""",
+    c_includes_text="""\
+#include <avr/io.h>
+#include <avr/pgmspace.h>
+#include <avr/interrupt.h>
+#include <avr/wdt.h>
+#include <avr/sleep.h>
+#include <util/delay.h>
+#include <util/atomic.h>
+#include <stdio.h>
+#include <stdlib.h>
+""",
+    c_variables_text="""\
+""",
+    c_prototypes_text="""\
+void hw_init(void);
+""",
+    hw_init_begin_text="""
+void hw_init(void) {
+""",
+    hw_init_end_text="""\
+  sei();  // Enable all interrupts
+} 
+""",
+    main_func_text="""
+  hw_init();
+""",
+)
 
 t_sentinel = TemplateC(
     query_text="Do you want sentinels?",
@@ -280,11 +456,11 @@ t_app_info = TemplateC(
 #define APP_ORG         "__ORGANISATION__"
 #define APP_HOME        ""
 #define APP_ICON        ""
-"""
+""",
 )
 
 t_argtable = TemplateC(
-    query_text="Do you want to include argtable3?", 
+    query_text="Do you want to include argtable3?",
     c_includes_text="""\
 #include "argtable3.h"
 """,
@@ -398,11 +574,11 @@ appexit:
 )
 
 t_glib_options = TemplateC(
-query_text="Include GLIB option parser",
-  c_includes_text="""
+    query_text="Include GLIB option parser",
+    c_includes_text="""
 #include <glib.h>
-""",  
-c_variables_text="""\
+""",
+    c_variables_text="""\
 static gint      opt_integer = 42;
 static gdouble   opt_double  = 42.42;
 static gchar    *opt_string  = "Kalle";
@@ -425,20 +601,20 @@ static GOptionEntry entries[] = {
   { NULL }
 };                                                                                                                                      
 """,
-  c_prototypes_text="""
+    c_prototypes_text="""
 gboolean opt_callback(const gchar *option_name, const gchar *value, gpointer data, GError **error);
 """,
-c_code_text="""
+    c_code_text="""
 gboolean opt_callback(const gchar *option_name, const gchar *value, gpointer data, GError **error) {
   printf("Callback function for option %s,  value=%s\\n", option_name, value);
   return 1;
 }
 """,
-main_vars_text="""\
+    main_vars_text="""\
   GError *error = NULL;
   GOptionContext *context;
 """,
-main_func_text="""\
+    main_func_text="""\
   context = g_option_context_new ("- what the program does");
   g_option_context_add_main_entries (context, entries, NULL);
   
@@ -454,19 +630,18 @@ main_func_text="""\
     printf(APP_NAME " version " APP_VERSION "\\n");
     exit(0);
   }
-"""
+""",
 )
 
 
-
 t_abstract_datatype = TemplateC(
-  query=False,
-  h_datatypes_text="""
+    query=False,
+    h_datatypes_text="""
 typedef struct {
 
 } __STRUCT__;
 """,
-  h_prototypes_text="""
+    h_prototypes_text="""
 
 __STRUCT__ *__PREFIX___new();
 
@@ -474,10 +649,10 @@ void __PREFIX___init(__STRUCT__ *__VAR__);
 
 void __PREFIX___free(__STRUCT__ *__VAR__);
 """,
-  c_includes_text="""
+    c_includes_text="""
 #include <stdlib.h>
 """,
-  c_code_text="""
+    c_code_text="""
 __STRUCT__ *__PREFIX___new() {
   return malloc(sizeof(__STRUCT__));
 }
@@ -490,60 +665,114 @@ void __PREFIX___free(__STRUCT__ *__VAR__) {
   free(__VAR__);
 }
 
-"""
+""",
 )
 
 t_lef_cli = TemplateC(
-  query_text="Include CLI",
-  c_variables_text="""
-  LEF_COMMAND commands[] = {
-    
-  } 
-  """,
-  main_begin_text="""
-  LEF_CliInit(commands);
-  """
+    query_text="Include CLI",
+    c_prototypes_text="""\
+void cmdHelp(char *args);
+""",
+    c_code_text="""
+void cmdHelp(char *args) {
+  LEF_Cli_print();
+}
+""",
+    c_variables_text="""
+const PROGMEM LEF_CliCmd commands[] = {
+  
+  {cmdHelp,   "help",      "Show help"},
+};
+
+""",
+    main_begin_text="""\
+  LEF_Cli_init(commands, sizeof(commands) / sizeof((commands)[0]) );
+""",
+    main_loop_middle_text="""\
+      case LEF_EVENT_CLI:
+        LEF_Cli_exec();
+        break;
+""",
 )
 
-t_lef_cli = TemplateC(
-  query_text="Include Buzzer", 
-  main_begin_text="""
-  LEF_CliInit(commands);
-  """
+t_lef_button = TemplateC(
+    query_text="Include Button",
+    c_macros_text="""\
+#define EVENT_BUTTON1 1
+""",
+    c_variables_text="""\
+LEF_Button button1;
+""",
+    main_begin_text="""\
+  LEF_Button_init(&button1, EVENT_BUTTON1);
+""",
+    main_loop_middle_text="""\
+      case EVENT_BUTTON1: break;
+""",
+)
+
+t_lef_timer = TemplateC(
+    query_text="Include Timer",
+    c_macros_text="""\
+#define EVENT_TIMER1 2
+""",
+    c_variables_text="""\
+LEF_Timer timer1;
+""",
+    main_begin_text="""\
+  LEF_Timer_init(&timer1, EVENT_TIMER1);
+""",
+    main_loop_middle_text="""\
+      case EVENT_TIMER1: break;
+""",
+)
+
+t_lef_led = TemplateC(
+    query_text="Include LED",
+    c_variables_text="""\
+LEF_Led led1;
+""",
+    main_begin_text="""\
+  LEF_Led_init(&led1, LED_OFF);
+""",
+)
+
+t_lef_buzzer = TemplateC(
+    query_text="Include Buzzer",
+    main_begin_text="""\
+  LEF_Buzzer_init();
+""",
 )
 
 t_lef = TemplateC(
-  query_text="Include LEF?",
-#  sub=[t_lef_cli],
-  c_includes_text="""
-#include "LEF.c"
+    query_text="Include LEF?",
+    sub=[t_lef_buzzer, t_lef_cli, t_lef_timer, t_lef_led, t_lef_button],
+    c_includes_text="""
+#include "LEF.h"
 """,
-  c_variables_text="""""",
-
-  main_vars_text="""
+    c_variables_text="""""",
+    main_vars_text="""
   LEF_Event event;
-  """,
-  main_begin_text="""
-  LEF_Init();
-  LEF_CliInit(commands);
-  """,
-  main_func_text="""
+""",
+    main_begin_text="""
+  LEF_init();
+""",
+    main_loop_begin_text="""
   while (1) {
     LEF_Wait(&event);
     switch (event.id) {
-      case: break;
-      case LEF_EVENT_CLI:
-        LEF_CliExec();
-        break;
+""",
+    main_loop_end_text="""\
       default: break;
     }
   }
-  """
-  
+""",
 )
+
 
 def main() -> None:
     pass
+
 
 if __name__ == "__main__":
     main()
