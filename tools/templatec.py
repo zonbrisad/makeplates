@@ -296,7 +296,7 @@ ISR(ADC_vect) {
   
 }
 """,
-    hw_init_code_text=""""""
+    hw_init_code_text="""""",
 )
 
 t_avr_timer1 = TemplateC(
@@ -634,8 +634,22 @@ gboolean opt_callback(const gchar *option_name, const gchar *value, gpointer dat
 )
 
 
+t_abstract_datatype_update = TemplateC(
+    query_text="Include update command?",
+    h_prototypes_text="""
+void __PREFIX___update(__STRUCT__ *__VAR__);
+""",
+    c_code_text="""
+void __PREFIX___update(__STRUCT__ *__VAR__) {
+  
+}
+""",
+)
+
+
 t_abstract_datatype = TemplateC(
     query=False,
+    sub=[t_abstract_datatype_update],
     h_datatypes_text="""
 typedef struct {
 
@@ -667,6 +681,7 @@ void __PREFIX___free(__STRUCT__ *__VAR__) {
 
 """,
 )
+
 
 t_lef_cli = TemplateC(
     query_text="Include CLI",

@@ -355,7 +355,7 @@ qemu-avr() { # Emulate AVR
 
 ##- Misc
 
-sermon() { ##D Monitor tcp port and open when available
+sermon() { ##D Monitor tcp port and open with telnet when available
   PORT=$2
 
   bpInfo "Waiting for port $PORT to become available."

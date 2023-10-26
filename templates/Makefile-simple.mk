@@ -48,7 +48,7 @@ OUTDIR = .
 OPT = 2
 
 # Compiler flag to set the C and C++ Standard level.
-# [ gnu99 gnu11 c++98 c++03 c++11 c++14 ] 
+# [ gnu99 gnu11 c++98 c++03 c++11 c++14 c++17 c++23] 
 CSTANDARD   = gnu99
 CPPSTANDARD = c++11
 

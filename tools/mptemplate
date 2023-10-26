@@ -84,36 +84,33 @@ def cmd_header(args):
 
 
 def generate(args, generator) -> None:
-    
     generator.generate()
     if args.dryrun:
         print(generator)
-        if Bp.read_bool("Save to file", False): 
+        if Bp.read_bool("Save to file", False):
             generator.write()
         exit(0)
     generator.write()
 
 
 def new_file(args, generator):
-
     generator.generate()
     if args.dryrun:
         print(generator)
-        if Bp.read_bool("Save to file", False): 
+        if Bp.read_bool("Save to file", False):
             generator.write()
         exit(0)
     generator.write()
 
 
 def cmd_newc(args):
-
     main = None
-    pre  = []
+    pre = []
 
     # Set default header
-    #header = t_header
+    # header = t_header
 
-    if args.main: 
+    if args.main:
         pre.append(t_sentinel)
         pre.append(t_app_info)
 
@@ -125,23 +122,23 @@ def cmd_newc(args):
         if args.target == "system-gtk":
             main = t_main
             pre.append(t_common_includes)
-            pre.append(t_glib_options)            
+            pre.append(t_glib_options)
 
         if args.target == "avr":
-            args.name="main"
+            args.name = "main"
             main = t_main_embeded
             pre.append(t_avr)
 
         if args.target == "avrlef":
-            args.name="main"
+            args.name = "main"
             main = t_main_embeded
             pre.append(t_avr)
             pre.append(t_lef)
-            
+
     else:
         pre.append(t_sentinel)
         pre.append(t_cplusplus)
-   
+
     generator = TGenerator(args, None, main, pre, [])
     generator.query()
 
@@ -149,36 +146,41 @@ def cmd_newc(args):
 
 
 def cmd_newa(args):
-    
     generator = TGenerator(args, None, t_main, [t_app_info, t_argtable], [])
     generator.query()
     generate(args, generator)
 
-    
-def cmd_newad(args):
 
+def cmd_newad(args):
     t_sentinel.query = False
 
-    generator = TGenerator(args, None, None, [t_sentinel, t_cplusplus, t_abstract_datatype], [])
+    generator = TGenerator(
+        args, None, None, [t_sentinel, t_cplusplus, t_abstract_datatype], []
+    )
     generator.query()
     generator.struct_name = Bp.read_string("Name of datatype", generator.name)
-    generator.struct_var = Bp.read_string("Variable name", generator.struct_name.lower())
-    generator.struct_prefix = Bp.read_string("Function prefix", generator.struct_name.upper())
+    generator.struct_var = Bp.read_string(
+        "Variable name", generator.struct_name.lower()
+    )
+    generator.struct_prefix = Bp.read_string(
+        "Function prefix", generator.struct_name.upper()
+    )
     generate(args, generator)
 
 
 def cmd_newavr(args):
-    args.main=True
-    args.target="avr"
+    args.main = True
+    args.target = "avr"
     cmd_newc(args)
+
 
 def cmd_newavrlef(args):
-    args.main=True
-    args.target="avrlef"
+    args.main = True
+    args.target = "avrlef"
     cmd_newc(args)
 
-def cmd_newmod(args):
 
+def cmd_newmod(args):
     generator = TGenerator(args, None, None, [t_sentinel, t_cplusplus], [])
     generator.query()
     generate(args, generator)
@@ -214,9 +216,8 @@ class Settings:
 
 
 def main() -> None:
-
     logging_format = "[%(levelname)s] %(lineno)d %(funcName)s() : %(message)s"
-    
+
     parrent_parser = argparse.ArgumentParser(add_help=False)
     parrent_parser.add_argument(
         "--name", action="store", type=str, help="Name of C module", default=""
@@ -225,14 +226,18 @@ def main() -> None:
     parrent_parser.add_argument(
         "--author", type=str, help="Name of author", default=Bp.name()
     )
-    parrent_parser.add_argument("--email", type=str, help="Email of author", default=Bp.email())
-    # parrent_parser.add_argument("--project", type=str, help="Name of project")
-    parrent_parser.add_argument("--license",
-                                type=str,
-                                help="License of new file",
-                                default=Bp.license())
     parrent_parser.add_argument(
-        "--organization", type=str, help="Name of organisation", default=Bp.organisation()
+        "--email", type=str, help="Email of author", default=Bp.email()
+    )
+    # parrent_parser.add_argument("--project", type=str, help="Name of project")
+    parrent_parser.add_argument(
+        "--license", type=str, help="License of new file", default=Bp.license()
+    )
+    parrent_parser.add_argument(
+        "--organization",
+        type=str,
+        help="Name of organisation",
+        default=Bp.organisation(),
     )
 
     parrent_parser.add_argument(
@@ -282,9 +287,18 @@ def main() -> None:
         "--no_interaction", action="store_true", help="Disable interactive questions"
     )
     parrent_parser.add_argument(
-        "--target", action="store", choices=["system", "system-gtk", "avr", "arm"], help="Compiler target", default="system"
+        "--target",
+        action="store",
+        choices=["system", "system-gtk", "avr", "arm"],
+        help="Compiler target",
+        default="system",
     )
-    parrent_parser.add_argument("--dryrun",    action="store_true", help="Do not write to file and print to stdout", default=False)
+    parrent_parser.add_argument(
+        "--dryrun",
+        action="store_true",
+        help="Do not write to file and print to stdout",
+        default=False,
+    )
     # options parsing
     parser = argparse.ArgumentParser(
         prog=AppName,
@@ -305,7 +319,9 @@ def main() -> None:
     )
     parser_new.set_defaults(func=cmd_newavr)
     parser_new = subparsers.add_parser(
-        "newavrlef", parents=[parrent_parser], help="Create a new AVR application with LEF (main)"
+        "newavrlef",
+        parents=[parrent_parser],
+        help="Create a new AVR application with LEF (main)",
     )
     parser_new.set_defaults(func=cmd_newavrlef)
 
@@ -342,8 +358,8 @@ def main() -> None:
 
     if args.debug:
         logging.basicConfig(format=logging_format, level=logging.DEBUG)
-        
-    #print(args)
+
+    # print(args)
     if hasattr(args, "func"):
         args.func(args)
         exit(0)
