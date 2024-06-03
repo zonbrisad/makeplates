@@ -66,11 +66,11 @@ class TGenerator:
         self.out_dir = args.outdir
 
         self.has_separators = args.separators
+        self.args = args
 
         self.header_t = None
 
         if header_t is None:
-
             # Load external project header if existing
             headerFile = "./.mpconf/header.txt"
             if os.path.isfile(headerFile):
@@ -106,10 +106,13 @@ class TGenerator:
                 self.query_list(t.sub)
 
     def query(self) -> None:
-        self.set_attribute("name", "Enter C module name", self.name)
-        self.set_attribute("description", "Enter brief description", self.description)
-        self.set_attribute("author", "Enter name of author", self.author)
-        self.set_attribute("email", "Enter email of author", self.email)
+        if self.args.no_interaction is False:
+            self.set_attribute("name", "Enter C module name", self.name)
+            self.set_attribute(
+                "description", "Enter brief description", self.description
+            )
+            self.set_attribute("author", "Enter name of author", self.author)
+            self.set_attribute("email", "Enter email of author", self.email)
 
         self.filename_c = f"{self.name}.c"
         self.filename_h = f"{self.name}.h"
@@ -156,14 +159,10 @@ class TGenerator:
 
         self.replace("__DATE__", self.date)
         self.replace("__LICENSE__", self.license)
-
         self.replace("__FILENAME__", filename)
         self.replace("__ORGANISATION__", self.org)
-
         self.replace("__FILE__", f"_{self.name.upper()}_H_")
-
         self.replace("__VERSION__", "0.01")
-
         self.replace("__STRUCT__", self.struct_name)
         self.replace("__PREFIX__", self.struct_prefix)
         self.replace("__VAR__", self.struct_var)

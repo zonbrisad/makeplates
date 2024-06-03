@@ -201,9 +201,9 @@ t_common_includes = TemplateC(
     c_includes_text="""\
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include <stdint.h>
 """,
 )
 

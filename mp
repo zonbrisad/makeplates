@@ -143,7 +143,6 @@ createProject() {
       break
     fi
 
-    bpMkDir "$PROJECT_DIR"
     break
   done
 
@@ -158,7 +157,6 @@ createProject() {
     if [ "$MCU" == "o" ]; then
       MCU=$(bpReadStr "Enter MCU name" "atmega328p")
     fi
-
   fi
 
   # ARM Target
@@ -166,6 +164,7 @@ createProject() {
     target="${TARGETS_DIR}/target-arm.mk"
   fi
 
+  bpMkDir "$PROJECT_DIR"
   # Project type normal
   if [ "${PROJECT_TYPE}" == "normal" ]; then
 
@@ -174,8 +173,6 @@ createProject() {
     bpMkDir "${PROJECT_DIR}/tools"
 
     create_mpconf "${PROJECT_DIR}"
-    # bpMkDir "${PROJECT_DIR}/.mpconf"
-    # ${MPTEMPLATE} header >"${PROJECT_DIR}/.mpconf/header.txt"
 
     for F in "${NORMAL_FILES[@]}"; do
       bpCp "${BP_SELF_DIR}/${F}" "${PROJECT_DIR}/$(dirname "${F}")/."
@@ -187,25 +184,7 @@ createProject() {
     SRC_DIR="${PROJECT_DIR}"
   fi
 
-  MAKEFILE=${PROJECT_DIR}/Makefile
-  bpCp "${MAKEFILE_TEMPLATE}" "${MAKEFILE}"
-
-  mpReplaceSection "$MAKEFILE" "SETTINGS" "$target"
-  mpReplaceSection "$MAKEFILE" "UTILS" "$target"
-  mpReplaceSection "$MAKEFILE" "PLATFORM-SPECIFIC" "$target"
-  mpReplaceSection "$MAKEFILE" "BUILD" "$target"
-  mpReplaceSection "$MAKEFILE" "TARGETS" "$target"
-  mpReplaceSection "$MAKEFILE" "RUNDEBUG" "$target"
-  mpReplaceSection "$MAKEFILE" "INSTALL" "$target"
-
-  # Replace keywords with data
-  bpReplace "$MAKEFILE" "__NAME__" "${PROJECT_NAME}"
-  bpReplace "$MAKEFILE" "__AUTHOR__" "${BP_NAME} <${BP_EMAIL}>"
-  bpReplace "$MAKEFILE" "__DATE__" "${DATE}"
-  bpReplace "$MAKEFILE" "__DESCRIPTION__" "${DESCRIPTION}"
-  bpReplace "$MAKEFILE" "__LICENSE__" "${BP_LICENSE}"
-  bpReplace "$MAKEFILE" "__ORGANIZATION__" "${BP_ORG}"
-  bpReplace "$MAKEFILE" "__MCU__" "${MCU}"
+  create_makefile "$PROJECT_NAME" "$PROJECT_DIR" "$MAKEFILE_TEMPLATE" "$target" "$DESCRIPTION"
 
   if [ "$LANGUAGE" == "cpp" ]; then
     OPTS="newcpp"
@@ -226,14 +205,187 @@ createProject() {
   bpReplace "${MAKEFILE}" "__PKGLIBS__" ""
 
   echo
-  # ${MPTEMPLATE} "${OPTS}" --name "main" --dir "${SRC_DIR}" --DESCRIPTION "${DESCRIPTION}" --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
-  ${MPTEMPLATE} ${OPTS} --target "${TARGET}" --name "main" --main --outdir "${SRC_DIR}" --description "${DESCRIPTION}" --author "${BP_NAME}" --email "${BP_EMAIL}" --license "${BP_LICENSE}" --separators
+  ${MPTEMPLATE} "${OPTS}" \
+    --target "${TARGET}" \
+    --name "main" \
+    --main \
+    --outdir "${SRC_DIR}" \
+    --description "${DESCRIPTION}" \
+    --author "${BP_NAME}" \
+    --email "${BP_EMAIL}" \
+    --license "${BP_LICENSE}" \
+    --separators
 
   # Git project
   echo
   if bpReadBoolDN "Do you want to create a git project?"; then
     new_git "$PROJECT_NAME" "$PROJECT_DIR"
   fi
+}
+
+read_project_name() { ##I Read project name
+  while true; do
+
+    PROJECT_NAME=$(bpReadStr "Project name" "")
+    PROJECT_DIR="${PROJECT_NAME}"
+
+    if [ -e "$PROJECT_DIR" ]; then
+      bpWarning "Directory ${PROJECT_DIR} already exists."
+      if ! bpReadBoolDN "Use existing directory?"; then
+        continue
+      fi
+      break
+    fi
+
+    bpMkDir "$PROJECT_DIR"
+    break
+  done
+}
+
+#
+create_makefile() {
+  PROJECT_NAME="$1"
+  PROJECTD_DIR="$2"
+  MAKEFILE_TEMPLATE="$3"
+  TARGETT="$4"
+  DESCRIPTION="$5"
+  MAIN_FILE="$6"
+
+  MAKEFILE=${PROJECT_DIR}/Makefile
+  bpCp "${MAKEFILE_TEMPLATE}" "${MAKEFILE}"
+
+  mpReplaceSection "$MAKEFILE" "SETTINGS" "$TARGETT"
+  mpReplaceSection "$MAKEFILE" "UTILS" "$TARGETT"
+  mpReplaceSection "$MAKEFILE" "PLATFORM-SPECIFIC" "$TARGETT"
+  mpReplaceSection "$MAKEFILE" "BUILD" "$TARGETT"
+  mpReplaceSection "$MAKEFILE" "TARGETS" "$TARGETT"
+  mpReplaceSection "$MAKEFILE" "RUNDEBUG" "$TARGETT"
+  mpReplaceSection "$MAKEFILE" "INSTALL" "$TARGETT"
+
+  # Replace keywords with data
+  bpReplace "$MAKEFILE" "__NAME__" "${PROJECT_NAME}"
+  bpReplace "$MAKEFILE" "__AUTHOR__" "${BP_NAME} <${BP_EMAIL}>"
+  bpReplace "$MAKEFILE" "__DATE__" "${DATE}"
+  bpReplace "$MAKEFILE" "__DESCRIPTION__" "${DESCRIPTION}"
+  bpReplace "$MAKEFILE" "__LICENSE__" "${BP_LICENSE}"
+  bpReplace "$MAKEFILE" "__ORGANIZATION__" "${BP_ORG}"
+  bpReplace "$MAKEFILE" "__MCU__" "${MCU}"
+  bpReplace "$MAKEFILE" "__MAINFILE__" "${MAIN_FILE//\//\\\/}"
+}
+
+#
+# Create a new Makeplate project
+#
+# $1 Create text
+# $2 project type [normal|simple]
+# $3 language [c/cpp]
+# $4 TARGET [system|avr|arm]
+# $5 Target options
+# $[] libraries
+#
+createProjectQuick() {
+  echo -e "${1}"
+
+  PROJECT_TYPE="$2"
+  LANGUAGE="$3"
+  TARGET="$4"
+  MCU=""
+
+  if [[ "$TARGET" == "system"* ]]; then
+    target="${TARGETS_DIR}/target-posix.mk"
+    if [[ "$TARGET" == "system-gtk" ]]; then
+      PKGS=("${PKGLIBS_GLIB[@]}")
+    fi
+  fi
+
+  while true; do
+
+    PROJECT_NAME=$(bpReadStr "Project name" "")
+    PROJECT_DIR="${PROJECT_NAME}"
+
+    if [ -e "$PROJECT_DIR" ]; then
+      bpWarning "Directory ${PROJECT_DIR} already exists."
+      if ! bpReadBoolDN "Use existing directory?"; then
+        continue
+      fi
+      break
+    fi
+    break
+  done
+
+  DESCRIPTION=$(bpReadStr "Brief description" "")
+  MAKEFILE_TEMPLATE=${TEMPLATE_DIR}/Makefile-${PROJECT_TYPE}.mk
+
+  # # AVR target
+  # if [ "$TARGET" == "avr" ]; then
+  #   target="${TARGETS_DIR}/target-avr.mk"
+  #   bpSelectFromList "6" "Choose MCU variant" "${AVR_LIST[@]}"
+  #   MCU=$bpReturn
+  #   if [ "$MCU" == "o" ]; then
+  #     MCU=$(bpReadStr "Enter MCU name" "atmega328p")
+  #   fi
+
+  # fi
+
+  # # ARM Target
+  # if [ "$TARGET" == "arm" ]; then
+  #   target="${TARGETS_DIR}/target-arm.mk"
+  # fi
+
+  # # Project type normal
+  # if [ "${PROJECT_TYPE}" == "normal" ]; then
+
+  #   SRC_DIR="${PROJECT_DIR}/src"
+  #   bpMkDir "${SRC_DIR}"
+  #   bpMkDir "${PROJECT_DIR}/tools"
+
+  #   create_mpconf "${PROJECT_DIR}"
+  #   # bpMkDir "${PROJECT_DIR}/.mpconf"
+  #   # ${MPTEMPLATE} header >"${PROJECT_DIR}/.mpconf/header.txt"
+
+  #   for F in "${NORMAL_FILES[@]}"; do
+  #     bpCp "${BP_SELF_DIR}/${F}" "${PROJECT_DIR}/$(dirname "${F}")/."
+  #   done
+  # fi
+
+  # Project type simple
+  if [ "${PROJECT_TYPE}" == "simple" ]; then
+    SRC_DIR="${PROJECT_DIR}"
+  fi
+
+  bpMkDir "$PROJECT_DIR"
+
+  if [ "$LANGUAGE" == "cpp" ]; then
+    OPTS="newcpp"
+    MAIN="${SRC_DIR}/main.cpp"
+  else
+    OPTS="newc"
+    MAIN="${SRC_DIR}/main.c"
+  fi
+
+  MAIN_FILE=${MAIN#"${PROJECT_DIR}/"}
+
+  create_makefile "$PROJECT_NAME" "$PROJECT_DIR" "$MAKEFILE_TEMPLATE" "$target" "$DESCRIPTION" "$MAIN_FILE"
+
+  for L in "${PKGS[@]}"; do
+    bpReplace "${MAKEFILE}" "__PKGLIBS__" "PKGLIBS += ${L}\n__PKGLIBS__"
+  done
+
+  bpReplace "${MAKEFILE}" "__PKGLIBS__" ""
+
+  echo
+  ${MPTEMPLATE} "${OPTS}" \
+    --target "${TARGET}" \
+    --name "main" \
+    --main \
+    --outdir "${SRC_DIR}" \
+    --description "${DESCRIPTION}" \
+    --author "${BP_NAME}" \
+    --email "${BP_EMAIL}" \
+    --license "${BP_LICENSE}" \
+    --separators \
+    --no_interaction
+
 }
 
 ##- C Projects
@@ -248,6 +400,10 @@ newsc() { ##D Create a new simple C makeplate project
 
 newg() { ##D Create a new GLIB/GTK based C makeplate project
   createProject "Creating new makeplate C glib project" "normal" "c" "system-gtk"
+}
+
+newq() { ##D Quick project, same as simple project, but with fewer questions
+  createProjectQuick "Creating new simple makeplate C project" "simple" "c" "system"
 }
 
 ##C- CPP C++ Projects
@@ -369,7 +525,6 @@ mpconf() { ##D Create .mpconf directory and header template
   create_mpconf "$2"
 }
 
-
 #
 # $1 file
 # $2 start match
@@ -474,7 +629,6 @@ new_git() { ##I New project
   fi
 }
 
-
 ##C- DEV Project management (git) (for mp developers)
 
 clean() { ##C DEV Remove leftover files
@@ -525,7 +679,6 @@ pull() { ##C DEV Pull bashplates from GITHUB
 em() { ##C DEV Open standard Makefile template
   bpEdit "${BP_SELF_DIR}/mp-c/Makefile" "$2"
 }
-
 
 #---------------------------------------------------------------------
 # Bashplate settings

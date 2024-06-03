@@ -53,8 +53,15 @@ sym: $(OUTDIR)/$(TARGET).sym
 run:    ##D Run application
 	@$(OUTDIR)/$(TARGET)
 
+
+GDBOPTS = --tui                  # activate text user interface (tui)
+GDBOPTS += -ex 'break main'      # Set a breakpoint at main function
+GDBOPTS += -ex 'set print pretty on' # easy to read code printouts 
+GDBOPTS += -ex 'set print array on'  # easy to read array printout 
+
 debug: ##D Debug program
-	@$(GDB) $(TRGFILE) 
+
+	@$(GDB) $(GDBOPTS) $(TRGFILE) 
 ###RUNDEBUG_END###
 
 
