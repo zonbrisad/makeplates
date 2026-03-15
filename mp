@@ -2,6 +2,7 @@
 # shellcheck disable=2034
 # shellcheck disable=2317
 # shellcheck disable=1090
+# shellcheck disable=2329
 #---------------------------------------------------------------------
 #
 #  [Description]
@@ -90,7 +91,6 @@ AVR_LIST=(
   "8" "atmega1280" "ATMega1280 (Arduino Mega 1280)"
   "9" "atmega2560" "ATMega2560 (Arduino Mega 2560)"
   "10" "atmega32u4" "ATMega32u4 (Arduino Leonardo/Micro)"
-  #  "11" "atmega4809" "ATMega4809 (Arduino Nano Every)"
   "o" ":" "Other..."
 )
 

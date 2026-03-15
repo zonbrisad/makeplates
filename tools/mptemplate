@@ -31,12 +31,12 @@ import json
 import os
 import sys
 import traceback
-from datetime import datetime
-from typing import List
-from pathlib import Path
-from dataclasses import dataclass
-import query
-import bashplates
+# from datetime import datetime
+# from typing import List
+# from pathlib import Path
+# from dataclasses import dataclass
+# import query
+# import bashplates
 
 from bashplates import Bp
 from query import Query
@@ -57,9 +57,9 @@ self_dir = os.path.abspath(os.path.dirname(sys.argv[0]))
 
 
 class App:
-    NAME = "mpterm"
-    VERSION = "0.2"
-    DESCRIPTION = "MpTerm is a simple serial terminal program"
+    NAME = "mptemplate"
+    VERSION = "0.3"
+    DESCRIPTION = "mptemplate is a C code generator"
     LICENSE = ""
     AUTHOR = "Peter Malmberg"
     EMAIL = "peter.malmberg@gmail.com"
