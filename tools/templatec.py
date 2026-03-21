@@ -202,8 +202,8 @@ t_common_includes = TemplateC(
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include <stdbool.h>
 #include <string.h>
+#include <stdbool.h>
 """,
 )
 
@@ -280,6 +280,10 @@ t_avr = TemplateC(
     sub=[t_avr_uart, t_avr_timer1, t_avr_adc],
     h_macros_text="",
     c_includes_text="""\
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include <avr/io.h>
 #include <avr/pgmspace.h>
 #include <avr/interrupt.h>
@@ -287,10 +291,6 @@ t_avr = TemplateC(
 #include <avr/sleep.h>
 #include <util/delay.h>
 #include <util/atomic.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <stdint.h>
 """,
     c_variables_text="""\
 """,
