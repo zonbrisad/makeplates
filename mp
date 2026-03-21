@@ -184,8 +184,6 @@ createProject() {
     SRC_DIR="${PROJECT_DIR}"
   fi
 
-  create_makefile "$PROJECT_NAME" "$PROJECT_DIR" "$MAKEFILE_TEMPLATE" "$target" "$DESCRIPTION"
-
   if [ "$LANGUAGE" == "cpp" ]; then
     OPTS="newcpp"
     MAIN="${SRC_DIR}/main.cpp"
@@ -196,7 +194,7 @@ createProject() {
 
   M=${MAIN#"${PROJECT_DIR}/"}
 
-  bpReplace "${MAKEFILE}" "__MAINFILE__" "${M//\//\\\/}"
+  create_makefile "$PROJECT_NAME" "$PROJECT_DIR" "$MAKEFILE_TEMPLATE" "$target" "$DESCRIPTION" "${M}"
 
   for L in "${PKGS[@]}"; do
     bpReplace "${MAKEFILE}" "__PKGLIBS__" "PKGLIBS += ${L}\n__PKGLIBS__"
@@ -273,7 +271,7 @@ create_makefile() {
   bpReplace "$MAKEFILE" "__LICENSE__" "${BP_LICENSE}"
   bpReplace "$MAKEFILE" "__ORGANIZATION__" "${BP_ORG}"
   bpReplace "$MAKEFILE" "__MCU__" "${MCU}"
-  # bpReplace "$MAKEFILE" "__MAINFILE__" "${MAIN_FILE//\//\\\/}"
+  bpReplace "$MAKEFILE" "__MAINFILE__" "${MAIN_FILE//\//\\\/}"
 }
 
 #
