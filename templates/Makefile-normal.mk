@@ -531,17 +531,6 @@ backup: ##D Make an incremental backup
 
 # Project options -----------------------------------------------------------
 .PHONY: newc newcpp newclass 
-
-##- Create
-
-newc:  ##D Create a new C module
-	@${MPTEMPLATE} newc --outdir src 
-
-#newcpp:  ## Create a new C++ module
-#	@${CTEMPLATE} newcpp --outdir src --author "$(AUTHOR)" --license "$(LICENSE)"
-
-#newclass:  ## Create a new C++ class
-#	@${MPTEMPLATE} newclass --outdir src --author "$(AUTHOR)" --license "$(LICENSE)"	
 		
 #
 # Help information
@@ -695,10 +684,6 @@ AST +=--preserve-date
 
 PSRCH = $(PSRC:%.c=%.h) 
 
-astyle: ##D Format source to conform to a standard
-	@$(ASTYLE) $(AST) src/*.c src/*.cpp src/*.h
-
-	
 # Listing of phony targets.
 .PHONY : all clean gccversion build begin finished end elf lss sym archive edit help backup list-src list-flags run
 

@@ -173,7 +173,7 @@ backup() { ##D Make an incremental backup
     . \
     "${BACKUP_DIR}/backup_0"
 
-  if (($? == 0)); then
+  if (( $? == 0)); then
     echo
     bpOk "Created backup."
   fi
@@ -289,37 +289,6 @@ get_serial_port() {
   bpReturn=$(bpReadStrR "Enter Port >" "PORT" "${PORT}")
 }
 
-arduino_write_flash() { ## Write firmware to AVR(Arduino) via arduino bootloader (deprecated)
-  FILE=${1}
-  MCU=${2}
-  PORT=${3}
-
-  check_port_exist "${PORT}"
-
-  mpterm_suspend
-
-  # Write to flash
-  avrdude -v -v -V -p "${MCU}" -b 57600 -c arduino -P "${PORT}" -U flash:w:"${FILE}":i
-}
-
-
-#
-# $2 file
-# $3 MCU type
-# $4 port
-#
-arduino-flash() { ##D Write firmware to arduino with avrdude (deprecated)
-  FILE=${2}
-  MCU=${3}
-  PORT=${4}
-
-  check_writing
-
-  get_serial_port "$PORT"
-  PORT="$bpReturn"
-
-  arduino_write_flash "${FILE}" "${MCU}" "${PORT}"
-}
 
 avr_flash_arduino() { ##D Write firmware to AVR with avrdude using arduino protocol 
   FILE=${2}
@@ -336,7 +305,7 @@ avr_flash_arduino() { ##D Write firmware to AVR with avrdude using arduino proto
   mpterm_suspend
 
   # Write to flash
-  avrdude -v -v -V -p "${MCU}" -b 57600 -c arduino -P "${PORT}" -U flash:w:"${FILE}":i
+  avrdude -v -v -V -p "${MCU}" -c arduino -P "${PORT}" -U flash:w:"${FILE}":i
 }
 
 avr_flash_urboot() { ##D Write firmware to AVR with avrdude using urboot protocol 

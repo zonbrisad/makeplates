@@ -149,11 +149,15 @@ term: ##D Connect to QEMU virtual serial port via telnet terminal
 # Avrdude
 #============================================================================
 AVRDUDE_PORT = /dev/ttyUSB1
+AVRDUDE_PROGRAMMER = jtag2isp
+AVRDUDE_FUSES = 
+# AVRDUDE_FUSES = -U lfuse:w:0xFF:m -U hfuse:w:0xD9:m -U efuse:w:0xF4:m -U lock:w:0x0F:m
 
 flash: ##D Write program to MCU flash with avrdude/micronucleus
-	@$(MPUTILS) avr_flash_urboot $(OUTDIR)/$(TARGET).hex $(MCU) $(AVRDUDE_PORT) 	
-# 	@$(MPUTILS) avr_flash_arduino $(OUTDIR)/$(TARGET).hex $(MCU) $(AVRDUDE_PORT) 
+	@$(MPUTILS) avr_flash_arduino $(OUTDIR)/$(TARGET).hex $(MCU) $(AVRDUDE_PORT) 
+#	@$(MPUTILS) avr_flash_urboot $(OUTDIR)/$(TARGET).hex $(MCU) $(AVRDUDE_PORT) 	
 #	@$(MPUTILS) avr_flash_micronucleus $(OUTDIR)/$(TARGET).hex  
+# 	@avrdude -v -F -c AVRDUDE_PROGRAMMER -p "${MCU}" -U "flash:w:$(OUTDIR)/$(TARGET).hex" AVRDUDE_FUSES
 
 
 ###INSTALL_END###

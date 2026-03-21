@@ -70,14 +70,14 @@ bpUserSettings() {
 
 NORMAL_FILES=(
   "tools/mputils"
-  "tools/tgenerator.py"
-  "tools/mptemplate"
   "tools/mpbin2array"
-  "tools/templatec.py"
-  "tools/Project.py"
-  "tools/query.py"
-  "tools/bashplates.py"
-  "tools/escape.py"
+#  "tools/tgenerator.py"
+#  "tools/mptemplate"
+#  "tools/templatec.py"
+#  "tools/Project.py"
+#  "tools/query.py"
+#  "tools/bashplates.py"
+#  "tools/escape.py"
 )
 
 AVR_LIST=(
@@ -113,10 +113,10 @@ PKGLIBS_GLIB=(
 createProject() {
   echo -e "${1}"
 
-  PROJECT_TYPE="$2"
-  LANGUAGE="$3"
-  TARGET="$4"
-  MCU=""
+  local PROJECT_TYPE="$2"
+  local LANGUAGE="$3"
+  local TARGET="$4"
+  local MCU=""
 
   if [[ "$TARGET" == "system"* ]]; then
     target="${TARGETS_DIR}/target-posix.mk"
@@ -224,6 +224,9 @@ createProject() {
 }
 
 read_project_name() { ##I Read project name
+  local PROJECT_NAME
+  local PROJECT_DIR
+
   while true; do
 
     PROJECT_NAME=$(bpReadStr "Project name" "")
@@ -244,23 +247,23 @@ read_project_name() { ##I Read project name
 
 #
 create_makefile() {
-  PROJECT_NAME="$1"
-  PROJECTD_DIR="$2"
-  MAKEFILE_TEMPLATE="$3"
-  TARGETT="$4"
-  DESCRIPTION="$5"
-  MAIN_FILE="$6"
+  local PROJECT_NAME="${1}"
+  local PROJECT_DIR="${2}"
+  local MAKEFILE_TEMPLATE="${3}"
+  local TARGET="${4}"
+  local DESCRIPTION="${5}"
+  local MAIN_FILE="${6}"
 
   MAKEFILE=${PROJECT_DIR}/Makefile
   bpCp "${MAKEFILE_TEMPLATE}" "${MAKEFILE}"
 
-  mpReplaceSection "$MAKEFILE" "SETTINGS" "$TARGETT"
-  mpReplaceSection "$MAKEFILE" "UTILS" "$TARGETT"
-  mpReplaceSection "$MAKEFILE" "PLATFORM-SPECIFIC" "$TARGETT"
-  mpReplaceSection "$MAKEFILE" "BUILD" "$TARGETT"
-  mpReplaceSection "$MAKEFILE" "TARGETS" "$TARGETT"
-  mpReplaceSection "$MAKEFILE" "RUNDEBUG" "$TARGETT"
-  mpReplaceSection "$MAKEFILE" "INSTALL" "$TARGETT"
+  mpReplaceSection "$MAKEFILE" "SETTINGS" "$TARGET"
+  mpReplaceSection "$MAKEFILE" "UTILS" "$TARGET"
+  mpReplaceSection "$MAKEFILE" "PLATFORM-SPECIFIC" "$TARGET"
+  mpReplaceSection "$MAKEFILE" "BUILD" "$TARGET"
+  mpReplaceSection "$MAKEFILE" "TARGETS" "$TARGET"
+  mpReplaceSection "$MAKEFILE" "RUNDEBUG" "$TARGET"
+  mpReplaceSection "$MAKEFILE" "INSTALL" "$TARGET"
 
   # Replace keywords with data
   bpReplace "$MAKEFILE" "__NAME__" "${PROJECT_NAME}"
@@ -270,7 +273,7 @@ create_makefile() {
   bpReplace "$MAKEFILE" "__LICENSE__" "${BP_LICENSE}"
   bpReplace "$MAKEFILE" "__ORGANIZATION__" "${BP_ORG}"
   bpReplace "$MAKEFILE" "__MCU__" "${MCU}"
-  bpReplace "$MAKEFILE" "__MAINFILE__" "${MAIN_FILE//\//\\\/}"
+  # bpReplace "$MAKEFILE" "__MAINFILE__" "${MAIN_FILE//\//\\\/}"
 }
 
 #
@@ -286,10 +289,10 @@ create_makefile() {
 createProjectQuick() {
   echo -e "${1}"
 
-  PROJECT_TYPE="$2"
-  LANGUAGE="$3"
-  TARGET="$4"
-  MCU=""
+  local PROJECT_TYPE="$2"
+  local LANGUAGE="$3"
+  local TARGET="$4"
+  local MCU=""
 
   if [[ "$TARGET" == "system"* ]]; then
     target="${TARGETS_DIR}/target-posix.mk"
@@ -315,38 +318,6 @@ createProjectQuick() {
 
   DESCRIPTION=$(bpReadStr "Brief description" "")
   MAKEFILE_TEMPLATE=${TEMPLATE_DIR}/Makefile-${PROJECT_TYPE}.mk
-
-  # # AVR target
-  # if [ "$TARGET" == "avr" ]; then
-  #   target="${TARGETS_DIR}/target-avr.mk"
-  #   bpSelectFromList "6" "Choose MCU variant" "${AVR_LIST[@]}"
-  #   MCU=$bpReturn
-  #   if [ "$MCU" == "o" ]; then
-  #     MCU=$(bpReadStr "Enter MCU name" "atmega328p")
-  #   fi
-
-  # fi
-
-  # # ARM Target
-  # if [ "$TARGET" == "arm" ]; then
-  #   target="${TARGETS_DIR}/target-arm.mk"
-  # fi
-
-  # # Project type normal
-  # if [ "${PROJECT_TYPE}" == "normal" ]; then
-
-  #   SRC_DIR="${PROJECT_DIR}/src"
-  #   bpMkDir "${SRC_DIR}"
-  #   bpMkDir "${PROJECT_DIR}/tools"
-
-  #   create_mpconf "${PROJECT_DIR}"
-  #   # bpMkDir "${PROJECT_DIR}/.mpconf"
-  #   # ${MPTEMPLATE} header >"${PROJECT_DIR}/.mpconf/header.txt"
-
-  #   for F in "${NORMAL_FILES[@]}"; do
-  #     bpCp "${BP_SELF_DIR}/${F}" "${PROJECT_DIR}/$(dirname "${F}")/."
-  #   done
-  # fi
 
   # Project type simple
   if [ "${PROJECT_TYPE}" == "simple" ]; then
@@ -391,7 +362,7 @@ createProjectQuick() {
 ##- C Projects
 
 newc() { ##D Create a new standard C makeplate project
-  createProject "Creating new makeplate C project" "normal" "c" "system"
+  createProject "Creating new makeplate C project" "normal" "c" "system" 
 }
 
 newsc() { ##D Create a new simple C makeplate project
