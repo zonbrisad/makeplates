@@ -14,34 +14,26 @@
 # Makeplates is available at: https://github.com/zonbrisad/makeplates
 #----------------------------------------------------------------------------
 
-# Project License (GPL, GPLv2, MIT, BSD, Apache, etc.) 
-LICENSE = __LICENSE__
-
 # Target file name (without extension).
 TARGET = __NAME__
 
-# List C, C++ and assembler source files here. (C/C++ dependencies are automatically generated.)
-SRC = __MAINFILE__ 
+# List of directories for source files
+SRCDIR = src
 
-# Include directories
-INCLUDE = .
+# List of include directories
+INCDIR = src 
+
+# List C, C++ and assembler source files here. (C/C++ dependencies are automatically generated.)
+SRC = __MAINFILE__
 
 # Libraries to link
 LIB   = -lm 
+#LIB  += -lpthread
 
 # Libraries to use in pkg-config system
-PKGLIBS  = 
+PKGLIBS =
+__PKGLIBS__
 
-# Object files directory
-#     To put object files in current directory, use a dot (.), do NOT make
-#     this an empty or blank macro!
-OBJDIR = .
-
-# Build directory
-BUILDDIR=build
-
-# Output directory
-OUTDIR = .
 
 # Optimization level, can be [0, 1, 2, 3, s]. 
 #     0 = turn off optimization. s = optimize for size.
@@ -50,13 +42,19 @@ OPT = 2
 # Compiler flag to set the C and C++ Standard level.
 # [ gnu99 gnu11 c++98 c++03 c++11 c++14 c++17 c++23] 
 CSTANDARD   = gnu11
-CPPSTANDARD = c++11
+CXXSTANDARD = c++11
 
 # C Macro definitions
 CDEFS = 
 
 # C++ Macro definitions
-CPPDEFS = 
+CXXDEFS = 
+
+# Build directory
+BUILDDIR = build
+
+# Output directory
+OUTDIR := output
 
 # Debug information --------------------------------------------------------- 
 # 0 = no debug information 
@@ -77,9 +75,9 @@ __SETTINGS__
 CFLAGS = -g$(DEBUG)                            # Debugging information
 CFLAGS += -O$(OPT)                             # Optimisation level
 CFLAGS += -std=$(CSTANDARD)                    # C standard
-CFLAGS += $(patsubst %,-I%,$(INCLUDE))         # Include directories 
-CFLAGS += $(patsubst %,-D%,$(CDEFS))           # Macro definitions
-CFLAGS += -Wa,-adhlns=$(<:%.c=$(BUILDDIR)/%.lst) # Generate assembler listing
+CFLAGS += $(addprefix,-I,$(INCDIR))            # Include directories 
+CFLAGS += $(addprefix,-D,$(CDEFS))             # Macro definitions
+CFLAGS += -Wa,-adhlns=$(@:.o=.lst)             # Generate assembler listing
 
 # Compiler Tuning C ---------------------------------------------------------
 CFLAGS += -funsigned-char
@@ -109,37 +107,37 @@ CFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void po
 
 
 # Compiler Options C++ ------------------------------------------------------
-CPPFLAGS = -g$(DEBUG)                              # Debugging information
-CPPFLAGS += -O$(OPT)                               # Optimisation level
-CPPFLAGS += -std=$(CPPSTANDARD)                    # C++ standard
-CPPFLAGS += $(patsubst %,-I%,$(INCLUDE))           # Include directories 
-CPPFLAGS += $(patsubst %,-D%,$(CPPDEFS))           # Macro definitions
-CPPFLAGS += -Wa,-adhlns=$(<:%.cpp=$(BUILDDIR)/%.lst) # Generate assembler listing
+CXXFLAGS = -g$(DEBUG)                              # Debugging information
+CXXFLAGS += -O$(OPT)                               # Optimisation level
+CXXFLAGS += -std=$(CXXSTANDARD)                    # C++ standard
+CXXFLAGS += $(addprefix,-I,$(INCDIR))              # Include directories 
+CXXFLAGS += $(addprefix,-D,$(CXXDEFS))             # Macro definitions
+CXXFLAGS += -Wa,-adhlns=$(@:.o=.lst)               # Generate assembler listing
 
 # Compiler Tuning C++ -------------------------------------------------------
-CPPFLAGS += -funsigned-char
-CPPFLAGS += -funsigned-bitfields
-#CPPFLAGS += -fpack-struct
-CPPFLAGS += -fshort-enums
-CPPFLAGS += -fno-exceptions
-#CPPFLAGS += -mshort-calls
-#CPPFLAGS += -fno-unit-at-a-time
-#CPPFLAGS += -fPIC                  # Position independet code
+CXXFLAGS += -funsigned-char
+CXXFLAGS += -funsigned-bitfields
+#CXXFLAGS += -fpack-struct
+CXXFLAGS += -fshort-enums
+CXXFLAGS += -fno-exceptions
+#CXXFLAGS += -mshort-calls
+#CXXFLAGS += -fno-unit-at-a-time
+#CXXFLAGS += -fPIC                  # Position independet code
 
 # Compiler Warnings C++ -----------------------------------------------------
-CPPFLAGS += -Wall                  # Standard warnings
-CPPFLAGS += -Wextra                # Some extra warnings
-CPPFLAGS += -Wmissing-braces 
-CPPFLAGS += -Wmissing-declarations # Warn if global function is not declared
-CPPFLAGS += -Wredundant-decls      # Warn if something is declared more than ones
-CPPFLAGS += -Wunreachable-code     # if code is not used
-#CPPFLAGS += -Wshadow               # if local variable has same name as global (problematic?)
-CPPFLAGS += -Wformat=2             # check printf and scanf for problems
-#CPPFLAGS += -Wno-format-nonliteral # 
-CPPFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void pointer
-#CPPFLAGS += -Wsign-compare
-#CPPFLAGS += -Wundef
-#CPPFLAGS += -Werror              # All warnings will be treated as errors
+CXXFLAGS += -Wall                  # Standard warnings
+CXXFLAGS += -Wextra                # Some extra warnings
+CXXFLAGS += -Wmissing-braces 
+CXXFLAGS += -Wmissing-declarations # Warn if global function is not declared
+CXXFLAGS += -Wredundant-decls      # Warn if something is declared more than ones
+CXXFLAGS += -Wunreachable-code     # if code is not used
+#CXXFLAGS += -Wshadow               # if local variable has same name as global (problematic?)
+CXXFLAGS += -Wformat=2             # check printf and scanf for problems
+#CXXFLAGS += -Wno-format-nonliteral # 
+CXXFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void pointer
+#CXXFLAGS += -Wsign-compare
+#CXXFLAGS += -Wundef
+#CXXFLAGS += -Werror              # All warnings will be treated as errors
 
 
 # Linker Options ------------------------------------------------------------
@@ -148,9 +146,16 @@ CPPFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void 
 #    --cref:    add cross reference to  map file
 LDFLAGS = -Wl,-Map=$(OUTDIR)/$(TARGET).map,--cref
 LDFLAGS += $(EXTMEMOPTS)
-LDFLAGS += $(patsubst %,-L%,$(INCLUDE))
+LDFLAGS += $(addprefix,-L,$(INCDIR))
 LDFLAGS += -g
 
+# Misc settings -------------------------------------------------------------
+MPFLAGS  = -DTARGET=$(TARGET)
+MPFLAGS += -DVERSION=$(VERSION)
+ 
+CFLAGS   += $(MPFLAGS)
+CXXFLAGS += $(MPFLAGS)
+ASFLAGS  += $(MPFLAGS)
 
 #
 # Platform specific options
@@ -170,13 +175,13 @@ REMOVEDIR  = rm -rf
 COPY       = cp -f 
 MOVE       = mv -f
 MKDIR      = mkdir -p
-SED        = sed              # stream editor program
+SED        = sed               # stream editor program
 
 
 TCHAIN = $(TCHAIN_BASE)/$(TCHAIN_PREFIX)
 
 CC        = ${TCHAIN}gcc
-CPP       = ${TCHAIN}g++
+CXX       = ${TCHAIN}g++
 OBJCOPY   = ${TCHAIN}objcopy
 OBJDUMP   = ${TCHAIN}objdump
 SIZE      = ${TCHAIN}size
@@ -191,62 +196,62 @@ STRIP     = ${TCHAIN}strip
 #============================================================================
 
 # Color attributes 
-E_BLACK      = \e[0;300m
-E_RED        = \e[0;31m
-E_GREEN      = \e[0;32m
-E_YELLOW     = \e[0;33m
-E_BLUE       = \e[0;34m
-E_MAGENTA    = \e[0;35m
-E_CYAN       = \e[0;36m
-E_GRAY       = \e[0;37m
-E_DARKGRAY   = \e[1;30m
-E_BR_RED     = \e[1;31m
-E_BR_GREEN   = \e[1;32m
-E_BR_YELLOW  = \e[1;33m
-E_BR_BLUE    = \e[1;34m
-E_BR_MAGENTA = \e[1;35m
-E_BR_CYAN    = \e[1;36m
-E_WHITE      = \e[1;37m
-E_BG_BLACK   = \e[40m
-E_BG_RED     = \e[41m
-E_BG_GREEN   = \e[42m
-E_BG_YELLOW  = \e[43m
-E_BG_BLUE    = \e[44m
-E_BG_MAGENTA = \e[45m
-E_BG_CYAN    = \e[46m
-E_BG_WHITE   = \e[47m
+E_FG_BLACK        = \e[0;300m
+E_FG_RED          = \e[0;31m
+E_FG_GREEN        = \e[0;32m
+E_FG_YELLOW       = \e[0;33m
+E_FG_BLUE         = \e[0;34m
+E_FG_MAGENTA      = \e[0;35m
+E_FG_CYAN         = \e[0;36m
+E_FG_GRAY         = \e[0;37m
+E_FG_DARKGRAY     = \e[1;30m
+E_FG_BR_RED       = \e[1;31m
+E_FG_BR_GREEN     = \e[1;32m
+E_FG_BR_YELLOW    = \e[1;33m
+E_FG_BR_BLUE      = \e[1;34m
+E_FG_BR_MAGENTA   = \e[1;35m
+E_FG_BR_CYAN      = \e[1;36m
+E_FG_WHITE        = \e[1;37m
+E_BG_BLACK        = \e[40m
+E_BG_RED          = \e[41m
+E_BG_GREEN        = \e[42m
+E_BG_YELLOW       = \e[43m
+E_BG_BLUE         = \e[44m
+E_BG_MAGENTA      = \e[45m
+E_BG_CYAN         = \e[46m
+E_BG_WHITE        = \e[47m
 
 # Style attributes
-E_BOLD       = \e[1m
-E_DIM        = \e[2m
-E_UNDERLINE  = \e[4m
-E_BLINK      = \e[5m
-E_REVERSE    = \e[7m
+E_BOLD=\e[1m
+E_DIM=\e[2m
+E_UNDERLINE=\e[4m
+E_BLINK=\e[5m
+E_REVERSE=\e[7m
 
-E_RESET      = \e[0m
+E_RESET           = \e[0m
 
 # System color definitions
-C_OK=$(E_BR_GREEN)
-C_WARNING=$(E_BR_YELLOW)
-C_ERROR=$(E_BR_RED)
-C_FILE=$(E_BR_CYAN)
-C_DIR=$(E_CYAN)
-C_NOTE=$(E_BR_GREEN)
-C_MSG=$(E_BR_GREEN)
-C_ACTION=$(E_BR_MAGENTA)
-C_VALUE=$(E_WHITE)$(E_BG_BLUE)
-C_IDENTIFIER=$(E_WHITE)
+C_OK=$(E_FG_BR_GREEN)
+C_WARNING=$(E_FG_BR_YELLOW)
+C_ERROR=$(E_FG_BR_RED)
+C_FILE=$(E_FG_BR_CYAN)
+C_DIR=$(E_FG_CYAN)
+C_NOTE=$(E_FG_BR_GREEN)
+C_MSG=$(E_FG_BR_GREEN)
+C_ACTION=$(E_FG_BR_MAGENTA)
+C_VALUE=$(E_FG_WHITE)$(E_BG_BLUE)
+C_IDENTIFIER=$(E_FG_WHITE)
 
 # Messages ------------------------------------------------------------------
-MSG_LINE             = "$(E_WHITE)------------------------------------------------------------------$(E_RESET)"
-MSG_BEGIN            = "${E_WHITE}-------------------------------- Begin ---------------------------${E_RESET}"
-MSG_END              = "${E_WHITE}-------------------------------- End -----------------------------${E_RESET}"
+MSG_LINE             = "$(E_FG_WHITE)------------------------------------------------------------------$(E_RESET)"
+MSG_BEGIN            = "${E_FG_WHITE}-------------------------------- Begin ---------------------------${E_RESET}"
+MSG_END              = "${E_FG_WHITE}-------------------------------- End -----------------------------${E_RESET}"
 MSG_ERRORS_NONE      = "${C_OK}Errors: none ${E_RESET}"
 MSG_STRIP            = "${C_ACTION}Striping:${E_RESET}"
 MSG_LINKING          = "${C_ACTION}Linking:${E_RESET}"
 MSG_COMPILING        = "${C_ACTION}Compiling C:  ${E_RESET}"
-MSG_COMPILING_CPP    = "${C_ACTION}Compiling C++:${E_RESET}"
-MSG_ASSEMBLING       = "${C_ACTION}Assembling:${E_RESET}"
+MSG_COMPILING_CXX    = "${C_ACTION}Compiling C++:${E_RESET}"
+MSG_ASSEMBLING       = "${C_ACTION}Assembling: ${E_RESET}"
 MSG_CLEANING         = "$(C_ACTION)Cleaning project:$(E_RESET)"
 MSG_EXTENDED_LISTING = "${C_ACTION}Creating Extended Listing/Disassembly:$(E_RESET)"
 MSG_SYMBOL_TABLE     = "${C_ACTION}Creating Symbol Table:$(E_RESET)"
@@ -265,20 +270,21 @@ MSG_EXTENDED_COFF    = "${C_ACTION}Converting to AVR Extended COFF:${E_RESET}"
 MSG_MOC              = "${C_ACTION}Creating MOC file:${E_RESET}"
 MSG_UI               = "${C_ACTION}Generating UI header:${E_RESET}"
 MSG_BACKUP           = "${C_ACTION}Making incremental backup of project:${E_RESET}"
-MSG_SRC              = "${C_MSG}Source files $(E_GREEN)-----------------------------------------------------${E_RESET}"
-MSG_FLAGS            = "${C_MSG}Compiler Flags $(E_GREEN)---------------------------------------------------${E_RESET}"
-MSG_LINKER           = "${C_MSG}Linker Flags $(E_GREEN)-----------------------------------------------------${E_RESET}"
-MSG_PROJECT          = "${C_MSG}Project info $(E_GREEN)-----------------------------------------------------${E_RESET}"
-MSG_INCLUDES         = "${C_MSG}Include directories $(E_GREEN)----------------------------------------------${E_RESET}"
-MSG_OBJECTS          = "${C_MSG}Object files $(E_GREEN)-----------------------------------------------------${E_RESET}"	
-MSG_DEFS             = "${C_MSG}Macro definitions $(E_GREEN)------------------------------------------------${E_RESET}"
-MSG_INSTALL_INFO     = "${C_MSG}Install settings $(E_GREEN)-------------------------------------------------${E_RESET}"
+MSG_UF2              = "${C_ACTION}Creating UF2:${E_RESET}"
+MSG_SRC              = "${C_MSG}Source files $(E_FG_GREEN)-----------------------------------------------------${E_RESET}"
+MSG_FLAGS            = "${C_MSG}Compiler Flags $(E_FG_GREEN)---------------------------------------------------${E_RESET}"
+MSG_LINKER           = "${C_MSG}Linker Flags $(E_FG_GREEN)-----------------------------------------------------${E_RESET}"
+MSG_PROJECT          = "${C_MSG}Project info $(E_FG_GREEN)-----------------------------------------------------${E_RESET}"
+MSG_INCLUDES         = "${C_MSG}Include directories $(E_FG_GREEN)----------------------------------------------${E_RESET}"
+MSG_OBJECTS          = "${C_MSG}Object files $(E_FG_GREEN)-----------------------------------------------------${E_RESET}"	
+MSG_DEFS             = "${C_MSG}Macro definitions $(E_FG_GREEN)------------------------------------------------${E_RESET}"
+MSG_INSTALL_INFO     = "${C_MSG}Install settings $(E_FG_GREEN)-------------------------------------------------${E_RESET}"
 MSG_INSTALLING       = "${C_ACTION}Installing:   ${E_RESET}"
 MSG_BUILDING         = "$(C_ACTION)Building:     "
 	
 # Compiler output colorizer filter ------------------------------------------
 F_SOURCE=| sed -e "s/\(.*\/\)\(.*\)/$$(printf "$(C_DIR)")\1$$(printf "$(C_FILE)")\2$$(printf "$(E_RESET)")/"
-F_INF="s/In function/$$(printf "$(E_BR_GREEN)")&$$(printf "$(E_RESET)")/i"
+F_INF="s/In function/$$(printf "$(E_FG_BR_GREEN)")&$$(printf "$(E_RESET)")/i"
 F_NOTE="s/note:/$$(printf "$(C_NOTE)")&$$(printf "$(E_RESET)")/i"
 F_WARNING="s/warning:/$$(printf "$(C_WARNING)")&$$(printf "$(E_RESET)")/i"
 F_ERROR="s/error:/$$(printf "$(C_ERROR)")&$$(printf "$(E_RESET)")/i"
@@ -288,7 +294,7 @@ F_WARNING2="s/unused variable/$$(printf "$(C_WARNING)")&$$(printf "$(E_RESET)")/
 F_WARNING3="s/may be used uninitialized in this function/$$(printf "$(C_WARNING)")&$$(printf "$(E_RESET)")/i"
 F_WARNING4="s/implicit declaration of function/$$(printf "$(C_WARNING)")&$$(printf "$(E_RESET)")/i"
 F_WARNING5="s/value computed is not used/$$(printf "$(C_WARNING)")&$$(printf "$(E_RESET)")/i"
-F_BRACKET="s/\[\(.*\)\]/[$$(printf "$(E_GREEN)")\1$$(printf "$(E_RESET)")]/"	
+F_BRACKET="s/\[\(.*\)\]/[$$(printf "$(E_FG_GREEN)")\1$$(printf "$(E_RESET)")]/"	
 F_VARIABLE="s/\‘\(.*\)[\’\‘]/'$$(printf "$(C_IDENTIFIER)")\1$$(printf "$(E_RESET)")'/g"
 F_FILE="s/[^: ]*/$$(printf "$(C_FILE)")&$$(printf "$(E_RESET)")/"
 F_ROWNR="s/:\([0-9]*\):\([0-9]*\):/:$$(printf "$(C_VALUE)")\1$$(printf "$(E_RESET)"):$$(printf "$(C_VALUE)")\2$$(printf "$(E_RESET)"):/"
@@ -300,7 +306,7 @@ C_FILTER   = | sed -u -e $(F_BRACKET) -e $(F_FILE) -e $(F_ROWNR)          \
                       -e $(F_WARNING4) -e $(F_WARNING5)                   \
                       -e $(F_VARIABLE)
 
-CPP_FILTER = $(C_FILTER)
+CXX_FILTER = $(C_FILTER)
 
 LD_ERROR1="s/undefined reference/$$(printf "$(C_ERROR)")&$$(printf "$(E_RESET)")/i"
 LD_ERROR2="s/No such file or directory/$$(printf "$(C_ERROR)")&$$(printf "$(E_RESET)")/i"
@@ -311,35 +317,33 @@ LD_FILTER = | sed -ru -e $(LD_ERROR1) -e $(LD_ERROR2)
 #============================================================================
 
 # Compiler flags to generate dependency files.
-GENDEPFLAGS = -MMD -MP -MF .dep/$(@F).d
+GENDEPFLAGS = -MMD -MP -MF $@.d
+
+# Include auto-generated dependency files
+# (this makes incremental builds correct)
+-include $(OBJS:.o=.d)
+
 
 # Combine all necessary flags and optional flags.
 # Add target processor to flags.
 ALL_CFLAGS   =  -I. $(CFLAGS) $(GENDEPFLAGS)
-ALL_CPPFLAGS =  -I. -x c++ $(CPPFLAGS) $(GENDEPFLAGS)
+ALL_CXXFLAGS =  -I. -x c++ $(CXXFLAGS) $(GENDEPFLAGS)
 ALL_ASFLAGS  =  -I. -x assembler-with-cpp $(ASFLAGS)
 
-# Filter out C sources
-CSRC_1 = $(patsubst %.cpp,  , $(SRC) $(LSRC))
-CSRC   = $(patsubst %.S,    , $(CSRC_1))
+# Filter out sourcfiles by type
+CSRC   := $(filter %.c, $(SRC))
+CXXSRC := $(filter %.cpp %.cc %.cxx, $(SRC))
+ASRC   := $(filter %.S %.s, $(SRC))
 
-# Filter out C++ sources
-CPPSRC_1 = $(patsubst %.c,  , $(SRC) $(LSRC))
-CPPSRC   = $(patsubst %.S,  , $(CPPSRC_1))
+# Best: use substitution reference (cleanest)
+COBJS   := $(CSRC:%.c=$(BUILDDIR)/%.o)
+CXXOBJS := $(CXXSRC:%=$(BUILDDIR)/%.o)
+AOBJS   := $(ASRC:%.S=$(BUILDDIR)/%.o)
 
-# Filter out Assembler sources
-ASRC_1 = $(patsubst %.c,    , $(SRC) $(LSRC))
-ASRC   = $(patsubst %.cpp,  , $(ASRC_1))
-
-# Define all object files.
-COBJS    = $(patsubst %.c,   $(BUILDDIR)/%.o, $(CSRC))
-CPPOBJS  = $(patsubst %.cpp, $(BUILDDIR)/%.o, $(CPPSRC))
-AOBJS    = $(patsubst %.S,   $(BUILDDIR)/%.o, $(ASRC))
-
-OBJS    = $(COBJS) $(CPPOBJS) $(AOBJS)
+OBJS := $(strip $(COBJS) $(CXXOBJS) $(AOBJS))
 
 # Define all listing files.
-LST = $(patsubst %.c, $(OBJDIR)/%.lst, $(CSRC)) $(patsubst %.cpp, $(OBJDIR)/%.lst, $(CPPSRC)) $(patsubst %.S, $(OBJDIR)/%.lst, $(ASRC))
+LST = $(OBJS:.o=.lst)
 
 # Default target.
 all: begin build finished end ##D Build project (default)
@@ -365,7 +369,7 @@ finished:
 $(TRGFILE): $(OBJS) $(OUTDIR)
 	@echo -en "\n"$(MSG_LINKING)"       "
 	@echo -e $@ $(F_SOURCE) 
-	@$(CPP) $(ALL_CFLAGS) $(OBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)
+	@$(CXX) $(ALL_CFLAGS) $(OBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)
 	
 # Create extended listing file/disassambly from ELF output file.
 # using objdump testing: option -C
@@ -388,37 +392,31 @@ $(TRGFILE): $(OBJS) $(OUTDIR)
 	@$(OBJCOPY) $(OCFLAGS) $< $@
 
 # Compile: create object files from C source files.
-$(COBJS): $(BUILDDIR)/%.o : %.c
-	@$(MKDIR) $(@D)                                       # Create directory for object file
+$(BUILDDIR)/%.o: %.c 
+	@$(MKDIR) $(@D)                                       # Create directory for object file       
 	@echo -en $(MSG_COMPILING)" "
 	@echo -e $< $(F_SOURCE)
 	@$(CC) -c $(ALL_CFLAGS) $< -o $@ 2>&1  $(C_FILTER)
 
 # Compile: create object files from C++ source files.
-$(CPPOBJS): $(BUILDDIR)/%.o : %.cpp
+$(BUILDDIR)/%.o: %.cpp
 	@$(MKDIR) $(@D)                                       # Create directory for object file
-	@echo -en $(MSG_COMPILING_CPP)" " 
+	@echo -en $(MSG_COMPILING_CXX)" " 
 	@echo -e $< $(F_SOURCE)
-	@$(CPP) -c $(ALL_CPPFLAGS) $< -o $@ 2>&1  $(CPP_FILTER)
+	@$(CXX) -c $(ALL_CXXFLAGS) $< -o $@ 2>&1  $(CXX_FILTER)
 	
 # Assemble: create object files from assembler source files.
-$(OBJDIR)/%.o : %.S
-	@echo -e $(MSG_ASSEMBLING) "$(C_FILE)" $< "$(E_END)"
-	@$(CC) -c $(ALL_ASFLAGS) $< -o $@
+$(BUILDDIR)/%.o: %.S
+	@$(MKDIR) $(@D)                                       # Create directory for object file
+	@echo -en $(MSG_ASSEMBLING) "  "
+	@echo -e $< $(F_SOURCE)
+	@$(CC) -c $(ALL_ASFLAGS) $< -o $@ 2>&1
 
-# Compile: create assembler files from C source files.
-$(OBJDIR)/%.s : %.c
-	@$(CC) -S $(ALL_CFLAGS) $< -o $@
-
-# Compile: create assembler files from C++ source files.
-$(OBJDIR)/%.s : %.cpp
-	@$(CC) -S $(ALL_CPPFLAGS) $< -o $@
-
-# Create output dir
+# Ensure output directory exists
 $(OUTDIR):
 	@$(MKDIR) $@
 
-# Create build dir
+# Ensure build directory exists
 $(BUILDDIR):
 	@$(MKDIR) $@
 
@@ -434,16 +432,14 @@ strip: $(TRGFILE) ##D Strip target binary from symbols
 
 __TARGETS__
 
-# Include the dependency files.
--include $(shell mkdir .dep 2>/dev/null) $(wildcard .dep/*)
+
+
 
 ##- Run/debug
 
-#
-# Run & debug	
-#============================================================================
-
 __RUNDEBUG__
+
+##- Utils
 
 #
 # Various utility rules	
@@ -489,17 +485,15 @@ help: ##D This help information
 info-project: # Print project information
 	@echo -e $(MSG_PROJECT)
 	@echo "Target:     $(TARGET)"
-	@echo "Platform:   $(TARGET_PLATFORM)"
-	@echo "License:    $(LICENSE)"
 	@echo "Outdir:     $(OUTDIR)"
 	@echo "C standard: $(CSTANDARD)"
-	@echo "MCU:        $(MCU)"
+	@echo "CPU:        $(CPU)"
 	@echo "F_CPU:      $(F_CPU)"
 	
 info-includes: # Print includefiles
 	@echo -e $(MSG_INCLUDES)
 	@export IFS=" "
-	@for f in $(INCLUDE); do   \
+	@for f in $(INCDIR); do   \
 	  echo $${f} ;             \
 	done        
 
@@ -510,7 +504,7 @@ info-defs: # Print macro definitions
 	  echo $${f} ;             \
 	done        
 
-	@for f in $(CPPDEFS); do   \
+	@for f in $(CXXDEFS); do   \
 	  echo $${f} ;             \
 	done        
 

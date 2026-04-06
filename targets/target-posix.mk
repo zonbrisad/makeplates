@@ -17,11 +17,11 @@ TCHAIN_PREFIX=
 
 # Handle pkg-config libraries -----------------------------------------------
 CFLAGS   += $(foreach X, $(PKGLIBS), $(shell pkg-config --cflags $(X)) )
-CPPFLAGS += $(foreach X, $(PKGLIBS), $(shell pkg-config --cflags $(X)) )
+CXXFLAGS += $(foreach X, $(PKGLIBS), $(shell pkg-config --cflags $(X)) )
 LDFLAGS  += $(foreach X, $(PKGLIBS), $(shell pkg-config --libs $(X))   )
 
 # Size flags ----------------------------------------------------------------
-SIZEFLAGS = --format=berkley  # format = {sysv|berkeley}
+SIZEFLAGS = --format=berkely  
 
 # objdump flags -------------------------------------------------------------
 ODFLAGS  = -h  # Display the contents of the section headers  
@@ -42,8 +42,8 @@ build: elf lss sym size
 elf: $(TRGFILE)
 lss: $(OUTDIR)/$(TARGET).lss
 sym: $(OUTDIR)/$(TARGET).sym
+hex: $(OUTDIR)/$(TARGET).hex
 ###BUILD_END###
-
 
 ###TARGETS_BEGIN###
 ###TARGETS_END###

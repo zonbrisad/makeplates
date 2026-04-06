@@ -1,20 +1,28 @@
 
 ###SETTINGS_BEGIN###
-# MCU name
-MCU = __MCU__
+# CPU model
+CPU = __MCU__
 
-# MCU frequency. (1000000  1843200  2000000 3686400 4000000 7372800 8000000 11059200 14745600)
+# CPU frequency. (1000000  1843200  2000000 3686400 4000000 7372800 8000000 11059200 14745600)
 F_CPU = 16000000
 ###SETTINGS_END###
 
 
 ###PLATFORM-SPECIFIC_BEGIN###
 # ARM options ---------------------------------------------------------
-CFLAGS += -mcpu=$(MCU)
-CPPFLAGS += -mcpu=$(MCU)
-ASFLAGS  += -mcpu=$(MCU)
 
-CFLAGS += 
+# Target filename
+TRGFILE=$(OUTDIR)/$(TARGET).elf
+
+# Toolchain base directory
+TCHAIN_BASE=/usr/bin
+
+# Toolchain prefix 
+TCHAIN_PREFIX=arm-none-eabi-
+
+CFLAGS += -mcpu=$(CPU)
+CXXFLAGS += -mcpu=$(CPU)
+ASFLAGS  += -mcpu=$(CPU)
 
 # Output format. (can be srec, ihex, binary) --------------------------------
 FORMAT = ihex
@@ -23,12 +31,6 @@ CDEFS   += F_CPU=$(F_CPU)UL
 ADEFS   += F_CPU=$(F_CPU)UL
 CPPDEFS += F_CPU=$(F_CPU)UL
 
-# Toolchain base directory
-TCHAIN_BASE=/usr/bin
-# Toolchain prefix 
-TCHAIN_PREFIX=arm-none-eabi-
-
-TRGFILE=$(OUTDIR)/$(TARGET).elf
 
 # Size flags ----------------------------------------------------------------
 SIZEFLAGS = --format=berkely  
@@ -37,15 +39,14 @@ SIZEFLAGS = --format=berkely
 ODFLAGS  = -h  # Display the contents of the section headers  
 ODFLAGS += -S  # Intermix source code with disassembly
 ODFLAGS += -z  #
-#ODFLAGS += -r  # Display the relocation entries in the file
+
 
 # object copy flags ---------------------------------------------------------
-#OCFLAGS = -O $(FORMAT) -R .eeprom -R .fuse -R .lock -R .signature
+#OCFLAGS = -O $(FORMAT) 
 
 # Library Options -----------------------------------------------------------
 
 LDFLAGS += -nostdlib
-#LDFLAGS += $(PRINTF_LIB) $(SCANF_LIB) $(MATH_LIB)
 
 ###PLATFORM-SPECIFIC_END###
 
@@ -56,7 +57,6 @@ elf: $(TRGFILE)
 lss: $(OUTDIR)/$(TARGET).lss
 sym: $(OUTDIR)/$(TARGET).sym
 hex: $(OUTDIR)/$(TARGET).hex
-#eep: $(OUTDIR)/$(TARGET).eep
 ###BUILD_END###
 
 ###TARGETS_BEGIN###
@@ -98,7 +98,6 @@ term: ##D Connect to QEMU terminal output with telnet
 
 ###UTILS_BEGIN###
 ###UTILS_END###
-
 
 ###TOOLS_BEGIN###
 ###TOOLS_END###

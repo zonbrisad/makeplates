@@ -1,21 +1,35 @@
-	
-###SETTINGS_BEGIN###
-# MCU name
-MCU = __MCU__
 
-# MCU frequency. (1000000  1843200  2000000 3686400 4000000 7372800 8000000 11059200 14745600)
+###SETTINGS_BEGIN###
+# CPU model
+CPU = __MCU__
+
+# CPU frequency. (1000000  1843200  2000000 3686400 4000000 7372800 8000000 11059200 14745600)
 F_CPU = 16000000
 ###SETTINGS_END###
 
 
 ###PLATFORM-SPECIFIC_BEGIN###
 # Atmel AVR options ---------------------------------------------------------
-CFLAGS   += -mmcu=$(MCU)
-CPPFLAGS += -mmcu=$(MCU)
-ASFLAGS  += -mmcu=$(MCU)
+
+# Target filename
+TRGFILE=$(OUTDIR)/$(TARGET).elf
+
+# Toolchain base directory
+TCHAIN_BASE=/usr/bin
+
+# Toolchain prefix 
+TCHAIN_PREFIX=avr-
+
+CFLAGS   += -mmcu=$(CPU)
+CXXFLAGS += -mmcu=$(CPU)
+ASFLAGS  += -mmcu=$(CPU)
 
 # Output format. (can be srec, ihex, binary) --------------------------------
 FORMAT = ihex
+
+CDEFS   += F_CPU=$(F_CPU)UL
+ADEFS   += F_CPU=$(F_CPU)UL
+CPPDEFS += F_CPU=$(F_CPU)UL
 
 # Debugging format.
 #     Native formats for AVR-GCC's -g are dwarf-2 [default] or stabs.
@@ -23,19 +37,10 @@ FORMAT = ihex
 #     AVR [Extended] COFF format requires stabs, plus an avr-objcopy run.
 DEBUG = dwarf-2
 
-CDEFS   += F_CPU=$(F_CPU)UL
-ADEFS   += F_CPU=$(F_CPU)UL
-CPPDEFS += F_CPU=$(F_CPU)UL
 
-# Toolchain base directory
-TCHAIN_BASE=/usr/bin
-# Toolchain prefix 
-TCHAIN_PREFIX=avr-
-
-TRGFILE=$(OUTDIR)/$(TARGET).elf
 
 # Size flags ----------------------------------------------------------------
-SIZEFLAGS = --mcu=$(MCU) --format=avr  # format = {sysv|berkeley}
+SIZEFLAGS = --mcu=$(CPU) --format=avr
 
 # objdump flags -------------------------------------------------------------
 ODFLAGS  = -h  # Display the contents of the section headers  
@@ -154,8 +159,8 @@ AVRDUDE_FUSES =
 # AVRDUDE_FUSES = -U lfuse:w:0xFF:m -U hfuse:w:0xD9:m -U efuse:w:0xF4:m -U lock:w:0x0F:m
 
 flash: ##D Write program to MCU flash with avrdude/micronucleus
-	@$(MPUTILS) avr_flash_arduino $(OUTDIR)/$(TARGET).hex $(MCU) $(AVRDUDE_PORT) 
-#	@$(MPUTILS) avr_flash_urboot $(OUTDIR)/$(TARGET).hex $(MCU) $(AVRDUDE_PORT) 	
+	@$(MPUTILS) avr_flash_arduino $(OUTDIR)/$(TARGET).hex $(CPU) $(AVRDUDE_PORT) 
+#	@$(MPUTILS) avr_flash_urboot $(OUTDIR)/$(TARGET).hex $(CPU) $(AVRDUDE_PORT) 	
 #	@$(MPUTILS) avr_flash_micronucleus $(OUTDIR)/$(TARGET).hex  
 # 	@avrdude -v -F -c AVRDUDE_PROGRAMMER -p "${MCU}" -U "flash:w:$(OUTDIR)/$(TARGET).hex" AVRDUDE_FUSES
 
@@ -163,10 +168,8 @@ flash: ##D Write program to MCU flash with avrdude/micronucleus
 ###INSTALL_END###
 
 
-
 ###UTILS_BEGIN###
 ###UTILS_END###
-
 
 ###TOOLS_BEGIN###
 ###TOOLS_END###

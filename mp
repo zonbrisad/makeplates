@@ -81,16 +81,14 @@ NORMAL_FILES=(
 )
 
 AVR_LIST=(
-  "1" "attiny2313" "ATTiny2313"
-  "2" "attiny85" "ATTiny45"
-  "3" "attiny85" "ATTiny85 (Digispark)"
-  "4" "atmega88p" "ATMega88P"
-  "5" "atmega168p" "ATMega168P"
-  "6" "atmega328p" "ATMega328P (Arduino Uno R3/Nano/Pro mini etc.)"
-  "7" "atmega128" "ATMega128"
-  "8" "atmega1280" "ATMega1280 (Arduino Mega 1280)"
-  "9" "atmega2560" "ATMega2560 (Arduino Mega 2560)"
-  "10" "atmega32u4" "ATMega32u4 (Arduino Leonardo/Micro)"
+  "1" "attiny45" "ATTiny45"
+  "2" "attiny85" "ATTiny85 (Digispark)"
+  "3" "atmega168p" "ATMega168P"
+  "4" "atmega328p" "ATMega328P (Arduino Uno R3/Nano/Pro mini etc.)"
+  "5" "atmega1280" "ATMega1280 (Arduino Mega 1280)"
+  "6" "atmega2560" "ATMega2560 (Arduino Mega 2560)"
+  "7" "atmega32u4" "ATMega32u4 (Arduino Leonardo/Micro)"
+  "8" "atmega128" "ATMega128"
   "o" ":" "Other..."
 )
 
@@ -152,7 +150,7 @@ createProject() {
   # AVR target
   if [ "$TARGET" == "avr" ]; then
     target="${TARGETS_DIR}/target-avr.mk"
-    bpSelectFromList "6" "Choose MCU variant" "${AVR_LIST[@]}"
+    bpSelectFromList "4" "Choose MCU variant" "${AVR_LIST[@]}"
     MCU=$bpReturn
     if [ "$MCU" == "o" ]; then
       MCU=$(bpReadStr "Enter MCU name" "atmega328p")
@@ -172,7 +170,7 @@ createProject() {
     bpMkDir "${SRC_DIR}"
     bpMkDir "${PROJECT_DIR}/tools"
 
-    create_mpconf "${PROJECT_DIR}"
+    #create_mpconf "${PROJECT_DIR}"
 
     for F in "${NORMAL_FILES[@]}"; do
       bpCp "${BP_SELF_DIR}/${F}" "${PROJECT_DIR}/$(dirname "${F}")/."
@@ -648,6 +646,12 @@ pull() { ##C DEV Pull bashplates from GITHUB
 em() { ##C DEV Open standard Makefile template
   bpEdit "${BP_SELF_DIR}/mp-c/Makefile" "$2"
 }
+
+dem() { ##C DEV Diff standard Makefile template with local file
+  ${BP_DIFF} "${BP_SELF_DIR}/templates/Makefile-normal.mk" "$2"
+}
+
+
 
 #---------------------------------------------------------------------
 # Bashplate settings
