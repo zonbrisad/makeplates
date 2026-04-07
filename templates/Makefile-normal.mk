@@ -198,6 +198,7 @@ NM        = ${TCHAIN}nm
 AS        = ${TCHAIN}as
 GDB       = ${TCHAIN}gdb
 STRIP     = ${TCHAIN}strip
+LD        = ${TCHAIN}ld
 
 #
 # Message/Filter settings
@@ -330,7 +331,6 @@ GENDEPFLAGS = -MMD -MP -MF $@.d
 # Include auto-generated dependency files
 # (this makes incremental builds correct)
 -include $(OBJS:.o=.d)
-
 
 # Combine all necessary flags and optional flags.
 # Add target processor to flags.

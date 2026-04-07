@@ -389,12 +389,12 @@ newavr() { ##D Create a new AVR microcontroler C project
   createProject "Creating new makeplate C avr project" "normal" "c" "avr"
 }
 
-newarm() { ##D Create a new ARM microcontroler C project (not implemented yet)
-  createProject "Creating new makeplate C avr project" "normal" "c" "arm"
+newarm() { ##D Create a new ARM microcontroler C project (experimental)
+  createProject "Creating new makeplate ARM project" "normal" "c" "arm"
 }
 
-newrpp() { ##D Create a new Raspberry Pi Pico project (not implemented yet)
-  :
+newrp() { ##D Create a new RP2040 project (experimental)
+  createProject "Creating new makeplate C RP2040 project" "normal" "c" "arm"
 }
 
 ##- Code creation
@@ -647,10 +647,13 @@ em() { ##C DEV Open standard Makefile template
   bpEdit "${BP_SELF_DIR}/mp-c/Makefile" "$2"
 }
 
-dem() { ##C DEV Diff standard Makefile template with local file
+dmpt() { ##C DEV Diff standard Makefile template with local file
   ${BP_DIFF} "${BP_SELF_DIR}/templates/Makefile-normal.mk" "$2"
 }
 
+dmpu() { ##C DEV Diff standard mputil with local file
+  ${BP_DIFF} "${BP_SELF_DIR}/tools/mputils" "$2"
+}
 
 
 #---------------------------------------------------------------------

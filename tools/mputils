@@ -274,13 +274,13 @@ check_writing() { ## Check if writing is ongoing, if so abort
   if bpPIDExist; then
     pid=$(bpPIDLoad)
     kill -s SIGUSR2 "$pid"
-    bpError "Flashing already in progrss"
+    bpError "Flashing already in progress"
     bpExit
   fi
 }
 
 get_serial_port() {
-  PORT=$1
+  local PORT=$1
   bpPrintLine "Available USB->serial ports"
   ls --width 1 /dev/ttyUSB* 2>/dev/null
   ls --width 1 /dev/ttyACM* 2>/dev/null
@@ -291,9 +291,9 @@ get_serial_port() {
 
 
 avr_flash_arduino() { ##D Write firmware to AVR with avrdude using arduino protocol 
-  FILE=${2}
-  MCU=${3}
-  PORT=${4}
+  local FILE=${2}
+  local MCU=${3}
+  local PORT=${4}
 
   check_writing
 
@@ -309,13 +309,13 @@ avr_flash_arduino() { ##D Write firmware to AVR with avrdude using arduino proto
 }
 
 avr_flash_urboot() { ##D Write firmware to AVR with avrdude using urboot protocol 
-  FILE=${2}
-  MCU=${3}
-  PORT=${4}
+  local FILE=${2}
+  local MCU=${3}
+  local PORT=${4}
 
   check_writing
 
-  get_serial_port "$PORT"
+  get_serial_port "${PORT}"
   PORT="$bpReturn"
 
   check_port_exist "${PORT}"
@@ -327,7 +327,7 @@ avr_flash_urboot() { ##D Write firmware to AVR with avrdude using urboot protoco
 }
 
 avr_flash_micronucleus() { ##D Write firmware to AVR ATtiny(sparkfun) with micronucleus
-  FILE=${2}
+  local FILE=${2}
 
   check_writing
 
@@ -335,10 +335,27 @@ avr_flash_micronucleus() { ##D Write firmware to AVR ATtiny(sparkfun) with micro
   micronucleus "${FILE}"  
 }
 
+rp_usb_flash() { ##D Flash firmware to RP mcu via USB drive
+  local FILE=${2}
+  local DEST 
+  
+  bpPrintLine "Avalable destination"
+  ls --directory --width 1 /media/"${USER}"/R* 2>/dev/null
+  bpPrintLine
+
+  bpReturn=$(bpReadStrR "Enter destination" "DEST" "${DEST}")
+  DEST=${bpReturn}
+  if [ -d "$DEST" ]; then
+    cp "${FILE}" "${DEST}"
+  else
+    bpError "Could not find drive ${DEST}"
+  fi
+}
+
 wait_write() {
-  FILE=${1}
-  MCU=${2}
-  PORT=${3}
+  local FILE=${1}
+  local MCU=${2}
+  local PORT=${3}
 
   arduino_write_flash "${FILE}" "${MCU}" "${PORT}"
 
