@@ -114,13 +114,17 @@ createProject() {
   local PROJECT_TYPE="$2"
   local LANGUAGE="$3"
   local TARGET="$4"
+  local OPT1="$5"
+  local OPT2="$6"
   local MCU=""
 
-  if [[ "$TARGET" == "system"* ]]; then
-    target="${TARGETS_DIR}/target-posix.mk"
-    if [[ "$TARGET" == "system-gtk" ]]; then
-      PKGS=("${PKGLIBS_GLIB[@]}")
-    fi
+  local SYSTEM
+  SYSTEM=${TARGET#target-}
+  SYSTEM=${SYSTEM%.mk}
+  SYSTEM=${SYSTEM%-*}
+
+  if [[ "$OPT1" == "gtk" ]]; then
+    PKGS=("${PKGLIBS_GLIB[@]}")
   fi
 
   while true; do
@@ -148,18 +152,12 @@ createProject() {
   MAKEFILE_TEMPLATE=${TEMPLATE_DIR}/Makefile-${PROJECT_TYPE}.mk
 
   # AVR target
-  if [ "$TARGET" == "avr" ]; then
-    target="${TARGETS_DIR}/target-avr.mk"
+  if [ "$TARGET" == "target-avr.mk" ]; then
     bpSelectFromList "4" "Choose MCU variant" "${AVR_LIST[@]}"
     MCU=$bpReturn
     if [ "$MCU" == "o" ]; then
       MCU=$(bpReadStr "Enter MCU name" "atmega328p")
     fi
-  fi
-
-  # ARM Target
-  if [ "$TARGET" == "arm" ]; then
-    target="${TARGETS_DIR}/target-arm.mk"
   fi
 
   bpMkDir "$PROJECT_DIR"
@@ -192,7 +190,7 @@ createProject() {
 
   M=${MAIN#"${PROJECT_DIR}/"}
 
-  create_makefile "$PROJECT_NAME" "$PROJECT_DIR" "$MAKEFILE_TEMPLATE" "$target" "$DESCRIPTION" "${M}"
+  create_makefile "$PROJECT_NAME" "$PROJECT_DIR" "$MAKEFILE_TEMPLATE" "${TARGETS_DIR}/${TARGET}" "$DESCRIPTION" "${M}"
 
   for L in "${PKGS[@]}"; do
     bpReplace "${MAKEFILE}" "__PKGLIBS__" "PKGLIBS += ${L}\n__PKGLIBS__"
@@ -202,7 +200,7 @@ createProject() {
 
   echo
   ${MPTEMPLATE} "${OPTS}" \
-    --target "${TARGET}" \
+    --target "${SYSTEM}" \
     --name "main" \
     --main \
     --outdir "${SRC_DIR}" \
@@ -358,138 +356,60 @@ createProjectQuick() {
 ##- C Projects
 
 newc() { ##D Create a new standard C makeplate project
-  createProject "Creating new makeplate C project" "normal" "c" "system" 
+  createProject "Creating new makeplate C project" "normal" "c" "target-posix.mk" 
 }
 
 newsc() { ##D Create a new simple C makeplate project
-  createProject "Creating new simple makeplate C project" "simple" "c" "system"
+  createProject "Creating new simple makeplate C project" "simple" "c" "target-posix.mk"
 }
 
 newg() { ##D Create a new GLIB/GTK based C makeplate project
-  createProject "Creating new makeplate C glib project" "normal" "c" "system-gtk"
+  createProject "Creating new makeplate C glib project" "normal" "c" "target-posix.mk" "gtk"
 }
 
 newq() { ##D Quick project, same as simple project, but with fewer questions
-  createProjectQuick "Creating new simple makeplate C project" "simple" "c" "system"
+  createProjectQuick "Creating new simple makeplate C project" "simple" "c" "target-posix.mk"
 }
 
 ##C- CPP C++ Projects
 
 newcpp() { ##C CPP Create a new standard C++ makeplate project
-  createProject "Creating new makeplate C++ project" "normal" "cpp" "system"
+  createProject "Creating new makeplate C++ project" "normal" "cpp" "target-posix.mk"
 }
 
 newscpp() { ##C CPP Create a new simple C++ makeplate project
-  createProject "Creating new simple makeplate C++ project" "simple" "cpp" "system"
+  createProject "Creating new simple makeplate C++ project" "simple" "cpp" "target-posix.mk"
 }
 
 ##- Microcontroler projects
 
 newavr() { ##D Create a new AVR microcontroler C project
-  createProject "Creating new makeplate C avr project" "normal" "c" "avr"
+  createProject "Creating new makeplate C avr project" "normal" "c" "target-avr.mk"
 }
 
 newarm() { ##D Create a new ARM microcontroler C project (experimental)
-  createProject "Creating new makeplate ARM project" "normal" "c" "arm"
+  createProject "Creating new makeplate ARM project" "normal" "c" "target-arm.mk"
 }
+
+##- Raspberry Pi Pico
 
 newrp() { ##D Create a new RP2040 project (experimental)
-  createProject "Creating new makeplate C RP2040 project" "normal" "c" "arm"
+  createProject "Creating new makeplate C RP2040 project" "normal" "c" "target-arm-rp2040.mk"
 }
 
-##- Code creation
-
-newcm() { ##D Create new C module
-  ${MPTEMPLATE} newc --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
+pico() { ##D Download(clone) Pico SDK 
+  git clone https://github.com/raspberrypi/pico-sdk.git   # "${DEV_DIR}"/pico-sdk
 }
 
-newcppm() { ##C CPP Create new C++ module
-  ${MPTEMPLATE} newcpp --outdir . --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
-}
-
-newclass() { ##C CPP Create new C++ class
-  ${MPTEMPLATE} newclass --outdir . --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
-}
-
-# NEW 3d party (experimental)
-
-list() { # List 3d party libraries
-  ls -1 "${BP_SELF_DIR}/3dparty"
-}
-
-MPINSTALL=mpInstall
-
-install3p() { #  Install 3d party library
-
-  if [ -d "${MP_3DPARTY_DIR}/${2}" ]; then
-    if [ -e "${MP_3DPARTY_DIR}/${2}/${MPINSTALL}" ]; then
-
-      "${MP_3DPARTY_DIR}/${2}/${MPINSTALL}" "${PWD}"
-      bpOk "Module \"${2}\" installed"
-      return
-    fi
-
-    cp -arf "${MP_3DPARTY_DIR}/${2}/*" .
-    bpOk "Module \"${2}\" installed"
-  else
-    bpError "Module \"${2}\" does not exist"
-  fi
-}
-
-# shellcheck disable=2016
-new3p() { # Create new 3d party install script
-  {
-    echo "#!/usr/bin/env bash"
-    echo "#"
-    echo "# Makeplate 3dparty install script"
-    echo "#"
-    echo '# $1 is destination directory'
-    echo "#"
-    echo
-    echo 'BP_SELF_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )'
-    echo
-
-    echo '# Install file to dir'
-    echo '# arg1 local file to copy'
-    echo '# arg2 destination dir'
-
-    echo 'mpInst() {'
-    echo '  dn=$(dirname $1)'
-    echo '  PROJECT_DIR=$2/${dn}'
-    echo '  if [ ! -d ${PROJECT_DIR} ]; then'
-    echo '    mkdir -p $PROJECT_DIR'
-    echo '  fi'
-    echo '  cp -rf ${BP_SELF_DIR}/$1 $2/${dn}/.'
-    echo '}'
-    echo
-    echo 'mpInst myFile $1'
-  } >mpInstall
-
-  chmod +x "${MPINSTALL}"
-}
 
 ##- Various
-
-install() { ##D Install
-  bpAddModule "${BP_SELF_DIR}/mp_init"
-}
-
-examples() { ##D List examples
-  ls -1 "${BP_SELF_DIR}/examples/"
-}
 
 utools() { ##D Update makeplate tools in project
   bpCp "${BP_SELF_DIR}/tools/*" "tools/."
 }
 
-create_mpconf() { ##I Create mp configuration
-  DIR="${1:-"."}"
-  bpMkDir "${DIR}/.mpconf"
-  ${MPTEMPLATE} header >"${DIR}/.mpconf/header.txt"
-}
-
-mpconf() { ##D Create .mpconf directory and header template
-  create_mpconf "$2"
+newcm() { # Create new C module
+  ${MPTEMPLATE} newc --author "${BP_NAME} <${BP_EMAIL}>" --license "${BP_LICENSE}"
 }
 
 #
@@ -515,7 +435,6 @@ mpReplaceSection() {
   sed -i "/__${2}__/d" "${1}"
 }
 
-##- Project
 #
 # $1 gitserver
 # $2 gituser
@@ -644,7 +563,10 @@ pull() { ##C DEV Pull bashplates from GITHUB
 }
 
 em() { ##C DEV Open standard Makefile template
-  bpEdit "${BP_SELF_DIR}/mp-c/Makefile" "$2"
+  bpEdit "${BP_SELF_DIR}/templates/Makefile-normal.mk" "$2"
+}
+emrpt() { ##C DEV Open target ARM rp2040
+  bpEdit "${BP_SELF_DIR}/targets/target-arm-rp2040.mk" "$2"
 }
 
 dmpt() { ##C DEV Diff standard Makefile template with local file
@@ -654,6 +576,11 @@ dmpt() { ##C DEV Diff standard Makefile template with local file
 dmpu() { ##C DEV Diff standard mputil with local file
   ${BP_DIFF} "${BP_SELF_DIR}/tools/mputils" "$2"
 }
+
+dtrp() { ##C DEV Diff target ARM rp2040
+  ${BP_DIFF} "${BP_SELF_DIR}/targets/target-arm-rp2040.mk" "$2"
+}
+
 
 
 #---------------------------------------------------------------------

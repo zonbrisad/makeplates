@@ -377,7 +377,7 @@ finished:
 $(TRGFILE): $(UIH) $(OBJS) $(OUTDIR)
 	@echo -en "\n"$(MSG_LINKING)"       "
 	@echo -e $@ $(F_SOURCE) 
-	@$(CXX) $(ALL_CFLAGS) $(OBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)
+	@$(CXX) $(OBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)
 	
 # Create extended listing file/disassambly from ELF output file.
 # using objdump testing: option -C
@@ -621,49 +621,6 @@ ccheck: ##D Static code analysis using cppcheck(errors only)
 
 acheck: ##D Static code analysis using cppcheck(all warnings)
 	@$(CPPCHECK) --inline-suppr --enable=all $(SRC) $(CPPCHECK_FILTER)
-
-#
-# Artistic Style (astyle) Format source code to a standard
-#============================================================================
-.PHONY: astyle
-
-TABSIZE=4
-
-# Bracket style options
-AST  = --style=java
-
-# Tab options
-AST += --indent=spaces=$(TABSIZE)
-
-# Indentation options
-AST += --indent-switches
-AST += --indent-cases
-#AST += --indent-preproc-cond
-AST += --indent-col1-comments
-AST += --max-instatement-indent=40
- 
-# C++ specific indentation
-AST += --indent-modifiers
-
-# Padding options
-AST += --break-blocks
-AST += --pad-oper
-#AST += --pad-comma
-AST += --pad-header
-AST += --align-pointer=name
-AST += --align-reference=name 
-
-# Formatting options
-AST += --add-brackets 
-AST += --convert-tabs
-
-# Other options
-AST += --lineend=linux
-#AST += --recursive
-#AST += --exclude=
-AST +=--preserve-date
-
-PSRCH = $(PSRC:%.c=%.h) 
 
 # Listing of phony targets.
 .PHONY : all clean gccversion build begin finished end elf lss sym archive edit help backup list-src list-flags run

@@ -3,6 +3,9 @@
 # CPU model
 CPU = cortex-m0plus
 
+# Pico SDK directory
+PICOSDK = /pico/sdk
+
 ###SETTINGS_END###
 
 
@@ -18,17 +21,15 @@ TCHAIN_BASE=/usr/bin
 # Toolchain prefix 
 TCHAIN_PREFIX=arm-none-eabi-
 
-CFLAGS += -mcpu=$(CPU)
-CXXFLAGS += -mcpu=$(CPU)
-ASFLAGS  += -mcpu=$(CPU)
+CFLAGS += -fpic                  # Position independet code
+CFLAGS += -nostartfiles
+CFLAGS += -mthumb  
+CFLAGS += -ffreestanding  
+CFLAGS += -c 
+CFLAGS += -mfloat-abi=soft
 
 # Output format. (can be srec, ihex, binary) --------------------------------
 FORMAT = ihex
-
-CDEFS   += F_CPU=$(F_CPU)UL
-ADEFS   += F_CPU=$(F_CPU)UL
-CPPDEFS += F_CPU=$(F_CPU)UL
-
 
 # Size flags ----------------------------------------------------------------
 SIZEFLAGS = --format=berkely  
@@ -44,17 +45,22 @@ ODFLAGS += -z  #
 
 # Library Options -----------------------------------------------------------
 
-LDFLAGS += -nostdlib
+LDFLAGS += -nostdlib 
+LDFLAGS += -g 
+LDFLAGS += -T link_carlos.ld  
+LDFLAGS += --entry 0x20040001
+
 
 ###PLATFORM-SPECIFIC_END###
 
 ###BUILD_BEGIN###
-build: elf hex lss sym size
+build: elf hex uf2 lss sym size
 
 elf: $(TRGFILE)
 lss: $(OUTDIR)/$(TARGET).lss
 sym: $(OUTDIR)/$(TARGET).sym
 hex: $(OUTDIR)/$(TARGET).hex
+uf2: $(OUTDIR)/$(TARGET).uf2
 ###BUILD_END###
 
 ###TARGETS_BEGIN###
@@ -91,19 +97,21 @@ term: ##D Connect to QEMU terminal output with telnet
 
 
 ###INSTALL_BEGIN###
-.PHONY: flash
+.PHONY: flash flashu run
 
 DBG_INTERFACE = interface/cmsis-dap.cfg
-
 DBG_TARGET = target/rp2040.cfg
-
 DBG_SPEED = 5000
 
-flash: ##D Download program to flash via debugprobe(openocd)
+flash: ##D Flash program to mcu via debugprobe(openocd)
 	@openocd -f $(DBG_INTERFACE)  -f $(DBG_TARGET) -c "adapter speed $(DBG_SPEED)" -c "program $(OUTDIR)/$(TARGET).elf verify reset exit"
 
-flashu: ##D Flash program to mcu via USB drive
+flashu: ##D Flash program to mcu via USB drive(UF2)
 	@$(MPUTILS) rp_usb_flash $(OUTDIR)/$(TARGET).uf2
+
+run: ##D Run program in RAM, download via debugprobe(openocd)
+	@openocd -f $(DBG_INTERFACE)  -f $(DBG_TARGET) -c "adapter speed $(DBG_SPEED)" -c "init" -c "reset halt" -c "load_image $(OUTDIR)/$(TARGET).elf" -c "reset halt" -c "resume 0x20040001" -c "shutdown"
+
 ###INSTALL_END###
 
 

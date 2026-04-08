@@ -114,12 +114,12 @@ def cmd_newc(args):
         pre.append(t_sentinel)
         pre.append(t_app_info)
 
-        if args.target == "system":
+        if args.target == "posix":
             main = t_main
             pre.append(t_common_includes)
             pre.append(t_argtable)
 
-        if args.target == "system-gtk":
+        if args.target == "posix-gtk":
             main = t_main
             pre.append(t_common_includes)
             pre.append(t_glib_options)
@@ -128,12 +128,6 @@ def cmd_newc(args):
             args.name = "main"
             main = t_main_embeded
             pre.append(t_avr)
-
-        if args.target == "avrlef":
-            args.name = "main"
-            main = t_main_embeded
-            pre.append(t_avr)
-            pre.append(t_lef)
 
     else:
         pre.append(t_sentinel)
@@ -174,24 +168,10 @@ def cmd_newavr(args):
     cmd_newc(args)
 
 
-def cmd_newavrlef(args):
-    args.main = True
-    args.target = "avrlef"
-    cmd_newc(args)
-
-
 def cmd_newmod(args):
     generator = TGenerator(args, None, None, [t_sentinel, t_cplusplus], [])
     generator.query()
     generate(args, generator)
-
-
-# def cmd_newqt(args):
-#     conf = TConf(args)
-#     has_separators = True
-
-#     template = TGenerator(conf, [t_app_info], [t_qt5])
-#     template.generate()
 
 
 def cmd_newgtk(args):
@@ -259,9 +239,7 @@ def main() -> None:
     parrent_parser.add_argument(
         "--basedir", type=str, help="Project directory", default="."
     )
-    # parrent_parser.add_argument(
-    #     "--write", action="store_true", help="Write file to disk", default=False
-    # )
+
     parrent_parser.add_argument(
         "--printheader",
         action="store_true",
@@ -289,9 +267,9 @@ def main() -> None:
     parrent_parser.add_argument(
         "--target",
         action="store",
-        choices=["system", "system-gtk", "avr", "arm"],
+        choices=["posix", "posix-gtk", "avr", "arm"],
         help="Compiler target",
-        default="system",
+        default="posix",
     )
     parrent_parser.add_argument(
         "--dryrun",
@@ -318,13 +296,7 @@ def main() -> None:
         "newavr", parents=[parrent_parser], help="Create a new AVR application (main)"
     )
     parser_new.set_defaults(func=cmd_newavr)
-    parser_new = subparsers.add_parser(
-        "newavrlef",
-        parents=[parrent_parser],
-        help="Create a new AVR application with LEF (main)",
-    )
-    parser_new.set_defaults(func=cmd_newavrlef)
-
+    
     parser_new = subparsers.add_parser(
         "newm", parents=[parrent_parser], help="Create new C module"
     )
@@ -340,12 +312,8 @@ def main() -> None:
     )
     parser_new.set_defaults(func=cmd_newad)
 
-    # parser_new = subparsers.add_parser(
-    #     "newqt", parents=[parrent_parser], help="Create a new QT5 application"
-    # )
-    # parser_new.set_defaults(func=cmd_newqt)
     parser_new = subparsers.add_parser(
-        "newgtk", parents=[parrent_parser], help="Create a new glib/GTK3 application"
+        "newgtk", parents=[parrent_parser], help="Create a new glib/GTK4 application"
     )
     parser_new.set_defaults(func=cmd_newgtk)
 
