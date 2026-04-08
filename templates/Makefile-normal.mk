@@ -183,7 +183,7 @@ DOXYGEN    = doxygen           # Code documetation program
 MPTEMPLATE = tools/mptemplate  # C/C++ template tool
 BIN2ARRAY  = tools/mpbin2array # Binary to array tool
 MPUTILS    = tools/mputils     # Makeplate utilities
-ELF2UF2    = elf2uf2/elf2uf2
+ELF2UF2    = tools/elf2uf2.py
 
 
 TCHAIN = $(TCHAIN_BASE)/$(TCHAIN_PREFIX)
@@ -403,7 +403,7 @@ $(TRGFILE): $(UIH) $(OBJS) $(OUTDIR)
 	@echo
 	@echo -en $(MSG_UF2) " "
 	@echo -e $@ $(F_SOURCE)
-	@$(ELF2UF2) $< $@
+	@$(ELF2UF2) $<
 
 # Compile: create object files from C source files.
 $(BUILDDIR)/%.o: %.c 

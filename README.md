@@ -65,6 +65,7 @@ Makefile creator
 ## Links
 
 - [Colormake](https://github.com/renatosilva/colormake/blob/master/colormake.sh)
+- [Elf2Uf2](https://github.com/dougsummerville/elf2uf2)
 - [highlight-and-filter-gcc-compiler-messages](http://stackoverflow.com/questions/1032237/highlight-and-filter-gcc-compiler-messages)
 -
 - [Arduino.h](https://github.com/arduino/ArduinoCore-avr/blob/master/cores/arduino/Arduino.h)

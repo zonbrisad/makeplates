@@ -71,13 +71,7 @@ bpUserSettings() {
 NORMAL_FILES=(
   "tools/mputils"
   "tools/mpbin2array"
-#  "tools/tgenerator.py"
-#  "tools/mptemplate"
-#  "tools/templatec.py"
-#  "tools/Project.py"
-#  "tools/query.py"
-#  "tools/bashplates.py"
-#  "tools/escape.py"
+  "tools/elf2uf2.py"
 )
 
 AVR_LIST=(
@@ -161,17 +155,22 @@ createProject() {
   fi
 
   bpMkDir "$PROJECT_DIR"
+
   # Project type normal
   if [ "${PROJECT_TYPE}" == "normal" ]; then
 
     SRC_DIR="${PROJECT_DIR}/src"
     bpMkDir "${SRC_DIR}"
     bpMkDir "${PROJECT_DIR}/tools"
-
-    #create_mpconf "${PROJECT_DIR}"
-
     for F in "${NORMAL_FILES[@]}"; do
       bpCp "${BP_SELF_DIR}/${F}" "${PROJECT_DIR}/$(dirname "${F}")/."
+    done
+
+    if [ "${SYSTEM}" == "arm" ]; then
+      bpMkDir "${PROJECT_DIR}/link"
+    fi
+    for FILE in "${BP_SELF_DIR}"/link/*.ld; do
+      bpCp "$FILE" "${PROJECT_DIR}/link"
     done
   fi
 
@@ -270,88 +269,6 @@ create_makefile() {
   bpReplace "$MAKEFILE" "__MAINFILE__" "${MAIN_FILE//\//\\\/}"
 }
 
-#
-# Create a new Makeplate project
-#
-# $1 Create text
-# $2 project type [normal|simple]
-# $3 language [c/cpp]
-# $4 TARGET [system|avr|arm]
-# $5 Target options
-# $[] libraries
-#
-createProjectQuick() {
-  echo -e "${1}"
-
-  local PROJECT_TYPE="$2"
-  local LANGUAGE="$3"
-  local TARGET="$4"
-  local MCU=""
-
-  if [[ "$TARGET" == "system"* ]]; then
-    target="${TARGETS_DIR}/target-posix.mk"
-    if [[ "$TARGET" == "system-gtk" ]]; then
-      PKGS=("${PKGLIBS_GLIB[@]}")
-    fi
-  fi
-
-  while true; do
-
-    PROJECT_NAME=$(bpReadStr "Project name" "")
-    PROJECT_DIR="${PROJECT_NAME}"
-
-    if [ -e "$PROJECT_DIR" ]; then
-      bpWarning "Directory ${PROJECT_DIR} already exists."
-      if ! bpReadBoolDN "Use existing directory?"; then
-        continue
-      fi
-      break
-    fi
-    break
-  done
-
-  DESCRIPTION=$(bpReadStr "Brief description" "")
-  MAKEFILE_TEMPLATE=${TEMPLATE_DIR}/Makefile-${PROJECT_TYPE}.mk
-
-  # Project type simple
-  if [ "${PROJECT_TYPE}" == "simple" ]; then
-    SRC_DIR="${PROJECT_DIR}"
-  fi
-
-  bpMkDir "$PROJECT_DIR"
-
-  if [ "$LANGUAGE" == "cpp" ]; then
-    OPTS="newcpp"
-    MAIN="${SRC_DIR}/main.cpp"
-  else
-    OPTS="newc"
-    MAIN="${SRC_DIR}/main.c"
-  fi
-
-  MAIN_FILE=${MAIN#"${PROJECT_DIR}/"}
-
-  create_makefile "$PROJECT_NAME" "$PROJECT_DIR" "$MAKEFILE_TEMPLATE" "$target" "$DESCRIPTION" "$MAIN_FILE"
-
-  for L in "${PKGS[@]}"; do
-    bpReplace "${MAKEFILE}" "__PKGLIBS__" "PKGLIBS += ${L}\n__PKGLIBS__"
-  done
-
-  bpReplace "${MAKEFILE}" "__PKGLIBS__" ""
-
-  echo
-  ${MPTEMPLATE} "${OPTS}" \
-    --target "${TARGET}" \
-    --name "main" \
-    --main \
-    --outdir "${SRC_DIR}" \
-    --description "${DESCRIPTION}" \
-    --author "${BP_NAME}" \
-    --email "${BP_EMAIL}" \
-    --license "${BP_LICENSE}" \
-    --separators \
-    --no_interaction
-
-}
 
 ##- C Projects
 
@@ -365,10 +282,6 @@ newsc() { ##D Create a new simple C makeplate project
 
 newg() { ##D Create a new GLIB/GTK based C makeplate project
   createProject "Creating new makeplate C glib project" "normal" "c" "target-posix.mk" "gtk"
-}
-
-newq() { ##D Quick project, same as simple project, but with fewer questions
-  createProjectQuick "Creating new simple makeplate C project" "simple" "c" "target-posix.mk"
 }
 
 ##C- CPP C++ Projects

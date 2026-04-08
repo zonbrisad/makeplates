@@ -8,7 +8,6 @@ PICOSDK = /pico/sdk
 
 ###SETTINGS_END###
 
-
 ###PLATFORM-SPECIFIC_BEGIN###
 # ARM options ---------------------------------------------------------
 
@@ -39,7 +38,6 @@ ODFLAGS  = -h  # Display the contents of the section headers
 ODFLAGS += -S  # Intermix source code with disassembly
 ODFLAGS += -z  #
 
-
 # object copy flags ---------------------------------------------------------
 #OCFLAGS = -O $(FORMAT) 
 
@@ -47,7 +45,7 @@ ODFLAGS += -z  #
 
 LDFLAGS += -nostdlib 
 LDFLAGS += -g 
-LDFLAGS += -T link_carlos.ld  
+LDFLAGS += -T link/link_rp2040_ram.ld  
 LDFLAGS += --entry 0x20040001
 
 
