@@ -494,6 +494,10 @@ dtrp() { ##C DEV Diff target ARM rp2040
   ${BP_DIFF} "${BP_SELF_DIR}/targets/target-arm-rp2040.mk" "$2"
 }
 
+dtavr() { ##C DEV Diff target AVR
+  ${BP_DIFF} "${BP_SELF_DIR}/targets/target-avr.mk" "$2"
+}
+
 
 
 #---------------------------------------------------------------------

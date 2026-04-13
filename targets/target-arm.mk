@@ -27,11 +27,6 @@ ASFLAGS  += -mcpu=$(CPU)
 # Output format. (can be srec, ihex, binary) --------------------------------
 FORMAT = ihex
 
-CDEFS   += F_CPU=$(F_CPU)UL
-ADEFS   += F_CPU=$(F_CPU)UL
-CPPDEFS += F_CPU=$(F_CPU)UL
-
-
 # Size flags ----------------------------------------------------------------
 SIZEFLAGS = --format=berkely  
 

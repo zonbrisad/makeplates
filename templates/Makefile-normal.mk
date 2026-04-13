@@ -75,8 +75,6 @@ __SETTINGS__
 CFLAGS = -g$(DEBUG)                            # Debugging information
 CFLAGS += -O$(OPT)                             # Optimisation level
 CFLAGS += -std=$(CSTANDARD)                    # C standard
-CFLAGS += $(addprefix,-I,$(INCDIR))            # Include directories 
-CFLAGS += $(addprefix,-D,$(CDEFS))             # Macro definitions
 CFLAGS += -Wa,-adhlns=$(@:.o=.lst)             # Generate assembler listing
 
 # Compiler Tuning C ---------------------------------------------------------
@@ -105,13 +103,10 @@ CFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void po
 #CFLAGS += -Wundef
 #CFLAGS += -Werror               # All warnings will be treated as errors
 
-
 # Compiler Options C++ ------------------------------------------------------
 CXXFLAGS = -g$(DEBUG)                              # Debugging information
 CXXFLAGS += -O$(OPT)                               # Optimisation level
 CXXFLAGS += -std=$(CXXSTANDARD)                    # C++ standard
-CXXFLAGS += $(addprefix,-I,$(INCDIR))              # Include directories 
-CXXFLAGS += $(addprefix,-D,$(CXXDEFS))             # Macro definitions
 CXXFLAGS += -Wa,-adhlns=$(@:.o=.lst)               # Generate assembler listing
 
 # Compiler Tuning C++ -------------------------------------------------------
@@ -139,23 +134,18 @@ CXXFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void 
 #CXXFLAGS += -Wundef
 #CXXFLAGS += -Werror              # All warnings will be treated as errors
 
-
 # Linker Options ------------------------------------------------------------
 #  -Wl,...:     tell GCC to pass this to linker.
 #    -Map:      create map file
 #    --cref:    add cross reference to  map file
 LDFLAGS = -Wl,-Map=$(OUTDIR)/$(TARGET).map,--cref
 LDFLAGS += $(EXTMEMOPTS)
-LDFLAGS += $(addprefix,-L,$(INCDIR))
+LDFLAGS += $(addprefix -L,$(INCDIR))
 LDFLAGS += -g
 
 # Misc settings -------------------------------------------------------------
 MPFLAGS  = -DTARGET=$(TARGET)
 MPFLAGS += -DVERSION=$(VERSION)
- 
-CFLAGS   += $(MPFLAGS)
-CXXFLAGS += $(MPFLAGS)
-ASFLAGS  += $(MPFLAGS)
 
 #
 # Platform specific options
@@ -200,126 +190,6 @@ GDB       = ${TCHAIN}gdb
 STRIP     = ${TCHAIN}strip
 LD        = ${TCHAIN}ld
 
-#
-# Message/Filter settings
-#============================================================================
-
-# Color attributes 
-E_FG_BLACK        = \e[0;300m
-E_FG_RED          = \e[0;31m
-E_FG_GREEN        = \e[0;32m
-E_FG_YELLOW       = \e[0;33m
-E_FG_BLUE         = \e[0;34m
-E_FG_MAGENTA      = \e[0;35m
-E_FG_CYAN         = \e[0;36m
-E_FG_GRAY         = \e[0;37m
-E_FG_DARKGRAY     = \e[1;30m
-E_FG_BR_RED       = \e[1;31m
-E_FG_BR_GREEN     = \e[1;32m
-E_FG_BR_YELLOW    = \e[1;33m
-E_FG_BR_BLUE      = \e[1;34m
-E_FG_BR_MAGENTA   = \e[1;35m
-E_FG_BR_CYAN      = \e[1;36m
-E_FG_WHITE        = \e[1;37m
-E_BG_BLACK        = \e[40m
-E_BG_RED          = \e[41m
-E_BG_GREEN        = \e[42m
-E_BG_YELLOW       = \e[43m
-E_BG_BLUE         = \e[44m
-E_BG_MAGENTA      = \e[45m
-E_BG_CYAN         = \e[46m
-E_BG_WHITE        = \e[47m
-
-# Style attributes
-E_BOLD=\e[1m
-E_DIM=\e[2m
-E_UNDERLINE=\e[4m
-E_BLINK=\e[5m
-E_REVERSE=\e[7m
-
-E_RESET           = \e[0m
-
-# System color definitions
-C_OK=$(E_FG_BR_GREEN)
-C_WARNING=$(E_FG_BR_YELLOW)
-C_ERROR=$(E_FG_BR_RED)
-C_FILE=$(E_FG_BR_CYAN)
-C_DIR=$(E_FG_CYAN)
-C_NOTE=$(E_FG_BR_GREEN)
-C_MSG=$(E_FG_BR_GREEN)
-C_ACTION=$(E_FG_BR_MAGENTA)
-C_VALUE=$(E_FG_WHITE)$(E_BG_BLUE)
-C_IDENTIFIER=$(E_FG_WHITE)
-
-# Messages ------------------------------------------------------------------
-MSG_LINE             = "$(E_FG_WHITE)------------------------------------------------------------------$(E_RESET)"
-MSG_BEGIN            = "${E_FG_WHITE}-------------------------------- Begin ---------------------------${E_RESET}"
-MSG_END              = "${E_FG_WHITE}-------------------------------- End -----------------------------${E_RESET}"
-MSG_ERRORS_NONE      = "${C_OK}Errors: none ${E_RESET}"
-MSG_STRIP            = "${C_ACTION}Striping:${E_RESET}"
-MSG_LINKING          = "${C_ACTION}Linking:${E_RESET}"
-MSG_COMPILING        = "${C_ACTION}Compiling C:  ${E_RESET}"
-MSG_COMPILING_CXX    = "${C_ACTION}Compiling C++:${E_RESET}"
-MSG_ASSEMBLING       = "${C_ACTION}Assembling: ${E_RESET}"
-MSG_CLEANING         = "$(C_ACTION)Cleaning project:$(E_RESET)"
-MSG_EXTENDED_LISTING = "${C_ACTION}Creating Extended Listing/Disassembly:$(E_RESET)"
-MSG_SYMBOL_TABLE     = "${C_ACTION}Creating Symbol Table:$(E_RESET)"
-MSG_HEX_FILE         = "${C_ACTION}Creating Hex file:$(E_RESET)"
-MSG_FORMATERROR      = "${C_ERROR}Can not handle output-format${E_RESET}"
-MSG_ASMFROMC         = "${C_ACTION}Creating asm-File from C-Source:$(E_RESET)"
-MSG_SIZE_BEFORE      = "${C_ACTION}Size before:${E_RESET}"
-MSG_SIZE_AFTER       = "${C_ACTION}Size after build:${E_RESET}"
-MSG_LOAD_FILE        = "${C_ACTION}Creating load file:${E_RESET}"
-MSG_ARCHIVING        = "${C_ACTION}Creating tar archive:${E_RESET}"
-MSG_CREATING_LIBRARY = "${C_ACTION}Creating library:${E_RESET}"
-MSG_FLASH            = "${C_ACTION}Creating load file for Flash:${E_RESET}"
-MSG_EEPROM           = "${C_ACTION}Creating load file for EEPROM:${E_RESET}"
-MSG_COFF             = "${C_ACTION}Converting to AVR COFF:${E_RESET}"
-MSG_EXTENDED_COFF    = "${C_ACTION}Converting to AVR Extended COFF:${E_RESET}"
-MSG_MOC              = "${C_ACTION}Creating MOC file:${E_RESET}"
-MSG_UI               = "${C_ACTION}Generating UI header:${E_RESET}"
-MSG_BACKUP           = "${C_ACTION}Making incremental backup of project:${E_RESET}"
-MSG_UF2              = "${C_ACTION}Creating UF2:${E_RESET}"
-MSG_SRC              = "${C_MSG}Source files $(E_FG_GREEN)-----------------------------------------------------${E_RESET}"
-MSG_FLAGS            = "${C_MSG}Compiler Flags $(E_FG_GREEN)---------------------------------------------------${E_RESET}"
-MSG_LINKER           = "${C_MSG}Linker Flags $(E_FG_GREEN)-----------------------------------------------------${E_RESET}"
-MSG_PROJECT          = "${C_MSG}Project info $(E_FG_GREEN)-----------------------------------------------------${E_RESET}"
-MSG_INCLUDES         = "${C_MSG}Include directories $(E_FG_GREEN)----------------------------------------------${E_RESET}"
-MSG_OBJECTS          = "${C_MSG}Object files $(E_FG_GREEN)-----------------------------------------------------${E_RESET}"	
-MSG_DEFS             = "${C_MSG}Macro definitions $(E_FG_GREEN)------------------------------------------------${E_RESET}"
-MSG_INSTALL_INFO     = "${C_MSG}Install settings $(E_FG_GREEN)-------------------------------------------------${E_RESET}"
-MSG_INSTALLING       = "${C_ACTION}Installing:   ${E_RESET}"
-MSG_BUILDING         = "$(C_ACTION)Building:     "
-	
-# Compiler output colorizer filter ------------------------------------------
-F_SOURCE=| sed -e "s/\(.*\/\)\(.*\)/$$(printf "$(C_DIR)")\1$$(printf "$(C_FILE)")\2$$(printf "$(E_RESET)")/"
-F_INF="s/In function/$$(printf "$(E_FG_BR_GREEN)")&$$(printf "$(E_RESET)")/i"
-F_NOTE="s/note:/$$(printf "$(C_NOTE)")&$$(printf "$(E_RESET)")/i"
-F_WARNING="s/warning:/$$(printf "$(C_WARNING)")&$$(printf "$(E_RESET)")/i"
-F_ERROR="s/error:/$$(printf "$(C_ERROR)")&$$(printf "$(E_RESET)")/i"
-F_FATAL_ERROR="s/fatal error:/$$(printf "$(C_ERROR)")&$$(printf "$(E_RESET)")/i"
-F_WARNING1="s/defined but not used/$$(printf "$(C_WARNING)")&$$(printf "$(E_RESET)")/i"
-F_WARNING2="s/unused variable/$$(printf "$(C_WARNING)")&$$(printf "$(E_RESET)")/i"
-F_WARNING3="s/may be used uninitialized in this function/$$(printf "$(C_WARNING)")&$$(printf "$(E_RESET)")/i"
-F_WARNING4="s/implicit declaration of function/$$(printf "$(C_WARNING)")&$$(printf "$(E_RESET)")/i"
-F_WARNING5="s/value computed is not used/$$(printf "$(C_WARNING)")&$$(printf "$(E_RESET)")/i"
-F_BRACKET="s/\[\(.*\)\]/[$$(printf "$(E_FG_GREEN)")\1$$(printf "$(E_RESET)")]/"	
-F_VARIABLE="s/\‘\(.*\)[\’\‘]/'$$(printf "$(C_IDENTIFIER)")\1$$(printf "$(E_RESET)")'/g"
-F_FILE="s/[^: ]*/$$(printf "$(C_FILE)")&$$(printf "$(E_RESET)")/"
-F_ROWNR="s/:\([0-9]*\):\([0-9]*\):/:$$(printf "$(C_VALUE)")\1$$(printf "$(E_RESET)"):$$(printf "$(C_VALUE)")\2$$(printf "$(E_RESET)"):/"
-
-C_FILTER   = | sed -u -e $(F_BRACKET) -e $(F_FILE) -e $(F_ROWNR)          \
-                      -e $(F_INF) -e $(F_NOTE)                            \
- 	                  -e $(F_WARNING) -e $(F_ERROR) -e $(F_FATAL_ERROR)   \
-                      -e $(F_WARNING1) -e $(F_WARNING2) -e $(F_WARNING3)  \
-                      -e $(F_WARNING4) -e $(F_WARNING5)                   \
-                      -e $(F_VARIABLE)
-
-CXX_FILTER = $(C_FILTER)
-
-LD_ERROR1="s/undefined reference/$$(printf "$(C_ERROR)")&$$(printf "$(E_RESET)")/i"
-LD_ERROR2="s/No such file or directory/$$(printf "$(C_ERROR)")&$$(printf "$(E_RESET)")/i"
-LD_FILTER = | sed -ru -e $(LD_ERROR1) -e $(LD_ERROR2)
 	
 #
 # Build rules	
@@ -333,10 +203,9 @@ GENDEPFLAGS = -MMD -MP -MF $@.d
 -include $(OBJS:.o=.d)
 
 # Combine all necessary flags and optional flags.
-# Add target processor to flags.
-ALL_CFLAGS   =  -I. $(CFLAGS) $(GENDEPFLAGS)
-ALL_CXXFLAGS =  -I. -x c++ $(CXXFLAGS) $(GENDEPFLAGS)
-ALL_ASFLAGS  =  -I. -x assembler-with-cpp $(ASFLAGS)
+ALL_CFLAGS   =  -I. $(CFLAGS) $(GENDEPFLAGS) $(addprefix -I,$(INCDIR)) $(addprefix -D,$(CDEFS)) $(MPFLAGS)
+ALL_CXXFLAGS =  -I. -x c++ $(CXXFLAGS) $(GENDEPFLAGS) $(addprefix -I,$(INCDIR)) $(addprefix -D,$(CXXDEFS)) $(MPFLAGS)
+ALL_ASFLAGS  =  -I. -x assembler-with-cpp $(ASFLAGS) $(MPFLAGS)
 
 # Filter out sourcfiles by type
 CSRC   := $(filter %.c, $(SRC))
@@ -374,7 +243,7 @@ finished:
 
 # Linking targets from object files
 .PRECIOUS : $(OBJS)
-$(TRGFILE): $(UIH) $(OBJS) $(OUTDIR)
+$(TRGFILE): $(OBJS) $(OUTDIR)
 	@echo -en "\n"$(MSG_LINKING)"       "
 	@echo -e $@ $(F_SOURCE) 
 	@$(CXX) $(OBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)
@@ -406,8 +275,8 @@ $(TRGFILE): $(UIH) $(OBJS) $(OUTDIR)
 	@$(ELF2UF2) $<
 
 # Compile: create object files from C source files.
-$(BUILDDIR)/%.o: %.c 
-	@$(MKDIR) $(@D)                                       # Create directory for object file       
+$(BUILDDIR)/%.o: %.c
+	@$(MKDIR) $(@D)                                       # Create directory for object file
 	@echo -en $(MSG_COMPILING)" "
 	@echo -e $< $(F_SOURCE)
 	@$(CC) -c $(ALL_CFLAGS) $< -o $@ 2>&1  $(C_FILTER)
@@ -645,3 +514,124 @@ mp-add-pkglib: # Add library (pkg-conf) (LIB=lib)
 	@sed -i  '0,/PKGLIBS/s/PKGLIBS.*/&\nPKGLIBS += ${F}/1' Makefile
 
 ##-
+
+#
+# Message/Filter settings
+#============================================================================
+
+# Color attributes 
+E_FG_BLACK        = \e[0;300m
+E_FG_RED          = \e[0;31m
+E_FG_GREEN        = \e[0;32m
+E_FG_YELLOW       = \e[0;33m
+E_FG_BLUE         = \e[0;34m
+E_FG_MAGENTA      = \e[0;35m
+E_FG_CYAN         = \e[0;36m
+E_FG_GRAY         = \e[0;37m
+E_FG_DARKGRAY     = \e[1;30m
+E_FG_BR_RED       = \e[1;31m
+E_FG_BR_GREEN     = \e[1;32m
+E_FG_BR_YELLOW    = \e[1;33m
+E_FG_BR_BLUE      = \e[1;34m
+E_FG_BR_MAGENTA   = \e[1;35m
+E_FG_BR_CYAN      = \e[1;36m
+E_FG_WHITE        = \e[1;37m
+E_BG_BLACK        = \e[40m
+E_BG_RED          = \e[41m
+E_BG_GREEN        = \e[42m
+E_BG_YELLOW       = \e[43m
+E_BG_BLUE         = \e[44m
+E_BG_MAGENTA      = \e[45m
+E_BG_CYAN         = \e[46m
+E_BG_WHITE        = \e[47m
+
+# Style attributes
+E_BOLD=\e[1m
+E_DIM=\e[2m
+E_UNDERLINE=\e[4m
+E_BLINK=\e[5m
+E_REVERSE=\e[7m
+
+E_RESET           = \e[0m
+
+# System color definitions
+C_OK=$(E_FG_BR_GREEN)
+C_WARNING=$(E_FG_BR_YELLOW)
+C_ERROR=$(E_FG_BR_RED)
+C_FILE=$(E_FG_BR_CYAN)
+C_DIR=$(E_FG_CYAN)
+C_NOTE=$(E_FG_BR_GREEN)
+C_MSG=$(E_FG_BR_GREEN)
+C_ACTION=$(E_FG_BR_MAGENTA)
+C_VALUE=$(E_FG_WHITE)$(E_BG_BLUE)
+C_IDENTIFIER=$(E_FG_WHITE)
+
+# Messages ------------------------------------------------------------------
+MSG_LINE             = "$(E_FG_WHITE)------------------------------------------------------------------$(E_RESET)"
+MSG_BEGIN            = "${E_FG_WHITE}-------------------------------- Begin ---------------------------${E_RESET}"
+MSG_END              = "${E_FG_WHITE}-------------------------------- End -----------------------------${E_RESET}"
+MSG_ERRORS_NONE      = "${C_OK}Errors: none ${E_RESET}"
+MSG_STRIP            = "${C_ACTION}Striping:${E_RESET}"
+MSG_LINKING          = "${C_ACTION}Linking:${E_RESET}"
+MSG_COMPILING        = "${C_ACTION}Compiling C:  ${E_RESET}"
+MSG_COMPILING_CXX    = "${C_ACTION}Compiling C++:${E_RESET}"
+MSG_ASSEMBLING       = "${C_ACTION}Assembling: ${E_RESET}"
+MSG_CLEANING         = "$(C_ACTION)Cleaning project:$(E_RESET)"
+MSG_EXTENDED_LISTING = "${C_ACTION}Creating Extended Listing/Disassembly:$(E_RESET)"
+MSG_SYMBOL_TABLE     = "${C_ACTION}Creating Symbol Table:$(E_RESET)"
+MSG_HEX_FILE         = "${C_ACTION}Creating Hex file:$(E_RESET)"
+MSG_FORMATERROR      = "${C_ERROR}Can not handle output-format${E_RESET}"
+MSG_ASMFROMC         = "${C_ACTION}Creating asm-File from C-Source:$(E_RESET)"
+MSG_SIZE_BEFORE      = "${C_ACTION}Size before:${E_RESET}"
+MSG_SIZE_AFTER       = "${C_ACTION}Size after build:${E_RESET}"
+MSG_LOAD_FILE        = "${C_ACTION}Creating load file:${E_RESET}"
+MSG_ARCHIVING        = "${C_ACTION}Creating tar archive:${E_RESET}"
+MSG_CREATING_LIBRARY = "${C_ACTION}Creating library:${E_RESET}"
+MSG_FLASH            = "${C_ACTION}Creating load file for Flash:${E_RESET}"
+MSG_EEPROM           = "${C_ACTION}Creating load file for EEPROM:${E_RESET}"
+MSG_COFF             = "${C_ACTION}Converting to AVR COFF:${E_RESET}"
+MSG_EXTENDED_COFF    = "${C_ACTION}Converting to AVR Extended COFF:${E_RESET}"
+MSG_MOC              = "${C_ACTION}Creating MOC file:${E_RESET}"
+MSG_UI               = "${C_ACTION}Generating UI header:${E_RESET}"
+MSG_BACKUP           = "${C_ACTION}Making incremental backup of project:${E_RESET}"
+MSG_UF2              = "${C_ACTION}Creating UF2:${E_RESET}"
+MSG_SRC              = "${C_MSG}Source files $(E_FG_GREEN)-----------------------------------------------------${E_RESET}"
+MSG_FLAGS            = "${C_MSG}Compiler Flags $(E_FG_GREEN)---------------------------------------------------${E_RESET}"
+MSG_LINKER           = "${C_MSG}Linker Flags $(E_FG_GREEN)-----------------------------------------------------${E_RESET}"
+MSG_PROJECT          = "${C_MSG}Project info $(E_FG_GREEN)-----------------------------------------------------${E_RESET}"
+MSG_INCLUDES         = "${C_MSG}Include directories $(E_FG_GREEN)----------------------------------------------${E_RESET}"
+MSG_OBJECTS          = "${C_MSG}Object files $(E_FG_GREEN)-----------------------------------------------------${E_RESET}"	
+MSG_DEFS             = "${C_MSG}Macro definitions $(E_FG_GREEN)------------------------------------------------${E_RESET}"
+MSG_INSTALL_INFO     = "${C_MSG}Install settings $(E_FG_GREEN)-------------------------------------------------${E_RESET}"
+MSG_INSTALLING       = "${C_ACTION}Installing:   ${E_RESET}"
+MSG_BUILDING         = "$(C_ACTION)Building:     "
+	
+# Compiler output colorizer filter ------------------------------------------
+F_SOURCE=| sed -e "s/\(.*\/\)\(.*\)/$$(printf "$(C_DIR)")\1$$(printf "$(C_FILE)")\2$$(printf "$(E_RESET)")/"
+F_INF="s/In function/$$(printf "$(E_FG_BR_GREEN)")&$$(printf "$(E_RESET)")/i"
+F_NOTE="s/note:/$$(printf "$(C_NOTE)")&$$(printf "$(E_RESET)")/i"
+F_WARNING="s/warning:/$$(printf "$(C_WARNING)")&$$(printf "$(E_RESET)")/i"
+F_ERROR="s/error:/$$(printf "$(C_ERROR)")&$$(printf "$(E_RESET)")/i"
+F_FATAL_ERROR="s/fatal error:/$$(printf "$(C_ERROR)")&$$(printf "$(E_RESET)")/i"
+F_WARNING1="s/defined but not used/$$(printf "$(C_WARNING)")&$$(printf "$(E_RESET)")/i"
+F_WARNING2="s/unused variable/$$(printf "$(C_WARNING)")&$$(printf "$(E_RESET)")/i"
+F_WARNING3="s/may be used uninitialized in this function/$$(printf "$(C_WARNING)")&$$(printf "$(E_RESET)")/i"
+F_WARNING4="s/implicit declaration of function/$$(printf "$(C_WARNING)")&$$(printf "$(E_RESET)")/i"
+F_WARNING5="s/value computed is not used/$$(printf "$(C_WARNING)")&$$(printf "$(E_RESET)")/i"
+F_BRACKET="s/\[\(.*\)\]/[$$(printf "$(E_FG_GREEN)")\1$$(printf "$(E_RESET)")]/"	
+F_VARIABLE="s/\‘\(.*\)[\’\‘]/'$$(printf "$(C_IDENTIFIER)")\1$$(printf "$(E_RESET)")'/g"
+F_FILE="s/[^: ]*/$$(printf "$(C_FILE)")&$$(printf "$(E_RESET)")/"
+F_ROWNR="s/:\([0-9]*\):\([0-9]*\):/:$$(printf "$(C_VALUE)")\1$$(printf "$(E_RESET)"):$$(printf "$(C_VALUE)")\2$$(printf "$(E_RESET)"):/"
+
+C_FILTER   = | sed -u -e $(F_BRACKET) -e $(F_FILE) -e $(F_ROWNR)          \
+                      -e $(F_INF) -e $(F_NOTE)                            \
+ 	                  -e $(F_WARNING) -e $(F_ERROR) -e $(F_FATAL_ERROR)   \
+                      -e $(F_WARNING1) -e $(F_WARNING2) -e $(F_WARNING3)  \
+                      -e $(F_WARNING4) -e $(F_WARNING5)                   \
+                      -e $(F_VARIABLE)
+
+CXX_FILTER = $(C_FILTER)
+
+LD_ERROR1="s/undefined reference/$$(printf "$(C_ERROR)")&$$(printf "$(E_RESET)")/i"
+LD_ERROR2="s/No such file or directory/$$(printf "$(C_ERROR)")&$$(printf "$(E_RESET)")/i"
+LD_FILTER = | sed -ru -e $(LD_ERROR1) -e $(LD_ERROR2)

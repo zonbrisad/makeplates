@@ -75,8 +75,6 @@ __SETTINGS__
 CFLAGS = -g$(DEBUG)                            # Debugging information
 CFLAGS += -O$(OPT)                             # Optimisation level
 CFLAGS += -std=$(CSTANDARD)                    # C standard
-CFLAGS += $(addprefix,-I,$(INCDIR))            # Include directories 
-CFLAGS += $(addprefix,-D,$(CDEFS))             # Macro definitions
 CFLAGS += -Wa,-adhlns=$(@:.o=.lst)             # Generate assembler listing
 
 # Compiler Tuning C ---------------------------------------------------------
@@ -105,13 +103,10 @@ CFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void po
 #CFLAGS += -Wundef
 #CFLAGS += -Werror               # All warnings will be treated as errors
 
-
 # Compiler Options C++ ------------------------------------------------------
 CXXFLAGS = -g$(DEBUG)                              # Debugging information
 CXXFLAGS += -O$(OPT)                               # Optimisation level
 CXXFLAGS += -std=$(CXXSTANDARD)                    # C++ standard
-CXXFLAGS += $(addprefix,-I,$(INCDIR))              # Include directories 
-CXXFLAGS += $(addprefix,-D,$(CXXDEFS))             # Macro definitions
 CXXFLAGS += -Wa,-adhlns=$(@:.o=.lst)               # Generate assembler listing
 
 # Compiler Tuning C++ -------------------------------------------------------
@@ -139,23 +134,18 @@ CXXFLAGS += -Wpointer-arith        # warn if trying to do aritmethics on a void 
 #CXXFLAGS += -Wundef
 #CXXFLAGS += -Werror              # All warnings will be treated as errors
 
-
 # Linker Options ------------------------------------------------------------
 #  -Wl,...:     tell GCC to pass this to linker.
 #    -Map:      create map file
 #    --cref:    add cross reference to  map file
 LDFLAGS = -Wl,-Map=$(OUTDIR)/$(TARGET).map,--cref
 LDFLAGS += $(EXTMEMOPTS)
-LDFLAGS += $(addprefix,-L,$(INCDIR))
+LDFLAGS += $(addprefix -L,$(INCDIR))
 LDFLAGS += -g
 
 # Misc settings -------------------------------------------------------------
 MPFLAGS  = -DTARGET=$(TARGET)
 MPFLAGS += -DVERSION=$(VERSION)
- 
-CFLAGS   += $(MPFLAGS)
-CXXFLAGS += $(MPFLAGS)
-ASFLAGS  += $(MPFLAGS)
 
 #
 # Platform specific options
@@ -190,6 +180,261 @@ NM        = ${TCHAIN}nm
 AS        = ${TCHAIN}as
 GDB       = ${TCHAIN}gdb
 STRIP     = ${TCHAIN}strip
+LD        = ${TCHAIN}ld
+
+	
+#
+# Build rules	
+#============================================================================
+
+# Compiler flags to generate dependency files.
+GENDEPFLAGS = -MMD -MP -MF $@.d
+
+# Include auto-generated dependency files
+# (this makes incremental builds correct)
+-include $(OBJS:.o=.d)
+
+# Combine all necessary flags and optional flags.
+ALL_CFLAGS   =  -I. $(CFLAGS) $(GENDEPFLAGS) $(addprefix -I,$(INCDIR)) $(addprefix -D,$(CDEFS)) $(MPFLAGS)
+ALL_CXXFLAGS =  -I. -x c++ $(CXXFLAGS) $(GENDEPFLAGS) $(addprefix -I,$(INCDIR)) $(addprefix -D,$(CXXDEFS)) $(MPFLAGS)
+ALL_ASFLAGS  =  -I. -x assembler-with-cpp $(ASFLAGS) $(MPFLAGS)
+
+# Filter out sourcfiles by type
+CSRC   := $(filter %.c, $(SRC))
+CXXSRC := $(filter %.cpp %.cc %.cxx, $(SRC))
+ASRC   := $(filter %.S %.s, $(SRC))
+
+# Best: use substitution reference (cleanest)
+COBJS   := $(CSRC:%.c=$(BUILDDIR)/%.o)
+CXXOBJS := $(CXXSRC:%=$(BUILDDIR)/%.o)
+AOBJS   := $(ASRC:%.S=$(BUILDDIR)/%.o)
+
+OBJS := $(strip $(COBJS) $(CXXOBJS) $(AOBJS))
+
+# Define all listing files.
+LST = $(OBJS:.o=.lst)
+
+# Default target.
+all: begin build finished end ##D Build project (default)
+
+nc: C_FILTER:= 
+nc: all   ##D Build with no color filter on compiler output
+
+__BUILD__
+
+begin:
+	@echo -e $(MSG_BEGIN)
+	@echo -e ${MSG_BUILDING}" $(E_BR_GREEN)$(TARGET) $(E_RESET)"
+ 
+end:
+	@echo
+	@echo -e $(MSG_END)
+	
+finished:
+	@echo
+
+# Linking targets from object files
+.PRECIOUS : $(OBJS)
+$(TRGFILE): $(OBJS) $(OUTDIR)
+	@echo -en "\n"$(MSG_LINKING)"       "
+	@echo -e $@ $(F_SOURCE) 
+	@$(CXX) $(OBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)
+	
+# Create extended listing file/disassambly from ELF output file.
+# using objdump testing: option -C
+%.lss:	$(TRGFILE)
+	@echo -en "\n"$(MSG_EXTENDED_LISTING) "\n               "
+	@echo -e $@ $(F_SOURCE)
+	@$(OBJDUMP) $(ODFLAGS) $< > $@
+	
+# Create a symbol table from ELF output file.
+%.sym: $(TRGFILE)
+	@echo -en "\n"${MSG_SYMBOL_TABLE}"\n               "
+	@echo -e $@ $(F_SOURCE)
+	@$(NM) -n $< > $@
+
+# Create hex file from ELF output file.
+%.hex: $(TRGFILE)
+	@echo
+	@echo -en $(MSG_HEX_FILE) "\n               "
+	@echo -e $@ $(F_SOURCE)
+	@$(OBJCOPY) $(OCFLAGS) $< $@
+
+# Compile: create object files from C source files.
+$(BUILDDIR)/%.o: %.c
+	@$(MKDIR) $(@D)                                       # Create directory for object file
+	@echo -en $(MSG_COMPILING)" "
+	@echo -e $< $(F_SOURCE)
+	@$(CC) -c $(ALL_CFLAGS) $< -o $@ 2>&1  $(C_FILTER)
+
+# Compile: create object files from C++ source files.
+$(BUILDDIR)/%.o: %.cpp
+	@$(MKDIR) $(@D)                                       # Create directory for object file
+	@echo -en $(MSG_COMPILING_CXX)" " 
+	@echo -e $< $(F_SOURCE)
+	@$(CXX) -c $(ALL_CXXFLAGS) $< -o $@ 2>&1  $(CXX_FILTER)
+	
+# Assemble: create object files from assembler source files.
+$(BUILDDIR)/%.o: %.S
+	@$(MKDIR) $(@D)                                       # Create directory for object file
+	@echo -en $(MSG_ASSEMBLING) "  "
+	@echo -e $< $(F_SOURCE)
+	@$(CC) -c $(ALL_ASFLAGS) $< -o $@ 2>&1
+
+# Ensure output directory exists
+$(OUTDIR):
+	@$(MKDIR) $@
+
+# Ensure build directory exists
+$(BUILDDIR):
+	@$(MKDIR) $@
+
+# Print information about target binary 
+size: $(TRGFILE)
+	@echo
+	@echo -e $(MSG_SIZE_AFTER)
+	@$(SIZE) $(SIZEFLAGS) $(TRGFILE)
+
+strip: $(TRGFILE) ##D Strip target binary from symbols
+	@echo -e $(MSG_STRIP)
+	@$(STRIP) $(TRGFILE)
+
+__TARGETS__
+
+
+
+
+##- Run/debug
+
+__RUNDEBUG__
+
+##- Utils
+
+#
+# Various utility rules	
+#============================================================================
+
+clean:  ##D Remove all build files
+	@echo
+	@echo -e $(MSG_CLEANING)
+	@$(REMOVE) $(OUTDIR)/$(TARGET)
+	@$(REMOVE) $(OUTDIR)/$(TARGET).elf
+	@$(REMOVE) $(OUTDIR)/$(TARGET).hex
+	@$(REMOVE) $(OUTDIR)/$(TARGET).uf2
+	@$(REMOVE) $(OUTDIR)/$(TARGET).lss
+	@$(REMOVE) $(OUTDIR)/$(TARGET).map
+	@$(REMOVE) $(OUTDIR)/$(TARGET).sym
+	@$(REMOVE) $(OUTDIR)/$(TARGET).bin
+	@$(REMOVE) $(OUTDIR)/$(TARGET).eep
+	@$(REMOVE) $(OUTDIR)/$(TARGET).cof
+	@$(REMOVE) $(OBJS)
+	@$(REMOVE) $(LST)
+	@$(REMOVE) $(MOCSRC)
+	@$(REMOVE) $(UIH)
+	@$(REMOVEDIR) .dep
+	@$(REMOVEDIR) $(BUILDDIR)	
+	@find . -name "*~" -delete
+	@find . -name "*.orig" -delete
+
+#
+# Help information
+#============================================================================
+
+##- Information
+
+help: ##D This help information
+	@IFS=$$'\n'; \
+	LINES=$$( grep -h '##' $(MAKEFILE_LIST) | grep -v -e 'grep' -e '\*##C' -e '\*##C-' -e '\"##' -e '##-//' -e 'LINE' -e 'printLine' ) ; \
+	for LINE in $${LINES[@]}; do  \
+	  case "$$LINE" in \
+	    *"##-"*) printf "${E_YELLOW}%s${E_RESET}\n" $${LINE####- };  ;; \
+	    *"##D"*) printf "${E_CYAN}  %-15s ${E_GREEN}%s${E_RESET}\n" $${LINE%:*} $${LINE##*##D}; \
+	  esac \
+	done ;
+
+info-project: # Print project information
+	@echo -e $(MSG_PROJECT)
+	@echo "Target:     $(TARGET)"
+	@echo "Outdir:     $(OUTDIR)"
+	@echo "C standard: $(CSTANDARD)"
+	@echo "CPU:        $(CPU)"
+	@echo "F_CPU:      $(F_CPU)"
+	
+info-includes: # Print includefiles
+	@echo -e $(MSG_INCLUDES)
+	@export IFS=" "
+	@for f in $(INCDIR); do   \
+	  echo $${f} ;             \
+	done        
+
+info-defs: # Print macro definitions
+	@echo -e $(MSG_DEFS)
+	@export IFS=" "
+	@for f in $(CDEFS); do     \
+	  echo $${f} ;             \
+	done        
+
+	@for f in $(CXXDEFS); do   \
+	  echo $${f} ;             \
+	done        
+
+	@for f in $(ASDEFS); do    \
+	  echo $${f} ;             \
+	done        
+
+info-cflags:  # Print compiler flags
+	@echo -e $(MSG_FLAGS)
+	@export IFS=" "
+	@for f in $(CFLAGS); do   \
+	  echo $${f} ;            \
+	done                      \
+
+info-lflags: # Print linker flags
+	@echo -e $(MSG_LINKER)
+	@export IFS=" "
+	@for f in $(LDFLAGS); do   \
+	  echo $${f} ;             \
+	done                       \
+
+info-src:  # Print source files
+	@echo -e $(MSG_SRC)
+	@export IFS=" "
+	@for f in $(SRC); do      \
+	  echo $${f} ;            \
+	done                      \
+
+info-objs: ##D List objects 
+	@echo -e $(MSG_OBJECTS)
+	@export IFS=" "
+	@for f in $(OBJS); do   \
+	  echo $${f} ;          \
+	done   
+
+info: info-project info-includes info-defs info-cflags info-lflags info-src ##D Print information about project
+files: info-src ##D List source files
+
+# Listing of phony targets.
+.PHONY : all clean gccversion build begin finished end elf lss sym archive edit help backup list-src list-flags run
+
+
+#
+# Makeplate internal targets (do not use)
+#============================================================================
+
+
+mp-add-source: # Add source file (FILE=filename)
+	@$(eval F=$(shell echo "${FILE}" | sed 's/\//\\\//g' ))
+	@sed -i  '0,/SRC/s/SRC.*/&\nSRC += ${F}/1' Makefile
+
+mp-add-include: # Add include path (FILE=include path)
+	@$(eval F=$(shell echo "${FILE}" | sed 's/\//\\\//g' ))
+	@sed -i  '0,/INCLUDE/s/INCLUDE.*/&\nINCLUDE += ${F}/1' Makefile
+
+mp-add-pkglib: # Add library (pkg-conf) (LIB=lib)
+	@$(eval F=$(shell echo "${LIB}" | sed 's/\//\\\//g' ))
+	@sed -i  '0,/PKGLIBS/s/PKGLIBS.*/&\nPKGLIBS += ${F}/1' Makefile
+
+##-
 
 #
 # Message/Filter settings
@@ -311,237 +556,3 @@ CXX_FILTER = $(C_FILTER)
 LD_ERROR1="s/undefined reference/$$(printf "$(C_ERROR)")&$$(printf "$(E_RESET)")/i"
 LD_ERROR2="s/No such file or directory/$$(printf "$(C_ERROR)")&$$(printf "$(E_RESET)")/i"
 LD_FILTER = | sed -ru -e $(LD_ERROR1) -e $(LD_ERROR2)
-	
-#
-# Build rules	
-#============================================================================
-
-# Compiler flags to generate dependency files.
-GENDEPFLAGS = -MMD -MP -MF $@.d
-
-# Include auto-generated dependency files
-# (this makes incremental builds correct)
--include $(OBJS:.o=.d)
-
-
-# Combine all necessary flags and optional flags.
-# Add target processor to flags.
-ALL_CFLAGS   =  -I. $(CFLAGS) $(GENDEPFLAGS)
-ALL_CXXFLAGS =  -I. -x c++ $(CXXFLAGS) $(GENDEPFLAGS)
-ALL_ASFLAGS  =  -I. -x assembler-with-cpp $(ASFLAGS)
-
-# Filter out sourcfiles by type
-CSRC   := $(filter %.c, $(SRC))
-CXXSRC := $(filter %.cpp %.cc %.cxx, $(SRC))
-ASRC   := $(filter %.S %.s, $(SRC))
-
-# Best: use substitution reference (cleanest)
-COBJS   := $(CSRC:%.c=$(BUILDDIR)/%.o)
-CXXOBJS := $(CXXSRC:%=$(BUILDDIR)/%.o)
-AOBJS   := $(ASRC:%.S=$(BUILDDIR)/%.o)
-
-OBJS := $(strip $(COBJS) $(CXXOBJS) $(AOBJS))
-
-# Define all listing files.
-LST = $(OBJS:.o=.lst)
-
-# Default target.
-all: begin build finished end ##D Build project (default)
-
-nc: C_FILTER:= 
-nc: all   ##D Build with no color filter on compiler output
-
-__BUILD__
-
-begin:
-	@echo -e $(MSG_BEGIN)
-	@echo -e ${MSG_BUILDING}" $(E_BR_GREEN)$(TARGET) $(E_RESET)"
- 
-end:
-	@echo
-	@echo -e $(MSG_END)
-	
-finished:
-	@echo
-
-# Linking targets from object files
-.PRECIOUS : $(OBJS)
-$(TRGFILE): $(OBJS) $(OUTDIR)
-	@echo -en "\n"$(MSG_LINKING)"       "
-	@echo -e $@ $(F_SOURCE) 
-	@$(CXX) $(ALL_CFLAGS) $(OBJS) --output $@ $(LDFLAGS) $(LIB) 2>&1 $(LD_FILTER)
-	
-# Create extended listing file/disassambly from ELF output file.
-# using objdump testing: option -C
-%.lss:	$(TRGFILE)
-	@echo -en "\n"$(MSG_EXTENDED_LISTING) "\n               "
-	@echo -e $@ $(F_SOURCE)
-	@$(OBJDUMP) $(ODFLAGS) $< > $@
-	
-# Create a symbol table from ELF output file.
-%.sym: $(TRGFILE)
-	@echo -en "\n"${MSG_SYMBOL_TABLE}"\n               "
-	@echo -e $@ $(F_SOURCE)
-	@$(NM) -n $< > $@
-
-# Create hex file from ELF output file.
-%.hex: $(TRGFILE)
-	@echo
-	@echo -en $(MSG_HEX_FILE) "\n               "
-	@echo -e $@ $(F_SOURCE)
-	@$(OBJCOPY) $(OCFLAGS) $< $@
-
-# Compile: create object files from C source files.
-$(BUILDDIR)/%.o: %.c 
-	@$(MKDIR) $(@D)                                       # Create directory for object file       
-	@echo -en $(MSG_COMPILING)" "
-	@echo -e $< $(F_SOURCE)
-	@$(CC) -c $(ALL_CFLAGS) $< -o $@ 2>&1  $(C_FILTER)
-
-# Compile: create object files from C++ source files.
-$(BUILDDIR)/%.o: %.cpp
-	@$(MKDIR) $(@D)                                       # Create directory for object file
-	@echo -en $(MSG_COMPILING_CXX)" " 
-	@echo -e $< $(F_SOURCE)
-	@$(CXX) -c $(ALL_CXXFLAGS) $< -o $@ 2>&1  $(CXX_FILTER)
-	
-# Assemble: create object files from assembler source files.
-$(BUILDDIR)/%.o: %.S
-	@$(MKDIR) $(@D)                                       # Create directory for object file
-	@echo -en $(MSG_ASSEMBLING) "  "
-	@echo -e $< $(F_SOURCE)
-	@$(CC) -c $(ALL_ASFLAGS) $< -o $@ 2>&1
-
-# Ensure output directory exists
-$(OUTDIR):
-	@$(MKDIR) $@
-
-# Ensure build directory exists
-$(BUILDDIR):
-	@$(MKDIR) $@
-
-# Print information about target binary 
-size: $(TRGFILE)
-	@echo
-	@echo -e $(MSG_SIZE_AFTER)
-	@$(SIZE) $(SIZEFLAGS) $(TRGFILE)
-
-strip: $(TRGFILE) ##D Strip target binary from symbols
-	@echo -e $(MSG_STRIP)
-	@$(STRIP) $(TRGFILE)
-
-__TARGETS__
-
-
-
-
-##- Run/debug
-
-__RUNDEBUG__
-
-##- Utils
-
-#
-# Various utility rules	
-#============================================================================
-
-clean:  ##D Remove all build files
-	@echo
-	@echo -e $(MSG_CLEANING)
-	@$(REMOVE) $(OUTDIR)/$(TARGET)
-	@$(REMOVE) $(OUTDIR)/$(TARGET).elf
-	@$(REMOVE) $(OUTDIR)/$(TARGET).hex
-	@$(REMOVE) $(OUTDIR)/$(TARGET).lss
-	@$(REMOVE) $(OUTDIR)/$(TARGET).map
-	@$(REMOVE) $(OUTDIR)/$(TARGET).sym
-	@$(REMOVE) $(OUTDIR)/$(TARGET).bin
-	@$(REMOVE) $(OUTDIR)/$(TARGET).eep
-	@$(REMOVE) $(OUTDIR)/$(TARGET).cof
-	@$(REMOVE) $(OBJS)
-	@$(REMOVE) $(LST)
-	@$(REMOVE) $(MOCSRC)
-	@$(REMOVE) $(UIH)
-	@$(REMOVEDIR) .dep
-	@$(REMOVEDIR) $(BUILDDIR)	
-	@find . -name "*~" -delete
-	@find . -name "*.orig" -delete
-
-#
-# Help information
-#============================================================================
-
-##- Information
-
-help: ##D This help information
-	@IFS=$$'\n'; \
-	LINES=$$( grep -h '##' $(MAKEFILE_LIST) | grep -v -e 'grep' -e '\*##C' -e '\*##C-' -e '\"##' -e '##-//' -e 'LINE' -e 'printLine' ) ; \
-	for LINE in $${LINES[@]}; do  \
-	  case "$$LINE" in \
-	    *"##-"*) printf "${E_YELLOW}%s${E_RESET}\n" $${LINE####- };  ;; \
-	    *"##D"*) printf "${E_CYAN}  %-15s ${E_GREEN}%s${E_RESET}\n" $${LINE%:*} $${LINE##*##D}; \
-	  esac \
-	done ;
-
-info-project: # Print project information
-	@echo -e $(MSG_PROJECT)
-	@echo "Target:     $(TARGET)"
-	@echo "Outdir:     $(OUTDIR)"
-	@echo "C standard: $(CSTANDARD)"
-	@echo "CPU:        $(CPU)"
-	@echo "F_CPU:      $(F_CPU)"
-	
-info-includes: # Print includefiles
-	@echo -e $(MSG_INCLUDES)
-	@export IFS=" "
-	@for f in $(INCDIR); do   \
-	  echo $${f} ;             \
-	done        
-
-info-defs: # Print macro definitions
-	@echo -e $(MSG_DEFS)
-	@export IFS=" "
-	@for f in $(CDEFS); do     \
-	  echo $${f} ;             \
-	done        
-
-	@for f in $(CXXDEFS); do   \
-	  echo $${f} ;             \
-	done        
-
-	@for f in $(ASDEFS); do    \
-	  echo $${f} ;             \
-	done        
-
-info-cflags:  # Print compiler flags
-	@echo -e $(MSG_FLAGS)
-	@export IFS=" "
-	@for f in $(CFLAGS); do   \
-	  echo $${f} ;            \
-	done                      \
-
-info-lflags: # Print linker flags
-	@echo -e $(MSG_LINKER)
-	@export IFS=" "
-	@for f in $(LDFLAGS); do   \
-	  echo $${f} ;             \
-	done                       \
-
-info-src:  # Print source files
-	@echo -e $(MSG_SRC)
-	@export IFS=" "
-	@for f in $(SRC); do      \
-	  echo $${f} ;            \
-	done                      \
-
-info-objs: ##D List objects 
-	@echo -e $(MSG_OBJECTS)
-	@export IFS=" "
-	@for f in $(OBJS); do   \
-	  echo $${f} ;          \
-	done   
-
-info: info-project info-includes info-defs info-cflags info-lflags info-src ##D Print information about project
-files: info-src ##D List source files
-
-# Listing of phony targets.
-.PHONY : all clean gccversion build begin finished end elf lss sym archive edit help backup list-src list-flags newproj run install

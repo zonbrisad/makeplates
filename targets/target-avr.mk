@@ -20,24 +20,18 @@ TCHAIN_BASE=/usr/bin
 # Toolchain prefix 
 TCHAIN_PREFIX=avr-
 
-CFLAGS   += -mmcu=$(CPU)
-CXXFLAGS += -mmcu=$(CPU)
-ASFLAGS  += -mmcu=$(CPU)
+CFLAGS   += -mmcu=$(CPU) -DF_CPU=$(F_CPU)UL 
+CXXFLAGS += -mmcu=$(CPU) -DF_CPU=$(F_CPU)UL
+ASFLAGS  += -mmcu=$(CPU) -DF_CPU=$(F_CPU)UL
 
 # Output format. (can be srec, ihex, binary) --------------------------------
 FORMAT = ihex
-
-CDEFS   += F_CPU=$(F_CPU)UL
-ADEFS   += F_CPU=$(F_CPU)UL
-CPPDEFS += F_CPU=$(F_CPU)UL
 
 # Debugging format.
 #     Native formats for AVR-GCC's -g are dwarf-2 [default] or stabs.
 #     AVR Studio 4.10 requires dwarf-2.
 #     AVR [Extended] COFF format requires stabs, plus an avr-objcopy run.
 DEBUG = dwarf-2
-
-
 
 # Size flags ----------------------------------------------------------------
 SIZEFLAGS = --mcu=$(CPU) --format=avr
