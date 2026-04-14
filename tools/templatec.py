@@ -294,11 +294,8 @@ t_avr = TemplateC(
 """,
     c_variables_text="""\
 """,
-    c_prototypes_text="""\
-void hw_init(void);
-""",
     hw_init_begin_text="""
-void hw_init(void) {
+static void hw_init(void) {
 """,
     hw_init_end_text="""\
     sei();  // Enable all interrupts
@@ -597,80 +594,6 @@ const PROGMEM LEF_CliCmd commands[] = {
         case LEF_EVENT_CLI:
             LEF_Cli_exec();
             break;
-""",
-)
-
-t_lef_button = TemplateC(
-    query_text="Include Button",
-    c_macros_text="""\
-#define EVENT_BUTTON1 1
-""",
-    c_variables_text="""\
-LEF_Button button1;
-""",
-    main_begin_text="""\
-  LEF_Button_init(&button1, EVENT_BUTTON1);
-""",
-    main_loop_middle_text="""\
-      case EVENT_BUTTON1: break;
-""",
-)
-
-t_lef_timer = TemplateC(
-    query_text="Include Timer",
-    c_macros_text="""\
-#define EVENT_TIMER1 2
-""",
-    c_variables_text="""\
-LEF_Timer timer1;
-""",
-    main_begin_text="""\
-  LEF_Timer_init(&timer1, EVENT_TIMER1);
-""",
-    main_loop_middle_text="""\
-      case EVENT_TIMER1: break;
-""",
-)
-
-t_lef_led = TemplateC(
-    query_text="Include LED",
-    c_variables_text="""\
-LEF_Led led1;
-""",
-    main_begin_text="""\
-  LEF_Led_init(&led1, LED_OFF);
-""",
-)
-
-t_lef_buzzer = TemplateC(
-    query_text="Include Buzzer",
-    main_begin_text="""\
-  LEF_Buzzer_init();
-""",
-)
-
-t_lef = TemplateC(
-    query_text="Include LEF?",
-    sub=[t_lef_buzzer, t_lef_cli, t_lef_timer, t_lef_led, t_lef_button],
-    c_includes_text="""
-#include "LEF.h"
-""",
-    c_variables_text="""""",
-    main_vars_text="""
-  LEF_Event event;
-""",
-    main_begin_text="""
-  LEF_init();
-""",
-    main_loop_begin_text="""
-  while (1) {
-    LEF_Wait(&event);
-    switch (event.id) {
-""",
-    main_loop_end_text="""\
-      default: break;
-    }
-  }
 """,
 )
 
