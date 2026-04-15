@@ -305,7 +305,7 @@ avr_flash_arduino() { ##D Write firmware to AVR with avrdude using arduino proto
   mpterm_suspend
 
   # Write to flash
-  avrdude -v -v -V -p "${MCU}" -c arduino -P "${PORT}" -U flash:w:"${FILE}":i
+  avrdude -v -v -V -p "${MCU}" -c arduino -P "${PORT}" -b 57600 -U flash:w:"${FILE}":i
 }
 
 avr_flash_urboot() { ##D Write firmware to AVR with avrdude using urboot protocol 
