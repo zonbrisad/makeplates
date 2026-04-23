@@ -86,11 +86,83 @@ AVR_LIST=(
   "o" ":" "Other..."
 )
 
+ARM_LIST=(
+  "1" "rp2040" "rp2040"
+  "2" "rp2350" "rp2350"
+  "o" ":" "Other..."
+)
+
 PKGLIBS_GLIB=(
   "glib-2.0"
   "gthread-2.0"
   "gio-2.0"
 )
+
+#
+# Create a new project/directory/description
+#
+# $1 project name
+# $2 project dir
+# $3 project description
+#
+create_project_dir() {
+  local -n NR_PROJECT_NAME="$1"
+  local -n NR_PROJECT_DIR="$2"
+  local -n NR_DESCRIPTION="$3"
+  
+  while true; do
+    NR_PROJECT_NAME=$(bpReadStr "Project name" "")
+
+    if ! bpReadBoolDY "Create subdirectory?"; then
+      NR_PROJECT_DIR=.
+      break
+    fi
+
+    NR_PROJECT_DIR="${NR_PROJECT_NAME}"
+
+    if [ -e "$NR_PROJECT_DIR" ]; then
+      bpWarning "Directory ${NR_PROJECT_DIR} already exists."
+      if ! bpReadBoolDN "Use existing directory?"; then
+        continue
+      fi
+      break
+    fi
+
+    break
+  done
+
+  NR_DESCRIPTION=$(bpReadStr "Brief description" "")
+}
+
+create_makefile() {
+  local PROJECT_NAME="${1}"
+  local PROJECT_DIR="${2}"
+  local MAKEFILE_TEMPLATE="${3}"
+  local TARGET="${4}"
+  local DESCRIPTION="${5}"
+  local MAIN_FILE="${6}"
+
+  MAKEFILE=${PROJECT_DIR}/Makefile
+  bpCp "${MAKEFILE_TEMPLATE}" "${MAKEFILE}"
+
+  mpReplaceSection "$MAKEFILE" "SETTINGS" "$TARGET"
+  mpReplaceSection "$MAKEFILE" "UTILS" "$TARGET"
+  mpReplaceSection "$MAKEFILE" "PLATFORM-SPECIFIC" "$TARGET"
+  mpReplaceSection "$MAKEFILE" "BUILD" "$TARGET"
+  mpReplaceSection "$MAKEFILE" "TARGETS" "$TARGET"
+  mpReplaceSection "$MAKEFILE" "RUNDEBUG" "$TARGET"
+  mpReplaceSection "$MAKEFILE" "INSTALL" "$TARGET"
+
+  # Replace keywords with data
+  bpReplace "$MAKEFILE" "__NAME__" "${PROJECT_NAME}"
+  bpReplace "$MAKEFILE" "__AUTHOR__" "${BP_NAME} <${BP_EMAIL}>"
+  bpReplace "$MAKEFILE" "__DATE__" "${DATE}"
+  bpReplace "$MAKEFILE" "__DESCRIPTION__" "${DESCRIPTION}"
+  bpReplace "$MAKEFILE" "__LICENSE__" "${BP_LICENSE}"
+  bpReplace "$MAKEFILE" "__ORGANIZATION__" "${BP_ORG}"
+  bpReplace "$MAKEFILE" "__MCU__" "${MCU}"
+  bpReplace "$MAKEFILE" "__MAINFILE__" "${MAIN_FILE//\//\\\/}"
+}
 
 #
 # Create a new Makeplate project
@@ -117,32 +189,12 @@ createProject() {
   SYSTEM=${SYSTEM%.mk}
   SYSTEM=${SYSTEM%-*}
 
+  create_project_dir PROJECT_NAME PROJECT_DIR DESCRIPTION
+
   if [[ "$OPT1" == "gtk" ]]; then
     PKGS=("${PKGLIBS_GLIB[@]}")
   fi
 
-  while true; do
-    PROJECT_NAME=$(bpReadStr "Project name" "")
-
-    if ! bpReadBoolDY "Create subdirectory?"; then
-      PROJECT_DIR=.
-      break
-    fi
-
-    PROJECT_DIR="${PROJECT_NAME}"
-
-    if [ -e "$PROJECT_DIR" ]; then
-      bpWarning "Directory ${PROJECT_DIR} already exists."
-      if ! bpReadBoolDN "Use existing directory?"; then
-        continue
-      fi
-      break
-    fi
-
-    break
-  done
-
-  DESCRIPTION=$(bpReadStr "Brief description" "")
   MAKEFILE_TEMPLATE=${TEMPLATE_DIR}/Makefile-${PROJECT_TYPE}.mk
 
   # AVR target
@@ -216,58 +268,103 @@ createProject() {
   fi
 }
 
-read_project_name() { ##I Read project name
-  local PROJECT_NAME
-  local PROJECT_DIR
-
-  while true; do
-
-    PROJECT_NAME=$(bpReadStr "Project name" "")
-    PROJECT_DIR="${PROJECT_NAME}"
-
-    if [ -e "$PROJECT_DIR" ]; then
-      bpWarning "Directory ${PROJECT_DIR} already exists."
-      if ! bpReadBoolDN "Use existing directory?"; then
-        continue
-      fi
-      break
-    fi
-
-    bpMkDir "$PROJECT_DIR"
-    break
-  done
-}
 
 #
-create_makefile() {
-  local PROJECT_NAME="${1}"
-  local PROJECT_DIR="${2}"
-  local MAKEFILE_TEMPLATE="${3}"
-  local TARGET="${4}"
-  local DESCRIPTION="${5}"
-  local MAIN_FILE="${6}"
+# Create a new CMake  project
+#
+# $1 Create text
+# $2 project type [normal|simple]
+# $3 language [c/cpp]
+# $4 TARGET [system|avr|arm]
+# $5 Target options
+# $[] libraries
+#
+create_cmake_project() {
+  echo -e "${1}"
 
-  MAKEFILE=${PROJECT_DIR}/Makefile
-  bpCp "${MAKEFILE_TEMPLATE}" "${MAKEFILE}"
+  local LANGUAGE="$3"
+  local TARGET="$4"
+  local OPT1="$5"
+  local OPT2="$6"
+  local MCU=""
 
-  mpReplaceSection "$MAKEFILE" "SETTINGS" "$TARGET"
-  mpReplaceSection "$MAKEFILE" "UTILS" "$TARGET"
-  mpReplaceSection "$MAKEFILE" "PLATFORM-SPECIFIC" "$TARGET"
-  mpReplaceSection "$MAKEFILE" "BUILD" "$TARGET"
-  mpReplaceSection "$MAKEFILE" "TARGETS" "$TARGET"
-  mpReplaceSection "$MAKEFILE" "RUNDEBUG" "$TARGET"
-  mpReplaceSection "$MAKEFILE" "INSTALL" "$TARGET"
+  local SYSTEM
+  # SYSTEM=${TARGET#target-}
+  # SYSTEM=${SYSTEM%.mk}
+  # SYSTEM=${SYSTEM%-*}
+  SYSTEM="rp2040"
 
-  # Replace keywords with data
-  bpReplace "$MAKEFILE" "__NAME__" "${PROJECT_NAME}"
-  bpReplace "$MAKEFILE" "__AUTHOR__" "${BP_NAME} <${BP_EMAIL}>"
-  bpReplace "$MAKEFILE" "__DATE__" "${DATE}"
-  bpReplace "$MAKEFILE" "__DESCRIPTION__" "${DESCRIPTION}"
-  bpReplace "$MAKEFILE" "__LICENSE__" "${BP_LICENSE}"
-  bpReplace "$MAKEFILE" "__ORGANIZATION__" "${BP_ORG}"
-  bpReplace "$MAKEFILE" "__MCU__" "${MCU}"
-  bpReplace "$MAKEFILE" "__MAINFILE__" "${MAIN_FILE//\//\\\/}"
+  create_project_dir PROJECT_NAME PROJECT_DIR DESCRIPTION
+
+  bpMkDir "${PROJECT_DIR}"
+  SRC_DIR="${PROJECT_DIR}/src"
+  bpMkDir "${SRC_DIR}"
+  bpMkDir "${PROJECT_DIR}/tools"
+  for F in "${NORMAL_FILES[@]}"; do
+    bpCp "${BP_SELF_DIR}/${F}" "${PROJECT_DIR}/$(dirname "${F}")/."
+  done
+  # if [ "${SYSTEM}" == "arm" ]; then
+  #   bpMkDir "${PROJECT_DIR}/link"
+  # fi
+  # for FILE in "${BP_SELF_DIR}"/link/*.ld; do
+  #   bpCp "$FILE" "${PROJECT_DIR}/link"
+  # done
+
+  if [ "$LANGUAGE" == "cpp" ]; then
+    OPTS="newcpp"
+    MAIN="${SRC_DIR}/main.cpp"
+  else
+    OPTS="newc"
+    MAIN="${SRC_DIR}/main.c"
+  fi
+
+  # M=${MAIN#"${PROJECT_DIR}/"}
+
+  #create_makefile "$PROJECT_NAME" "$PROJECT_DIR" "$MAKEFILE_TEMPLATE" "${TARGETS_DIR}/${TARGET}" "$DESCRIPTION" "${M}"
+
+  # for L in "${PKGS[@]}"; do
+  #   bpReplace "${MAKEFILE}" "__PKGLIBS__" "PKGLIBS += ${L}\n__PKGLIBS__"
+  # done
+
+  # bpReplace "${MAKEFILE}" "__PKGLIBS__" ""
+  CMAKEFILE_TEMPLATE=${TEMPLATE_DIR}/CMakeLists.txt
+  CMAKEFILE=${PROJECT_DIR}/CMakeLists.txt
+
+  bpCp "${CMAKEFILE_TEMPLATE}" "${CMAKEFILE}"
+
+    # Replace keywords with data
+  bpReplace "$CMAKEFILE" "__PROJECT_NAME__" "${PROJECT_NAME}"
+  bpReplace "$CMAKEFILE" "__AUTHOR__" "${BP_NAME} <${BP_EMAIL}>"
+  bpReplace "$CMAKEFILE" "__DATE__" "${DATE}"
+  bpReplace "$CMAKEFILE" "__DESCRIPTION__" "${DESCRIPTION}"
+  bpReplace "$CMAKEFILE" "__LICENSE__" "${BP_LICENSE}"
+  bpReplace "$CMAKEFILE" "__ORGANIZATION__" "${BP_ORG}"
+  bpReplace "$CMAKEFILE" "__MCU__" "${MCU}"
+  bpReplace "$CMAKEFILE" "__MAINFILE__" "${MAIN_FILE//\//\\\/}"
+
+
+  echo
+  ${MPTEMPLATE} "${OPTS}" \
+    --target "arm" \
+    --name "main" \
+    --main \
+    --outdir "${SRC_DIR}" \
+    --description "${DESCRIPTION}" \
+    --author "${BP_NAME}" \
+    --email "${BP_EMAIL}" \
+    --license "${BP_LICENSE}" \
+    --separators
+
+  # Git project
+  echo
+  if bpReadBoolDN "Do you want to create a git project?"; then
+    new_git "$PROJECT_NAME" "$PROJECT_DIR"
+  fi
 }
+
+
+#
+
 
 
 ##- C Projects
@@ -307,13 +404,46 @@ newarm() { ##D Create a new ARM microcontroler C project (experimental)
 ##- Raspberry Pi Pico
 
 newrp() { ##D Create a new RP2040 project (experimental)
-  createProject "Creating new makeplate C RP2040 project" "normal" "c" "target-arm-rp2040.mk"
+  #createProject "Creating new makeplate C RP2040 project" "normal" "c" "target-arm-rp2040.mk"
+  create_cmake_project "Creating new makeplate C RP2040 project" "normal" "c" "CMakeLists.txt"
 }
 
-pico() { ##D Download(clone) Pico SDK 
-  git clone https://github.com/raspberrypi/pico-sdk.git   # "${DEV_DIR}"/pico-sdk
-}
+pico-sdk() { ##D Download and prepare Pico SDK + pictool + examples
+  if [ ! -d "${BP_SELF_DIR}/pico-sdk" ]; then
+    git clone https://github.com/raspberrypi/pico-sdk.git  --branch master "${BP_SELF_DIR}"/pico-sdk
+  else
+    bpInfo "Pico-sdk already present"
+  fi
+  cd "${BP_SELF_DIR}/pico-sdk" || return 
+  git submodule update --init
+  cd ..
+  if [ ! -d "${BP_SELF_DIR}/pico-examples" ]; then
+    git clone https://github.com/raspberrypi/pico-examples.git  --branch master "${BP_SELF_DIR}"/pico-examples
+  else
+    bpInfo "Pico-examples already present"
+  fi
 
+  if [ ! -d "${BP_SELF_DIR}/picotool" ]; then
+    git clone https://github.com/raspberrypi/pico-examples.git  --branch master "${BP_SELF_DIR}"/pico-examples
+    git clone https://github.com/raspberrypi/picotool.git --branch master "${BP_SELF_DIR}"/picotool
+  else
+    bpInfo "Picotool already present"
+  fi
+
+  bpCd "${BP_SELF_DIR}"/picotool
+  bpMkDir build
+  bpCd build
+  cmake ..
+  make
+  sudo make install
+  bpCd ..
+  sudo cp -f udev/60-picotool.rules /etc/udev/rules.d/
+  sudo udevadm control --reload-rules
+  sudo udevadm trigger
+  bpCd ../..
+
+
+}
 
 ##- Various
 

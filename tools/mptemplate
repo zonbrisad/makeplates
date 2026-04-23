@@ -129,6 +129,12 @@ def cmd_newc(args):
             main = t_main_embeded
             pre.append(t_avr)
 
+        if args.target == "arm":
+            args.name = "main"
+            main = t_main_embeded
+            pre.append(t_arm)   
+
+
     else:
         pre.append(t_sentinel)
         pre.append(t_cplusplus)
@@ -165,6 +171,12 @@ def cmd_newad(args):
 def cmd_newavr(args):
     args.main = True
     args.target = "avr"
+    cmd_newc(args)
+
+
+def cmd_newarm(args):
+    args.main = True
+    args.target = "arm"
     cmd_newc(args)
 
 
@@ -229,6 +241,7 @@ def main() -> None:
     parrent_parser.add_argument(
         "--header", type=argparse.FileType("r"), help="Include external header"
     )
+    
     parrent_parser.add_argument(
         "--outdir",
         type=str,
@@ -297,6 +310,11 @@ def main() -> None:
     )
     parser_new.set_defaults(func=cmd_newavr)
     
+    parser_new = subparsers.add_parser(
+        "newarm", parents=[parrent_parser], help="Create a new ARM application (main)"
+    )
+    parser_new.set_defaults(func=cmd_newarm)
+
     parser_new = subparsers.add_parser(
         "newm", parents=[parrent_parser], help="Create new C module"
     )

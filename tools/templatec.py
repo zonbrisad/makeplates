@@ -306,6 +306,31 @@ static void hw_init(void) {
 """,
 )
 
+t_arm = TemplateC(
+    query_text="ARM main code",
+    query=False,
+    sub=[],
+    h_macros_text="",
+    c_includes_text="""\
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+""",
+    c_variables_text="""\
+""",
+    hw_init_begin_text="""
+static void hw_init(void) {
+""",
+    hw_init_end_text="""\
+}
+
+""",
+    main_func_text="""
+    hw_init();
+""",
+)
+
 t_sentinel = TemplateC(
     query_text="Do you want sentinels?",
     h_pre_text="""\
