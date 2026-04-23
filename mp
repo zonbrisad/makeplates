@@ -344,10 +344,7 @@ create_cmake_project() {
 
 
   echo
-  ${MPTEMPLATE} "${OPTS}" \
-    --target "arm" \
-    --name "main" \
-    --main \
+  ${MPTEMPLATE} newarm \
     --outdir "${SRC_DIR}" \
     --description "${DESCRIPTION}" \
     --author "${BP_NAME}" \

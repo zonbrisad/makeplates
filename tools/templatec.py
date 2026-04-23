@@ -316,6 +316,8 @@ t_arm = TemplateC(
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+
+#include "pico/stdlib.h"
 """,
     c_variables_text="""\
 """,
