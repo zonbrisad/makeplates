@@ -86,9 +86,11 @@ AVR_LIST=(
   "o" ":" "Other..."
 )
 
-ARM_LIST=(
-  "1" "rp2040" "rp2040"
-  "2" "rp2350" "rp2350"
+PICO_LIST=(
+  "1" "pico" "RP2040"
+  "2" "pico_w" "RP2040 with wifi"
+  "3" "pico2" "RP2350"
+  "4" "pico2_w" "RP2350 with wifi"
   "o" ":" "Other..."
 )
 
@@ -320,13 +322,9 @@ create_cmake_project() {
 
   # M=${MAIN#"${PROJECT_DIR}/"}
 
-  #create_makefile "$PROJECT_NAME" "$PROJECT_DIR" "$MAKEFILE_TEMPLATE" "${TARGETS_DIR}/${TARGET}" "$DESCRIPTION" "${M}"
+  bpSelectFromList "1" "Choose MCU variant" "${PICO_LIST[@]}" 
+  PICO_BOARD="${bpReturn}"
 
-  # for L in "${PKGS[@]}"; do
-  #   bpReplace "${MAKEFILE}" "__PKGLIBS__" "PKGLIBS += ${L}\n__PKGLIBS__"
-  # done
-
-  # bpReplace "${MAKEFILE}" "__PKGLIBS__" ""
   CMAKEFILE_TEMPLATE=${TEMPLATE_DIR}/CMakeLists.txt
   CMAKEFILE=${PROJECT_DIR}/CMakeLists.txt
 
@@ -341,7 +339,7 @@ create_cmake_project() {
   bpReplace "$CMAKEFILE" "__ORGANIZATION__" "${BP_ORG}"
   bpReplace "$CMAKEFILE" "__MCU__" "${MCU}"
   bpReplace "$CMAKEFILE" "__MAINFILE__" "${MAIN_FILE//\//\\\/}"
-
+  bpReplace "$CMAKEFILE" "__PICO_BOARD__" "${PICO_BOARD}"
 
   echo
   ${MPTEMPLATE} newarm \
@@ -1405,7 +1403,7 @@ bpPrintChoiceList() { # Print items in selection list
 #  "c" ":" "Choice C"
 # )
 bpSelectFromList() { ##I Select from list
-
+  local -n choise=$
   while true; do
     bpPrintChoiceList "$1" "${@:2}"
     echo

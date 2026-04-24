@@ -323,6 +323,7 @@ t_arm = TemplateC(
 """,
     hw_init_begin_text="""
 static void hw_init(void) {
+    stdio_init_all(); 
 """,
     hw_init_end_text="""\
 }
