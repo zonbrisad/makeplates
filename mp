@@ -74,6 +74,11 @@ NORMAL_FILES=(
   "tools/elf2uf2.py"
 )
 
+DEFAULT_FILES_ARM=(
+  "tools/mputils"
+  "tools/mpbin2array"
+)
+
 AVR_LIST=(
   "1" "attiny45" "ATTiny45"
   "2" "attiny85" "ATTiny85 (Digispark)"
@@ -302,7 +307,7 @@ create_cmake_project() {
   SRC_DIR="${PROJECT_DIR}/src"
   bpMkDir "${SRC_DIR}"
   bpMkDir "${PROJECT_DIR}/tools"
-  for F in "${NORMAL_FILES[@]}"; do
+  for F in "${DEFAULT_FILES_ARM[@]}"; do
     bpCp "${BP_SELF_DIR}/${F}" "${PROJECT_DIR}/$(dirname "${F}")/."
   done
   # if [ "${SYSTEM}" == "arm" ]; then
