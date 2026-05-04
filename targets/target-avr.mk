@@ -80,7 +80,7 @@ LDFLAGS += $(PRINTF_LIB) $(SCANF_LIB) $(MATH_LIB)
 ###PLATFORM-SPECIFIC_END###
 
 ###BUILD_BEGIN###
-build: elf hex lss sym size
+build: begin elf hex lss sym size end
 
 elf: $(TRGFILE)
 lss: $(OUTDIR)/$(TARGET).lss
@@ -95,19 +95,15 @@ eep: $(OUTDIR)/$(TARGET).eep
 #============================================================================
 
 coff: $(TRGFILE)
-	@echo
-	@echo -e $(MSG_COFF)"\n             $(E_FG_BR_CYAN)" $(TARGET).cof "$(E_RESET)"
+	@printf "\n${C_ACTION}AVR COFF:          ${C_DIR}%s${C_FILE}%s.cof${E_RESET}\n" $(dir $(TARGET)) $(notdir $(TARGET))
 	$(COFFCONVERT) -O coff-avr $< $(TARGET).cof
 
 extcoff: $(TRGFILE)
-	@echo
-	@echo -e $(MSG_EXTENDED_COFF)"\n             $(E_FG_BR_CYAN)" $(TARGET).cof "$(E_RESET)"
+	@printf "\n${C_ACTION}AVR Extended COFF: ${C_DIR}%s${C_FILE}%s.cof${E_RESET}\n" $(dir $(TARGET)) $(notdir $(TARGET))
 	@$(COFFCONVERT) -O coff-ext-avr $< $(TARGET).cof
 
 %.eep: $(TRGFILE)
-	@echo
-	@echo -en $(MSG_EEPROM)"\n               "
-	@echo -e $@ $(F_SOURCE)
+	@printf "$\n{C_ACTION}AVR EEPROM:        ${C_DIR}%s${C_FILE}%s${E_RESET}\n" $(dir $@) $(notdir $@)
 	@$(OBJCOPY) -j .eeprom --set-section-flags=.eeprom="alloc,load" \
 	--change-section-lma .eeprom=0 --no-change-warnings -O $(FORMAT) $< $@ || exit 0
 ###TARGETS_END###
